@@ -1,6 +1,7 @@
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html>
+      <header>コインランドリー</header>
       <body>{children}</body>
     </html>
   );
