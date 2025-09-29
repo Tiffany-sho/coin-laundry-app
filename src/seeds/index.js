@@ -1,6 +1,6 @@
 import { mongoose } from "mongoose";
 import stores from "./store.js";
-import CoinLaundryStore from "../modules/coinLaundryStore.js";
+import CoinLaundryStore from "../models/coinLaundryStore.js";
 
 mongoose
   .connect("mongodb://localhost:27017/Coin-Laundry")

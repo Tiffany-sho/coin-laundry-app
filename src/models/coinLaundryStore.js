@@ -1,5 +1,5 @@
-import { mongoose } from "mongoose";
-const Schema = mongoose.Schema;
+import mongoose from "mongoose";
+const { Schema } = mongoose;
 
 const coinLaundryStoreShema = new Schema({
   store: {
@@ -22,9 +22,8 @@ const coinLaundryStoreShema = new Schema({
   ],
 });
 
-const coinLaundryStoreModel = mongoose.model(
-  "CoinlaundryStore",
-  coinLaundryStoreShema
-);
+const coinLaundryStoreModel =
+  mongoose.models.CoinlaundryStore ||
+  mongoose.model("CoinlaundryStore", coinLaundryStoreShema);
 
 export default coinLaundryStoreModel;

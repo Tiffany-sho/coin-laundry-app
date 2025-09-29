@@ -1,8 +1,7 @@
 export default function RootLayout({ children }) {
   return (
     <html>
-      <header>コインランドリー</header>
-      <body>{children}</body>
+      <body>{children && children}</body>
     </html>
   );
 }
