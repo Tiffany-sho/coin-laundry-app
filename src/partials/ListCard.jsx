@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Box, Button, Card, HStack, Image } from "@chakra-ui/react";
+import rokkaku from "../assets/rokkaku.png";
 
 const ListCard = ({ coinLaundry }) => {
   return (
@@ -7,7 +8,7 @@ const ListCard = ({ coinLaundry }) => {
       <Image
         objectFit="cover"
         maxW="200px"
-        src={coinLaundry.images[0]}
+        src={rokkaku.src}
         alt="Caffe Latte"
       />
       <Box>

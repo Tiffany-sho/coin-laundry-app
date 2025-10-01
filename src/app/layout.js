@@ -1,7 +1,6 @@
 import { Provider } from "@/components/ui/provider";
 import { Box } from "@chakra-ui/react";
 import Navber from "@/partials/Navbar";
-import AddBtn from "@/partials/addBtn";
 import Footer from "@/partials/Footer";
 
 export default function RootLayout({ children }) {
@@ -12,7 +11,6 @@ export default function RootLayout({ children }) {
           <Box display="flex" flexDirection="column" minHeight="100vh">
             <Navber />
             {children && children}
-            <AddBtn />
             <Footer />
           </Box>
         </Provider>

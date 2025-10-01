@@ -1,13 +1,15 @@
-import List from "../components/List";
-import { Prose } from "@/components/ui/prose";
+import List from "../../components/List";
+import AddBtn from "@/partials/AddBtn";
+import { Box } from "@chakra-ui/react";
 
 const CoinLaundries = () => {
   return (
     <>
-      <Prose>
-        <h1>店舗一覧</h1>
-      </Prose>
+      <Box textStyle="3xl" textAlign="center" my="4" fontWeight="bold">
+        店舗一覧
+      </Box>
       <List />
+      <AddBtn />
     </>
   );
 };

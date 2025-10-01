@@ -1,4 +1,4 @@
-import Mono from "@/app/components/Mono";
+import Mono from "@/components/Mono";
 
 const CoinLaundry = async ({ params }) => {
   const { id } = await params;

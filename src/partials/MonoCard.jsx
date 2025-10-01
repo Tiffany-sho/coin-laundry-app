@@ -1,12 +1,10 @@
 import { Button, Card, Image, Text } from "@chakra-ui/react";
+import rokkaku from "../assets/rokkaku.png";
 
 const MonoCard = ({ coinLaundry }) => {
   return (
     <Card.Root width="90%" ml="5%" mt="5%" overflow="hidden">
-      <Image
-        src={coinLaundry.images[0]}
-        alt="Green double couch with wooden legs"
-      />
+      <Image src={rokkaku.src} alt="Green double couch with wooden legs" />
       <Card.Body gap="2">
         <Card.Title textStyle="3xl" fontWeight="large" letterSpacing="wide">
           せんたくランド{coinLaundry.store}店

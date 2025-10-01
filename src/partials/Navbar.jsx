@@ -11,8 +11,8 @@ const Navbar = () => {
       bgColor="gray.700"
       color="white"
       boxShadow="md"
-      px={8} // padding-left & padding-right (padding: 1rem 2rem; の2rem部分)
-      py={4} // padding-top & padding-bottom (padding: 1rem 2rem; の1rem部分)
+      px={8}
+      py={4}
     >
       <Flex justify="space-between" align="center">
         <Heading as="h1" size="2xl" fontWeight="bold">
