@@ -2,9 +2,9 @@ import { Button, Card, Image, Text } from "@chakra-ui/react";
 
 const MonoCard = ({ coinLaundry }) => {
   return (
-    <Card.Root width="90%" ml="5%" overflow="hidden">
+    <Card.Root width="90%" ml="5%" mt="5%" overflow="hidden">
       <Image
-        src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80"
+        src={coinLaundry.images[0]}
         alt="Green double couch with wooden legs"
       />
       <Card.Body gap="2">

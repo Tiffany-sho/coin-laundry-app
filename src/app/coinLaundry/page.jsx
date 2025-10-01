@@ -7,7 +7,6 @@ const CoinLaundries = () => {
       <Prose>
         <h1>店舗一覧</h1>
       </Prose>
-
       <List />
     </>
   );
