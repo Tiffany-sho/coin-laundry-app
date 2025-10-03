@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
-import MonoSkeleton from "@/partials/MonoSkeleton";
-import MonoCard from "@/partials/MonoCard";
+import MonoSkeleton from "@/app/coinLaundry/[id]/components/MonoSkeleton";
+import MonoCard from "@/app/coinLaundry/[id]/components/MonoCard";
 
 const Mono = ({ id }) => {
   const [coinLaundry, setCoinLaundry] = useState();

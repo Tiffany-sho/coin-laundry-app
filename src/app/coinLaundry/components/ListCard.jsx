@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Box, Button, Card, HStack, Image } from "@chakra-ui/react";
-import rokkaku from "../assets/rokkaku.png";
+import rokkaku from "@/assets/rokkaku.png";
 
 const ListCard = ({ coinLaundry }) => {
   return (

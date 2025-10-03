@@ -1,5 +1,5 @@
 import { Button, Card, Image, Text } from "@chakra-ui/react";
-import rokkaku from "../assets/rokkaku.png";
+import rokkaku from "@/assets/rokkaku.png";
 
 const MonoCard = ({ coinLaundry }) => {
   return (

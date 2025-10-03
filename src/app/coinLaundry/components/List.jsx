@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
-import ListSkeleton from "@/partials/ListSkeleton";
-import ListCard from "@/partials/ListCard";
+import ListSkeleton from "@/app/coinLaundry/components/ListSkeleton";
+import ListCard from "@/app/coinLaundry/components/ListCard";
 
 const List = () => {
   const [coinLaundries, setCoinLaundries] = useState([]);

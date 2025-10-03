@@ -1,21 +1,28 @@
-import { Button, Link } from "@chakra-ui/react";
+import { Box, Button } from "@chakra-ui/react";
+import Link from "next/link";
 import { IoMdAdd } from "react-icons/io";
 
 const AddBtn = () => {
   return (
     <Link href={"/coinLaundry/new"}>
       <Button
+        position="fixed"
+        top="85%"
+        right="0"
+        zIndex="sticky"
         display="flex"
         justifyContent="center"
         alignItems="center"
         bgColor="gray.700"
         color="white"
-        ml="auto"
         w="50px"
         h="50px"
         borderRadius="full"
+        _hover={{ bgColor: "gray.600" }}
       >
-        <IoMdAdd style={{ height: "30px", width: "30px" }} />
+        <Box>
+          <IoMdAdd style={{ height: "35px", width: "35px" }} />
+        </Box>
       </Button>
     </Link>
   );
