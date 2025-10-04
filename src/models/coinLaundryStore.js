@@ -10,19 +10,26 @@ const coinLaundryStoreShema = new Schema({
     type: String,
     required: true,
   },
-  images: [
-    {
-      type: String,
-    },
-  ],
+
   description: {
     type: String,
     required: true,
   },
   machines: [
     {
+      name: {
+        type: String,
+        required: true,
+      },
+      num: {
+        type: Number,
+        required: true,
+      },
+    },
+  ],
+  images: [
+    {
       type: String,
-      required: true,
     },
   ],
 });

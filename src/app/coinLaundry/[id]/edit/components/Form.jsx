@@ -1,17 +1,14 @@
 "use client";
 import { useState, useEffect } from "react";
-import MonoSkeleton from "@/app/coinLaundry/[id]/components/MonoSkeleton";
-import MonoCard from "@/app/coinLaundry/[id]/components/MonoCard";
+import FormCard from "@/app/coinLaundry/components/FormCard";
 
-const Mono = ({ id }) => {
+const Form = ({ id }) => {
   const [coinLaundry, setCoinLaundry] = useState("");
-  const [status, setStatus] = useState("pending");
 
   useEffect(() => {
     const fetchCoinLaundryStore = async () => {
       try {
         const response = await fetch(`/api/coinLaundry/${id}`);
-
         if (!response.ok) {
           throw new Error("ネットワークにエラーが起きました");
         }
@@ -23,10 +20,8 @@ const Mono = ({ id }) => {
           }
           setCoinLaundry(findCoinLaundry);
         }
-        setStatus("succeeded");
       } catch (error) {
         console.error("実行が中断されました", error);
-        setStatus("failed");
       }
     };
     fetchCoinLaundryStore();
@@ -34,13 +29,11 @@ const Mono = ({ id }) => {
 
   return (
     <>
-      {status === "pending" && <MonoSkeleton />}
-      {status === "failed" && <div>読み込み失敗</div>}
-      {status === "succeeded" && coinLaundry !== undefined && (
-        <MonoCard coinLaundry={coinLaundry} />
+      {coinLaundry && (
+        <FormCard coinLaundry={coinLaundry} method="PUT" id={id} />
       )}
     </>
   );
 };
 
-export default Mono;
+export default Form;
