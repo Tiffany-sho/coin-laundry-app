@@ -1,39 +1,31 @@
 "use client";
-import { useState, useEffect } from "react";
+import useSWR from "swr";
 import FormCard from "@/app/coinLaundry/components/FormCard";
 
 const Form = ({ id }) => {
-  const [coinLaundry, setCoinLaundry] = useState("");
+  const fetcher = async (url) => {
+    const res = await fetch(url);
 
-  useEffect(() => {
-    const fetchCoinLaundryStore = async () => {
-      try {
-        const response = await fetch(`/api/coinLaundry/${id}`);
-        if (!response.ok) {
-          throw new Error("ネットワークにエラーが起きました");
-        }
-        const result = await response.json();
-        if (result.success) {
-          const findCoinLaundry = result.data;
-          if (!findCoinLaundry) {
-            throw new Error("データの取得に失敗しました");
-          }
-          setCoinLaundry(findCoinLaundry);
-        }
-      } catch (error) {
-        console.error("実行が中断されました", error);
-      }
-    };
-    fetchCoinLaundryStore();
-  }, []);
+    if (!res.ok) {
+      const error = new Error("エラーが発生しました");
+      error.info = await res.json();
+      error.status = res.status;
+      throw error;
+    }
 
-  return (
-    <>
-      {coinLaundry && (
-        <FormCard coinLaundry={coinLaundry} method="PUT" id={id} />
-      )}
-    </>
-  );
+    return res.json();
+  };
+  const { data, error } = useSWR(`/api/coinLaundry/${id}`, fetcher);
+
+  if (error) {
+    return (
+      <div>
+        failed to load {error.info.msg}:{error.status}
+      </div>
+    );
+  }
+
+  return <>{data && <FormCard coinLaundry={data} method="PUT" id={id} />}</>;
 };
 
 export default Form;

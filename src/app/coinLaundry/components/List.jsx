@@ -1,35 +1,39 @@
 "use client";
-import { useState, useEffect } from "react";
 import ListSkeleton from "@/app/coinLaundry/components/ListSkeleton";
 import ListCard from "@/app/coinLaundry/components/ListCard";
+import useSWR from "swr";
 
 const List = () => {
-  const [coinLaundries, setCoinLaundries] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const fetcher = async (url) => {
+    const res = await fetch(url);
 
-  useEffect(() => {
-    const fetchCoinLaundryStories = async () => {
-      const response = await fetch("/api/coinLaundry");
-      const result = await response.json();
-      if (result.success) {
-        setCoinLaundries(result.data);
-      }
-      setLoading(false);
-    };
-    fetchCoinLaundryStories();
-  }, []);
+    if (!res.ok) {
+      const error = new Error("エラーが発生しました");
+      error.info = await res.json();
+      error.status = res.status;
+      throw error;
+    }
 
-  if (!loading && coinLaundries.length === 0) {
+    return res.json();
+  };
+
+  const { data, error, isLoading } = useSWR("/api/coinLaundry", fetcher);
+
+  if (!isLoading && data.length === 0) {
     return <div>登録店舗は見つかりませんでした</div>;
   }
 
-  if (loading) {
+  if (error) {
+    return <div>failed to load{data.message}</div>;
+  }
+
+  if (isLoading) {
     return <ListSkeleton />;
   }
 
   return (
     <>
-      {coinLaundries.map((coinLaundry) => {
+      {data.map((coinLaundry) => {
         return (
           <div key={coinLaundry._id}>
             <ListCard coinLaundry={coinLaundry} />

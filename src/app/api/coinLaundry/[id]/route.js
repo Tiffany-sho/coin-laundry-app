@@ -1,26 +1,36 @@
 import CoinLaundryStore from "@/models/coinLaundryStore";
 import dbConnect from "@/lib/dbConnect";
+import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 
 export async function GET(request, { params }) {
   await dbConnect();
-
   try {
     const { id } = await params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json(
+        { msg: "IDの形式が正しくありません。" },
+        { status: 400 }
+      );
+    }
+
     const coinLaundryStore = await CoinLaundryStore.findById(id);
 
     if (!coinLaundryStore) {
+      console.log("not found");
       return NextResponse.json(
-        { success: false, message: "店舗が見つかりませんでした" },
+        { msg: "店舗が見つかりませんでした" },
         { status: 404 }
       );
     }
 
-    return NextResponse.json({ success: true, data: coinLaundryStore });
+    return NextResponse.json(coinLaundryStore);
   } catch (err) {
+    console.error(err);
     return NextResponse.json(
-      { success: false, message: "エラーが発生しました" },
-      { status: 400 }
+      { message: "サーバーエラーが発生しました" },
+      { status: 500 }
     );
   }
 }
@@ -49,7 +59,6 @@ export async function PUT(request, { params }) {
       description,
       machines,
     });
-    console.log(editCoinLaundry);
     await editCoinLaundry.save();
     return NextResponse.json({ store });
   } catch {

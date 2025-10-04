@@ -53,12 +53,10 @@ const Form = ({ coinLaundry = initinitialCoinLaundry, method, id }) => {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-
     const form = e.target;
     const formData = new FormData(form);
 
     formData.append("machines", JSON.stringify(machines));
-    console.log(method);
 
     if (method === "POST") {
       fetch("/api/coinLaundry", { method: "POST", body: formData })
@@ -71,7 +69,7 @@ const Form = ({ coinLaundry = initinitialCoinLaundry, method, id }) => {
           }
           return res.json().then((res) => {
             resSet(true);
-            return `${res.store}の編集が完了しました。`;
+            return `${res.store}の登録が完了しました。`;
           });
         })
         .then((msg) => {

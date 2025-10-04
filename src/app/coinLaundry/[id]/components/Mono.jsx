@@ -1,44 +1,38 @@
 "use client";
-import { useState, useEffect } from "react";
+import useSWR from "swr";
 import MonoSkeleton from "@/app/coinLaundry/[id]/components/MonoSkeleton";
 import MonoCard from "@/app/coinLaundry/[id]/components/MonoCard";
 
 const Mono = ({ id }) => {
-  const [coinLaundry, setCoinLaundry] = useState("");
-  const [status, setStatus] = useState("pending");
+  const fetcher = async (url) => {
+    const res = await fetch(url);
 
-  useEffect(() => {
-    const fetchCoinLaundryStore = async () => {
-      try {
-        const response = await fetch(`/api/coinLaundry/${id}`);
+    if (!res.ok) {
+      const error = new Error("エラーが発生しました");
+      error.info = await res.json();
+      error.status = res.status;
+      throw error;
+    }
 
-        if (!response.ok) {
-          throw new Error("ネットワークにエラーが起きました");
-        }
-        const result = await response.json();
-        if (result.success) {
-          const findCoinLaundry = result.data;
-          if (!findCoinLaundry) {
-            throw new Error("データの取得に失敗しました");
-          }
-          setCoinLaundry(findCoinLaundry);
-        }
-        setStatus("succeeded");
-      } catch (error) {
-        console.error("実行が中断されました", error);
-        setStatus("failed");
-      }
-    };
-    fetchCoinLaundryStore();
-  }, []);
+    return res.json();
+  };
+  const { data, error, isLoading } = useSWR(`/api/coinLaundry/${id}`, fetcher);
+
+  if (error) {
+    return (
+      <div>
+        failed to load {error.info.msg}:{error.status}
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return <MonoSkeleton />;
+  }
 
   return (
     <>
-      {status === "pending" && <MonoSkeleton />}
-      {status === "failed" && <div>読み込み失敗</div>}
-      {status === "succeeded" && coinLaundry !== undefined && (
-        <MonoCard coinLaundry={coinLaundry} />
-      )}
+      <MonoCard coinLaundry={data} />
     </>
   );
 };

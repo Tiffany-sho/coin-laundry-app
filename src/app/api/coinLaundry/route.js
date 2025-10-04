@@ -7,10 +7,10 @@ export async function GET() {
 
   try {
     const coinLaundryStores = await CoinLaundryStore.find({});
-    return NextResponse.json({ success: true, data: coinLaundryStores });
+    return NextResponse.json(coinLaundryStores);
   } catch (err) {
     return NextResponse.json(
-      { success: false, message: "エラーが発生しました" },
+      { message: "予期しないエラーが発生しました" },
       { status: 400 }
     );
   }
