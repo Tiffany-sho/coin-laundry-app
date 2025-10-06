@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-const Schema = mongoose.Schema;
+const { Schema } = mongoose;
 
 const collectMoneySchema = new Schema({
   store: {
@@ -10,7 +10,7 @@ const collectMoneySchema = new Schema({
     type: Number,
     required: true,
   },
-  money: [
+  moneyArray: [
     {
       machine: {
         name: {
@@ -31,7 +31,7 @@ const collectMoneySchema = new Schema({
 });
 
 const collectMoneyModel =
-  mongoose.models.collectMoney ||
+  mongoose.models.CollectMoney ||
   mongoose.model("CollectMoney", collectMoneySchema);
 
 export default collectMoneyModel;

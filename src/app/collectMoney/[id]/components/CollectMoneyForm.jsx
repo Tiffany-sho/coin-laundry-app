@@ -29,7 +29,13 @@ const CollectMoneyForm = ({ id }) => {
     return <div>Loading...</div>;
   }
 
-  return <CollectMoneyFormCard machines={data.machines} store={data.store} />;
+  return (
+    <CollectMoneyFormCard
+      machines={data.machines}
+      store={data.store}
+      id={data._id}
+    />
+  );
 };
 
 export default CollectMoneyForm;
