@@ -1,0 +1,10 @@
+.monocontainer {
+    display: flex;
+    flex-direction: row;
+}
+
+@media(max-width:768px){
+    .monocontainer {
+    flex-direction: column;
+}
+}

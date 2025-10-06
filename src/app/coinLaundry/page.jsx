@@ -1,4 +1,4 @@
-import List from "./components/List";
+import List from "@/components/List";
 import AddBtn from "@/app/coinLaundry/components/AddBtn";
 import { Box } from "@chakra-ui/react";
 

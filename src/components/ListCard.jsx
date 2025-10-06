@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Box, Button, Card, HStack, Image } from "@chakra-ui/react";
 import rokkaku from "@/assets/rokkaku.png";
 
-const ListCard = ({ coinLaundry }) => {
+const ListCard = ({ coinLaundry, valiant }) => {
   return (
     <Card.Root flexDirection="row" overflow="hidden" maxW="90%" ml="5%" mb="1%">
       <Image
@@ -21,6 +21,11 @@ const ListCard = ({ coinLaundry }) => {
           <Link href={`/coinLaundry/${coinLaundry._id}`}>
             <Button>もっと見る</Button>
           </Link>
+          {valiant === "collect" && (
+            <Link href={`/collectMoney/${coinLaundry._id}`}>
+              <Button>集金</Button>
+            </Link>
+          )}
         </Card.Footer>
       </Box>
     </Card.Root>

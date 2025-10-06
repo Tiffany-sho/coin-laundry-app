@@ -27,17 +27,12 @@ const Navbar = () => {
           fontWeight="bold"
         >
           <li>
-            <Link href="/" passHref>
-              Home
-            </Link>
-          </li>
-          <li>
             <Link href="/coinLaundry" passHref>
               My Store
             </Link>
           </li>
           <li>
-            <Link href="/" passHref>
+            <Link href="/collectMoney" passHref>
               Collect Money
             </Link>
           </li>

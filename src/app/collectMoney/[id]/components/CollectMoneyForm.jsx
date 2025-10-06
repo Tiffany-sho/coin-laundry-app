@@ -1,9 +1,9 @@
 "use client";
-import useSWR from "swr";
-import MonoSkeleton from "@/app/coinLaundry/[id]/components/MonoSkeleton";
-import MonoCard from "@/app/coinLaundry/[id]/components/components/MonoCard";
 
-const Mono = ({ id }) => {
+import CollectMoneyFormCard from "./CollectMoneyFormCard";
+import useSWR from "swr";
+
+const CollectMoneyForm = ({ id }) => {
   const fetcher = async (url) => {
     const res = await fetch(url);
 
@@ -25,16 +25,11 @@ const Mono = ({ id }) => {
       </div>
     );
   }
-
   if (isLoading) {
-    return <MonoSkeleton />;
+    return <div>Loading...</div>;
   }
 
-  return (
-    <>
-      <MonoCard coinLaundry={data} />
-    </>
-  );
+  return <CollectMoneyFormCard machines={data.machines} store={data.store} />;
 };
 
-export default Mono;
+export default CollectMoneyForm;

@@ -1,9 +1,9 @@
 "use client";
-import ListSkeleton from "@/app/coinLaundry/components/ListSkeleton";
-import ListCard from "@/app/coinLaundry/components/ListCard";
+import ListSkeleton from "@/components/ListSkeleton";
+import ListCard from "@/components/ListCard";
 import useSWR from "swr";
 
-const List = () => {
+const List = ({ valiant = "default" }) => {
   const fetcher = async (url) => {
     const res = await fetch(url);
 
@@ -36,7 +36,7 @@ const List = () => {
       {data.map((coinLaundry) => {
         return (
           <div key={coinLaundry._id}>
-            <ListCard coinLaundry={coinLaundry} />
+            <ListCard coinLaundry={coinLaundry} valiant={valiant} />
           </div>
         );
       })}

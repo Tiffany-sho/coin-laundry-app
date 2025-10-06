@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Box,
   Button,
   Card,
   Field,
@@ -100,36 +101,35 @@ const Form = ({ coinLaundry = initinitialCoinLaundry, method, id }) => {
         <Card.Root maxW="sm" size="lg">
           <Card.Header>
             <Card.Title>編集フォーム</Card.Title>
-            <Card.Description>
-              Fill in the form below to create an account
-            </Card.Description>
           </Card.Header>
           <Card.Body>
             <Stack gap="4" w="full">
-              <Field.Root>
-                <Field.Label htmlFor="store">店舗名</Field.Label>
-                <InputGroup endAddon="店">
+              <Box display="flex" flexDirection="row" gap="4">
+                <Field.Root>
+                  <Field.Label htmlFor="store">店舗名</Field.Label>
+                  <InputGroup endAddon="店">
+                    <Input
+                      size="xs"
+                      type="text"
+                      name="store"
+                      id="store"
+                      value={store}
+                      onChange={(e) => setStore(e.target.value)}
+                    />
+                  </InputGroup>
+                </Field.Root>
+                <Field.Root>
+                  <Field.Label htmlFor="location">場所</Field.Label>
                   <Input
                     size="xs"
                     type="text"
-                    name="store"
-                    id="store"
-                    value={store}
-                    onChange={(e) => setStore(e.target.value)}
+                    name="location"
+                    id="location"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
                   />
-                </InputGroup>
-              </Field.Root>
-              <Field.Root>
-                <Field.Label htmlFor="location">場所</Field.Label>
-                <Input
-                  size="xs"
-                  type="text"
-                  name="location"
-                  id="location"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                />
-              </Field.Root>
+                </Field.Root>
+              </Box>
               <Field.Root>
                 <Field.Label htmlFor="description">概要</Field.Label>
                 <Textarea
@@ -137,6 +137,8 @@ const Form = ({ coinLaundry = initinitialCoinLaundry, method, id }) => {
                   type="text"
                   name="description"
                   id="description"
+                  resize="none"
+                  h="20"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                 />
