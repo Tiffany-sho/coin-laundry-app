@@ -6,20 +6,22 @@ export async function POST(request) {
   await dbConnect();
 
   const data = await request.json();
-  data.moneyArray.map((ele) => {
-    if (ele.money === "") {
+
+  for (let ele of data.moneyArray) {
+    if (!ele.money) {
+      console.log(ele.money);
       return NextResponse.json(
         { msg: "入力フィールドが空のものがあります。" },
         { status: 500 }
       );
     }
-  });
+  }
 
   try {
     const newCollectMoney = new CollectMoney(data);
     await newCollectMoney.save();
     return NextResponse.json({ store: data.store });
   } catch {
-    return NextResponse.json({ msg: "'登録に失敗しました。" }, { status: 500 });
+    return NextResponse.json({ msg: "登録に失敗しました。" }, { status: 500 });
   }
 }
