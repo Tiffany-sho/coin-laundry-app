@@ -56,8 +56,8 @@ const Form = ({ coinLaundry = initinitialCoinLaundry, method, id }) => {
     e.preventDefault();
     const form = e.target;
     const formData = new FormData(form);
-
-    formData.append("machines", JSON.stringify(machines));
+    const newMachine = machines.filter((machine) => machine.num > 0);
+    formData.append("machines", JSON.stringify(newMachine));
 
     if (method === "POST") {
       fetch("/api/coinLaundry", { method: "POST", body: formData })

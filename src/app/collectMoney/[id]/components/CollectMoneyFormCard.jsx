@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 import {
   Button,
@@ -88,7 +89,7 @@ const CollectMoneyFormCard = ({ machines, store }) => {
   const onSubmit = async (event) => {
     event.preventDefault();
 
-    const PostArray = machinesAndMoney.map((machineAndMoney) => {
+    const postArray = machinesAndMoney.map((machineAndMoney) => {
       if (!machineAndMoney.money && machineAndMoney.weight) {
         return {
           machine: machineAndMoney.machine,
@@ -101,10 +102,15 @@ const CollectMoneyFormCard = ({ machines, store }) => {
       };
     });
 
+    const totalIncome = postArray.reduce((accumulator, currentValue) => {
+      return accumulator + parseInt(currentValue.money);
+    }, 0);
+
     const data = {
       store,
       date: Date.now(),
-      moneyArray: PostArray,
+      moneyArray: postArray,
+      total: totalIncome,
     };
     const JsonData = JSON.stringify(data);
     fetch("/api/collectMoney", { method: "POST", body: JsonData })
@@ -187,7 +193,9 @@ const CollectMoneyFormCard = ({ machines, store }) => {
           </Stack>
         </Card.Body>
         <Card.Footer justifyContent="flex-end">
-          <Button variant="outline">キャンセル</Button>
+          <Link href={"/collectMoney"}>
+            <Button variant="outline">キャンセル</Button>
+          </Link>
           <Button variant="solid" type="submit">
             登録
           </Button>

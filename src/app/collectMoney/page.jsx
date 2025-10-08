@@ -1,5 +1,6 @@
+import Link from "next/link";
 import List from "@/components/List";
-import { Box } from "@chakra-ui/react";
+import { Box, Button } from "@chakra-ui/react";
 
 const CollectMoney = () => {
   return (
@@ -14,6 +15,9 @@ const CollectMoney = () => {
         >
           集金店舗一覧
         </Box>
+        <Link href={"/collectMoney/data"}>
+          <Button>売上一覧へ</Button>
+        </Link>
         <List valiant="collect" />
       </Box>
     </>

@@ -10,6 +10,7 @@ const collectMoneySchema = new Schema({
     type: Number,
     required: true,
   },
+
   moneyArray: [
     {
       machine: {
@@ -28,6 +29,10 @@ const collectMoneySchema = new Schema({
       },
     },
   ],
+  total: {
+    type: Number,
+    required: true,
+  },
 });
 
 const collectMoneyModel =
