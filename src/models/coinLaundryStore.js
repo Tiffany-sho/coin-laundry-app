@@ -27,6 +27,7 @@ const coinLaundryStoreShema = new Schema({
       },
     },
   ],
+  moneyData: [{ type: Schema.Types.ObjectId, ref: "CollectMoney" }],
   images: [
     {
       type: String,

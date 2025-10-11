@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import {
   Button,
@@ -17,7 +18,7 @@ import { FaArrowsRotate } from "react-icons/fa6";
 
 const coinWeight = 4.8;
 
-const CollectMoneyFormCard = ({ machines, store }) => {
+const CollectMoneyFormCard = ({ machines, id, store }) => {
   const [msg, setMsg] = useState("");
   const [res, resSet] = useState(false);
   const [machinesAndMoney, setMachinesAndMoney] = useState(() => {
@@ -113,7 +114,10 @@ const CollectMoneyFormCard = ({ machines, store }) => {
       total: totalIncome,
     };
     const JsonData = JSON.stringify(data);
-    fetch("/api/collectMoney", { method: "POST", body: JsonData })
+    fetch(`/api/coinLaundry/${id}/collectMoney`, {
+      method: "POST",
+      body: JsonData,
+    })
       .then((res) => {
         if (!res.ok) {
           return res.json().then((res) => {
@@ -122,8 +126,15 @@ const CollectMoneyFormCard = ({ machines, store }) => {
           });
         }
         return res.json().then((res) => {
-          resSet(true);
-          return `${res.store}の集金データを登録できました。`;
+          sessionStorage.setItem(
+            "toast",
+            JSON.stringify({
+              description: `${res.store}店の集金データの登録が完了しました。`,
+              type: "success",
+              closable: true,
+            })
+          );
+          redirect(`/collectMoney`);
         });
       })
       .then((msg) => {
@@ -134,9 +145,6 @@ const CollectMoneyFormCard = ({ machines, store }) => {
   return (
     <form onSubmit={onSubmit}>
       <Card.Root maxW="sm">
-        <Card.Header>
-          <Card.Title>{store}店</Card.Title>
-        </Card.Header>
         <Card.Body>
           <Stack gap="8" w="full">
             {machinesAndMoney.map((machineAndMoney) => {
