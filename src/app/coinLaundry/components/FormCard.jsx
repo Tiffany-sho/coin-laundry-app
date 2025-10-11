@@ -14,6 +14,7 @@ import { useState } from "react";
 import Link from "next/link";
 
 import MachineForm from "./MachineForm";
+import { redirect } from "next/navigation";
 
 const initinitialCoinLaundry = {
   store: "",
@@ -50,7 +51,6 @@ const Form = ({ coinLaundry = initinitialCoinLaundry, method, id }) => {
   const [machines, setMachines] = useState(coinLaundry.machines);
   const [choose, setChoose] = useState(false);
   const [msg, setMsg] = useState("");
-  const [res, resSet] = useState(true);
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -64,13 +64,19 @@ const Form = ({ coinLaundry = initinitialCoinLaundry, method, id }) => {
         .then((res) => {
           if (!res.ok) {
             return res.json().then((res) => {
-              resSet(false);
               return res.msg;
             });
           }
           return res.json().then((res) => {
-            resSet(true);
-            return `${res.store}の登録が完了しました。`;
+            sessionStorage.setItem(
+              "toast",
+              JSON.stringify({
+                description: `${res.store}店の登録が完了しました。`,
+                type: "success",
+                closable: true,
+              })
+            );
+            redirect(`/coinLaundry`);
           });
         })
         .then((msg) => {
@@ -81,13 +87,19 @@ const Form = ({ coinLaundry = initinitialCoinLaundry, method, id }) => {
         .then((res) => {
           if (!res.ok) {
             return res.json().then((res) => {
-              resSet(false);
               return res.msg;
             });
           }
           return res.json().then((res) => {
-            resSet(true);
-            return `${res.store}の編集が完了しました。`;
+            sessionStorage.setItem(
+              "toast",
+              JSON.stringify({
+                description: `${res.store}店の編集が完了しました。`,
+                type: "success",
+                closable: true,
+              })
+            );
+            redirect(`/coinLaundry/${res.id}`);
           });
         })
         .then((msg) => {
@@ -100,7 +112,10 @@ const Form = ({ coinLaundry = initinitialCoinLaundry, method, id }) => {
       <form onSubmit={onSubmit}>
         <Card.Root maxW="sm" size="lg">
           <Card.Header>
-            <Card.Title>編集フォーム</Card.Title>
+            <Card.Title>
+              {method === "POST" && "登録"}
+              {method === "PUT" && "編集"}フォーム
+            </Card.Title>
           </Card.Header>
           <Card.Body>
             <Stack gap="4" w="full">
@@ -162,7 +177,7 @@ const Form = ({ coinLaundry = initinitialCoinLaundry, method, id }) => {
               {method === "POST" && "登録"}
               {method === "PUT" && "編集"}
             </Button>
-            <div style={{ color: res ? "green" : "red" }}>{msg}</div>
+            <div style={{ color: "red" }}>{msg}</div>
           </Card.Footer>
         </Card.Root>
       </form>

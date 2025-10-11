@@ -1,6 +1,7 @@
 import { mongoose } from "mongoose";
 import stores from "./store.js";
 import CoinLaundryStore from "../models/coinLaundryStore.js";
+import CollectMoney from "../models/collectMoney.js";
 
 mongoose
   .connect("mongodb://localhost:27017/Coin-Laundry")
@@ -15,6 +16,7 @@ mongoose
 
 const seedDB = async () => {
   await CoinLaundryStore.deleteMany({});
+  await CollectMoney.deleteMany({});
 
   for (let i = 0; i < stores.length; i++) {
     const newCoinlaundryStore = new CoinLaundryStore(stores[i]);

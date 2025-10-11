@@ -26,9 +26,6 @@ const ListCard = ({ coinLaundry, valiant }) => {
               <Link href={`/collectMoney/${coinLaundry._id}`}>
                 <Button>集金</Button>
               </Link>
-              <Link href={`/collectMoney/${coinLaundry._id}/data`}>
-                <Button>集金データ</Button>
-              </Link>
             </>
           )}
         </Card.Footer>

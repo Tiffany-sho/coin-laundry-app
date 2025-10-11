@@ -39,7 +39,8 @@ export async function POST(request) {
       machines,
     });
     await newCoinLaundry.save();
-    return NextResponse.json({ store });
+    const newId = newCoinLaundry._id;
+    return NextResponse.json({ store, id: newId });
   } catch {
     return NextResponse.json({ msg: "'登録に失敗しました。" }, { status: 500 });
   }

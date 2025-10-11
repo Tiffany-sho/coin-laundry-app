@@ -5,12 +5,14 @@ import Link from "next/link";
 import { BsFillTrash3Fill } from "react-icons/bs";
 import { CiEdit } from "react-icons/ci";
 import { PiMoney } from "react-icons/pi";
+import { redirect } from "next/navigation";
 import Styles from "./MonoCard.module.css";
 
 const MonoCard = ({ coinLaundry }) => {
   const [msg, setMsg] = useState("");
 
   const onSubmit = async (e) => {
+    e.preventDefault();
     console.log("here");
     const form = e.target;
     const formData = new FormData(form);
@@ -25,7 +27,15 @@ const MonoCard = ({ coinLaundry }) => {
           });
         }
         return res.json().then((res) => {
-          return `${res.store}の削除が完了しました。`;
+          sessionStorage.setItem(
+            "toast",
+            JSON.stringify({
+              description: `${res.store}を削除しました`,
+              type: "warning",
+              closable: true,
+            })
+          );
+          redirect("/coinLaundry");
         });
       })
       .then((msg) => {
@@ -37,14 +47,23 @@ const MonoCard = ({ coinLaundry }) => {
       <div className={Styles.monocontainer}>
         <Image src={rokkaku.src} h="100%" />
         <Card.Body gap="2">
-          <Card.Title textStyle="3xl" fontWeight="large" letterSpacing="wide">
+          <Card.Title
+            fontWeight="large"
+            letterSpacing="wide"
+            className={Styles.title}
+          >
             せんたくランド{coinLaundry.store}店
           </Card.Title>
           <Card.Description>場所 : {coinLaundry.location}</Card.Description>
-          <Text textStyle="2xl" fontWeight="medium" letterSpacing="tight" m="5">
+          <Text
+            fontWeight="medium"
+            letterSpacing="tight"
+            m="5"
+            className={Styles.description}
+          >
             {coinLaundry.description}
           </Text>
-          <Text textStyle="xl" fontWeight="medium">
+          <Text className={Styles.title} fontWeight="medium">
             設備 :{" "}
           </Text>
           <List.Root>
@@ -58,7 +77,7 @@ const MonoCard = ({ coinLaundry }) => {
           </List.Root>
 
           <Card.Footer gap="2" ml="auto">
-            <form onSubmit={onSubmit} action="/coinLaundry">
+            <form onSubmit={onSubmit} action={"/coinLaundry"}>
               <Button type="submit" variant="solid">
                 <BsFillTrash3Fill />
               </Button>
@@ -75,6 +94,7 @@ const MonoCard = ({ coinLaundry }) => {
               </Button>
             </Link>
           </Card.Footer>
+          <div>{msg}</div>
         </Card.Body>
       </div>
     </Card.Root>

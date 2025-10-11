@@ -2,9 +2,34 @@
     display: flex;
     flex-direction: row;
 }
+ .title{
+    font-size: 2em;
+ }
+ .description{
+    font-size: 1em;
+}
 
-@media(max-width:768px){
+@media(max-width:1000px){
     .monocontainer {
     flex-direction: column;
+ }
+ .title{
+    font-size: 1.5em;
+ }
+ .description{
+    font-size: 0.8em;
+}
+}
+
+
+@media(max-width:436px){
+    .monocontainer {
+    flex-direction: column;
+ }
+ .title{
+    font-size: 1em;
+ }
+ .description{
+    font-size: 0.7em;
 }
 }

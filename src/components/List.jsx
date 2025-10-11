@@ -2,8 +2,22 @@
 import ListSkeleton from "@/components/ListSkeleton";
 import ListCard from "@/components/ListCard";
 import useSWR from "swr";
+import { useEffect } from "react";
+import { Toaster, toaster } from "@/components/ui/toaster";
 
 const List = ({ valiant = "default" }) => {
+  useEffect(() => {
+    setTimeout(() => {
+      const toastInfo = sessionStorage.getItem("toast");
+
+      if (toastInfo) {
+        const toastInfoStr = JSON.parse(toastInfo);
+        toaster.create(toastInfoStr);
+      }
+      sessionStorage.removeItem("toast");
+    }, 0);
+  }, []);
+
   const fetcher = async (url) => {
     const res = await fetch(url);
 

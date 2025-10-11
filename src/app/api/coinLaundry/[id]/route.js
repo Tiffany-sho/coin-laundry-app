@@ -60,7 +60,7 @@ export async function PUT(request, { params }) {
       machines,
     });
     await editCoinLaundry.save();
-    return NextResponse.json({ store });
+    return NextResponse.json({ store, id });
   } catch {
     return NextResponse.json({ msg: "'登録に失敗しました。" }, { status: 500 });
   }
@@ -69,14 +69,12 @@ export async function PUT(request, { params }) {
 export async function DELETE(request, { params }) {
   dbConnect();
 
-  const formData = await request.formData();
-  const store = formData.get("store");
-
   try {
     const { id } = await params;
-    await CoinLaundryStore.findByIdAndDelete(id);
+    const deleteCoinLaundry = await CoinLaundryStore.findByIdAndDelete(id);
+    const store = deleteCoinLaundry.store;
     return NextResponse.json({ store });
   } catch {
-    return NextResponse.json({ msg: "'登録に失敗しました。" }, { status: 500 });
+    return NextResponse.json({ msg: "削除に失敗しました。" }, { status: 500 });
   }
 }

@@ -2,8 +2,23 @@
 import useSWR from "swr";
 import MonoSkeleton from "@/app/coinLaundry/[id]/components/MonoSkeleton";
 import MonoCard from "@/app/coinLaundry/[id]/components/components/MonoCard";
+import DataList from "@/app/collectMoney/components/DataList/DataList";
+import { Toaster, toaster } from "@/components/ui/toaster";
+import { useEffect } from "react";
 
 const Mono = ({ id }) => {
+  useEffect(() => {
+    setTimeout(() => {
+      const toastInfo = sessionStorage.getItem("toast");
+
+      if (toastInfo) {
+        const toastInfoStr = JSON.parse(toastInfo);
+
+        toaster.create(toastInfoStr);
+      }
+      sessionStorage.removeItem("toast");
+    }, 0);
+  }, []);
   const fetcher = async (url) => {
     const res = await fetch(url);
 
@@ -33,6 +48,7 @@ const Mono = ({ id }) => {
   return (
     <>
       <MonoCard coinLaundry={data} />
+      <DataList filterItem={data._id} />
     </>
   );
 };
