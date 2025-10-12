@@ -28,7 +28,6 @@ export async function GET(request, { params }) {
         { status: 404 }
       );
     }
-
     return NextResponse.json(coinLaundryStore.moneyData);
   } catch (err) {
     return NextResponse.json(
@@ -71,7 +70,7 @@ export async function POST(request, { params }) {
     }
 
     const newCollectMoney = new CollectMoney(data);
-    coinLaundryStore.moneyData.push(newCollectMoney);
+    coinLaundryStore.moneyData.unshift(newCollectMoney);
     await newCollectMoney.save();
     await coinLaundryStore.save();
 

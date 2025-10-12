@@ -67,7 +67,7 @@ export async function PUT(request, { params }) {
 }
 
 export async function DELETE(request, { params }) {
-  dbConnect();
+  await dbConnect();
 
   try {
     const { id } = await params;

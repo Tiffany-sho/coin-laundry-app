@@ -7,7 +7,8 @@ import MoneyDataTable from "@/app/coinLaundry/[id]/moneyData/components/MoneyDat
 import MoneyDataCard from "@/app/coinLaundry/[id]/moneyData/components/MoneyDataCard";
 
 const MoneyDataList = ({ id }) => {
-  const [datatoggle, setDataToggle] = useState([]);
+  const [dataToggle, setDataToggle] = useState([]);
+
   const fetcher = async (url) => {
     const res = await fetch(url);
 
@@ -34,7 +35,7 @@ const MoneyDataList = ({ id }) => {
     fetcher
   );
 
-  if (!isLoading && data.length === 0) {
+  if (!isLoading && dataToggle.length === 0) {
     return <div>登録店舗は見つかりませんでした</div>;
   }
 
@@ -54,13 +55,21 @@ const MoneyDataList = ({ id }) => {
       <Card.Body color="fg.muted">
         <HStack width="100%" spacing={4}>
           <Box w="100%" key="dataTable">
-            <MoneyDataTable items={datatoggle} setDatas={setDataToggle} />
+            <MoneyDataTable
+              items={dataToggle}
+              setDatas={setDataToggle}
+              laundryId={id}
+            />
           </Box>
-          {datatoggle.map((item) => {
+          {dataToggle.map((item) => {
             if (item.toggle) {
               return (
                 <Box w="1/3" key="dataCard">
-                  <MoneyDataCard item={item.money} key={item.money._id} />
+                  <MoneyDataCard
+                    item={item.money}
+                    key={item.money._id}
+                    laundryId={id}
+                  />
                 </Box>
               );
             }
