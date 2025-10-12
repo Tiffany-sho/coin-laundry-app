@@ -3,18 +3,7 @@
 import { Table } from "@chakra-ui/react";
 import { createNowData } from "@/date";
 
-const DataTable = ({ items, setDatas }) => {
-  const toggleHander = (id) => {
-    setDatas((prevArray) => {
-      return prevArray.map((item) => {
-        if (id === item.money._id) {
-          const boolean = item.toggle;
-          return { ...item, toggle: !boolean };
-        }
-        return { ...item, toggle: false };
-      });
-    });
-  };
+const DataTable = ({ items, selectedItemId, onRowClick }) => {
   return (
     <Table.Root size="sm" interactive>
       <Table.Header>
@@ -27,13 +16,18 @@ const DataTable = ({ items, setDatas }) => {
       <Table.Body>
         {items.map((item) => (
           <Table.Row
-            key={item.money._id}
-            onClick={() => toggleHander(item.money._id)}
-            bgColor={item.toggle && "gray.200"}
+            key={item._id}
+            onClick={() => onRowClick(item)}
+            bgColor={selectedItemId === item._id ? "gray.200" : "transparent"}
+            cursor="pointer"
           >
-            <Table.Cell>{item.money.store}店</Table.Cell>
-            <Table.Cell>{item.money.total}</Table.Cell>
-            <Table.Cell>{createNowData(item.money.date)}</Table.Cell>
+            <Table.Cell>{item.store}店</Table.Cell>
+            <Table.Cell>
+              {item.moneyArray.reduce((accumulator, currentValue) => {
+                return accumulator + parseInt(currentValue.money);
+              }, 0)}
+            </Table.Cell>
+            <Table.Cell>{createNowData(item.date)}</Table.Cell>
           </Table.Row>
         ))}
       </Table.Body>

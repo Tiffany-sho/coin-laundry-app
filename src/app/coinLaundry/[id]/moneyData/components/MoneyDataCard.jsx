@@ -1,13 +1,42 @@
 "use client";
 
 import { useSWRConfig } from "swr";
-import { Table, Heading, Text, Button } from "@chakra-ui/react";
+import {
+  Table,
+  Heading,
+  Text,
+  Button,
+  Editable,
+  IconButton,
+  Code,
+} from "@chakra-ui/react";
 import { createNowData } from "@/date";
 import { redirect } from "next/navigation";
 import { toaster } from "@/components/ui/toaster";
+import { LuCheck, LuPencilLine, LuX } from "react-icons/lu";
+import { useEffect, useState } from "react";
 
 const MoneyDataCard = ({ item, laundryId }) => {
+  const [toggleArray, setToggleArray] = useState([]);
+
+  useEffect(() => {
+    const getArray = () => {
+      const array = item.moneyArray.map((machines) => {
+        return {
+          id: machines._id,
+          machine: machines.machine.name,
+          money: machines.money,
+          editing: false,
+          sending: false,
+        };
+      });
+      setToggleArray(array);
+    };
+    getArray();
+  }, []);
+
   const { mutate } = useSWRConfig();
+
   const onSubmit = (e) => {
     e.preventDefault();
     fetch(`/api/coinLaundry/${laundryId}/collectMoney/${item._id}`, {
@@ -31,6 +60,71 @@ const MoneyDataCard = ({ item, laundryId }) => {
       });
     });
   };
+
+  const editAbleForm = (id, e, action) => {
+    setToggleArray((prevArray) => {
+      return prevArray.map((item) => {
+        if (id === item.id) {
+          const input = e.value;
+          console.log(action);
+          if (action === "change") {
+            const value = input.replace(/[^0-9]/g, "");
+            return {
+              ...item,
+              money: parseInt(value),
+              editing: true,
+              sending: false,
+            };
+          } else if (action === "reset") {
+            const value = input.replace(/[^0-9]/g, "");
+            return {
+              ...item,
+              money: parseInt(value),
+              editing: false,
+              sending: false,
+            };
+          } else if (action === "submit") {
+            const value = input.replace(/[^0-9]/g, "");
+            return {
+              ...item,
+              money: parseInt(value),
+              editing: false,
+              sending: true,
+            };
+          } else {
+            return item;
+          }
+        }
+        return item;
+      });
+    });
+    if (action === "submit") {
+      const editMachine = toggleArray.find((item) => item.id === id);
+      fetch(`/api/coinLaundry/${laundryId}/collectMoney/${item._id}`, {
+        method: "PUT",
+        body: JSON.stringify(editMachine),
+      }).then((res) => {
+        if (!res.ok) {
+          return res.json().then((res) => {
+            toaster.create({
+              description: `${res.msg}`,
+              type: "error",
+              closable: true,
+            });
+          });
+        }
+        return res.json().then((res) => {
+          toaster.create({
+            description: `${res.machine}(${res.store})の集金データを更新しました`,
+            type: "success",
+            closable: true,
+          });
+          mutate(`/api/coinLaundry/${laundryId}/collectMoney`);
+          redirect(`/coinLaundry/${laundryId}/moneyData`);
+        });
+      });
+    }
+  };
   return (
     <>
       <Heading size="lg">
@@ -45,15 +139,61 @@ const MoneyDataCard = ({ item, laundryId }) => {
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {item.moneyArray.map((item) => (
-            <Table.Row key={item._id}>
-              <Table.Cell>{item.machine.name}</Table.Cell>
-              <Table.Cell>{item.money}</Table.Cell>
+          {toggleArray.map((item) => (
+            <Table.Row key={item.id}>
+              <Table.Cell>
+                {item.machine}
+                {(item.editing || item.sending) && (
+                  <Code>
+                    {item.editing && "編集中..."}
+                    {item.sending && "編集済"}
+                  </Code>
+                )}
+              </Table.Cell>
+              <Table.Cell>
+                <Editable.Root
+                  defaultValue={item.money.toString()}
+                  submitMode="enter"
+                  onValueChange={(e) => editAbleForm(item.id, e, "change")}
+                  onValueRevert={(e) => editAbleForm(item.id, e, "reset")}
+                  onValueCommit={(e) => editAbleForm(item.id, e, "submit")}
+                  onInteractOutside={(e) =>
+                    editAbleForm(item.id, e, "outPoint")
+                  }
+                >
+                  <Editable.Preview />
+                  <Editable.Input />
+                  <Editable.Control>
+                    <Editable.EditTrigger asChild>
+                      <IconButton variant="ghost" size="xs">
+                        <LuPencilLine />
+                      </IconButton>
+                    </Editable.EditTrigger>
+                    <Editable.CancelTrigger asChild>
+                      <IconButton variant="outline" size="xs">
+                        <LuX />
+                      </IconButton>
+                    </Editable.CancelTrigger>
+                    <Editable.SubmitTrigger asChild>
+                      <IconButton variant="outline" size="xs">
+                        <LuCheck />
+                      </IconButton>
+                    </Editable.SubmitTrigger>
+                  </Editable.Control>
+                </Editable.Root>
+              </Table.Cell>
+
+              {/* <Table.Cell>{item.money}</Table.Cell> */}
             </Table.Row>
           ))}
           <Table.Row key={item.total}>
             <Table.Cell>合計</Table.Cell>
-            <Table.Cell>{item.total}</Table.Cell>
+            <Table.Cell>
+              {" "}
+              {item.moneyArray.reduce((accumulator, currentValue) => {
+                return accumulator + parseInt(currentValue.money);
+              }, 0)}
+            </Table.Cell>
           </Table.Row>
         </Table.Body>
       </Table.Root>

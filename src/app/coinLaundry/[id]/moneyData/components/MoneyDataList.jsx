@@ -7,7 +7,7 @@ import MoneyDataTable from "@/app/coinLaundry/[id]/moneyData/components/MoneyDat
 import MoneyDataCard from "@/app/coinLaundry/[id]/moneyData/components/MoneyDataCard";
 
 const MoneyDataList = ({ id }) => {
-  const [dataToggle, setDataToggle] = useState([]);
+  const [selectedItem, setSelectedItem] = useState(null);
 
   const fetcher = async (url) => {
     const res = await fetch(url);
@@ -18,29 +18,23 @@ const MoneyDataList = ({ id }) => {
       error.status = res.status;
       throw error;
     } else {
-      const array = await res.json();
-      const dataAndToggle = array.map((item) => {
-        return {
-          money: item,
-          toggle: false,
-        };
-      });
-      setDataToggle(dataAndToggle);
-      return dataAndToggle;
+      const data = await res.json();
+      return data;
     }
   };
 
-  const { data, error, isLoading } = useSWR(
-    `/api/coinLaundry/${id}/collectMoney`,
-    fetcher
-  );
+  const {
+    data: moneyData,
+    error,
+    isLoading,
+  } = useSWR(`/api/coinLaundry/${id}/collectMoney`, fetcher);
 
-  if (!isLoading && dataToggle.length === 0) {
+  if (!isLoading && moneyData.length === 0) {
     return <div>登録店舗は見つかりませんでした</div>;
   }
 
   if (error) {
-    return <div>failed to load{data.message}</div>;
+    return <div>failed to load{moneyData.message}</div>;
   }
 
   if (isLoading) {
@@ -54,26 +48,22 @@ const MoneyDataList = ({ id }) => {
       </Card.Header>
       <Card.Body color="fg.muted">
         <HStack width="100%" spacing={4}>
-          <Box w="100%" key="dataTable">
+          <Box w="100%" mb="auto" key="dataTable">
             <MoneyDataTable
-              items={dataToggle}
-              setDatas={setDataToggle}
-              laundryId={id}
+              items={moneyData}
+              selectedItemId={selectedItem?._id}
+              onRowClick={setSelectedItem}
             />
           </Box>
-          {dataToggle.map((item) => {
-            if (item.toggle) {
-              return (
-                <Box w="1/3" key="dataCard">
-                  <MoneyDataCard
-                    item={item.money}
-                    key={item.money._id}
-                    laundryId={id}
-                  />
-                </Box>
-              );
-            }
-          })}
+          <Box w="1/3" key="dataCard">
+            {selectedItem && (
+              <MoneyDataCard
+                item={selectedItem}
+                laundryId={id}
+                key={selectedItem._id}
+              />
+            )}
+          </Box>
         </HStack>
       </Card.Body>
     </Card.Root>

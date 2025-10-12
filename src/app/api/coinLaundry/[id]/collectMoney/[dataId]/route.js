@@ -19,6 +19,54 @@ export async function GET(request, { params }) {
   }
 }
 
+export async function PUT(requset, { params }) {
+  await dbConnect();
+
+  const editData = await requset.json();
+  const machineId = editData.id;
+  const machineMoney = editData.money;
+  console.log(machineMoney);
+  if (machineMoney === null) {
+    return NextResponse.json(
+      { msg: "入力フィールドが空のものがあります。" },
+      { status: 500 }
+    );
+  }
+  try {
+    const { dataId } = await params;
+    const collectMoney = await CollectMoney.findById(dataId);
+
+    if (!collectMoney) {
+      return NextResponse.json(
+        { msg: "データが見つかりません" },
+        { status: 500 }
+      );
+    }
+
+    const editMachine = collectMoney.moneyArray.find(
+      (item) => item.id === machineId
+    );
+
+    if (!editMachine) {
+      return NextResponse.json(
+        { msg: "データが見つかりません" },
+        { status: 500 }
+      );
+    }
+
+    editMachine.money = machineMoney;
+
+    await collectMoney.save();
+
+    const store = collectMoney.store;
+    const machine = editMachine.machine.name;
+
+    return NextResponse.json({ store, machine });
+  } catch {
+    return NextResponse.json({ msg: "更新に失敗しました" }, { status: 500 });
+  }
+}
+
 export async function DELETE(request, { params }) {
   await dbConnect();
 
