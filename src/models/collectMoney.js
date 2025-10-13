@@ -6,6 +6,10 @@ const collectMoneySchema = new Schema({
     type: String,
     required: true,
   },
+  storeId: {
+    type: String,
+    required: true,
+  },
   date: {
     type: Number,
     required: true,
@@ -29,10 +33,6 @@ const collectMoneySchema = new Schema({
       },
     },
   ],
-  total: {
-    type: Number,
-    required: true,
-  },
 });
 
 const collectMoneyModel =

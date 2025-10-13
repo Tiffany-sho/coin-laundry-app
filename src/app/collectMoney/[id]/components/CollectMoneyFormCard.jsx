@@ -103,15 +103,11 @@ const CollectMoneyFormCard = ({ machines, id, store }) => {
       };
     });
 
-    const totalIncome = postArray.reduce((accumulator, currentValue) => {
-      return accumulator + parseInt(currentValue.money);
-    }, 0);
-
     const data = {
       store,
+      storeId: id,
       date: Date.now(),
       moneyArray: postArray,
-      total: totalIncome,
     };
     const JsonData = JSON.stringify(data);
     fetch(`/api/coinLaundry/${id}/collectMoney`, {
@@ -145,6 +141,7 @@ const CollectMoneyFormCard = ({ machines, id, store }) => {
   return (
     <form onSubmit={onSubmit}>
       <Card.Root maxW="sm">
+        <Card.Header textStyle="xl">{store}店</Card.Header>
         <Card.Body>
           <Stack gap="8" w="full">
             {machinesAndMoney.map((machineAndMoney) => {

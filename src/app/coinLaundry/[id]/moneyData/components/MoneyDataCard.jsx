@@ -9,6 +9,7 @@ import {
   Editable,
   IconButton,
   Code,
+  Box,
 } from "@chakra-ui/react";
 import { createNowData } from "@/date";
 import { redirect } from "next/navigation";
@@ -16,7 +17,7 @@ import { toaster } from "@/components/ui/toaster";
 import { LuCheck, LuPencilLine, LuX } from "react-icons/lu";
 import { useEffect, useState } from "react";
 
-const MoneyDataCard = ({ item, laundryId }) => {
+const MoneyDataCard = ({ item, onRowClick, valiant }) => {
   const [toggleArray, setToggleArray] = useState([]);
 
   useEffect(() => {
@@ -39,7 +40,7 @@ const MoneyDataCard = ({ item, laundryId }) => {
 
   const onSubmit = (e) => {
     e.preventDefault();
-    fetch(`/api/coinLaundry/${laundryId}/collectMoney/${item._id}`, {
+    fetch(`/api/coinLaundry/${item.storeId}/collectMoney/${item._id}`, {
       method: "delete",
     }).then((res) => {
       if (!res.ok) {
@@ -48,6 +49,7 @@ const MoneyDataCard = ({ item, laundryId }) => {
         });
       }
       return res.json().then((res) => {
+        onRowClick(null);
         toaster.create({
           description: `${res.store}(${createNowData(
             res.date
@@ -55,8 +57,14 @@ const MoneyDataCard = ({ item, laundryId }) => {
           type: "warning",
           closable: true,
         });
-        mutate(`/api/coinLaundry/${laundryId}/collectMoney`);
-        redirect(`/coinLaundry/${laundryId}/moneyData`);
+        mutate(`/api/coinLaundry/${item.storeId}/collectMoney`);
+        if (valiant === "manyStore") {
+          redirect(`/coinLaundry/${item.storeId}/moneyData`);
+        } else if (valiant === "aStore") {
+          redirect("/collectMoney/data");
+        } else {
+          redirect("/collectMoney");
+        }
       });
     });
   };
@@ -66,7 +74,6 @@ const MoneyDataCard = ({ item, laundryId }) => {
       return prevArray.map((item) => {
         if (id === item.id) {
           const input = e.value;
-          console.log(action);
           if (action === "change") {
             const value = input.replace(/[^0-9]/g, "");
             return {
@@ -100,7 +107,7 @@ const MoneyDataCard = ({ item, laundryId }) => {
     });
     if (action === "submit") {
       const editMachine = toggleArray.find((item) => item.id === id);
-      fetch(`/api/coinLaundry/${laundryId}/collectMoney/${item._id}`, {
+      fetch(`/api/collectMoney/${item._id}`, {
         method: "PUT",
         body: JSON.stringify(editMachine),
       }).then((res) => {
@@ -119,89 +126,97 @@ const MoneyDataCard = ({ item, laundryId }) => {
             type: "success",
             closable: true,
           });
-          mutate(`/api/coinLaundry/${laundryId}/collectMoney`);
-          redirect(`/coinLaundry/${laundryId}/moneyData`);
+          mutate(`/api/coinLaundry/${item.storeId}/collectMoney`);
+          if (valiant === "manyStore") {
+            redirect(`/coinLaundry/${item.storeId}/moneyData`);
+          } else if (valiant === "aStore") {
+            redirect("/collectMoney/data");
+          } else {
+            redirect("/collectMoney");
+          }
         });
       });
     }
   };
   return (
     <>
-      <Heading size="lg">
-        {item.store}
-        <Text textStyle="sm"> {createNowData(item.date)}</Text>
-      </Heading>
-      <Table.Root size="md" variant="outline">
-        <Table.Header>
-          <Table.Row>
-            <Table.ColumnHeader>設備</Table.ColumnHeader>
-            <Table.ColumnHeader>売上</Table.ColumnHeader>
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
-          {toggleArray.map((item) => (
-            <Table.Row key={item.id}>
-              <Table.Cell>
-                {item.machine}
-                {(item.editing || item.sending) && (
-                  <Code>
-                    {item.editing && "編集中..."}
-                    {item.sending && "編集済"}
-                  </Code>
-                )}
-              </Table.Cell>
-              <Table.Cell>
-                <Editable.Root
-                  defaultValue={item.money.toString()}
-                  submitMode="enter"
-                  onValueChange={(e) => editAbleForm(item.id, e, "change")}
-                  onValueRevert={(e) => editAbleForm(item.id, e, "reset")}
-                  onValueCommit={(e) => editAbleForm(item.id, e, "submit")}
-                  onInteractOutside={(e) =>
-                    editAbleForm(item.id, e, "outPoint")
-                  }
-                >
-                  <Editable.Preview />
-                  <Editable.Input />
-                  <Editable.Control>
-                    <Editable.EditTrigger asChild>
-                      <IconButton variant="ghost" size="xs">
-                        <LuPencilLine />
-                      </IconButton>
-                    </Editable.EditTrigger>
-                    <Editable.CancelTrigger asChild>
-                      <IconButton variant="outline" size="xs">
-                        <LuX />
-                      </IconButton>
-                    </Editable.CancelTrigger>
-                    <Editable.SubmitTrigger asChild>
-                      <IconButton variant="outline" size="xs">
-                        <LuCheck />
-                      </IconButton>
-                    </Editable.SubmitTrigger>
-                  </Editable.Control>
-                </Editable.Root>
-              </Table.Cell>
-
-              {/* <Table.Cell>{item.money}</Table.Cell> */}
+      <Box position="fixed" right="4%" top="20%" zIndex="sticky" w="1/4">
+        <Heading size="lg">
+          {item.store}
+          <Text textStyle="sm"> {createNowData(item.date)}</Text>
+        </Heading>
+        <Table.Root size="sm" variant="outline">
+          <Table.Header>
+            <Table.Row>
+              <Table.ColumnHeader>設備</Table.ColumnHeader>
+              <Table.ColumnHeader>売上</Table.ColumnHeader>
             </Table.Row>
-          ))}
-          <Table.Row key={item.total}>
-            <Table.Cell>合計</Table.Cell>
-            <Table.Cell>
-              {" "}
-              {item.moneyArray.reduce((accumulator, currentValue) => {
-                return accumulator + parseInt(currentValue.money);
-              }, 0)}
-            </Table.Cell>
-          </Table.Row>
-        </Table.Body>
-      </Table.Root>
-      <form onSubmit={onSubmit}>
-        <Button color="red.500" variant="outline" border="none" type="submit">
-          このデータを削除
-        </Button>
-      </form>
+          </Table.Header>
+          <Table.Body>
+            {toggleArray.map((item) => (
+              <Table.Row key={item.id}>
+                <Table.Cell>
+                  {item.machine}
+                  {(item.editing || item.sending) && (
+                    <Code>
+                      {item.editing && "編集中..."}
+                      {item.sending && "編集済"}
+                    </Code>
+                  )}
+                </Table.Cell>
+                <Table.Cell>
+                  <Editable.Root
+                    defaultValue={item.money.toString()}
+                    submitMode="enter"
+                    onValueChange={(e) => editAbleForm(item.id, e, "change")}
+                    onValueRevert={(e) => editAbleForm(item.id, e, "reset")}
+                    onValueCommit={(e) => editAbleForm(item.id, e, "submit")}
+                    onInteractOutside={(e) =>
+                      editAbleForm(item.id, e, "outPoint")
+                    }
+                  >
+                    <Editable.Preview />
+                    <Editable.Input />
+                    <Editable.Control>
+                      <Editable.EditTrigger asChild>
+                        <IconButton variant="ghost" size="xs">
+                          <LuPencilLine />
+                        </IconButton>
+                      </Editable.EditTrigger>
+                      <Editable.CancelTrigger asChild>
+                        <IconButton variant="outline" size="xs">
+                          <LuX />
+                        </IconButton>
+                      </Editable.CancelTrigger>
+                      <Editable.SubmitTrigger asChild>
+                        <IconButton variant="outline" size="xs">
+                          <LuCheck />
+                        </IconButton>
+                      </Editable.SubmitTrigger>
+                    </Editable.Control>
+                  </Editable.Root>
+                </Table.Cell>
+
+                {/* <Table.Cell>{item.money}</Table.Cell> */}
+              </Table.Row>
+            ))}
+            <Table.Row key={item.total}>
+              <Table.Cell>合計</Table.Cell>
+              <Table.Cell>
+                {" "}
+                {item.moneyArray.reduce((accumulator, currentValue) => {
+                  return accumulator + parseInt(currentValue.money);
+                }, 0)}
+              </Table.Cell>
+            </Table.Row>
+          </Table.Body>
+        </Table.Root>
+        <form onSubmit={onSubmit}>
+          <Button color="red.500" variant="outline" border="none" type="submit">
+            このデータを削除
+          </Button>
+        </form>
+      </Box>
     </>
   );
 };

@@ -1,4 +1,4 @@
-import DataList from "../components/DataList/DataList";
+import DataList from "./components/DataList";
 
 const Data = () => {
   return <DataList />;

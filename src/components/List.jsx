@@ -3,7 +3,7 @@ import ListSkeleton from "@/components/ListSkeleton";
 import ListCard from "@/components/ListCard";
 import useSWR from "swr";
 import { useEffect } from "react";
-import { Toaster, toaster } from "@/components/ui/toaster";
+import { toaster } from "@/components/ui/toaster";
 
 const List = ({ valiant = "default" }) => {
   useEffect(() => {

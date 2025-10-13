@@ -2,11 +2,11 @@
 
 import useSWR from "swr";
 import { useState } from "react";
-import { HStack, Card, Heading, Box } from "@chakra-ui/react";
+import { Card, Heading, Box } from "@chakra-ui/react";
 import MoneyDataTable from "@/app/coinLaundry/[id]/moneyData/components/MoneyDataTable";
 import MoneyDataCard from "@/app/coinLaundry/[id]/moneyData/components/MoneyDataCard";
 
-const MoneyDataList = ({ id }) => {
+const MoneyDataList = () => {
   const [selectedItem, setSelectedItem] = useState(null);
 
   const fetcher = async (url) => {
@@ -27,7 +27,9 @@ const MoneyDataList = ({ id }) => {
     data: moneyData,
     error,
     isLoading,
-  } = useSWR(`/api/coinLaundry/${id}/collectMoney`, fetcher);
+  } = useSWR(`/api/collectMoney`, fetcher);
+
+  console.log(moneyData);
 
   if (!isLoading && moneyData.length === 0) {
     return <div>登録店舗は見つかりませんでした</div>;
@@ -43,12 +45,12 @@ const MoneyDataList = ({ id }) => {
 
   return (
     <>
-      <Card.Root size="lg" w={selectedItem ? "2/3" : "100%"} mt="5%">
+      <Card.Root size="lg" w={selectedItem ? "2/3" : "100%"}>
         <Card.Header>
           <Heading size="2xl">集金データ一覧</Heading>
         </Card.Header>
         <Card.Body color="fg.muted">
-          <Box key="dataTable">
+          <Box w="100%" mb="auto" key="dataTable">
             <MoneyDataTable
               items={moneyData}
               selectedItemId={selectedItem?._id}
@@ -62,7 +64,7 @@ const MoneyDataList = ({ id }) => {
           <MoneyDataCard
             item={selectedItem}
             onRowClick={setSelectedItem}
-            valiant="manyStore"
+            valiant="aStore"
             key={selectedItem._id}
           />
         )}

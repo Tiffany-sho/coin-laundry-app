@@ -18,7 +18,11 @@ const ListCard = ({ coinLaundry, valiant }) => {
           <HStack mt="4"></HStack>
         </Card.Body>
         <Card.Footer>
-          <Link href={`/coinLaundry/${coinLaundry._id}/moneyData`}>
+          <Link
+            href={`/coinLaundry/${coinLaundry._id}/${
+              valiant === "collect" ? "moneyData" : ""
+            }`}
+          >
             <Button>もっと見る</Button>
           </Link>
           {valiant === "collect" && (
