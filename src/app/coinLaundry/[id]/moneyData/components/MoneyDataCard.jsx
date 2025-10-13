@@ -176,7 +176,7 @@ const MoneyDataCard = ({ item, onRowClick, valiant }) => {
                     }
                   >
                     <Editable.Preview />
-                    <Editable.Input />
+                    <Editable.Input w="40px" />
                     <Editable.Control>
                       <Editable.EditTrigger asChild>
                         <IconButton variant="ghost" size="xs">

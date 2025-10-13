@@ -1,4 +1,5 @@
 import CoinLaundryStore from "@/models/coinLaundryStore";
+import CollectMoney from "@/models/collectMoney";
 import dbConnect from "@/lib/dbConnect";
 import mongoose from "mongoose";
 import { NextResponse } from "next/server";

@@ -1,3 +1,4 @@
+import CollectMoney from "@/app/collectMoney/page";
 import mongoose from "mongoose";
 const { Schema } = mongoose;
 
@@ -33,6 +34,16 @@ const coinLaundryStoreShema = new Schema({
       type: String,
     },
   ],
+});
+
+coinLaundryStoreShema.post("findOneAndDelete", async function (doc) {
+  if (doc) {
+    await CollectMoney.deleteMany({
+      _id: {
+        $in: doc.moneyData,
+      },
+    });
+  }
 });
 
 const coinLaundryStoreModel =

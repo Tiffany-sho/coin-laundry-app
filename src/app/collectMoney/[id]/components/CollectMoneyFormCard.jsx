@@ -9,8 +9,8 @@ import {
   Card,
   Field,
   HStack,
-  Input,
   InputGroup,
+  NumberInput,
   Stack,
 } from "@chakra-ui/react";
 
@@ -36,19 +36,18 @@ const CollectMoneyFormCard = ({ machines, id, store }) => {
       return prevMachines.map((prevMachine) => {
         if (prevMachine.machine._id === machineId) {
           if (action === "inputCoin") {
-            const coins = event.target.value;
+            const coins = parseInt(event.value);
             if (coins === "") {
               return { ...prevMachine, money: null };
             }
-            const newCoin = coins.replace(/[^0-9.]/g, "");
-            return { ...prevMachine, money: newCoin };
+            return { ...prevMachine, money: coins };
           } else if (action === "inputWeight") {
-            const weight = event.target.value;
+            const weight = parseInt(event.value);
+            console.log(weight);
             if (weight === "") {
               return { ...prevMachine, weight: null };
             }
-            const newWeight = weight.replace(/[^0-9.]/g, "");
-            return { ...prevMachine, weight: newWeight };
+            return { ...prevMachine, weight: weight };
           } else if (action === "toggle") {
             const toggleBoolean = prevMachine.toggle;
             if (toggleBoolean) {
@@ -60,6 +59,7 @@ const CollectMoneyFormCard = ({ machines, id, store }) => {
                   weight: null,
                 };
               }
+
               return {
                 ...prevMachine,
                 toggle: !toggleBoolean,
@@ -67,6 +67,9 @@ const CollectMoneyFormCard = ({ machines, id, store }) => {
               };
             } else {
               const coins = prevMachine.money;
+              const weight = prevMachine.weight;
+              // console.log(coins);
+              // console.log(weight);
               if (!coins) {
                 return {
                   ...prevMachine,
@@ -78,6 +81,7 @@ const CollectMoneyFormCard = ({ machines, id, store }) => {
               return {
                 ...prevMachine,
                 toggle: !toggleBoolean,
+                weight,
               };
             }
           }
@@ -150,37 +154,39 @@ const CollectMoneyFormCard = ({ machines, id, store }) => {
                   <Field.Label>{machineAndMoney.machine.name}</Field.Label>
                   <HStack>
                     {machineAndMoney.toggle ? (
-                      <InputGroup endAddon="ｇ">
-                        <Input
-                          value={
-                            machineAndMoney.weight !== null
-                              ? machineAndMoney.weight
-                              : ""
-                          }
-                          onChange={(e) =>
-                            hander(
-                              machineAndMoney.machine._id,
-                              "inputWeight",
-                              e
-                            )
-                          }
-                          placeholder="100円玉の質量"
-                        />
-                      </InputGroup>
+                      <NumberInput.Root
+                        min={0}
+                        maxW="200px"
+                        value={
+                          machineAndMoney.weight ? machineAndMoney.weight : ""
+                        }
+                        onValueChange={(e) =>
+                          hander(machineAndMoney.machine._id, "inputWeight", e)
+                        }
+                      >
+                        <NumberInput.Control />
+                        <InputGroup startAddon="g">
+                          <NumberInput.Input placeholder="100円玉の質量" />
+                        </InputGroup>
+                      </NumberInput.Root>
                     ) : (
-                      <InputGroup endAddon="枚">
-                        <Input
-                          value={
-                            machineAndMoney.money !== null
-                              ? machineAndMoney.money
-                              : ""
-                          }
-                          onChange={(e) =>
-                            hander(machineAndMoney.machine._id, "inputCoin", e)
-                          }
-                          placeholder="100円玉の枚数"
-                        />
-                      </InputGroup>
+                      <NumberInput.Root
+                        min={0}
+                        maxW="200px"
+                        value={
+                          machineAndMoney.money !== null
+                            ? machineAndMoney.money
+                            : ""
+                        }
+                        onValueChange={(e) =>
+                          hander(machineAndMoney.machine._id, "inputCoin", e)
+                        }
+                      >
+                        <NumberInput.Control />
+                        <InputGroup startAddon="枚">
+                          <NumberInput.Input placeholder="100円玉の枚数" />
+                        </InputGroup>
+                      </NumberInput.Root>
                     )}
                     <Button
                       borderRadius="full"
