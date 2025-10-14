@@ -4,6 +4,14 @@ import { Table } from "@chakra-ui/react";
 import { createNowData } from "@/date";
 
 const DataTable = ({ items, selectedItemId, onRowClick }) => {
+  const toggleHander = (item) => {
+    const id = selectedItemId;
+    if (id === item._id) {
+      onRowClick(null);
+    } else {
+      onRowClick(item);
+    }
+  };
   return (
     <Table.Root size="sm" interactive>
       <Table.Header>
@@ -17,7 +25,7 @@ const DataTable = ({ items, selectedItemId, onRowClick }) => {
         {items.map((item) => (
           <Table.Row
             key={item._id}
-            onClick={() => onRowClick(item)}
+            onClick={() => toggleHander(item)}
             bgColor={selectedItemId === item._id ? "gray.200" : "transparent"}
             cursor="pointer"
           >
