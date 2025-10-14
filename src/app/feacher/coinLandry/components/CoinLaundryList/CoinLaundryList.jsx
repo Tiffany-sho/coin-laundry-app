@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Box, Button, Card, HStack, Image } from "@chakra-ui/react";
 import rokkaku from "@/assets/rokkaku.png";
 
-const ListCard = ({ coinLaundry, valiant }) => {
+const CoinLaundryList = ({ coinLaundry, valiant }) => {
   return (
     <Card.Root flexDirection="row" overflow="hidden" maxW="90%" ml="5%" mb="1%">
       <Image
@@ -20,7 +20,7 @@ const ListCard = ({ coinLaundry, valiant }) => {
         <Card.Footer>
           <Link
             href={`/coinLaundry/${coinLaundry._id}/${
-              valiant === "collect" ? "moneyData" : ""
+              valiant === "collect" ? "coinDataList" : ""
             }`}
           >
             <Button>もっと見る</Button>
@@ -38,4 +38,4 @@ const ListCard = ({ coinLaundry, valiant }) => {
   );
 };
 
-export default ListCard;
+export default CoinLaundryList;

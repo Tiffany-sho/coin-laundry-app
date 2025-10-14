@@ -1,6 +1,5 @@
 "use client";
 
-import useSWR from "swr";
 import { useState } from "react";
 import {
   Portal,
@@ -12,8 +11,8 @@ import {
   Box,
   HStack,
 } from "@chakra-ui/react";
-import MoneyDataTable from "@/app/coinLaundry/[id]/moneyData/components/MoneyDataTable";
-import MoneyDataCard from "@/app/coinLaundry/[id]/moneyData/components/MoneyDataCard";
+import MoneyDataTable from "@/app/feacher/collectMoney/components/coinDataList/CoinDataTable";
+import MoneyDataCard from "@/app/feacher/collectMoney/components/coinDataList/CoinDataCard";
 const frameworks = createListCollection({
   items: [
     { label: "新しい順", value: "newer" },
@@ -23,41 +22,9 @@ const frameworks = createListCollection({
   ],
 });
 
-const MoneyDataList = ({ id }) => {
+const MoneyDataList = ({ coinData, valiant }) => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [order, setOrder] = useState("react");
-
-  const fetcher = async (url) => {
-    const res = await fetch(url);
-
-    if (!res.ok) {
-      const error = new Error("エラーが発生しました");
-      error.info = await res.json();
-      error.status = res.status;
-      throw error;
-    } else {
-      const data = await res.json();
-      return data;
-    }
-  };
-
-  const {
-    data: moneyData,
-    error,
-    isLoading,
-  } = useSWR(`/api/coinLaundry/${id}/collectMoney`, fetcher);
-
-  if (!isLoading && moneyData.length === 0) {
-    return <div>登録店舗は見つかりませんでした</div>;
-  }
-
-  if (error) {
-    return <div>failed to load{moneyData.message}</div>;
-  }
-
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
 
   return (
     <>
@@ -101,21 +68,21 @@ const MoneyDataList = ({ id }) => {
           </HStack>
         </Card.Header>
         <Card.Body color="fg.muted">
-          <Box key="dataTable">
+          <Box>
             <MoneyDataTable
-              items={moneyData}
+              items={coinData}
               selectedItemId={selectedItem?._id}
               onRowClick={setSelectedItem}
             />
           </Box>
         </Card.Body>
       </Card.Root>
-      <Box w="1/3" key="dataCard">
+      <Box w="1/3">
         {selectedItem && (
           <MoneyDataCard
             item={selectedItem}
             onRowClick={setSelectedItem}
-            valiant="manyStore"
+            valiant={valiant}
             key={selectedItem._id}
           />
         )}

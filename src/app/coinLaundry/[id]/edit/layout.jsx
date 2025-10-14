@@ -1,4 +1,4 @@
-const FormLayout = ({ children }) => {
+const Layout = ({ children }) => {
   return (
     <div
       style={{
@@ -13,4 +13,4 @@ const FormLayout = ({ children }) => {
   );
 };
 
-export default FormLayout;
+export default Layout;

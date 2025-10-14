@@ -1,7 +1,7 @@
-import FormCard from "@/app/coinLaundry/components/FormCard";
+import CoinLaundryForm from "@/app/feacher/coinLandry/components/CoinLaundryForm/CoinLaundryForm";
 
 const createLaundry = () => {
-  return <FormCard method="POST" />;
+  return <CoinLaundryForm method="POST" />;
 };
 
 export default createLaundry;

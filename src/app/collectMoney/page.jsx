@@ -1,27 +1,38 @@
 import Link from "next/link";
-import List from "@/components/List";
-import { Box, Button } from "@chakra-ui/react";
+import CoinLaundryList from "@/app/feacher/coinLandry/components/CoinLaundryList/CoinLaundryList";
+import { Heading, Button } from "@chakra-ui/react";
 
-const CollectMoney = () => {
+async function fetcher() {
+  const res = await fetch(`http://localhost:3000/api/coinLaundry`);
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch data");
+  }
+  return res.json();
+}
+
+const Page = async () => {
+  const datas = await fetcher();
   return (
     <>
-      <Box>
-        <Box
-          textStyle="3xl"
-          textAlign="center"
-          my="4"
-          fontWeight="bold"
-          overflow="hidden"
-        >
-          集金店舗一覧
-        </Box>
-        <Link href={"/collectMoney/data"}>
-          <Button>売上一覧へ</Button>
-        </Link>
-        <List valiant="collect" />
-      </Box>
+      <Heading textStyle="3xl" textAlign="center" my="4" fontWeight="bold">
+        集金店舗一覧
+      </Heading>
+
+      <Link href={"/collectMoney/coinDataList"}>
+        <Button>売上一覧へ</Button>
+      </Link>
+      {datas.map((data) => {
+        return (
+          <CoinLaundryList
+            coinLaundry={data}
+            key={data._id}
+            valiant="collect"
+          />
+        );
+      })}
     </>
   );
 };
 
-export default CollectMoney;
+export default Page;

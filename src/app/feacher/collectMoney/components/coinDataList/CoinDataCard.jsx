@@ -59,9 +59,9 @@ const MoneyDataCard = ({ item, onRowClick, valiant }) => {
         });
         mutate(`/api/coinLaundry/${item.storeId}/collectMoney`);
         if (valiant === "manyStore") {
-          redirect(`/coinLaundry/${item.storeId}/moneyData`);
+          redirect("/collectMoney/coinDataList");
         } else if (valiant === "aStore") {
-          redirect("/collectMoney/data");
+          redirect(`/coinLaundry/${item.storeId}/coinDataList`);
         } else {
           redirect("/collectMoney");
         }
@@ -128,9 +128,9 @@ const MoneyDataCard = ({ item, onRowClick, valiant }) => {
           });
           mutate(`/api/coinLaundry/${item.storeId}/collectMoney`);
           if (valiant === "manyStore") {
-            redirect(`/coinLaundry/${item.storeId}/moneyData`);
+            redirect("/collectMoney/coinDataList");
           } else if (valiant === "aStore") {
-            redirect("/collectMoney/data");
+            redirect(`/coinLaundry/${item.storeId}/coinDataList`);
           } else {
             redirect("/collectMoney");
           }

@@ -1,13 +1,18 @@
-import CollectMoneyForm from "./components/CollectMoneyForm";
+import CollectMoneyForm from "@/app/feacher/collectMoney/components/collectMoneyForm/CollectMoneyForm";
 
-const CollectMoneyLaundry = async ({ params }) => {
+async function fetcher(id) {
+  const res = await fetch(`http://localhost:3000/api/coinLaundry/${id}`);
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch data");
+  }
+  return res.json();
+}
+
+const Page = async ({ params }) => {
   const { id } = await params;
-  const coinLaundry = id;
-  return (
-    <>
-      <CollectMoneyForm id={coinLaundry} />
-    </>
-  );
+  const data = await fetcher(id);
+  return <CollectMoneyForm coinLaundry={data} />;
 };
 
-export default CollectMoneyLaundry;
+export default Page;

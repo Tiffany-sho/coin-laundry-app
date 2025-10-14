@@ -44,7 +44,7 @@ const initinitialCoinLaundry = {
   ],
 };
 
-const Form = ({ coinLaundry = initinitialCoinLaundry, method, id }) => {
+const CoinLaundryForm = ({ coinLaundry = initinitialCoinLaundry, method }) => {
   const [store, setStore] = useState(coinLaundry.store);
   const [location, setLocation] = useState(coinLaundry.location);
   const [description, setDescription] = useState(coinLaundry.description);
@@ -83,7 +83,10 @@ const Form = ({ coinLaundry = initinitialCoinLaundry, method, id }) => {
           setMsg(msg);
         });
     } else if (method === "PUT") {
-      fetch(`/api/coinLaundry/${id}`, { method: "PUT", body: formData })
+      fetch(`/api/coinLaundry/${coinLaundry._id}`, {
+        method: "PUT",
+        body: formData,
+      })
         .then((res) => {
           if (!res.ok) {
             return res.json().then((res) => {
@@ -192,4 +195,4 @@ const Form = ({ coinLaundry = initinitialCoinLaundry, method, id }) => {
   );
 };
 
-export default Form;
+export default CoinLaundryForm;

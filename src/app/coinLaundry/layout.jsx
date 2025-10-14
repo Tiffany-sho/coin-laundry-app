@@ -1,5 +1,5 @@
-const ListLayout = ({ children }) => {
+const Layout = ({ children }) => {
   return <>{children}</>;
 };
 
-export default ListLayout;
+export default Layout;

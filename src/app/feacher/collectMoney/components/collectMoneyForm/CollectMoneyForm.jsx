@@ -17,12 +17,13 @@ import {
 import { FaArrowsRotate } from "react-icons/fa6";
 
 const coinWeight = 4.8;
-
-const CollectMoneyFormCard = ({ machines, id, store }) => {
+// { machines, id, store }
+const CollectMoneyForm = ({ coinLaundry }) => {
   const [msg, setMsg] = useState("");
   const [res, resSet] = useState(false);
+
   const [machinesAndMoney, setMachinesAndMoney] = useState(() => {
-    const initialValue = machines.map((machine) => ({
+    const initialValue = coinLaundry.machines.map((machine) => ({
       machine,
       money: null,
       weight: null,
@@ -68,8 +69,6 @@ const CollectMoneyFormCard = ({ machines, id, store }) => {
             } else {
               const coins = prevMachine.money;
               const weight = prevMachine.weight;
-              // console.log(coins);
-              // console.log(weight);
               if (!coins) {
                 return {
                   ...prevMachine,
@@ -108,13 +107,13 @@ const CollectMoneyFormCard = ({ machines, id, store }) => {
     });
 
     const data = {
-      store,
-      storeId: id,
+      store: coinLaundry.store,
+      storeId: coinLaundry._id,
       date: Date.now(),
       moneyArray: postArray,
     };
     const JsonData = JSON.stringify(data);
-    fetch(`/api/coinLaundry/${id}/collectMoney`, {
+    fetch(`/api/coinLaundry/${coinLaundry._id}/collectMoney`, {
       method: "POST",
       body: JsonData,
     })
@@ -145,7 +144,7 @@ const CollectMoneyFormCard = ({ machines, id, store }) => {
   return (
     <form onSubmit={onSubmit}>
       <Card.Root maxW="sm">
-        <Card.Header textStyle="xl">{store}店</Card.Header>
+        <Card.Header textStyle="xl">{coinLaundry.store}店</Card.Header>
         <Card.Body>
           <Stack gap="8" w="full">
             {machinesAndMoney.map((machineAndMoney) => {
@@ -217,4 +216,4 @@ const CollectMoneyFormCard = ({ machines, id, store }) => {
   );
 };
 
-export default CollectMoneyFormCard;
+export default CollectMoneyForm;

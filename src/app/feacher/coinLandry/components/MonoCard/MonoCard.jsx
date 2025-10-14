@@ -1,46 +1,57 @@
-import { Box, Button, Card, Image, List, Text } from "@chakra-ui/react";
-import { useState } from "react";
+"use client";
+
+import { Button, Card, Image, List, Text } from "@chakra-ui/react";
+import { useEffect } from "react";
+import { toaster } from "@/components/ui/toaster";
 import rokkaku from "@/assets/rokkaku.png";
 import Link from "next/link";
-import { BsFillTrash3Fill } from "react-icons/bs";
-import { CiEdit } from "react-icons/ci";
-import { PiMoney } from "react-icons/pi";
 import { redirect } from "next/navigation";
+import * as Icon from "./MonoCardIcon";
 import Styles from "./MonoCard.module.css";
 
 const MonoCard = ({ coinLaundry }) => {
-  const [msg, setMsg] = useState("");
+  useEffect(() => {
+    setTimeout(() => {
+      const toastInfo = sessionStorage.getItem("toast");
+
+      if (toastInfo) {
+        const toastInfoStr = JSON.parse(toastInfo);
+
+        toaster.create(toastInfoStr);
+      }
+      sessionStorage.removeItem("toast");
+    }, 0);
+  }, []);
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    console.log("here");
     const form = e.target;
     const formData = new FormData(form);
     fetch(`/api/coinLaundry/${coinLaundry._id}`, {
       method: "DELETE",
       body: formData,
-    })
-      .then((res) => {
-        if (!res.ok) {
-          return res.json().then((res) => {
-            return res.msg;
-          });
-        }
+    }).then((res) => {
+      if (!res.ok) {
         return res.json().then((res) => {
-          sessionStorage.setItem(
-            "toast",
-            JSON.stringify({
-              description: `${res.store}を削除しました`,
-              type: "warning",
-              closable: true,
-            })
-          );
-          redirect("/coinLaundry");
+          toaster.create({
+            description: res.msg,
+            type: "error",
+            closable: true,
+          });
         });
-      })
-      .then((msg) => {
-        setMsg(msg);
+      }
+      return res.json().then((res) => {
+        sessionStorage.setItem(
+          "toast",
+          JSON.stringify({
+            description: `${res.store}を削除しました`,
+            type: "warning",
+            closable: true,
+          })
+        );
+        redirect("/coinLaundry");
       });
+    });
   };
   return (
     <Card.Root width="90%" ml="5%" overflow="hidden">
@@ -79,22 +90,21 @@ const MonoCard = ({ coinLaundry }) => {
           <Card.Footer gap="2" ml="auto">
             <form onSubmit={onSubmit} action={"/coinLaundry"}>
               <Button type="submit" variant="solid">
-                <BsFillTrash3Fill />
+                <Icon.BsFillTrash3Fill />
               </Button>
             </form>
             <Link href={`/coinLaundry/${coinLaundry._id}/edit`}>
               <Button variant="solid" ml="auto">
-                <CiEdit />
+                <Icon.CiEdit />
               </Button>
             </Link>
 
             <Link href={`/collectMoney/${coinLaundry._id}`}>
               <Button variant="solid">
-                <PiMoney />
+                <Icon.PiMoney />
               </Button>
             </Link>
           </Card.Footer>
-          <div>{msg}</div>
         </Card.Body>
       </div>
     </Card.Root>
