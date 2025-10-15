@@ -12,7 +12,6 @@ import {
   Box,
 } from "@chakra-ui/react";
 import { createNowData } from "@/date";
-import { redirect } from "next/navigation";
 import { toaster } from "@/components/ui/toaster";
 import { LuCheck, LuPencilLine, LuX } from "react-icons/lu";
 import { useEffect, useState } from "react";
@@ -57,13 +56,10 @@ const MoneyDataCard = ({ item, onRowClick, valiant }) => {
           type: "warning",
           closable: true,
         });
-        mutate(`/api/coinLaundry/${item.storeId}/collectMoney`);
         if (valiant === "manyStore") {
-          redirect("/collectMoney/coinDataList");
+          mutate("/api/collectMoney");
         } else if (valiant === "aStore") {
-          redirect(`/coinLaundry/${item.storeId}/coinDataList`);
-        } else {
-          redirect("/collectMoney");
+          mutate(`/api/coinLaundry/${item.storeId}/collectMoney`);
         }
       });
     });
@@ -126,13 +122,10 @@ const MoneyDataCard = ({ item, onRowClick, valiant }) => {
             type: "success",
             closable: true,
           });
-          mutate(`/api/coinLaundry/${item.storeId}/collectMoney`);
           if (valiant === "manyStore") {
-            redirect("/collectMoney/coinDataList");
+            mutate("/api/collectMoney");
           } else if (valiant === "aStore") {
-            redirect(`/coinLaundry/${item.storeId}/coinDataList`);
-          } else {
-            redirect("/collectMoney");
+            mutate(`/api/coinLaundry/${item.storeId}/collectMoney`);
           }
         });
       });

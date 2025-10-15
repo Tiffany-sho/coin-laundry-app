@@ -133,7 +133,7 @@ const CollectMoneyForm = ({ coinLaundry }) => {
               closable: true,
             })
           );
-          redirect(`/collectMoney`);
+          redirect(`/coinLaundry/${coinLaundry._id}/coinDataList`);
         });
       })
       .then((msg) => {

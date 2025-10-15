@@ -1,6 +1,4 @@
-"use client";
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Portal,
   Select,
@@ -11,21 +9,66 @@ import {
   Box,
   HStack,
 } from "@chakra-ui/react";
+import { toaster } from "@/components/ui/toaster";
 import MoneyDataTable from "@/app/feacher/collectMoney/components/coinDataList/CoinDataTable";
 import MoneyDataCard from "@/app/feacher/collectMoney/components/coinDataList/CoinDataCard";
+import * as Order from "@/order/dateOrder";
 const frameworks = createListCollection({
   items: [
     { label: "新しい順", value: "newer" },
     { label: "古い順", value: "older" },
-    { label: "店舗別順", value: "store" },
     { label: "売上順", value: "income" },
   ],
 });
 
-const MoneyDataList = ({ coinData, valiant }) => {
+const MoneyDataList = ({ valiant, coinData }) => {
   const [selectedItem, setSelectedItem] = useState(null);
-  const [order, setOrder] = useState("react");
+  const [order, setOrder] = useState(["newer"]);
+  const [orderData, setOrderData] = useState([]);
 
+  useEffect(() => {
+    setTimeout(() => {
+      const toastInfo = sessionStorage.getItem("toast");
+
+      if (toastInfo) {
+        const toastInfoStr = JSON.parse(toastInfo);
+
+        toaster.create(toastInfoStr);
+      }
+      sessionStorage.removeItem("toast");
+    }, 0);
+  }, []);
+
+  useEffect(() => {
+    if (!coinData) return;
+
+    const getSetOrder = () => {
+      switch (order[0]) {
+        case "newer":
+          const newerArray = Order.newerOrder(coinData);
+          return newerArray;
+        case "older":
+          const olderArray = Order.olderOrder(coinData);
+          return olderArray;
+        case "income":
+          const incomeArray = Order.incomeOrder(coinData);
+          return incomeArray;
+        default:
+          return coinData;
+      }
+    };
+    const newArray = getSetOrder();
+    setOrderData(newArray);
+  }, [coinData, order]);
+
+  useEffect(() => {
+    if (coinData && selectedItem) {
+      const updatedSelectedItem = coinData.find(
+        (item) => item._id === selectedItem._id
+      );
+      setSelectedItem(updatedSelectedItem);
+    }
+  }, [coinData]);
   return (
     <>
       <Card.Root size="lg" w={selectedItem ? "2/3" : "100%"} mt="5%">
@@ -41,7 +84,7 @@ const MoneyDataList = ({ coinData, valiant }) => {
               onValueChange={(e) => setOrder(e.value)}
             >
               <Select.HiddenSelect />
-              <Select.Label>Select plan</Select.Label>
+              <Select.Label>並び替え</Select.Label>
               <Select.Control>
                 <Select.Trigger>
                   <Select.ValueText placeholder="新しい順" />
@@ -70,7 +113,7 @@ const MoneyDataList = ({ coinData, valiant }) => {
         <Card.Body color="fg.muted">
           <Box>
             <MoneyDataTable
-              items={coinData}
+              items={orderData}
               selectedItemId={selectedItem?._id}
               onRowClick={setSelectedItem}
             />

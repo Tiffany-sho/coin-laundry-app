@@ -1,17 +1,7 @@
-import CoinDataList from "@/app/feacher/collectMoney/components/coinDataList/CoinDataList";
+import ManyDataList from "@/app/feacher/collectMoney/components/coinDataList/ManyDataList";
 
-async function fetcher() {
-  const res = await fetch(`http://localhost:3000/api/collectMoney`);
-
-  if (!res.ok) {
-    throw new Error("Failed to fetch data");
-  }
-  return res.json();
-}
-
-const Page = async () => {
-  const data = await fetcher();
-  return <CoinDataList coinData={data} valiant="manyStore" />;
+const Page = () => {
+  return <ManyDataList valiant="manyStore" />;
 };
 
 export default Page;
