@@ -10,6 +10,7 @@ async function fetcher() {
   return res.json();
 }
 
+
 const Page = async () => {
   const datas = await fetcher();
   return (
