@@ -3,7 +3,7 @@ import { Card, Box ,Heading} from "@chakra-ui/react";
 import { toaster } from "@/components/ui/toaster";
 import MoneyDataTable from "@/app/feacher/collectMoney/components/coinDataList/CoinDataTable";
 import MoneyDataCard from "@/app/feacher/collectMoney/components/coinDataList/CoinDataCard";
-import * as Order from "@/order/dateOrder";
+import * as Order from "@/createArray/dateOrder";
 import OrderSelecter from "./OrderSelecter";
 import MonoCoinDataChart from "./MonoCoinDataChart";
 import RankingTable from "./CoinDataRanking/CoinDataRanking";
@@ -61,7 +61,6 @@ const MoneyDataList = ({ valiant, coinData }) => {
   { rank: 2, name: '佐藤花子', score: 920, date: '2025-10-22', change: -10 },
   { rank: 3, name: '鈴木一郎', score: 880, date: '2025-10-23', change: 0 },
 ];
-console.log(coinData)
   return (
     <>
       <Card.Root size="lg" w={selectedItem ? "2/3" : "100%"} mt="5%">
