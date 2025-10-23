@@ -15,12 +15,13 @@ import {
 } from "@chakra-ui/react";
 
 import { FaArrowsRotate } from "react-icons/fa6";
+import EpochTimeSelector from "./selectDate/SelectDate";
 
 const coinWeight = 4.8;
-// { machines, id, store }
 const CollectMoneyForm = ({ coinLaundry }) => {
   const [msg, setMsg] = useState("");
   const [res, resSet] = useState(false);
+  const [epoc,setEpoc]=useState(null);
 
   const [machinesAndMoney, setMachinesAndMoney] = useState(() => {
     const initialValue = coinLaundry.machines.map((machine) => ({
@@ -106,10 +107,12 @@ const CollectMoneyForm = ({ coinLaundry }) => {
       };
     });
 
+    const date=epoc ? epoc :Date.now();
+
     const data = {
       store: coinLaundry.store,
       storeId: coinLaundry._id,
-      date: Date.now(),
+      date,
       moneyArray: postArray,
     };
     const JsonData = JSON.stringify(data);
@@ -146,6 +149,7 @@ const CollectMoneyForm = ({ coinLaundry }) => {
       <Card.Root maxW="sm">
         <Card.Header textStyle="xl">{coinLaundry.store}店</Card.Header>
         <Card.Body>
+        <EpochTimeSelector setEpoc={setEpoc}/>
           <Stack gap="8" w="full">
             {machinesAndMoney.map((machineAndMoney) => {
               return (

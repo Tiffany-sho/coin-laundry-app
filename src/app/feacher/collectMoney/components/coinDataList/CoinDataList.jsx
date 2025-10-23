@@ -1,25 +1,12 @@
 import { useEffect, useState } from "react";
-import {
-  Portal,
-  Select,
-  createListCollection,
-  Card,
-  Stack,
-  Heading,
-  Box,
-  HStack,
-} from "@chakra-ui/react";
+import { Card, Box ,Heading} from "@chakra-ui/react";
 import { toaster } from "@/components/ui/toaster";
 import MoneyDataTable from "@/app/feacher/collectMoney/components/coinDataList/CoinDataTable";
 import MoneyDataCard from "@/app/feacher/collectMoney/components/coinDataList/CoinDataCard";
 import * as Order from "@/order/dateOrder";
-const frameworks = createListCollection({
-  items: [
-    { label: "新しい順", value: "newer" },
-    { label: "古い順", value: "older" },
-    { label: "売上順", value: "income" },
-  ],
-});
+import OrderSelecter from "./OrderSelecter";
+import MonoCoinDataChart from "./MonoCoinDataChart";
+import RankingTable from "./CoinDataRanking/CoinDataRanking";
 
 const MoneyDataList = ({ valiant, coinData }) => {
   const [selectedItem, setSelectedItem] = useState(null);
@@ -69,48 +56,25 @@ const MoneyDataList = ({ valiant, coinData }) => {
       setSelectedItem(updatedSelectedItem);
     }
   }, [coinData]);
+   const sampleData = [
+  { rank: 1, name: '田中太郎', score: 950, date: '2025-10-23', change: 50 },
+  { rank: 2, name: '佐藤花子', score: 920, date: '2025-10-22', change: -10 },
+  { rank: 3, name: '鈴木一郎', score: 880, date: '2025-10-23', change: 0 },
+];
+console.log(coinData)
   return (
     <>
       <Card.Root size="lg" w={selectedItem ? "2/3" : "100%"} mt="5%">
         <Card.Header>
-          <HStack>
-            <Heading size="2xl">集金データ一覧</Heading>
-            <Select.Root
-              collection={frameworks}
-              size="sm"
-              width="120px"
-              ml="auto"
-              defaultValue={["newer"]}
-              onValueChange={(e) => setOrder(e.value)}
-            >
-              <Select.HiddenSelect />
-              <Select.Label>並び替え</Select.Label>
-              <Select.Control>
-                <Select.Trigger>
-                  <Select.ValueText placeholder="新しい順" />
-                </Select.Trigger>
-                <Select.IndicatorGroup>
-                  <Select.Indicator />
-                </Select.IndicatorGroup>
-              </Select.Control>
-              <Portal>
-                <Select.Positioner>
-                  <Select.Content>
-                    {frameworks.items.map((framework) => (
-                      <Select.Item item={framework} key={framework.value}>
-                        <Stack gap="0">
-                          <Select.ItemText>{framework.label}</Select.ItemText>
-                        </Stack>
-                        <Select.ItemIndicator />
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select.Positioner>
-              </Portal>
-            </Select.Root>
-          </HStack>
+          <Box w="100%" h="20%" >
+            <Heading>過去の記録</Heading>
+            {(valiant==="aStore") && <MonoCoinDataChart data={orderData}/>}
+            {(valiant==="manyStore") && <RankingTable data={sampleData}/>}
+            
+          </Box>
         </Card.Header>
         <Card.Body color="fg.muted">
+          <OrderSelecter setOrder={setOrder} />
           <Box>
             <MoneyDataTable
               items={orderData}

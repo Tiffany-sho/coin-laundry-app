@@ -70,7 +70,7 @@ export async function POST(request, { params }) {
     }
 
     const newCollectMoney = new CollectMoney(data);
-    coinLaundryStore.moneyData.unshift(newCollectMoney);
+    coinLaundryStore.moneyData.push(newCollectMoney);
     await newCollectMoney.save();
     await coinLaundryStore.save();
 

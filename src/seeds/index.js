@@ -3,8 +3,10 @@ import stores from "./store.js";
 import CoinLaundryStore from "../models/coinLaundryStore.js";
 import CollectMoney from "../models/collectMoney.js";
 
+const MONGODB_URL = process.env.MONGODB_URL;
+
 mongoose
-  .connect("mongodb://localhost:27017/Coin-Laundry")
+  .connect(MONGODB_URL)
 
   .then(() => {
     console.log("MongDB接続しました");
