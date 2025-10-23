@@ -35,8 +35,6 @@ const collectMoneySchema = new Schema({
   ],
 });
 
-const collectMoneyModel =
-  mongoose.models.CollectMoney ||
-  mongoose.model("CollectMoney", collectMoneySchema);
+const collectMoneyModel = mongoose.model("CollectMoney", collectMoneySchema);
 
 export default collectMoneyModel;

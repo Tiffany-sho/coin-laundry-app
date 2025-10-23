@@ -1,4 +1,4 @@
-import { mongoose } from "mongoose";
+import mongoose from "mongoose";
 import stores from "./store.js";
 import CoinLaundryStore from "../models/coinLaundryStore.js";
 import CollectMoney from "../models/collectMoney.js";
