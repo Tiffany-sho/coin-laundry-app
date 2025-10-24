@@ -29,6 +29,7 @@ const coinLaundryStoreSchema = new Schema({
     },
   ],
   moneyData: [{ type: Schema.Types.ObjectId, ref: "CollectMoney" }],
+  monthDatas: [{ type: Schema.Types.ObjectId, ref: "CoinDataAverage" }],
   images: [
     {
       type: String,
@@ -46,9 +47,8 @@ coinLaundryStoreSchema.post("findOneAndDelete", async function (doc) {
   }
 });
 
-const coinLaundryStoreModel = mongoose.model(
-  "CoinlaundryStore",
-  coinLaundryStoreSchema
-);
+const coinLaundryStoreModel =
+  mongoose.models.CoinLaundryStore ||
+  mongoose.model("CoinLaundryStore", coinLaundryStoreSchema);
 
 export default coinLaundryStoreModel;

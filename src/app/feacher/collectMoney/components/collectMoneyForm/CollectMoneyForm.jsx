@@ -21,7 +21,7 @@ const coinWeight = 4.8;
 const CollectMoneyForm = ({ coinLaundry }) => {
   const [msg, setMsg] = useState("");
   const [res, resSet] = useState(false);
-  const [epoc,setEpoc]=useState(null);
+  const [epoc, setEpoc] = useState(null);
 
   const [machinesAndMoney, setMachinesAndMoney] = useState(() => {
     const initialValue = coinLaundry.machines.map((machine) => ({
@@ -107,7 +107,7 @@ const CollectMoneyForm = ({ coinLaundry }) => {
       };
     });
 
-    const date=epoc ? epoc :Date.now();
+    const date = epoc ? epoc : Date.now();
 
     const data = {
       store: coinLaundry.store,
@@ -115,6 +115,7 @@ const CollectMoneyForm = ({ coinLaundry }) => {
       date,
       moneyArray: postArray,
     };
+
     const JsonData = JSON.stringify(data);
     fetch(`/api/coinLaundry/${coinLaundry._id}/collectMoney`, {
       method: "POST",
@@ -149,7 +150,7 @@ const CollectMoneyForm = ({ coinLaundry }) => {
       <Card.Root maxW="sm">
         <Card.Header textStyle="xl">{coinLaundry.store}店</Card.Header>
         <Card.Body>
-        <EpochTimeSelector setEpoc={setEpoc}/>
+          <EpochTimeSelector setEpoc={setEpoc} />
           <Stack gap="8" w="full">
             {machinesAndMoney.map((machineAndMoney) => {
               return (
