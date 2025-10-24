@@ -11,6 +11,7 @@ import {
 
 import { getYearMonth } from "@/date";
 import { useEffect, useState } from "react";
+import { Spinner } from "@chakra-ui/react";
 
 const lineColor = [
   "red.solid",
@@ -97,6 +98,10 @@ const ManyCoinDataChart = ({ data }) => {
 
     setChartSeries(arraySeries);
   }, [data]);
+
+  if (chartData.length === 0 || chartSeries.length === 0) {
+    return <Spinner />;
+  }
 
   return (
     <Chart.Root maxH="sm" chart={chart}>

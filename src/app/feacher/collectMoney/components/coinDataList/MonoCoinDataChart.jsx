@@ -11,11 +11,11 @@ import {
 import { createNowData } from "@/date";
 
 const MonoCoinDataChart = ({ data }) => {
-const [chartData,setChartData]=useState([])
+  const [chartData, setChartData] = useState([]);
 
   useEffect(() => {
-      const newDataList = [...data].sort((a, b) => a.date - b.date);
-    const dataList=newDataList.map((item) => {
+    const newDataList = [...data].sort((a, b) => a.date - b.date);
+    const dataList = newDataList.map((item) => {
       const total = item.moneyArray.reduce((accumulator, currentValue) => {
         return accumulator + parseInt(currentValue.money);
       }, 0);
@@ -23,9 +23,9 @@ const [chartData,setChartData]=useState([])
         name: createNowData(item.date),
         uv: total,
       };
-      return newObj
+      return newObj;
     });
-    setChartData(dataList)
+    setChartData(dataList);
   }, [data]);
   const chart = useChart({
     data: chartData,

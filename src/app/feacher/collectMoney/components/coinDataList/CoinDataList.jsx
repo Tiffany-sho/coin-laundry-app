@@ -1,16 +1,25 @@
 import { useEffect, useState } from "react";
-import { Card, Box, Heading } from "@chakra-ui/react";
+import {
+  Card,
+  Box,
+  Heading,
+  Flex,
+  Button,
+  CloseButton,
+  Drawer,
+  Portal,
+} from "@chakra-ui/react";
 import { toaster } from "@/components/ui/toaster";
 import MoneyDataTable from "@/app/feacher/collectMoney/components/coinDataList/CoinDataTable";
 import MoneyDataCard from "@/app/feacher/collectMoney/components/coinDataList/CoinDataCard";
 import * as Order from "@/createArray/dateOrder";
 import OrderSelecter from "./OrderSelecter";
 import MonoCoinDataChart from "./MonoCoinDataChart";
-import RankingTable from "./CoinDataRanking/CoinDataRanking";
 import ManyCoinDataChart from "./ManyCoinDataChart";
 
 const MoneyDataList = ({ valiant, coinData }) => {
   const [selectedItem, setSelectedItem] = useState(null);
+  const [open, setOpen] = useState(false);
   const [order, setOrder] = useState(["newer"]);
   const [orderData, setOrderData] = useState([]);
 
@@ -57,42 +66,68 @@ const MoneyDataList = ({ valiant, coinData }) => {
       setSelectedItem(updatedSelectedItem);
     }
   }, [coinData]);
-  const sampleData = [
-    { rank: 1, name: "田中太郎", score: 950, date: "2025-10-23", change: 50 },
-    { rank: 2, name: "佐藤花子", score: 920, date: "2025-10-22", change: -10 },
-    { rank: 3, name: "鈴木一郎", score: 880, date: "2025-10-23", change: 0 },
-  ];
+
   return (
     <>
-      <Card.Root size="lg" w={selectedItem ? "2/3" : "100%"} mt="5%">
-        <Card.Header>
-          <Box w="100%" h="20%">
-            <Heading>過去の記録</Heading>
-            {valiant === "aStore" && <MonoCoinDataChart data={orderData} />}
-            {valiant === "manyStore" && <ManyCoinDataChart data={orderData} />}
-          </Box>
-        </Card.Header>
-        <Card.Body color="fg.muted">
-          <OrderSelecter setOrder={setOrder} />
-          <Box>
-            <MoneyDataTable
-              items={orderData}
-              selectedItemId={selectedItem?._id}
-              onRowClick={setSelectedItem}
-            />
-          </Box>
-        </Card.Body>
-      </Card.Root>
-      <Box w="1/3">
-        {selectedItem && (
-          <MoneyDataCard
-            item={selectedItem}
-            onRowClick={setSelectedItem}
-            valiant={valiant}
-            key={selectedItem._id}
-          />
-        )}
-      </Box>
+      <Drawer.Root open={open} onOpenChange={(e) => setOpen(e.open)}>
+        <Drawer.Trigger asChild>
+          <Card.Root size="lg" mt="5%">
+            <Card.Header>
+              <Flex w="100%" h="400px" direction="column">
+                <Heading size="md" mb={4}>
+                  過去の記録
+                </Heading>
+                <Box w="100%" flex="1">
+                  {valiant === "aStore" && (
+                    <MonoCoinDataChart data={orderData} />
+                  )}
+                  {valiant === "manyStore" && (
+                    <ManyCoinDataChart data={orderData} />
+                  )}
+                </Box>
+              </Flex>
+            </Card.Header>
+            <Card.Body color="fg.muted">
+              <OrderSelecter setOrder={setOrder} />
+              <Box>
+                <MoneyDataTable
+                  items={orderData}
+                  selectedItemId={selectedItem?._id}
+                  onRowClick={setSelectedItem}
+                  open={open}
+                />
+              </Box>
+            </Card.Body>
+          </Card.Root>
+        </Drawer.Trigger>
+        <Portal>
+          <Drawer.Backdrop onClick={() => console.log("sam")} />
+          <Drawer.Positioner>
+            <Drawer.Content>
+              <Drawer.Header>
+                <Drawer.Title>Drawer Title</Drawer.Title>
+              </Drawer.Header>
+              <Drawer.Body>
+                {selectedItem && (
+                  <MoneyDataCard
+                    item={selectedItem}
+                    onRowClick={setSelectedItem}
+                    valiant={valiant}
+                    key={selectedItem._id}
+                  />
+                )}
+              </Drawer.Body>
+              <Drawer.Footer>
+                <Button variant="outline">Cancel</Button>
+                <Button>Save</Button>
+              </Drawer.Footer>
+              <Drawer.CloseTrigger asChild>
+                <CloseButton size="sm" />
+              </Drawer.CloseTrigger>
+            </Drawer.Content>
+          </Drawer.Positioner>
+        </Portal>
+      </Drawer.Root>
     </>
   );
 };
