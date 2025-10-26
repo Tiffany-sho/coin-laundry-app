@@ -9,6 +9,9 @@ import {
   InputGroup,
   Stack,
   Textarea,
+  CloseButton,
+  Drawer,
+  Portal,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import Link from "next/link";
@@ -50,6 +53,7 @@ const CoinLaundryForm = ({ coinLaundry = initinitialCoinLaundry, method }) => {
   const [description, setDescription] = useState(coinLaundry.description);
   const [machines, setMachines] = useState(coinLaundry.machines);
   const [choose, setChoose] = useState(false);
+  const [open, setOpen] = useState(false);
   const [msg, setMsg] = useState("");
 
   const onSubmit = async (e) => {
@@ -76,7 +80,7 @@ const CoinLaundryForm = ({ coinLaundry = initinitialCoinLaundry, method }) => {
                 closable: true,
               })
             );
-            redirect(`/coinLaundry`);
+            redirect(`/coinLaundry/${res.id}`);
           });
         })
         .then((msg) => {
@@ -161,12 +165,42 @@ const CoinLaundryForm = ({ coinLaundry = initinitialCoinLaundry, method }) => {
                   onChange={(e) => setDescription(e.target.value)}
                 />
               </Field.Root>
-              <Field.Root>
-                <Field.Label htmlFor="machiens">設備</Field.Label>
-                <Button onClick={() => setChoose((prev) => !prev)}>
-                  {choose ? "選択中..." : "選択"}
-                </Button>
-              </Field.Root>
+
+              <Drawer.Root open={open} onOpenChange={(e) => setOpen(e.open)}>
+                <Drawer.Trigger asChild>
+                  <Button onClick={() => setChoose((prev) => !prev)}>
+                    {choose ? "選択中..." : "機械選択"}
+                  </Button>
+                </Drawer.Trigger>
+                <Portal>
+                  <Drawer.Backdrop />
+                  <Drawer.Positioner>
+                    <Drawer.Content>
+                      {choose && (
+                        <>
+                          <Drawer.Header>
+                            <Drawer.Title>
+                              機械の個数を選択してください
+                            </Drawer.Title>
+                          </Drawer.Header>
+                          <Drawer.Body>
+                            <MachineForm
+                              machines={machines}
+                              setMachines={setMachines}
+                              setChoose={setChoose}
+                              setOpen={setOpen}
+                              open={open}
+                            />
+                          </Drawer.Body>
+                          <Drawer.CloseTrigger asChild>
+                            <CloseButton size="sm" />
+                          </Drawer.CloseTrigger>
+                        </>
+                      )}
+                    </Drawer.Content>
+                  </Drawer.Positioner>
+                </Portal>
+              </Drawer.Root>
             </Stack>
           </Card.Body>
           <Card.Footer justifyContent="flex-end">
@@ -184,13 +218,6 @@ const CoinLaundryForm = ({ coinLaundry = initinitialCoinLaundry, method }) => {
           </Card.Footer>
         </Card.Root>
       </form>
-      {choose && (
-        <MachineForm
-          machines={machines}
-          setMachines={setMachines}
-          setChoose={setChoose}
-        />
-      )}
     </>
   );
 };

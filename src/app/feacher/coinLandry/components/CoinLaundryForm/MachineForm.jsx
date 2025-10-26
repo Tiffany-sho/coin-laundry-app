@@ -1,8 +1,27 @@
 "use client";
 
-import { Button, Card, Field, Box, Stack, Text } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
 
-const MachineForm = ({ machines, setMachines, setChoose }) => {
+import {
+  Button,
+  Card,
+  Flex,
+  Stack,
+  Text,
+  HStack,
+  IconButton,
+  NumberInput,
+} from "@chakra-ui/react";
+import { LuMinus, LuPlus } from "react-icons/lu";
+import PropoverForm from "./PropoverForm";
+
+const MachineForm = ({ machines, setMachines, setChoose, setOpen, open }) => {
+  useEffect(() => {
+    if (!open) {
+      setChoose(null);
+    }
+  }, [open]);
+
   const handleCountChange = (machineName, amount) => {
     setMachines((prevMachines) => {
       return prevMachines.map((machine) => {
@@ -18,55 +37,62 @@ const MachineForm = ({ machines, setMachines, setChoose }) => {
   return (
     <>
       <Card.Root maxW="sm">
-        <Card.Header>
-          <Card.Title>設備を選択してください</Card.Title>
-          <Card.Description>
-            Fill in the form below to create an account
+        <Flex justifyContent="space-between">
+          <Card.Description m="5%">
+            機械の削除は個数を0にすると自動的に削除されます
           </Card.Description>
-        </Card.Header>
+          <PropoverForm setMachines={setMachines} />
+        </Flex>
+
         <Card.Body>
           <Stack gap="4" w="full">
             {machines.map((machine) => {
               return (
-                <Field.Root
-                  key={machine.name}
-                  display="flex"
-                  flexDirection="row"
-                  justifyContent="space-between"
-                  alignItems="center"
-                >
-                  <Field.Label>{machine.name}</Field.Label>
-                  <Box>
-                    <Button
-                      onClick={() => handleCountChange(machine.name, -1)}
-                      size="2xs"
-                      borderRadius="full"
-                    >
-                      <Text fontSize="xs" fontWeight="bold">
-                        -
-                      </Text>
-                    </Button>
-                    <Text fontSize="xl" display="inline" mx="0.6em">
-                      {machine.num}
-                    </Text>
+                <Flex key={machine.name} justifyContent="space-between">
+                  <Text>{machine.name}</Text>
+                  <NumberInput.Root
+                    unstyled
+                    spinOnPress={false}
+                    key={machine.name}
+                  >
+                    <HStack gap="2">
+                      {machine.num !== 0 && (
+                        <NumberInput.DecrementTrigger asChild>
+                          <IconButton
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleCountChange(machine.name, -1)}
+                          >
+                            <LuMinus />
+                          </IconButton>
+                        </NumberInput.DecrementTrigger>
+                      )}
 
-                    <Button
-                      onClick={() => handleCountChange(machine.name, 1)}
-                      size="2xs"
-                      borderRadius="full"
-                    >
-                      <Text fontSize="xs" fontWeight="bold">
-                        +
-                      </Text>
-                    </Button>
-                  </Box>
-                </Field.Root>
+                      <NumberInput.ValueText
+                        textAlign="center"
+                        fontSize="lg"
+                        minW="3ch"
+                      >
+                        {machine.num === 0 ? "0" : machine.num}
+                      </NumberInput.ValueText>
+                      <NumberInput.IncrementTrigger asChild>
+                        <IconButton
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleCountChange(machine.name, 1)}
+                        >
+                          <LuPlus />
+                        </IconButton>
+                      </NumberInput.IncrementTrigger>
+                    </HStack>
+                  </NumberInput.Root>
+                </Flex>
               );
             })}
           </Stack>
         </Card.Body>
         <Card.Footer justifyContent="flex-end">
-          <Button variant="solid" onClick={() => setChoose((prev) => !prev)}>
+          <Button variant="solid" onClick={() => setOpen(false)} w="100%">
             完了
           </Button>
         </Card.Footer>

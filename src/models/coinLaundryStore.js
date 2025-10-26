@@ -29,7 +29,6 @@ const coinLaundryStoreSchema = new Schema({
     },
   ],
   moneyData: [{ type: Schema.Types.ObjectId, ref: "CollectMoney" }],
-  monthDatas: [{ type: Schema.Types.ObjectId, ref: "CoinDataAverage" }],
   images: [
     {
       type: String,

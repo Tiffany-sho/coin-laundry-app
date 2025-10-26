@@ -44,7 +44,7 @@ const MonoCard = ({ coinLaundry }) => {
         sessionStorage.setItem(
           "toast",
           JSON.stringify({
-            description: `${res.store}を削除しました`,
+            description: `${res.store}店を削除しました`,
             type: "warning",
             closable: true,
           })
