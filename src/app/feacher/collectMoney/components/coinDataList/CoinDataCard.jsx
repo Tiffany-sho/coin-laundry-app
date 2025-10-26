@@ -3,8 +3,6 @@
 import { useSWRConfig } from "swr";
 import {
   Table,
-  Heading,
-  Text,
   Button,
   Editable,
   IconButton,
@@ -133,10 +131,6 @@ const MoneyDataCard = ({ item, onRowClick, valiant }) => {
   };
   return (
     <>
-      <Heading size="lg">
-        {item.store}
-        <Text textStyle="sm"> {createNowData(item.date)}</Text>
-      </Heading>
       <Table.Root size="sm" variant="outline">
         <Table.Header>
           <Table.Row>

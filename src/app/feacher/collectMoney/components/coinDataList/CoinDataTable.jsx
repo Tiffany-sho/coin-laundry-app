@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { Table, Link } from "@chakra-ui/react";
+import { Table } from "@chakra-ui/react";
 import { createNowData } from "@/date";
 
 const DataTable = ({ items, selectedItemId, onRowClick, open }) => {
@@ -36,14 +36,7 @@ const DataTable = ({ items, selectedItemId, onRowClick, open }) => {
             bgColor={selectedItemId === item._id ? "gray.200" : "transparent"}
             cursor="pointer"
           >
-            <Table.Cell>
-              <Link
-                variant="underline"
-                href={`/coinLaundry/${item.storeId}/coinDataList`}
-              >
-                {item.store}店
-              </Link>
-            </Table.Cell>
+            <Table.Cell>{item.store}店</Table.Cell>
             <Table.Cell>
               {item.moneyArray.reduce((accumulator, currentValue) => {
                 return accumulator + parseInt(currentValue.money);

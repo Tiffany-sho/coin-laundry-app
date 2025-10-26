@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import {
   Card,
   Box,
+  Text,
+  Link,
   Heading,
   Flex,
   Button,
@@ -14,8 +16,10 @@ import MoneyDataTable from "@/app/feacher/collectMoney/components/coinDataList/C
 import MoneyDataCard from "@/app/feacher/collectMoney/components/coinDataList/CoinDataCard";
 import * as Order from "@/createArray/dateOrder";
 import OrderSelecter from "./OrderSelecter";
+import { createNowData } from "@/date";
 import MonoCoinDataChart from "./MonoCoinDataChart";
 import ManyCoinDataChart from "./ManyCoinDataChart";
+import DataClipBoard from "./DataClipBoard";
 
 const MoneyDataList = ({ valiant, coinData }) => {
   const [selectedItem, setSelectedItem] = useState(null);
@@ -68,67 +72,107 @@ const MoneyDataList = ({ valiant, coinData }) => {
   }, [coinData]);
 
   return (
-    <>
-      <Drawer.Root open={open} onOpenChange={(e) => setOpen(e.open)}>
-        <Drawer.Trigger asChild>
-          <Card.Root size="lg" mt="5%">
-            <Card.Header>
-              <Flex w="100%" h="400px" direction="column">
-                <Heading size="md" mb={4}>
-                  過去の記録
+    <Flex direction="column" alignItems="center" justifyContent="center">
+      <Card.Root size="lg" mt="5%" mb="5%" w="90%">
+        <Card.Header>
+          <Flex w="100%" direction="column">
+            <Heading size="md" mb={4}>
+              <Flex justifyContent="space-between">
+                <Heading size="3xl">
+                  {valiant === "aStore" && `${coinData[0].store}店`}
+                  {valiant === "manyStore" && "全データ一覧"}
                 </Heading>
-                <Box w="100%" flex="1">
-                  {valiant === "aStore" && (
-                    <MonoCoinDataChart data={orderData} />
-                  )}
-                  {valiant === "manyStore" && (
-                    <ManyCoinDataChart data={orderData} />
-                  )}
+                <Box>
+                  総額
+                  <Box textStyle="3xl">
+                    {coinData.reduce((accumulator, current) => {
+                      const summary = current.moneyArray.reduce(
+                        (accumulator, currentValue) => {
+                          return accumulator + parseInt(currentValue.money);
+                        },
+                        0
+                      );
+                      return accumulator + summary;
+                    }, 0) * 100}
+                    円
+                  </Box>
                 </Box>
               </Flex>
-            </Card.Header>
-            <Card.Body color="fg.muted">
-              <OrderSelecter setOrder={setOrder} />
-              <Box>
-                <MoneyDataTable
-                  items={orderData}
-                  selectedItemId={selectedItem?._id}
-                  onRowClick={setSelectedItem}
-                  open={open}
-                />
-              </Box>
-            </Card.Body>
-          </Card.Root>
-        </Drawer.Trigger>
-        <Portal>
-          <Drawer.Backdrop onClick={() => console.log("sam")} />
-          <Drawer.Positioner>
-            <Drawer.Content>
-              <Drawer.Header>
-                <Drawer.Title>Drawer Title</Drawer.Title>
-              </Drawer.Header>
-              <Drawer.Body>
+            </Heading>
+            <Box w="100%" flex="1">
+              {valiant === "aStore" && <MonoCoinDataChart data={orderData} />}
+              {valiant === "manyStore" && (
+                <ManyCoinDataChart data={orderData} />
+              )}
+            </Box>
+          </Flex>
+        </Card.Header>
+        <Card.Body color="fg.muted">
+          <OrderSelecter setOrder={setOrder} />
+        </Card.Body>
+
+        <Drawer.Root open={open} onOpenChange={(e) => setOpen(e.open)}>
+          <Drawer.Trigger asChild>
+            <Box>
+              <MoneyDataTable
+                items={orderData}
+                selectedItemId={selectedItem?._id}
+                onRowClick={setSelectedItem}
+                open={open}
+              />
+            </Box>
+          </Drawer.Trigger>
+          <Portal>
+            <Drawer.Backdrop />
+            <Drawer.Positioner>
+              <Drawer.Content>
                 {selectedItem && (
-                  <MoneyDataCard
-                    item={selectedItem}
-                    onRowClick={setSelectedItem}
-                    valiant={valiant}
-                    key={selectedItem._id}
-                  />
+                  <>
+                    <Drawer.Header>
+                      <Drawer.Title>
+                        <Flex justifyContent="space-between" mt="10%">
+                          <Box>
+                            {valiant === "aStore" && `${selectedItem.store}店`}
+                            {valiant === "manyStore" && (
+                              <Link
+                                variant="underline"
+                                href={`/coinLaundry/${selectedItem.storeId}/coinDataList`}
+                              >
+                                {selectedItem.store}店
+                              </Link>
+                            )}
+
+                            <Text textStyle="sm">
+                              {createNowData(selectedItem.date)}
+                            </Text>
+                          </Box>
+                          <DataClipBoard data={selectedItem} />
+                        </Flex>
+                      </Drawer.Title>
+                    </Drawer.Header>
+                    <Drawer.Body>
+                      <MoneyDataCard
+                        item={selectedItem}
+                        onRowClick={setSelectedItem}
+                        valiant={valiant}
+                        key={selectedItem._id}
+                      />
+                    </Drawer.Body>
+                    <Drawer.Footer>
+                      <Button variant="outline">Cancel</Button>
+                      <Button>Save</Button>
+                    </Drawer.Footer>
+                    <Drawer.CloseTrigger asChild>
+                      <CloseButton size="sm" />
+                    </Drawer.CloseTrigger>
+                  </>
                 )}
-              </Drawer.Body>
-              <Drawer.Footer>
-                <Button variant="outline">Cancel</Button>
-                <Button>Save</Button>
-              </Drawer.Footer>
-              <Drawer.CloseTrigger asChild>
-                <CloseButton size="sm" />
-              </Drawer.CloseTrigger>
-            </Drawer.Content>
-          </Drawer.Positioner>
-        </Portal>
-      </Drawer.Root>
-    </>
+              </Drawer.Content>
+            </Drawer.Positioner>
+          </Portal>
+        </Drawer.Root>
+      </Card.Root>
+    </Flex>
   );
 };
 
