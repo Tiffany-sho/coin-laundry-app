@@ -154,14 +154,11 @@ const MoneyDataList = ({ valiant, coinData }) => {
                       <MoneyDataCard
                         item={selectedItem}
                         onRowClick={setSelectedItem}
+                        setOpen={setOpen}
                         valiant={valiant}
                         key={selectedItem._id}
                       />
                     </Drawer.Body>
-                    <Drawer.Footer>
-                      <Button variant="outline">Cancel</Button>
-                      <Button>Save</Button>
-                    </Drawer.Footer>
                     <Drawer.CloseTrigger asChild>
                       <CloseButton size="sm" />
                     </Drawer.CloseTrigger>

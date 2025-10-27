@@ -12,7 +12,7 @@ export async function GET(request, { params }) {
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
-        { msg: "IDの形式が正しくありません。" },
+        { msg: "IDの形式が正しくありません。", result: "failure" },
         { status: 400 }
       );
     }
@@ -22,16 +22,21 @@ export async function GET(request, { params }) {
     );
 
     if (!coinLaundryStore) {
-      console.log("not found");
       return NextResponse.json(
-        { msg: "店舗が見つかりませんでした" },
+        { msg: "店舗が見つかりませんでした", result: "failure" },
+        { status: 404 }
+      );
+    }
+    if (coinLaundryStore.moneyData.length === 0) {
+      return NextResponse.json(
+        { msg: "集金データが見つかりませんでした", result: "failure" },
         { status: 404 }
       );
     }
     return NextResponse.json(coinLaundryStore.moneyData);
   } catch (err) {
     return NextResponse.json(
-      { message: "予期しないエラーが発生しました" },
+      { msg: "予期しないエラーが発生しました", result: "failure" },
       { status: 400 }
     );
   }
@@ -62,7 +67,6 @@ export async function POST(request, { params }) {
     const coinLaundryStore = await CoinLaundryStore.findById(id);
 
     if (!coinLaundryStore) {
-      console.log("not found");
       return NextResponse.json(
         { msg: "店舗が見つかりませんでした" },
         { status: 404 }
@@ -80,7 +84,7 @@ export async function POST(request, { params }) {
   } catch (err) {
     console.error(err);
     return NextResponse.json(
-      { message: "サーバーエラーが発生しました" },
+      { msg: "サーバーエラーが発生しました" },
       { status: 500 }
     );
   }

@@ -1,6 +1,5 @@
 import CollectMoney from "@/models/collectMoney";
 import dbConnect from "@/lib/dbConnect";
-import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 
 export async function GET(request, { params }) {
@@ -24,7 +23,6 @@ export async function PUT(requset, { params }) {
   const editData = await requset.json();
   const machineId = editData.id;
   const machineMoney = editData.money;
-  console.log(machineMoney);
   if (machineMoney === null) {
     return NextResponse.json(
       { msg: "入力フィールドが空のものがあります。" },

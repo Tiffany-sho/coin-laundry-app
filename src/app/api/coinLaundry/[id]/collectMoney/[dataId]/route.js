@@ -16,7 +16,6 @@ export async function DELETE(request, { params }) {
 
     const store = collectMoney.store;
     const date = collectMoney.date;
-    console.log(date);
     return NextResponse.json({ store, id, date });
   } catch {
     return NextResponse.json({ msg: "削除に失敗しました" }, { status: 500 });

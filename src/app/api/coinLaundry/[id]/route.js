@@ -11,7 +11,7 @@ export async function GET(request, { params }) {
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
-        { msg: "IDの形式が正しくありません。" },
+        { msg: "IDの形式が正しくありません。", result: "failure" },
         { status: 400 }
       );
     }
@@ -19,9 +19,8 @@ export async function GET(request, { params }) {
     const coinLaundryStore = await CoinLaundryStore.findById(id);
 
     if (!coinLaundryStore) {
-      console.log("not found");
       return NextResponse.json(
-        { msg: "店舗が見つかりませんでした" },
+        { msg: "店舗が見つかりませんでした", result: "failure" },
         { status: 404 }
       );
     }
@@ -74,7 +73,8 @@ export async function DELETE(request, { params }) {
     const { id } = await params;
     const deleteCoinLaundry = await CoinLaundryStore.findByIdAndDelete(id);
     const store = deleteCoinLaundry.store;
-    return NextResponse.json({ store });
+    const storeId = deleteCoinLaundry._id;
+    return NextResponse.json({ store, id: storeId });
   } catch {
     return NextResponse.json({ msg: "削除に失敗しました。" }, { status: 500 });
   }

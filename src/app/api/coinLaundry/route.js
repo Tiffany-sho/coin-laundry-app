@@ -7,10 +7,16 @@ export async function GET() {
 
   try {
     const coinLaundryStores = await CoinLaundryStore.find({});
+    if (!coinLaundryStores) {
+      return NextResponse.json(
+        { msg: "店舗が見つかりませんでした", result: "failure" },
+        { status: 404 }
+      );
+    }
     return NextResponse.json(coinLaundryStores);
   } catch (err) {
     return NextResponse.json(
-      { message: "予期しないエラーが発生しました" },
+      { msg: "予期しないエラーが発生しました", result: "failure" },
       { status: 400 }
     );
   }

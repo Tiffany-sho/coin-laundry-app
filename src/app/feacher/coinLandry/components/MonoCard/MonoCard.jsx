@@ -1,13 +1,14 @@
 "use client";
 
 import { Button, Card, Image, List, Text } from "@chakra-ui/react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toaster } from "@/components/ui/toaster";
 import rokkaku from "@/assets/rokkaku.png";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import * as Icon from "./MonoCardIcon";
 import Styles from "./MonoCard.module.css";
+import AlertDialog from "@/app/feacher/dialog/AlertDialog";
 
 const MonoCard = ({ coinLaundry }) => {
   useEffect(() => {
@@ -23,13 +24,15 @@ const MonoCard = ({ coinLaundry }) => {
     }, 0);
   }, []);
 
-  const onSubmit = async (e) => {
+  const onSubmit = (e) => {
     e.preventDefault();
-    const form = e.target;
-    const formData = new FormData(form);
+  };
+
+  const deleteAction = async () => {
+    if (!submitData) return;
+
     fetch(`/api/coinLaundry/${coinLaundry._id}`, {
       method: "DELETE",
-      body: formData,
     }).then((res) => {
       if (!res.ok) {
         return res.json().then((res) => {
@@ -49,10 +52,11 @@ const MonoCard = ({ coinLaundry }) => {
             closable: true,
           })
         );
-        redirect("/coinLaundry");
+        redirect(`/coinLaundry/${res.id}`);
       });
     });
   };
+
   return (
     <Card.Root width="90%" ml="5%" overflow="hidden">
       <div className={Styles.monocontainer}>
@@ -86,12 +90,12 @@ const MonoCard = ({ coinLaundry }) => {
               );
             })}
           </List.Root>
-
           <Card.Footer gap="2" ml="auto">
-            <form onSubmit={onSubmit} action={"/coinLaundry"}>
-              <Button type="submit" variant="solid">
-                <Icon.BsFillTrash3Fill />
-              </Button>
+            <form onSubmit={onSubmit}>
+              <AlertDialog
+                target={`${res.store}店`}
+                deleteAction={deleteAction}
+              />
             </form>
             <Link href={`/coinLaundry/${coinLaundry._id}/edit`}>
               <Button variant="solid" ml="auto">

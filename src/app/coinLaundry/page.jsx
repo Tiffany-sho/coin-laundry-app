@@ -5,13 +5,21 @@ async function fetcher() {
   const res = await fetch(`http://localhost:3000/api/coinLaundry`);
 
   if (!res.ok) {
-    throw new Error("Failed to fetch data");
+    const errorRes = await res.json();
+    return {
+      title: errorRes.msg,
+      result: errorRes.result,
+      status: res.status,
+    };
   }
   return res.json();
 }
 
 const Page = async () => {
   const datas = await fetcher();
+  if (datas.result === "failure")
+    return <ErrorPage title={datas.title} status={datas.status} />;
+
   return (
     <>
       <Heading textStyle="3xl" textAlign="center" my="4" fontWeight="bold">

@@ -13,9 +13,11 @@ import { createNowData } from "@/date";
 import { toaster } from "@/components/ui/toaster";
 import { LuCheck, LuPencilLine, LuX } from "react-icons/lu";
 import { useEffect, useState } from "react";
+import AlertDialog from "@/app/feacher/dialog/AlertDialog";
 
-const MoneyDataCard = ({ item, onRowClick, valiant }) => {
+const MoneyDataCard = ({ item, onRowClick, setOpen, valiant }) => {
   const [toggleArray, setToggleArray] = useState([]);
+  const [msg, setMsg] = useState("");
 
   useEffect(() => {
     const getArray = () => {
@@ -37,6 +39,9 @@ const MoneyDataCard = ({ item, onRowClick, valiant }) => {
 
   const onSubmit = (e) => {
     e.preventDefault();
+  };
+
+  const deleteAction = () => {
     fetch(`/api/coinLaundry/${item.storeId}/collectMoney/${item._id}`, {
       method: "delete",
     }).then((res) => {
@@ -47,6 +52,7 @@ const MoneyDataCard = ({ item, onRowClick, valiant }) => {
       }
       return res.json().then((res) => {
         onRowClick(null);
+        setOpen(false);
         toaster.create({
           description: `${res.store}(${createNowData(
             res.date
@@ -62,7 +68,6 @@ const MoneyDataCard = ({ item, onRowClick, valiant }) => {
       });
     });
   };
-
   const editAbleForm = (id, e, action) => {
     setToggleArray((prevArray) => {
       return prevArray.map((item) => {
@@ -104,33 +109,34 @@ const MoneyDataCard = ({ item, onRowClick, valiant }) => {
       fetch(`/api/collectMoney/${item._id}`, {
         method: "PUT",
         body: JSON.stringify(editMachine),
-      }).then((res) => {
-        if (!res.ok) {
+      })
+        .then((res) => {
+          if (!res.ok) {
+            return res.json().then((res) => {
+              return res.msg;
+            });
+          }
           return res.json().then((res) => {
             toaster.create({
-              description: `${res.msg}`,
-              type: "error",
+              description: `${res.machine}店(${res.store})の集金データを更新しました`,
+              type: "success",
               closable: true,
             });
+            if (valiant === "manyStore") {
+              mutate("/api/collectMoney");
+            } else if (valiant === "aStore") {
+              mutate(`/api/coinLaundry/${item.storeId}/collectMoney`);
+            }
           });
-        }
-        return res.json().then((res) => {
-          toaster.create({
-            description: `${res.machine}(${res.store})の集金データを更新しました`,
-            type: "success",
-            closable: true,
-          });
-          if (valiant === "manyStore") {
-            mutate("/api/collectMoney");
-          } else if (valiant === "aStore") {
-            mutate(`/api/coinLaundry/${item.storeId}/collectMoney`);
-          }
+        })
+        .then((msg) => {
+          setMsg(msg);
         });
-      });
     }
   };
   return (
     <>
+      {msg && <Box color="red.600">{msg}</Box>}
       <Table.Root size="sm" variant="outline">
         <Table.Header>
           <Table.Row>
@@ -182,8 +188,6 @@ const MoneyDataCard = ({ item, onRowClick, valiant }) => {
                   </Editable.Control>
                 </Editable.Root>
               </Table.Cell>
-
-              {/* <Table.Cell>{item.money}</Table.Cell> */}
             </Table.Row>
           ))}
           <Table.Row key={item.total}>
@@ -198,9 +202,12 @@ const MoneyDataCard = ({ item, onRowClick, valiant }) => {
         </Table.Body>
       </Table.Root>
       <form onSubmit={onSubmit}>
-        <Button color="red.500" variant="outline" border="none" type="submit">
-          このデータを削除
-        </Button>
+        <Box mt="5%">
+          <AlertDialog
+            target={`${item.store}店(${createNowData(item.date)})`}
+            deleteAction={deleteAction}
+          />
+        </Box>
       </form>
     </>
   );

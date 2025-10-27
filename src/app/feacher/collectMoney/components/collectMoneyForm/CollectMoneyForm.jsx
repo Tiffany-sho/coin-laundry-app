@@ -20,7 +20,6 @@ import EpochTimeSelector from "./selectDate/SelectDate";
 const coinWeight = 4.8;
 const CollectMoneyForm = ({ coinLaundry }) => {
   const [msg, setMsg] = useState("");
-  const [res, resSet] = useState(false);
   const [epoc, setEpoc] = useState(null);
 
   const [machinesAndMoney, setMachinesAndMoney] = useState(() => {
@@ -124,7 +123,6 @@ const CollectMoneyForm = ({ coinLaundry }) => {
       .then((res) => {
         if (!res.ok) {
           return res.json().then((res) => {
-            resSet(false);
             return res.msg;
           });
         }
@@ -214,7 +212,7 @@ const CollectMoneyForm = ({ coinLaundry }) => {
           <Button variant="solid" type="submit">
             登録
           </Button>
-          <div style={{ color: res ? "green" : "red" }}>{msg}</div>
+          {msg && <div style="red">{msg}</div>}
         </Card.Footer>
       </Card.Root>
     </form>
