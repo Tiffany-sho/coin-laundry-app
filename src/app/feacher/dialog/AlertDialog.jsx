@@ -1,4 +1,4 @@
-import { Button, CloseButton, Dialog, Flex, Portal } from "@chakra-ui/react";
+import { Button, CloseButton, Dialog, Portal } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/coinLandry/components/MonoCard/MonoCardIcon";
 
 const AlertDialog = ({ target, deleteAction }) => {

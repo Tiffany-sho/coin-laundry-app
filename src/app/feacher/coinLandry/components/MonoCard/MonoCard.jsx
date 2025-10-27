@@ -17,7 +17,6 @@ const MonoCard = ({ coinLaundry }) => {
 
       if (toastInfo) {
         const toastInfoStr = JSON.parse(toastInfo);
-
         toaster.create(toastInfoStr);
       }
       sessionStorage.removeItem("toast");
@@ -29,8 +28,6 @@ const MonoCard = ({ coinLaundry }) => {
   };
 
   const deleteAction = async () => {
-    if (!submitData) return;
-
     fetch(`/api/coinLaundry/${coinLaundry._id}`, {
       method: "DELETE",
     }).then((res) => {
@@ -44,14 +41,12 @@ const MonoCard = ({ coinLaundry }) => {
         });
       }
       return res.json().then((res) => {
-        sessionStorage.setItem(
-          "toast",
-          JSON.stringify({
-            description: `${res.store}店を削除しました`,
-            type: "warning",
-            closable: true,
-          })
-        );
+        toaster.create({
+          description: `${res.store}店を削除しました`,
+          type: "warning",
+          closable: true,
+        });
+
         redirect(`/coinLaundry/${res.id}`);
       });
     });
@@ -93,7 +88,7 @@ const MonoCard = ({ coinLaundry }) => {
           <Card.Footer gap="2" ml="auto">
             <form onSubmit={onSubmit}>
               <AlertDialog
-                target={`${res.store}店`}
+                target={`${coinLaundry.store}店`}
                 deleteAction={deleteAction}
               />
             </form>
