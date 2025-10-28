@@ -1,10 +1,10 @@
-import mongoose from "mongoose";
+import { mongoose } from "mongoose";
 import stores from "./store.js";
 import CoinLaundryStore from "../models/coinLaundryStore.js";
 import CollectMoney from "../models/collectMoney.js";
 
-const MONGODB_URL = process.env.MONGODB_URL;
-
+const MONGODB_URL = "mongodb://localhost:27017/Coin-Laundry";
+console.log(MONGODB_URL);
 mongoose
   .connect(MONGODB_URL)
 

@@ -30,6 +30,7 @@ export async function POST(request) {
   const location = formData.get("location");
   const description = formData.get("description");
   const machines = JSON.parse(formData.get("machines"));
+  const images = JSON.parse(formData.get("images"));
 
   if (store === "" || location === "" || description === "") {
     return NextResponse.json(
@@ -43,6 +44,7 @@ export async function POST(request) {
       location,
       description,
       machines,
+      images,
     });
     await newCoinLaundry.save();
     const newId = newCoinLaundry._id;

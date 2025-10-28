@@ -12,7 +12,7 @@ const stores = [
       { name: "ソフター自販機", num: 2 },
     ],
     images: [
-      "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/sign/Laundry-Images/Misono/Mison.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9kMDZiZGVmZi02ZGY2LTRjY2YtODk4Yy1mYjg1ZTc2YzliYWMiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJMYXVuZHJ5LUltYWdlcy9NaXNvbm8vTWlzb24ucG5nIiwiaWF0IjoxNzU5Mjc5OTcyLCJleHAiOjE3NTk4ODQ3NzJ9.Vt9sWNm2bC7U9lW6U9czCGdrxXxdNICXRi2eTFjtz9E",
+      "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/public/Laundry-Images/Misono/Mison.png",
     ],
   },
   {
@@ -28,7 +28,7 @@ const stores = [
       { name: "ソフター自販機", num: 1 },
     ],
     images: [
-      "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/sign/Laundry-Images/Senbon/SenBon.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9kMDZiZGVmZi02ZGY2LTRjY2YtODk4Yy1mYjg1ZTc2YzliYWMiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJMYXVuZHJ5LUltYWdlcy9TZW5ib24vU2VuQm9uLnBuZyIsImlhdCI6MTc1OTI4MDA5MCwiZXhwIjoxNzU5ODg0ODkwfQ.nGSCDKKMW6QcP7vCDCHR0ZXYmVRTRA7xfUFyEx2L3-s",
+      "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/public/Laundry-Images/Senbon/SenBon.png",
     ],
   },
   {
@@ -44,7 +44,7 @@ const stores = [
       { name: "ソフター自販機", num: 3 },
     ],
     images: [
-      "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/sign/Laundry-Images/Kinugasa/Kinugasa.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9kMDZiZGVmZi02ZGY2LTRjY2YtODk4Yy1mYjg1ZTc2YzliYWMiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJMYXVuZHJ5LUltYWdlcy9LaW51Z2FzYS9LaW51Z2FzYS5wbmciLCJpYXQiOjE3NTkyODAyMjgsImV4cCI6MTc1OTg4NTAyOH0.vBe1NTP5XD-UCm9Oqjdb2dgcgT-a8QAxGiQVCMsDEpg",
+      "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/public/Laundry-Images/Kinugasa/Kinugasa.png",
     ],
   },
   {
@@ -59,7 +59,7 @@ const stores = [
       { name: "ソフター自販機", num: 1 },
     ],
     images: [
-      "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/sign/Laundry-Images/Maruta/Maruta.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9kMDZiZGVmZi02ZGY2LTRjY2YtODk4Yy1mYjg1ZTc2YzliYWMiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJMYXVuZHJ5LUltYWdlcy9NYXJ1dGEvTWFydXRhLnBuZyIsImlhdCI6MTc1OTI4MDI4MiwiZXhwIjoxNzU5ODg1MDgyfQ.8km-J7x2DFyDJ2nEGKyzm-0WgsW8NGnhtoMKJvqzHeg",
+      "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/public/Laundry-Images/Maruta/Maruta.png",
     ],
   },
   {
@@ -75,7 +75,7 @@ const stores = [
       { name: "ソフター自販機", num: 1 },
     ],
     images: [
-      "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/sign/Laundry-Images/Oue/Oue.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9kMDZiZGVmZi02ZGY2LTRjY2YtODk4Yy1mYjg1ZTc2YzliYWMiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJMYXVuZHJ5LUltYWdlcy9PdWUvT3VlLnBuZyIsImlhdCI6MTc1OTI4MDQ2NiwiZXhwIjoxNzU5ODg1MjY2fQ.e4WcQpacn_P3P8A75JT6S_lmZylltkWio40ZNvCxCVA",
+      "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/public/Laundry-Images/Oue/Oue.png",
     ],
   },
   {
@@ -90,7 +90,7 @@ const stores = [
       { name: "ソフター自販機", num: 2 },
     ],
     images: [
-      "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/sign/Laundry-Images/Rokkaku/Rokkaku.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9kMDZiZGVmZi02ZGY2LTRjY2YtODk4Yy1mYjg1ZTc2YzliYWMiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJMYXVuZHJ5LUltYWdlcy9Sb2trYWt1L1Jva2tha3UucG5nIiwiaWF0IjoxNzU5MjgwMzExLCJleHAiOjE3NTk4ODUxMTF9.m_3oUU92KSC4OACeQBCrJnAIeVWjCszzX1pfFzeeUe4",
+      "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/public/Laundry-Images/Rokkaku/Rokkaku.png",
     ],
   },
 ];

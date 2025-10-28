@@ -1,7 +1,6 @@
-import mongoose from "mongoose";
+import { mongoose } from "mongoose";
 
 const MONGODB_URL = process.env.MONGODB_URL;
-console.log(MONGODB_URL);
 
 if (!MONGODB_URL) {
   throw new Error("Not define MONGODB_URL");

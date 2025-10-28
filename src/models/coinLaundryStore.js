@@ -1,5 +1,5 @@
+import { mongoose } from "mongoose";
 import CollectMoney from "@/models/collectMoney";
-import mongoose from "mongoose";
 const { Schema } = mongoose;
 
 const coinLaundryStoreSchema = new Schema({

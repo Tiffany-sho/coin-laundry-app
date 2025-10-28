@@ -8,7 +8,7 @@ const CoinLaundryList = ({ coinLaundry, valiant }) => {
       <Image
         objectFit="cover"
         maxW="200px"
-        src={rokkaku.src}
+        src={coinLaundry.images[0]}
         alt="Caffe Latte"
       />
       <Box>
