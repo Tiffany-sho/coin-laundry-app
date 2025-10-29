@@ -68,75 +68,125 @@ const CoinLaundryForm = ({ coinLaundry = initinitialCoinLaundry, method }) => {
   const [choose, setChoose] = useState(false);
   const [open, setOpen] = useState(false);
   const [msg, setMsg] = useState("");
+  const [isLoading, setLoading] = useState(false);
 
   const formRef = useRef(null);
 
   const postHander = async () => {
-    console.log("click");
-    if (!formRef.current) return;
+    if (!formRef.current || isLoading) return;
+
+    setLoading(true);
+    setMsg("");
+
     const formData = new FormData(formRef.current);
     const newMachine = machines.filter((machine) => machine.num > 0);
-    const imageUrl = [...pictureUrl];
-    for (let item of pictureFile) {
-      if (!item.file) {
-        return;
-      }
-      if (item.file.type !== "image/jpeg" && item.file.type !== "image/png") {
+
+    const filesToUpload = pictureFile.filter((item) => item.file);
+    console.log(filesToUpload);
+
+    if (filesToUpload.lenght > 0) {
+      const invalidFiles = filesToUpload.some(
+        (item) =>
+          item.file.type !== "image/jpeg" && item.file.type !== "image/png"
+      );
+      if (invalidFiles) {
         setMsg("jpeg/pngファイルを選択してください");
+        setLoading(false);
         return;
       }
-      const fileName = `${Date.now()}_${item.file.name}`;
-      await uploadImage(fileName, item.file);
-      const data = getImage(fileName);
-      const dataObj = {
-        path: item.file.name,
-        url: data.publicUrl,
-      };
-      imageUrl.push(dataObj);
     }
 
-    if (coinLaundry.images.length !== pictureUrl.length) {
-      const setUrl = new Set(pictureUrl);
-      const deleteArray = coinLaundry.images.filter((ele) => !setUrl.has(ele));
-      for (let item of deleteArray) {
-        await deleteImage(item.path);
+    let newImageObjects = [];
+
+    if (filesToUpload.length > 0) {
+      try {
+        const uploadPromises = filesToUpload.map((item) => {
+          const fileName = `${Date.now()}_${item.file.name}`;
+          return (async () => {
+            await uploadImage(fileName, item.file);
+            const data = getImage(fileName);
+            return { path: fileName, url: data.publicUrl };
+          })();
+        });
+
+        newImageObjects = await Promise.all(uploadPromises);
+      } catch (error) {
+        console.error("Upload failed:", error);
+        setMsg("画像のアップロード中にエラーが発生しました。");
+        setLoading(false);
+        return;
       }
     }
+
+    const finalImageUrlList = [...pictureUrl, ...newImageObjects];
 
     formData.append("machines", JSON.stringify(newMachine));
-    formData.append("images", JSON.stringify(imageUrl));
+    formData.append("images", JSON.stringify(finalImageUrlList));
 
     let response;
-    if (method === "POST") {
-      response = await fetch("/api/coinLaundry", {
-        method: "POST",
-        body: formData,
-      });
-    } else if (method === "PUT") {
-      response = await fetch(`/api/coinLaundry/${coinLaundry._id}`, {
-        method: "PUT",
-        body: formData,
-      });
-    }
+    let responseData;
 
-    if (!response.ok) {
-      const errorRes = await response.json();
-      setMsg(errorRes.msg || "エラーが発生しました。");
+    try {
+      if (method === "POST") {
+        response = await fetch("/api/coinLaundry", {
+          method: "POST",
+          body: formData,
+        });
+      } else if (method === "PUT") {
+        response = await fetch(`/api/coinLaundry/${coinLaundry._id}`, {
+          method: "PUT",
+          body: formData,
+        });
+      }
+
+      if (!response.ok) {
+        const errorRes = await response.json();
+        throw new Error(
+          errorRes.msg || `HTTP error! status: ${response.status}`
+        );
+      }
+
+      responseData = await response.json();
+    } catch (error) {
+      console.error("API Error:", error);
+      setMsg(error.message || "データの送信に失敗しました。");
+      setLoading(false);
+
+      if (newImageObjects.length > 0) {
+        console.warn("Rollback: Deleting newly uploaded images...");
+        const deletePromises = newImageObjects.map((img) =>
+          deleteImage(img.path)
+        );
+        Promise.all(deletePromises).catch((err) =>
+          console.error("Rollback delete failed:", err)
+        );
+      }
       return;
     }
 
-    const res = await response.json();
+    const finalImagePaths = new Set(finalImageUrlList.map((img) => img.path));
+    const pathsToDelete = coinLaundry.images
+      .map((img) => img.path)
+      .filter((path) => !finalImagePaths.has(path));
+
+    if (pathsToDelete.length > 0) {
+      Promise.all(pathsToDelete.map((path) => deleteImage(path)))
+        .then(() => console.log("Old images cleaned up."))
+        .catch((err) => console.error("Cleanup deletion failed:", err));
+    }
+
+    setLoading(false);
     sessionStorage.setItem(
       "toast",
       JSON.stringify({
-        description: `${res.store}店の${
+        description: `${responseData.store}店の${
           method === "POST" ? "登録" : "編集"
         }が完了しました。`,
         type: "success",
         closable: true,
       })
     );
-    redirect(`/coinLaundry/${res.id}`);
+    redirect(`/coinLaundry/${responseData.id}`);
   };
   return (
     <>
@@ -244,7 +294,16 @@ const CoinLaundryForm = ({ coinLaundry = initinitialCoinLaundry, method }) => {
             >
               <Button variant="outline">キャンセル</Button>
             </Link>
-            <CheckDialog method={method} postHander={postHander} />
+            <CheckDialog
+              method={method}
+              postHander={postHander}
+              store={store}
+              location={location}
+              description={description}
+              machines={machines}
+              pictureFile={pictureFile}
+              pictureUrl={pictureUrl}
+            />
           </Card.Footer>
         </Card.Root>
       </form>
