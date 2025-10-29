@@ -9,9 +9,9 @@ const CheckDialog = ({ method, postHander }) => {
       motionPreset="slide-in-bottom"
     >
       <Dialog.Trigger asChild>
-        <Button variant="solid" type="submit">
+        <Button variant="solid">
           {method === "POST" && "登録確認"}
-          {method === "PUT" && "編集"}
+          {method === "PUT" && "編集確認"}
         </Button>
       </Dialog.Trigger>
       <Portal>

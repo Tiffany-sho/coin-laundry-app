@@ -60,21 +60,21 @@ const CoinLaundryForm = ({ coinLaundry = initinitialCoinLaundry, method }) => {
   const [store, setStore] = useState(coinLaundry.store);
   const [location, setLocation] = useState(coinLaundry.location);
   const [description, setDescription] = useState(coinLaundry.description);
+
   const [pictureUrl, setPictureUrl] = useState(coinLaundry.images);
   const [pictureFile, setPictureFile] = useState([]);
   const [machines, setMachines] = useState(coinLaundry.machines);
-  const [newCoinlaundry, setNewCoinLaundry] = useState({});
+
   const [choose, setChoose] = useState(false);
   const [open, setOpen] = useState(false);
   const [msg, setMsg] = useState("");
 
-  const onSubmit = (e) => {
-    e.preventDefault();
-    setNewCoinLaundry(e.target);
-  };
+  const formRef = useRef(null);
 
   const postHander = async () => {
-    const formData = new FormData(newCoinlaundry);
+    console.log("click");
+    if (!formRef.current) return;
+    const formData = new FormData(formRef.current);
     const newMachine = machines.filter((machine) => machine.num > 0);
     const imageUrl = [...pictureUrl];
     for (let item of pictureFile) {
@@ -85,8 +85,9 @@ const CoinLaundryForm = ({ coinLaundry = initinitialCoinLaundry, method }) => {
         setMsg("jpeg/pngファイルを選択してください");
         return;
       }
-      await uploadImage(`${item.file.name}`, item.file);
-      const data = getImage(`${item.file.name}`);
+      const fileName = `${Date.now()}_${item.file.name}`;
+      await uploadImage(fileName, item.file);
+      const data = getImage(fileName);
       const dataObj = {
         path: item.file.name,
         url: data.publicUrl,
@@ -98,72 +99,48 @@ const CoinLaundryForm = ({ coinLaundry = initinitialCoinLaundry, method }) => {
       const setUrl = new Set(pictureUrl);
       const deleteArray = coinLaundry.images.filter((ele) => !setUrl.has(ele));
       for (let item of deleteArray) {
-        const success = await deleteImage(item.path);
-        if (success) {
-          alert("画像を削除しました。");
-        } else {
-          alert("画像の削除に失敗しました。");
-        }
+        await deleteImage(item.path);
       }
     }
 
     formData.append("machines", JSON.stringify(newMachine));
     formData.append("images", JSON.stringify(imageUrl));
 
+    let response;
     if (method === "POST") {
-      fetch("/api/coinLaundry", { method: "POST", body: formData })
-        .then((res) => {
-          if (!res.ok) {
-            return res.json().then((res) => {
-              return res.msg;
-            });
-          }
-          return res.json().then((res) => {
-            sessionStorage.setItem(
-              "toast",
-              JSON.stringify({
-                description: `${res.store}店の登録が完了しました。`,
-                type: "success",
-                closable: true,
-              })
-            );
-            redirect(`/coinLaundry/${res.id}`);
-          });
-        })
-        .then((msg) => {
-          setMsg(msg);
-        });
+      response = await fetch("/api/coinLaundry", {
+        method: "POST",
+        body: formData,
+      });
     } else if (method === "PUT") {
-      fetch(`/api/coinLaundry/${coinLaundry._id}`, {
+      response = await fetch(`/api/coinLaundry/${coinLaundry._id}`, {
         method: "PUT",
         body: formData,
-      })
-        .then((res) => {
-          if (!res.ok) {
-            return res.json().then((res) => {
-              return res.msg;
-            });
-          }
-          return res.json().then((res) => {
-            sessionStorage.setItem(
-              "toast",
-              JSON.stringify({
-                description: `${res.store}店の編集が完了しました。`,
-                type: "success",
-                closable: true,
-              })
-            );
-            redirect(`/coinLaundry/${res.id}`);
-          });
-        })
-        .then((msg) => {
-          setMsg(msg);
-        });
+      });
     }
+
+    if (!response.ok) {
+      const errorRes = await response.json();
+      setMsg(errorRes.msg || "エラーが発生しました。");
+      return;
+    }
+
+    const res = await response.json();
+    sessionStorage.setItem(
+      "toast",
+      JSON.stringify({
+        description: `${res.store}店の${
+          method === "POST" ? "登録" : "編集"
+        }が完了しました。`,
+        type: "success",
+        closable: true,
+      })
+    );
+    redirect(`/coinLaundry/${res.id}`);
   };
   return (
     <>
-      <form onSubmit={onSubmit}>
+      <form ref={formRef}>
         <Card.Root maxW="sm" size="lg">
           <Card.Header>
             <Card.Title>
