@@ -1,14 +1,11 @@
 "use client";
 
-import { useCallback, useState } from "react";
 import { Image, Button, FileUpload, Flex, Float } from "@chakra-ui/react";
 import { LuFileImage, LuX } from "react-icons/lu";
 
 const FileUploadList = ({ pictureFile, setPictureFile }) => {
   const deleteAction = (file) => {
-    const filterArray = [...pictureFile].filter(
-      (item) => item.id !== file.id // id で比較
-    );
+    const filterArray = [...pictureFile].filter((item) => item.id !== file.id);
     URL.revokeObjectURL(file.url);
     setPictureFile(filterArray);
   };
@@ -54,22 +51,6 @@ const UploadPicture = ({ pictureFile, setPictureFile }) => {
     const files = [...pictureFile, newFileItem];
     setPictureFile(files);
   };
-
-  const onSubmit = useCallback(async (e, fileObj) => {
-    e.preventDefault();
-    for (let item of fileObj) {
-      if (!item.file) {
-        return;
-      }
-      if (item.file.type !== "image/jpeg" && item.file.type !== "image/png") {
-        console.error("jpeg/pngファイルを選択してください");
-        return;
-      }
-      await uploadImage(`${item.file.name}`, item.file);
-      const data = getImage(item.file.name);
-      console.log(data.publicUrl);
-    }
-  }, []);
 
   return (
     <FileUpload.Root accept="image/*" onFileChange={changeHander}>

@@ -13,14 +13,19 @@ import {
   Drawer,
   Portal,
 } from "@chakra-ui/react";
-import { useState, useCallback } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
 
 import MachineForm from "./MachineForm";
 import { redirect } from "next/navigation";
-import { getImage, uploadImage } from "@/app/api/supabaseFunctions/route";
+import {
+  getImage,
+  uploadImage,
+  deleteImage,
+} from "@/app/api/supabaseFunctions/route";
 import CheckDialog from "@/app/feacher/dialog/CheckDialog";
 import UploadPicture from "./UploadPicture";
+import DeletePicture from "./DeletePicture";
 
 const initinitialCoinLaundry = {
   store: "",
@@ -55,7 +60,8 @@ const CoinLaundryForm = ({ coinLaundry = initinitialCoinLaundry, method }) => {
   const [store, setStore] = useState(coinLaundry.store);
   const [location, setLocation] = useState(coinLaundry.location);
   const [description, setDescription] = useState(coinLaundry.description);
-  const [pictureFile, setPictureFile] = useState(coinLaundry.images);
+  const [pictureUrl, setPictureUrl] = useState(coinLaundry.images);
+  const [pictureFile, setPictureFile] = useState([]);
   const [machines, setMachines] = useState(coinLaundry.machines);
   const [newCoinlaundry, setNewCoinLaundry] = useState({});
   const [choose, setChoose] = useState(false);
@@ -70,7 +76,7 @@ const CoinLaundryForm = ({ coinLaundry = initinitialCoinLaundry, method }) => {
   const postHander = async () => {
     const formData = new FormData(newCoinlaundry);
     const newMachine = machines.filter((machine) => machine.num > 0);
-    const imageUrl = [];
+    const imageUrl = [...pictureUrl];
     for (let item of pictureFile) {
       if (!item.file) {
         return;
@@ -80,9 +86,25 @@ const CoinLaundryForm = ({ coinLaundry = initinitialCoinLaundry, method }) => {
         return;
       }
       await uploadImage(`${item.file.name}`, item.file);
-      const data = getImage(item.file.name);
-      console.log(data.publicUrl);
-      imageUrl.push(data.publicUrl);
+      const data = getImage(`${item.file.name}`);
+      const dataObj = {
+        path: item.file.name,
+        url: data.publicUrl,
+      };
+      imageUrl.push(dataObj);
+    }
+
+    if (coinLaundry.images.length !== pictureUrl.length) {
+      const setUrl = new Set(pictureUrl);
+      const deleteArray = coinLaundry.images.filter((ele) => !setUrl.has(ele));
+      for (let item of deleteArray) {
+        const success = await deleteImage(item.path);
+        if (success) {
+          alert("画像を削除しました。");
+        } else {
+          alert("画像の削除に失敗しました。");
+        }
+      }
     }
 
     formData.append("machines", JSON.stringify(newMachine));
@@ -232,6 +254,10 @@ const CoinLaundryForm = ({ coinLaundry = initinitialCoinLaundry, method }) => {
               <UploadPicture
                 pictureFile={pictureFile}
                 setPictureFile={setPictureFile}
+              />
+              <DeletePicture
+                pictureUrl={pictureUrl}
+                setPictureUrl={setPictureUrl}
               />
             </Stack>
           </Card.Body>

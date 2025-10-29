@@ -43,6 +43,7 @@ export async function PUT(request, { params }) {
   const location = formData.get("location");
   const description = formData.get("description");
   const machines = JSON.parse(formData.get("machines"));
+  const images = JSON.parse(formData.get("images"));
 
   if (store === "" || location === "" || description === "") {
     return NextResponse.json(
@@ -58,6 +59,7 @@ export async function PUT(request, { params }) {
       location,
       description,
       machines,
+      images,
     });
     await editCoinLaundry.save();
     return NextResponse.json({ store, id });

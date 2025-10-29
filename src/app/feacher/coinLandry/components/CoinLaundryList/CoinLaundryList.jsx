@@ -1,16 +1,18 @@
 import Link from "next/link";
 import { Box, Button, Card, HStack, Image } from "@chakra-ui/react";
-import rokkaku from "@/assets/rokkaku.png";
 
 const CoinLaundryList = ({ coinLaundry, valiant }) => {
   return (
     <Card.Root flexDirection="row" overflow="hidden" maxW="90%" ml="5%" mb="1%">
-      <Image
-        objectFit="cover"
-        maxW="200px"
-        src={coinLaundry.images[0]}
-        alt="Caffe Latte"
-      />
+      {!coinLaundry.images || coinLaundry.images.length === 0 ? (
+        <Image
+          objectFit="cover"
+          maxW="200px"
+          src="https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/public/Laundry-Images/public/no-image.png"
+        />
+      ) : (
+        <Image objectFit="cover" maxW="200px" src={coinLaundry.images[0].url} />
+      )}
       <Box>
         <Card.Body>
           <Card.Title mb="2">せんたくランド{coinLaundry.store}店</Card.Title>

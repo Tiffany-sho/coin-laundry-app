@@ -12,7 +12,10 @@ const stores = [
       { name: "ソフター自販機", num: 2 },
     ],
     images: [
-      "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/public/Laundry-Images/Misono/Mison.png",
+      {
+        path: "Mison.png",
+        url: "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/public/Laundry-Images/public/Mison.png",
+      },
     ],
   },
   {
@@ -28,7 +31,10 @@ const stores = [
       { name: "ソフター自販機", num: 1 },
     ],
     images: [
-      "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/public/Laundry-Images/Senbon/SenBon.png",
+      {
+        path: "SenBon.png",
+        url: "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/public/Laundry-Images/public/SenBon.png",
+      },
     ],
   },
   {
@@ -44,7 +50,10 @@ const stores = [
       { name: "ソフター自販機", num: 3 },
     ],
     images: [
-      "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/public/Laundry-Images/Kinugasa/Kinugasa.png",
+      {
+        path: "Kinugasa.png",
+        url: "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/public/Laundry-Images/public/Kinugasa.png",
+      },
     ],
   },
   {
@@ -59,7 +68,10 @@ const stores = [
       { name: "ソフター自販機", num: 1 },
     ],
     images: [
-      "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/public/Laundry-Images/Maruta/Maruta.png",
+      {
+        path: "Maruta.png",
+        url: "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/public/Laundry-Images/public/Maruta.png",
+      },
     ],
   },
   {
@@ -75,7 +87,10 @@ const stores = [
       { name: "ソフター自販機", num: 1 },
     ],
     images: [
-      "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/public/Laundry-Images/Oue/Oue.png",
+      {
+        path: "Oue.png",
+        url: "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/public/Laundry-Images/public/Oue.png",
+      },
     ],
   },
   {
@@ -90,7 +105,10 @@ const stores = [
       { name: "ソフター自販機", num: 2 },
     ],
     images: [
-      "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/public/Laundry-Images/Rokkaku/Rokkaku.png",
+      {
+        path: "Rokkaku.png",
+        url: "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/public/Laundry-Images/public/Rokkaku.png",
+      },
     ],
   },
 ];

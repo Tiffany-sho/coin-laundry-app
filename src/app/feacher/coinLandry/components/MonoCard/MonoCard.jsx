@@ -3,7 +3,6 @@
 import { Button, Card, Image, List, Text } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { toaster } from "@/components/ui/toaster";
-import rokkaku from "@/assets/rokkaku.png";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import * as Icon from "./MonoCardIcon";
@@ -51,11 +50,18 @@ const MonoCard = ({ coinLaundry }) => {
       });
     });
   };
-
   return (
     <Card.Root width="90%" ml="5%" overflow="hidden">
       <div className={Styles.monocontainer}>
-        <Image src={coinLaundry.images[0]} h="100%" />
+        {!coinLaundry.images || coinLaundry.images.length === 0 ? (
+          <Image
+            src="https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/public/Laundry-Images/public/no-image.png"
+            h="100%"
+          />
+        ) : (
+          <Image src={coinLaundry.images[0].url} h="100%" />
+        )}
+
         <Card.Body gap="2">
           <Card.Title
             fontWeight="large"
