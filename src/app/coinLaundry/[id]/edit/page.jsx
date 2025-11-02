@@ -1,4 +1,5 @@
-import FormCard from "@/app/feacher/coinLandry/components/CoinLaundryForm/CoinLaundryForm";
+import CoinLaundryForm from "@/app/feacher/coinLandry/components/CoinLaundryForm/CoinLaundryForm";
+import CoinLaundryFormContextProvider from "@/app/feacher/coinLandry/context/CoinlaundryForm/CoinLaundryFormContext";
 
 async function fetcher(id) {
   const res = await fetch(`http://localhost:3000/api/coinLaundry/${id}`);
@@ -12,7 +13,11 @@ async function fetcher(id) {
 const updateLaundry = async ({ params }) => {
   const { id } = await params;
   const data = await fetcher(id);
-  return <FormCard coinLaundry={data} method="PUT" />;
+  return (
+    <CoinLaundryFormContextProvider>
+      <CoinLaundryForm coinLaundry={data} method="PUT" />;
+    </CoinLaundryFormContextProvider>
+  );
 };
 
 export default updateLaundry;

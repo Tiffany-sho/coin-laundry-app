@@ -27,6 +27,8 @@ import CheckDialog from "@/app/feacher/dialog/CheckDialog";
 import UploadPicture from "./UploadPicture";
 import DeletePicture from "./DeletePicture";
 
+import { useCoinLaundryForm } from "../../context/CoinlaundryForm/CoinLaundryFormContext";
+
 const initinitialCoinLaundry = {
   store: "",
   location: "",
@@ -57,9 +59,9 @@ const initinitialCoinLaundry = {
 };
 
 const CoinLaundryForm = ({ coinLaundry = initinitialCoinLaundry, method }) => {
-  const [store, setStore] = useState(coinLaundry.store);
-  const [location, setLocation] = useState(coinLaundry.location);
-  const [description, setDescription] = useState(coinLaundry.description);
+  const [state, dispatch] = useCoinLaundryForm();
+
+  console.log(state);
 
   const [pictureUrl, setPictureUrl] = useState(coinLaundry.images);
   const [pictureFile, setPictureFile] = useState([]);
@@ -211,7 +213,12 @@ const CoinLaundryForm = ({ coinLaundry = initinitialCoinLaundry, method }) => {
                     id="store"
                     value={store}
                     placeholder="例）四条河原町"
-                    onChange={(e) => setStore(e.target.value)}
+                    onChange={(e) =>
+                      dispatch({
+                        type: "SET_FORM_DATA",
+                        payload: { field: "store", value: e.target.value },
+                      })
+                    }
                   />
                 </InputGroup>
               </Field.Root>
@@ -224,7 +231,12 @@ const CoinLaundryForm = ({ coinLaundry = initinitialCoinLaundry, method }) => {
                   id="location"
                   value={location}
                   placeholder="例）京都府京都市下京区"
-                  onChange={(e) => setLocation(e.target.value)}
+                  onChange={(e) =>
+                    dispatch({
+                      type: "SET_FORM_DATA",
+                      payload: { field: "location", value: e.target.value },
+                    })
+                  }
                 />
               </Field.Root>
 
@@ -239,7 +251,12 @@ const CoinLaundryForm = ({ coinLaundry = initinitialCoinLaundry, method }) => {
                   h="20"
                   value={description}
                   placeholder="例）デパートやブティックだけでなく、着物や書道具を商う古くからの店が並ぶ繁華街です。"
-                  onChange={(e) => setDescription(e.target.value)}
+                  onChange={(e) =>
+                    dispatch({
+                      type: "SET_FORM_DATA",
+                      payload: { field: "description", value: e.target.value },
+                    })
+                  }
                 />
               </Field.Root>
 
