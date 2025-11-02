@@ -1,5 +1,5 @@
-import { BsFillTrash3Fill } from "react-icons/bs";
 import { CiEdit } from "react-icons/ci";
 import { PiMoney } from "react-icons/pi";
+import { CiMenuKebab } from "react-icons/ci";
 
-export { BsFillTrash3Fill, CiEdit, PiMoney };
+export { CiMenuKebab, CiEdit, PiMoney };

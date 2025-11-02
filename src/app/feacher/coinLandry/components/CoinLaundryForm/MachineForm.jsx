@@ -1,7 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
 import {
   Button,
   Card,
@@ -14,16 +12,10 @@ import {
 } from "@chakra-ui/react";
 import { LuMinus, LuPlus } from "react-icons/lu";
 import PropoverForm from "./PropoverForm";
-import { useCoinLaundryForm } from "../../context/CoinlaundryForm/CoinLaundryFormContext";
+import { useCoinLaundryForm } from "@/app/feacher/coinLandry/context/CoinlaundryForm/CoinLaundryFormContext";
 
-const MachineForm = ({ setChoose, setOpen, open }) => {
+const MachineForm = ({ setOpen }) => {
   const { state, dispatch } = useCoinLaundryForm();
-
-  useEffect(() => {
-    if (!open) {
-      setChoose(null);
-    }
-  }, [open]);
 
   const handleCountChange = (machineName, amount) => {
     dispatch({

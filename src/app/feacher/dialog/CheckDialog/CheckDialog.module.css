@@ -1,0 +1,179 @@
+.dialogContent {
+  border-radius: 16px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+.dialogHeader {
+  background: #2d3748; /* gray.700 */
+  color: white;
+  padding: 24px;
+  border-bottom: none;
+}
+
+.dialogTitle {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.dialogBody {
+  padding: 32px 24px;
+  background-color: #f7fafc;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.dialogBody::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dialogBody::-webkit-scrollbar-track {
+  background: #e2e8f0;
+  border-radius: 4px;
+}
+
+.dialogBody::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 4px;
+}
+
+.dialogBody::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}
+
+.infoSection {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.infoSection:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+.infoLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: #4a5568;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.infoValue {
+  font-size: 16px;
+  color: #2d3748;
+  line-height: 1.6;
+}
+
+.machineList {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0 0;
+}
+
+.machineItem {
+  background: #edf2f7;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  border-left: 4px solid #2d3748; /* gray.700 */
+  font-size: 15px;
+  color: #2d3748;
+  transition: background-color 0.2s ease;
+}
+
+.machineItem:hover {
+  background: #e2e8f0;
+}
+
+.imageGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.imageContainer {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.imageContainer:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.imagePreview {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+}
+
+.emptyState {
+  color: #a0aec0;
+  font-style: italic;
+  font-size: 14px;
+  padding: 12px 0;
+}
+
+.dialogFooter {
+  padding: 20px 24px;
+  background: white;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.cancelButton {
+  min-width: 100px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.cancelButton:hover {
+  background-color: #edf2f7;
+  transform: translateY(-1px);
+}
+
+.submitButton {
+  min-width: 100px;
+  background: #2d3748; /* gray.700 */
+  color: white;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.submitButton:hover {
+  background: #1a202c; /* gray.800 */
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(45, 55, 72, 0.4);
+}
+
+.closeButton {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  color: white;
+  opacity: 0.9;
+  transition: opacity 0.2s ease;
+}
+
+.closeButton:hover {
+  opacity: 1;
+}
+
+.backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}

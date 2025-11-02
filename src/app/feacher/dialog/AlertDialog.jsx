@@ -1,12 +1,19 @@
 import { Button, CloseButton, Dialog, Portal } from "@chakra-ui/react";
-import * as Icon from "@/app/feacher/coinLandry/components/MonoCard/MonoCardIcon";
+import { LuTrash2 } from "react-icons/lu";
 
 const AlertDialog = ({ target, deleteAction }) => {
   return (
     <Dialog.Root role="alertdialog" placement="center">
       <Dialog.Trigger asChild>
-        <Button type="submit" bg="red.500" size="sm">
-          <Icon.BsFillTrash3Fill />
+        <Button
+          type="submit"
+          color="red.500"
+          variant="outline"
+          size="md"
+          border="none"
+        >
+          <LuTrash2 />
+          <span>削除</span>
         </Button>
       </Dialog.Trigger>
       <Portal>
