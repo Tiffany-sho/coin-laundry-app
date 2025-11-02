@@ -8,17 +8,10 @@ import {
   Flex,
   Image,
 } from "@chakra-ui/react";
+import { useCoinLaundryForm } from "../coinLandry/context/CoinlaundryForm/CoinLaundryFormContext";
 
-const CheckDialog = ({
-  method,
-  postHander,
-  store,
-  location,
-  description,
-  machines,
-  pictureFile,
-  pictureUrl,
-}) => {
+const CheckDialog = ({ method, postHander }) => {
+  const { state } = useCoinLaundryForm();
   return (
     <Dialog.Root
       role="alertdialog"
@@ -40,12 +33,12 @@ const CheckDialog = ({
               <Dialog.Title>店舗情報の確認</Dialog.Title>
             </Dialog.Header>
             <Dialog.Body>
-              <Text>店舗名 : {store}</Text>
-              <Text>場所 : {location}</Text>
-              <Text>概要 : {description}</Text>
+              <Text>店舗名 : {state.store}</Text>
+              <Text>場所 : {state.location}</Text>
+              <Text>概要 : {state.description}</Text>
               <Text>機械 : </Text>
               <Box as="ul" listStylePosition="inside">
-                {machines.map((machine) => (
+                {state.machines.map((machine) => (
                   <li key={machine._id}>
                     {machine.name} : {machine.num}個
                   </li>
@@ -53,14 +46,15 @@ const CheckDialog = ({
               </Box>
               <Text>写真 : </Text>
               <Flex>
-                {pictureUrl.map((item) => (
+                {state.existingPictures.map((item) => (
                   <Box key={item.url} position="relative">
                     <Image src={item.url} w="auto" boxSize="20" p="2" />
                   </Box>
                 ))}
               </Flex>
+              <Text>追加写真 : </Text>
               <Flex>
-                {pictureFile.map((item) => (
+                {state.newPictures.map((item) => (
                   <Box key={item.url} position="relative">
                     <Image src={item.url} w="auto" boxSize="20" p="2" />
                   </Box>

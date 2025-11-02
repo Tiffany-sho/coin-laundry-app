@@ -29,71 +29,35 @@ import DeletePicture from "./DeletePicture";
 
 import { useCoinLaundryForm } from "../../context/CoinlaundryForm/CoinLaundryFormContext";
 
-const initinitialCoinLaundry = {
-  store: "",
-  location: "",
-  description: "",
-  machines: [
-    {
-      name: "洗濯乾燥機",
-      num: 0,
-    },
-    {
-      name: "乾燥機",
-      num: 0,
-    },
-    {
-      name: "洗濯機",
-      num: 0,
-    },
-    {
-      name: "スニーカー洗濯機",
-      num: 0,
-    },
-    {
-      name: "ソフター自販機",
-      num: 0,
-    },
-  ],
-  images: [],
-};
-
-const CoinLaundryForm = ({ coinLaundry = initinitialCoinLaundry, method }) => {
-  const [state, dispatch] = useCoinLaundryForm();
-
-  console.log(state);
-
-  const [pictureUrl, setPictureUrl] = useState(coinLaundry.images);
-  const [pictureFile, setPictureFile] = useState([]);
-  const [machines, setMachines] = useState(coinLaundry.machines);
-
+const CoinLaundryForm = ({ storeId, images, method }) => {
+  const { state, dispatch } = useCoinLaundryForm();
   const [choose, setChoose] = useState(false);
   const [open, setOpen] = useState(false);
-  const [msg, setMsg] = useState("");
-  const [isLoading, setLoading] = useState(false);
-
   const formRef = useRef(null);
 
   const postHander = async () => {
-    if (!formRef.current || isLoading) return;
+    if (!formRef.current || state.isLoading) return;
 
-    setLoading(true);
-    setMsg("");
+    dispatch({ type: "SET_ISLOADING", payload: true });
+    dispatch({ type: "SET_MSG", payload: "" });
 
     const formData = new FormData(formRef.current);
-    const newMachine = machines.filter((machine) => machine.num > 0);
+    const newMachine = state.machines.filter((machine) => machine.num > 0);
 
-    const filesToUpload = pictureFile.filter((item) => item.file);
-    console.log(filesToUpload);
+    const filesToUpload = state.newPictures.filter((item) => item.file);
 
-    if (filesToUpload.lenght > 0) {
+    if (filesToUpload.length > 0) {
       const invalidFiles = filesToUpload.some(
         (item) =>
           item.file.type !== "image/jpeg" && item.file.type !== "image/png"
       );
       if (invalidFiles) {
-        setMsg("jpeg/pngファイルを選択してください");
-        setLoading(false);
+        dispatch({
+          type: "SET_MSG",
+          payload: "jpeg/pngファイルを選択してください",
+        });
+
+        dispatch({ type: "SET_ISLOADING", payload: false });
         return;
       }
     }
@@ -114,13 +78,16 @@ const CoinLaundryForm = ({ coinLaundry = initinitialCoinLaundry, method }) => {
         newImageObjects = await Promise.all(uploadPromises);
       } catch (error) {
         console.error("Upload failed:", error);
-        setMsg("画像のアップロード中にエラーが発生しました。");
-        setLoading(false);
+        dispatch({
+          type: "SET_MSG",
+          payload: "画像のアップロード中にエラーが発生しました",
+        });
+        dispatch({ type: "SET_ISLOADING", payload: false });
         return;
       }
     }
 
-    const finalImageUrlList = [...pictureUrl, ...newImageObjects];
+    const finalImageUrlList = [...state.existingPictures, ...newImageObjects];
 
     formData.append("machines", JSON.stringify(newMachine));
     formData.append("images", JSON.stringify(finalImageUrlList));
@@ -135,7 +102,7 @@ const CoinLaundryForm = ({ coinLaundry = initinitialCoinLaundry, method }) => {
           body: formData,
         });
       } else if (method === "PUT") {
-        response = await fetch(`/api/coinLaundry/${coinLaundry._id}`, {
+        response = await fetch(`/api/coinLaundry/${storeId}`, {
           method: "PUT",
           body: formData,
         });
@@ -151,8 +118,11 @@ const CoinLaundryForm = ({ coinLaundry = initinitialCoinLaundry, method }) => {
       responseData = await response.json();
     } catch (error) {
       console.error("API Error:", error);
-      setMsg(error.message || "データの送信に失敗しました。");
-      setLoading(false);
+      dispatch({
+        type: "SET_MSG",
+        payload: error.message || "データの送信に失敗しました。",
+      });
+      dispatch({ type: "SET_ISLOADING", payload: false });
 
       if (newImageObjects.length > 0) {
         console.warn("Rollback: Deleting newly uploaded images...");
@@ -167,7 +137,7 @@ const CoinLaundryForm = ({ coinLaundry = initinitialCoinLaundry, method }) => {
     }
 
     const finalImagePaths = new Set(finalImageUrlList.map((img) => img.path));
-    const pathsToDelete = coinLaundry.images
+    const pathsToDelete = images
       .map((img) => img.path)
       .filter((path) => !finalImagePaths.has(path));
 
@@ -177,7 +147,7 @@ const CoinLaundryForm = ({ coinLaundry = initinitialCoinLaundry, method }) => {
         .catch((err) => console.error("Cleanup deletion failed:", err));
     }
 
-    setLoading(false);
+    dispatch({ type: "SET_ISLOADING", payload: false });
     sessionStorage.setItem(
       "toast",
       JSON.stringify({
@@ -199,7 +169,7 @@ const CoinLaundryForm = ({ coinLaundry = initinitialCoinLaundry, method }) => {
               {method === "POST" && "登録"}
               {method === "PUT" && "編集"}フォーム
             </Card.Title>
-            <div style={{ color: "red" }}>{msg}</div>
+            <div style={{ color: "red" }}>{state.msg}</div>
           </Card.Header>
           <Card.Body>
             <Stack gap="7" w="full">
@@ -211,7 +181,7 @@ const CoinLaundryForm = ({ coinLaundry = initinitialCoinLaundry, method }) => {
                     type="text"
                     name="store"
                     id="store"
-                    value={store}
+                    value={state.store}
                     placeholder="例）四条河原町"
                     onChange={(e) =>
                       dispatch({
@@ -229,7 +199,7 @@ const CoinLaundryForm = ({ coinLaundry = initinitialCoinLaundry, method }) => {
                   type="text"
                   name="location"
                   id="location"
-                  value={location}
+                  value={state.location}
                   placeholder="例）京都府京都市下京区"
                   onChange={(e) =>
                     dispatch({
@@ -249,7 +219,7 @@ const CoinLaundryForm = ({ coinLaundry = initinitialCoinLaundry, method }) => {
                   id="description"
                   resize="none"
                   h="20"
-                  value={description}
+                  value={state.description}
                   placeholder="例）デパートやブティックだけでなく、着物や書道具を商う古くからの店が並ぶ繁華街です。"
                   onChange={(e) =>
                     dispatch({
@@ -259,7 +229,6 @@ const CoinLaundryForm = ({ coinLaundry = initinitialCoinLaundry, method }) => {
                   }
                 />
               </Field.Root>
-
               <Drawer.Root open={open} onOpenChange={(e) => setOpen(e.open)}>
                 <Drawer.Trigger asChild>
                   <Button onClick={() => setChoose((prev) => !prev)}>
@@ -279,8 +248,6 @@ const CoinLaundryForm = ({ coinLaundry = initinitialCoinLaundry, method }) => {
                           </Drawer.Header>
                           <Drawer.Body>
                             <MachineForm
-                              machines={machines}
-                              setMachines={setMachines}
                               setChoose={setChoose}
                               setOpen={setOpen}
                               open={open}
@@ -295,32 +262,15 @@ const CoinLaundryForm = ({ coinLaundry = initinitialCoinLaundry, method }) => {
                   </Drawer.Positioner>
                 </Portal>
               </Drawer.Root>
-              <UploadPicture
-                pictureFile={pictureFile}
-                setPictureFile={setPictureFile}
-              />
-              <DeletePicture
-                pictureUrl={pictureUrl}
-                setPictureUrl={setPictureUrl}
-              />
+              <UploadPicture />
+              <DeletePicture />
             </Stack>
           </Card.Body>
           <Card.Footer justifyContent="flex-end">
-            <Link
-              href={`/coinLaundry/${coinLaundry._id ? coinLaundry._id : ""}`}
-            >
+            <Link href={`/coinLaundry/${storeId ? storeId : ""}`}>
               <Button variant="outline">キャンセル</Button>
             </Link>
-            <CheckDialog
-              method={method}
-              postHander={postHander}
-              store={store}
-              location={location}
-              description={description}
-              machines={machines}
-              pictureFile={pictureFile}
-              pictureUrl={pictureUrl}
-            />
+            <CheckDialog method={method} postHander={postHander} />
           </Card.Footer>
         </Card.Root>
       </form>

@@ -8,9 +8,11 @@ import {
   Stack,
   NumberInput,
 } from "@chakra-ui/react";
+import { useCoinLaundryForm } from "../../context/CoinlaundryForm/CoinLaundryFormContext";
 
-const PropoverForm = ({ setMachines }) => {
+const PropoverForm = () => {
   const [open, setOpen] = useState(false);
+  const { dispatch } = useCoinLaundryForm();
   const [newMachine, setNewMachine] = useState({
     name: "",
     num: 0,
@@ -43,9 +45,7 @@ const PropoverForm = ({ setMachines }) => {
                 </Field.Root>
                 <Button
                   onClick={() => {
-                    setMachines((prev) => {
-                      return [...prev, newMachine];
-                    });
+                    dispatch({ type: "ADD_MACHINES", payload: { newMachine } });
                     setNewMachine({
                       name: "",
                       num: 0,

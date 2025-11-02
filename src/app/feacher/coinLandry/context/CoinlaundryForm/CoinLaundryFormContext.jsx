@@ -1,10 +1,33 @@
+"use client";
+
 import { createContext, useContext, useReducer } from "react";
 
 const initialState = {
   store: "",
   location: "",
   description: "",
-  machines: [],
+  machines: [
+    {
+      name: "洗濯乾燥機",
+      num: 0,
+    },
+    {
+      name: "乾燥機",
+      num: 0,
+    },
+    {
+      name: "洗濯機",
+      num: 0,
+    },
+    {
+      name: "スニーカー洗濯機",
+      num: 0,
+    },
+    {
+      name: "ソフター自販機",
+      num: 0,
+    },
+  ],
   existingPictures: [],
   newPictures: [],
   msg: "",
@@ -16,10 +39,60 @@ const formReducer = (state, action) => {
   switch (action.type) {
     case "SET_FORM_DATA":
       return { ...state, [action.payload.field]: action.payload.value };
+    case "UPDATE_MACHINE_COUNT":
+      return {
+        ...state,
+        machines: state.machines.map((machine) => {
+          return machine.name === action.payload.name
+            ? {
+                ...machine,
+                num: Math.max(0, machine.num + action.payload.amount),
+              }
+            : machine;
+        }),
+      };
+    case "ADD_MACHINES":
+      return {
+        ...state,
+        machines: [...state.machines, action.payload.newMachine],
+      };
+    case "ADD_NEW_PICTURE":
+      return {
+        ...state,
+        newPictures: [...state.newPictures, action.payload.newFileItem],
+      };
+    case "REMOVE_PICTURE":
+      URL.revokeObjectURL(action.payload.removeFileItem.url);
+      return {
+        ...state,
+        newPictures: state.newPictures.filter(
+          (item) => item.id !== action.payload.removeFileItem.id
+        ),
+      };
+    case "REMOVE_EXISTING_PICTURE":
+      return {
+        ...state,
+        existingPictures: state.existingPictures.filter(
+          (item) => item.url !== action.payload.url
+        ),
+      };
+    case "SET_MSG":
+      return {
+        ...state,
+        msg: action.payload,
+      };
+    case "SET_ISLOADING":
+      return {
+        ...state,
+        isLoading: action.payload,
+      };
   }
 };
 
-const CoinLaundryFormContextProvider = ({ children, coinData }) => {
+const CoinLaundryFormContextProvider = ({
+  children,
+  coinData = initialState,
+}) => {
   const [state, dispatch] = useReducer(formReducer, {
     ...initialState,
     store: coinData.store || "",

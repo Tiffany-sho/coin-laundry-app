@@ -14,8 +14,11 @@ import {
 } from "@chakra-ui/react";
 import { LuMinus, LuPlus } from "react-icons/lu";
 import PropoverForm from "./PropoverForm";
+import { useCoinLaundryForm } from "../../context/CoinlaundryForm/CoinLaundryFormContext";
 
-const MachineForm = ({ machines, setMachines, setChoose, setOpen, open }) => {
+const MachineForm = ({ setChoose, setOpen, open }) => {
+  const { state, dispatch } = useCoinLaundryForm();
+
   useEffect(() => {
     if (!open) {
       setChoose(null);
@@ -23,14 +26,9 @@ const MachineForm = ({ machines, setMachines, setChoose, setOpen, open }) => {
   }, [open]);
 
   const handleCountChange = (machineName, amount) => {
-    setMachines((prevMachines) => {
-      return prevMachines.map((machine) => {
-        if (machine.name === machineName) {
-          const newNum = Math.max(0, machine.num + amount);
-          return { ...machine, num: newNum };
-        }
-        return machine;
-      });
+    dispatch({
+      type: "UPDATE_MACHINE_COUNT",
+      payload: { name: machineName, amount },
     });
   };
 
@@ -41,20 +39,16 @@ const MachineForm = ({ machines, setMachines, setChoose, setOpen, open }) => {
           <Card.Description m="5%">
             機械の削除は個数を0にすると自動的に削除されます
           </Card.Description>
-          <PropoverForm setMachines={setMachines} />
+          <PropoverForm />
         </Flex>
 
         <Card.Body>
           <Stack gap="4" w="full">
-            {machines.map((machine) => {
+            {state.machines.map((machine) => {
               return (
                 <Flex key={machine.name} justifyContent="space-between">
                   <Text>{machine.name}</Text>
-                  <NumberInput.Root
-                    unstyled
-                    spinOnPress={false}
-                    key={machine.name}
-                  >
+                  <NumberInput.Root unstyled spinOnPress={false}>
                     <HStack gap="2">
                       {machine.num !== 0 && (
                         <NumberInput.DecrementTrigger asChild>

@@ -1,14 +1,15 @@
 import { Flex, Image, Float, Button, Box } from "@chakra-ui/react";
 import { LuX } from "react-icons/lu";
+import { useCoinLaundryForm } from "../../context/CoinlaundryForm/CoinLaundryFormContext";
 
-const DeletePicture = ({ pictureUrl, setPictureUrl }) => {
+const DeletePicture = () => {
+  const { state, dispatch } = useCoinLaundryForm();
   const deleteAction = (url) => {
-    const filterArray = [...pictureUrl].filter((item) => item.url !== url);
-    setPictureUrl(filterArray);
+    dispatch({ type: "REMOVE_EXISTING_PICTURE", payload: { url } });
   };
   return (
     <Flex>
-      {pictureUrl.map((item) => (
+      {state.existingPictures.map((item) => (
         <Box key={item.url} position="relative">
           <Image src={item.url} w="auto" boxSize="20" p="2" />
           <Float placement="top-end">

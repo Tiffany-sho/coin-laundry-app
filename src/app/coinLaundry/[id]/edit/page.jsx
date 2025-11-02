@@ -14,8 +14,8 @@ const updateLaundry = async ({ params }) => {
   const { id } = await params;
   const data = await fetcher(id);
   return (
-    <CoinLaundryFormContextProvider>
-      <CoinLaundryForm coinLaundry={data} method="PUT" />;
+    <CoinLaundryFormContextProvider coinData={data}>
+      <CoinLaundryForm storeId={id} images={data.images} method="PUT" />;
     </CoinLaundryFormContextProvider>
   );
 };

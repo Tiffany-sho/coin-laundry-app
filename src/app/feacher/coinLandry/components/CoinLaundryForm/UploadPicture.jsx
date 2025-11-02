@@ -2,18 +2,20 @@
 
 import { Image, Button, FileUpload, Flex, Float } from "@chakra-ui/react";
 import { LuFileImage, LuX } from "react-icons/lu";
+import { useCoinLaundryForm } from "../../context/CoinlaundryForm/CoinLaundryFormContext";
 
-const FileUploadList = ({ pictureFile, setPictureFile }) => {
-  const deleteAction = (file) => {
-    const filterArray = [...pictureFile].filter((item) => item.id !== file.id);
-    URL.revokeObjectURL(file.url);
-    setPictureFile(filterArray);
+const FileUploadList = () => {
+  const { state, dispatch } = useCoinLaundryForm();
+  const deleteAction = (removeFileItem) => {
+    dispatch({ type: "REMOVE_PICTURE", payload: { removeFileItem } });
   };
-  if (pictureFile.length === 0) return null;
+  if (state.newPictures.length === 0) return null;
+  // console.log(state);
+
   return (
     <FileUpload.ItemGroup>
       <Flex>
-        {pictureFile.map((item) => (
+        {state.newPictures.map((item) => (
           <FileUpload.Item
             w="auto"
             boxSize="20"
@@ -38,7 +40,9 @@ const FileUploadList = ({ pictureFile, setPictureFile }) => {
   );
 };
 
-const UploadPicture = ({ pictureFile, setPictureFile }) => {
+const UploadPicture = () => {
+  const { dispatch } = useCoinLaundryForm();
+
   const changeHander = (e) => {
     const file = e.acceptedFiles[0];
     if (!file) return;
@@ -48,8 +52,8 @@ const UploadPicture = ({ pictureFile, setPictureFile }) => {
       url: fileUrl,
       file: file,
     };
-    const files = [...pictureFile, newFileItem];
-    setPictureFile(files);
+
+    dispatch({ type: "ADD_NEW_PICTURE", payload: { newFileItem } });
   };
 
   return (
@@ -61,10 +65,7 @@ const UploadPicture = ({ pictureFile, setPictureFile }) => {
             <LuFileImage /> 画像をアップロード
           </Button>
         </FileUpload.Trigger>
-        <FileUploadList
-          pictureFile={pictureFile}
-          setPictureFile={setPictureFile}
-        />
+        <FileUploadList />
       </Flex>
     </FileUpload.Root>
   );
