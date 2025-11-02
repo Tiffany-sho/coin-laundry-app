@@ -108,26 +108,8 @@
 }
 
 /* Drawer styles */
-.drawerHeader {
-  background: #2d3748;
-  color: white;
-  padding: 20px;
-}
-
-.drawerTitle {
-  font-size: 20px;
-  font-weight: 700;
-  color: white;
-}
-
 .drawerBody {
   padding: 24px;
-}
-
-.drawerClose {
-  color: white;
-  opacity: 0.9;
-  transition: opacity 0.2s ease;
 }
 
 .drawerClose:hover {

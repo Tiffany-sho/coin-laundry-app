@@ -256,19 +256,11 @@ const CoinLaundryForm = ({ storeId, images, method }) => {
                       <Drawer.Content>
                         {open && (
                           <>
-                            <Drawer.Header className={styles.drawerHeader}>
-                              <Drawer.Title className={styles.drawerTitle}>
-                                機械の個数を選択してください
-                              </Drawer.Title>
-                            </Drawer.Header>
                             <Drawer.Body className={styles.drawerBody}>
                               <MachineForm setOpen={setOpen} />
                             </Drawer.Body>
                             <Drawer.CloseTrigger asChild>
-                              <CloseButton
-                                size="sm"
-                                className={styles.drawerClose}
-                              />
+                              <CloseButton />
                             </Drawer.CloseTrigger>
                           </>
                         )}

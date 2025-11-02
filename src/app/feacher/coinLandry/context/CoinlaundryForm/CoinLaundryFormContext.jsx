@@ -10,22 +10,27 @@ const initialState = {
     {
       name: "洗濯乾燥機",
       num: 0,
+      comment: "",
     },
     {
       name: "乾燥機",
       num: 0,
+      comment: "",
     },
     {
       name: "洗濯機",
       num: 0,
+      comment: "",
     },
     {
       name: "スニーカー洗濯機",
       num: 0,
+      comment: "",
     },
     {
       name: "ソフター自販機",
       num: 0,
+      comment: "",
     },
   ],
   existingPictures: [],
@@ -55,6 +60,18 @@ const formReducer = (state, action) => {
       return {
         ...state,
         machines: [...state.machines, action.payload.newMachine],
+      };
+    case "ADD_MACHINES_COMMENT":
+      return {
+        ...state,
+        machines: state.machines.map((machine) => {
+          return machine.name === action.payload.name
+            ? {
+                ...machine,
+                comment: action.payload.comment,
+              }
+            : machine;
+        }),
       };
     case "ADD_NEW_PICTURE":
       return {
@@ -86,6 +103,8 @@ const formReducer = (state, action) => {
         ...state,
         isLoading: action.payload,
       };
+    default:
+      throw new Error("Unknown action type");
   }
 };
 

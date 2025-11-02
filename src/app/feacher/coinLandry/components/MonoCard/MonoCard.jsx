@@ -209,7 +209,12 @@ const MonoCard = ({ coinLaundry }) => {
             <ul className={Styles.machineList}>
               {coinLaundry.machines.map((machine) => (
                 <li key={machine.name} className={Styles.machineItem}>
-                  {machine.name} × {machine.num}台
+                  <div className={Styles.machineTitle}>{machine.name}</div>
+
+                  <div>
+                    <div>台数:{machine.num}</div>
+                    <div>価格:{machine.comment && machine.comment}</div>
+                  </div>
                 </li>
               ))}
             </ul>

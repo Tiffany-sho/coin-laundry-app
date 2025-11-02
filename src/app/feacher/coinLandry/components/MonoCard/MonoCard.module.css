@@ -307,6 +307,10 @@
   transform: translateX(4px);
 }
 
+.machineTitle{
+  font-size: 20px;
+}
+
 /* メニューボタン */
 .menuButton {
   position: absolute;

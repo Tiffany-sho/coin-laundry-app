@@ -26,6 +26,10 @@ const coinLaundryStoreSchema = new Schema({
         type: Number,
         required: true,
       },
+      comment: {
+        type: String,
+        required: false,
+      },
     },
   ],
   moneyData: [{ type: Schema.Types.ObjectId, ref: "CollectMoney" }],

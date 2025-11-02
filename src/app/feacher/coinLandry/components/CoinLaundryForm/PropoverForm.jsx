@@ -21,7 +21,7 @@ const PropoverForm = () => {
   return (
     <Popover.Root open={open} onOpenChange={(e) => setOpen(e.open)} modal>
       <Popover.Trigger asChild>
-        <Button w="20%" size="xs" m="3%" variant="outline">
+        <Button w="20%" size="xs" m="3%" variant="solid">
           追加
         </Button>
       </Popover.Trigger>
