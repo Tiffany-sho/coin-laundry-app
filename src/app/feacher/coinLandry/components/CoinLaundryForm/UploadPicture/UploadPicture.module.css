@@ -22,12 +22,6 @@
   cursor: pointer;
 }
 
-.uploadButton:hover {
-  background: #f7fafc;
-  border-color: #2d3748;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
 
 .uploadButton svg {
   width: 18px;
@@ -52,11 +46,6 @@
   background: #f7fafc;
 }
 
-.imageItem:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
 .imageItem img {
   width: 100%;
   height: 100%;
@@ -79,15 +68,6 @@
   transition: all 0.2s ease;
   opacity: 0;
   backdrop-filter: blur(4px);
-}
-
-.imageItem:hover .deleteButton {
-  opacity: 1;
-}
-
-.deleteButton:hover {
-  background: #e53e3e;
-  transform: scale(1.1);
 }
 
 .deleteButton svg {

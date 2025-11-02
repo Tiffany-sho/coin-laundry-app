@@ -1,41 +1,99 @@
 import Link from "next/link";
-import { Box, Button, Card, HStack, Image } from "@chakra-ui/react";
+import { Box, Button, Card, Image, Flex } from "@chakra-ui/react";
 
 const CoinLaundryList = ({ coinLaundry, valiant }) => {
   return (
-    <Card.Root flexDirection="row" overflow="hidden" maxW="90%" ml="5%" mb="1%">
-      {!coinLaundry.images || coinLaundry.images.length === 0 ? (
-        <Image
-          objectFit="cover"
-          maxW="200px"
-          src="https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/public/Laundry-Images/public/no-image.png"
-        />
-      ) : (
-        <Image objectFit="cover" maxW="200px" src={coinLaundry.images[0].url} />
-      )}
-      <Box>
-        <Card.Body>
-          <Card.Title mb="2">せんたくランド{coinLaundry.store}店</Card.Title>
-          <Card.Description>{coinLaundry.description}</Card.Description>
-          <HStack mt="4"></HStack>
+    <Card.Root
+      flexDirection="row"
+      overflow="hidden"
+      maxW="1200px"
+      w="90%"
+      mx="auto"
+      mb={4}
+      boxShadow="lg"
+      borderRadius="16px"
+      transition="all 0.3s"
+    >
+      <Box
+        position="relative"
+        minW={{ base: "120px", md: "200px" }}
+        maxW={{ base: "120px", md: "200px" }}
+        overflow="hidden"
+      >
+        {!coinLaundry.images || coinLaundry.images.length === 0 ? (
+          <Image
+            objectFit="cover"
+            w="100%"
+            h="100%"
+            src="https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/public/Laundry-Images/public/no-image.png"
+            alt="画像なし"
+          />
+        ) : (
+          <Image
+            objectFit="cover"
+            w="100%"
+            h="100%"
+            src={coinLaundry.images[0].url}
+            alt={`${coinLaundry.store}店`}
+          />
+        )}
+      </Box>
+
+      <Flex direction="column" flex="1" justify="space-between">
+        <Card.Body p={{ base: 4, md: 6 }}>
+          <Card.Title
+            mb={3}
+            fontSize={{ base: "xl", md: "2xl" }}
+            fontWeight="bold"
+            color="gray.700"
+            letterSpacing="tight"
+          >
+            {coinLaundry.store}店
+          </Card.Title>
+          <Card.Description
+            fontSize={{ base: "sm", md: "md" }}
+            color="gray.600"
+            lineHeight="1.7"
+            noOfLines={2}
+          >
+            {coinLaundry.description}
+          </Card.Description>
         </Card.Body>
-        <Card.Footer>
+
+        <Card.Footer p={{ base: 4, md: 6 }} pt={0} gap={3}>
           <Link
             href={`/coinLaundry/${coinLaundry._id}/${
               valiant === "collect" ? "coinDataList" : ""
             }`}
           >
-            <Button>もっと見る</Button>
+            <Button
+              variant="outline"
+              size={{ base: "sm", md: "md" }}
+              borderColor="gray.300"
+              color="gray.700"
+              fontWeight="semibold"
+              transition="all 0.2s"
+            >
+              もっと見る
+            </Button>
           </Link>
+
           {valiant === "collect" && (
-            <>
-              <Link href={`/collectMoney/${coinLaundry._id}`}>
-                <Button>集金</Button>
-              </Link>
-            </>
+            <Link href={`/collectMoney/${coinLaundry._id}`}>
+              <Button
+                variant="solid"
+                size={{ base: "sm", md: "md" }}
+                bg="gray.700"
+                color="white"
+                fontWeight="semibold"
+                transition="all 0.2s"
+              >
+                集金
+              </Button>
+            </Link>
           )}
         </Card.Footer>
-      </Box>
+      </Flex>
     </Card.Root>
   );
 };

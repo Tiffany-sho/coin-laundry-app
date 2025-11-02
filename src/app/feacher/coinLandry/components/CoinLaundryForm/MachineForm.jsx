@@ -54,10 +54,6 @@ const MachineForm = ({ setOpen }) => {
               border="1px solid"
               borderColor="gray.200"
               transition="all 0.2s"
-              _hover={{
-                boxShadow: "md",
-                transform: "translateY(-2px)",
-              }}
             >
               <Flex direction="column" gap="4">
                 <Text
@@ -88,11 +84,6 @@ const MachineForm = ({ setOpen }) => {
                             bg="white"
                             borderColor="gray.300"
                             color="gray.700"
-                            _hover={{
-                              bg: "gray.100",
-                              borderColor: "gray.700",
-                              transform: "scale(1.05)",
-                            }}
                             transition="all 0.2s"
                             onClick={() => handleCountChange(machine.name, -1)}
                           >
@@ -122,11 +113,6 @@ const MachineForm = ({ setOpen }) => {
                           bg="white"
                           borderColor="gray.300"
                           color="gray.700"
-                          _hover={{
-                            bg: "gray.100",
-                            borderColor: "gray.700",
-                            transform: "scale(1.05)",
-                          }}
                           transition="all 0.2s"
                           onClick={() => handleCountChange(machine.name, 1)}
                         >

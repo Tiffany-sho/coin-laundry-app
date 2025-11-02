@@ -101,20 +101,11 @@
   transition: all 0.2s ease;
 }
 
-.drawerButton:hover {
-  background: #e2e8f0 !important;
-  border-color: #2d3748 !important;
-  transform: translateY(-1px);
-}
-
 /* Drawer styles */
 .drawerBody {
   padding: 24px;
 }
 
-.drawerClose:hover {
-  opacity: 1;
-}
 
 /* Footer styles */
 .formWrapper footer[class*="chakra-card__footer"] {
@@ -135,12 +126,6 @@
   background: white;
   color: #2d3748;
   transition: all 0.2s ease;
-}
-
-.cancelButton:hover {
-  background: #f7fafc;
-  border-color: #cbd5e0;
-  transform: translateY(-1px);
 }
 
 /* Field spacing */

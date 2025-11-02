@@ -6,7 +6,6 @@ import {
   Link,
   Heading,
   Flex,
-  Button,
   CloseButton,
   Drawer,
   Portal,

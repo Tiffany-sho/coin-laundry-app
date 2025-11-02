@@ -75,9 +75,6 @@
   border-radius: 5px;
 }
 
-.carouselDot:hover {
-  background: rgba(255, 255, 255, 0.8);
-}
 
 .navigationButton {
   position: absolute;
@@ -96,11 +93,6 @@
   transition: all 0.2s ease;
   backdrop-filter: blur(4px);
   z-index: 10;
-}
-
-.navigationButton:hover {
-  background: rgba(0, 0, 0, 0.7);
-  transform: translateY(-50%) scale(1.1);
 }
 
 .navigationButton.prev {
@@ -149,13 +141,6 @@
   z-index: 10;
 }
 
-.menuBtn:hover {
-  background: #edf2f7;
-  border-color: #2d3748;
-  transform: translateY(-2px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
 .menuBtn svg {
   width: 24px;
   height: 24px;
@@ -202,9 +187,6 @@
   color: #2d3748;
 }
 
-.menuItem:hover {
-  background: #f7fafc;
-}
 
 .menuItem svg {
   width: 18px;
@@ -218,10 +200,6 @@
 
 .menuItem.delete {
   color: #e53e3e;
-}
-
-.menuItem.delete:hover {
-  background: #fff5f5;
 }
 
 .menuOverlay {
@@ -302,11 +280,6 @@
   transition: all 0.2s ease;
 }
 
-.machineItem:hover {
-  background: #e2e8f0;
-  transform: translateX(4px);
-}
-
 .machineTitle{
   font-size: 20px;
 }
@@ -329,11 +302,6 @@
   transition: all 0.2s ease;
   backdrop-filter: blur(4px);
   z-index: -1;
-}
-
-.menuButton:hover {
-  background: rgba(0, 0, 0, 0.9);
-  transform: scale(1.1);
 }
 
 .menuButton svg {
@@ -381,9 +349,6 @@
   color: #2d3748;
 }
 
-.menuItem:hover {
-  background: #f7fafc;
-}
 
 .menuItem svg {
   width: 18px;
@@ -398,10 +363,6 @@
 
 .menuItem.delete {
   color: #e53e3e;
-}
-
-.menuItem.delete:hover {
-  background: #fff5f5;
 }
 
 .menuOverlay {
@@ -440,11 +401,6 @@
   gap: 20px;
 }
 
-.actionButton:hover {
-  background: #1a202c;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(45, 55, 72, 0.3);
-}
 
 .actionButton svg {
   width: 24px;
@@ -507,3 +463,4 @@
     justify-content: center;
   }
 }
+

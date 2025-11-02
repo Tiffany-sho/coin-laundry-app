@@ -19,10 +19,6 @@
   background: #f7fafc;
 }
 
-.imageItem:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
 
 .imageItem img {
   width: 100%;
@@ -48,15 +44,6 @@
   opacity: 0;
   backdrop-filter: blur(4px);
   padding: 0;
-}
-
-.imageItem:hover .deleteButton {
-  opacity: 1;
-}
-
-.deleteButton:hover {
-  background: #e53e3e;
-  transform: scale(1.1);
 }
 
 .deleteButton svg {
