@@ -2,7 +2,7 @@
 import useSWR from "swr";
 import MoneyDataList from "./CoinDataList";
 import { Spinner } from "@chakra-ui/react";
-import ErrorPage from "@/app/feacher/errorPage/ErrorPage/ErrorPage";
+import ErrorPage from "@/app/feacher/jumpPage/ErrorPage/ErrorPage";
 
 const fetcher = async (url) => {
   const res = await fetch(url);

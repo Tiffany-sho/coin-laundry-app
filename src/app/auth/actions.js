@@ -16,7 +16,7 @@ export async function login(formData) {
   const { error } = await supabase.auth.signInWithPassword(data);
 
   if (error) {
-    redirect("/error");
+    redirect("/auth/login");
   }
   revalidatePath("/coinLaundry", "layout");
   redirect("/coinLaundry");
@@ -33,8 +33,7 @@ export async function signup(formData) {
   const { error } = await supabase.auth.signUp(data);
 
   if (error) {
-    console.log(error);
-    redirect("/error");
+    redirect("/auth/signup");
   }
 
   revalidatePath("/coinLaundry", "layout");

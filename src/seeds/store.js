@@ -17,6 +17,7 @@ const stores = [
         url: "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/public/Laundry-Images/public/Mison.png",
       },
     ],
+    owner: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     store: "千本鞍馬口",
@@ -36,6 +37,7 @@ const stores = [
         url: "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/public/Laundry-Images/public/SenBon.png",
       },
     ],
+    owner: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     store: "衣笠わら天神",
@@ -55,6 +57,7 @@ const stores = [
         url: "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/public/Laundry-Images/public/Kinugasa.png",
       },
     ],
+    owner: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     store: "丸太町小川",
@@ -73,6 +76,7 @@ const stores = [
         url: "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/public/Laundry-Images/public/Maruta.png",
       },
     ],
+    owner: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     store: "瀬田大江",
@@ -92,6 +96,7 @@ const stores = [
         url: "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/public/Laundry-Images/public/Oue.png",
       },
     ],
+    owner: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     store: "西大路東六角",
@@ -110,6 +115,7 @@ const stores = [
         url: "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/public/Laundry-Images/public/Rokkaku.png",
       },
     ],
+    owner: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
 ];
 

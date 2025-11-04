@@ -1,24 +1,46 @@
 import * as CoinLaundry from "@/app/feacher/coinLandry/components/CoinLaundryList/index";
 import { Heading, Box, Container } from "@chakra-ui/react";
+import ErrorPage from "@/app/feacher/jumpPage/ErrorPage/ErrorPage";
 
-async function fetcher() {
-  const res = await fetch(`http://localhost:3000/api/coinLaundry`);
+import CoinLaundryStore from "@/models/coinLaundryStore";
+import { createClient } from "@/utils/supabase/server";
+import dbConnect from "@/lib/dbConnect";
 
-  if (!res.ok) {
-    const errorRes = await res.json();
+async function getData() {
+  await dbConnect();
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  try {
+    if (!user) {
+      return {
+        error: { msg: "Unauthorized", status: 401 },
+      };
+    }
+    const coinLaundryStores = await CoinLaundryStore.find({ owner: user.id });
+    if (!coinLaundryStores) {
+      return {
+        error: {
+          msg: "店舗が見つかりませんでした",
+          status: 404,
+        },
+      };
+    }
+    return { datas: JSON.parse(JSON.stringify(coinLaundryStores)) };
+  } catch (err) {
     return {
-      title: errorRes.msg,
-      result: errorRes.result,
-      status: res.status,
+      error: { msg: "予期しないエラー", status: 400 },
     };
   }
-  return res.json();
 }
 
 const Page = async () => {
-  const datas = await fetcher();
-  if (datas.result === "failure")
-    return <ErrorPage title={datas.title} status={datas.status} />;
+  const { datas, error } = await getData();
+
+  if (error) return <ErrorPage title={datas.title} status={datas.status} />;
 
   return (
     <>

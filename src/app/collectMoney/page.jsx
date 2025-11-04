@@ -1,18 +1,47 @@
 import Link from "next/link";
 import CoinLaundryList from "@/app/feacher/coinLandry/components/CoinLaundryList/CoinLaundryList";
 import { Heading, Button, Box, Container, Flex } from "@chakra-ui/react";
+import ErrorPage from "@/app/feacher/jumpPage/ErrorPage/ErrorPage";
 
-async function fetcher() {
-  const res = await fetch(`http://localhost:3000/api/coinLaundry`);
+import CoinLaundryStore from "@/models/coinLaundryStore";
+import { createClient } from "@/utils/supabase/server";
+import dbConnect from "@/lib/dbConnect";
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch data");
+async function getData() {
+  await dbConnect();
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  try {
+    if (!user) {
+      return {
+        error: { msg: "Unauthorized", status: 401 },
+      };
+    }
+    const coinLaundryStores = await CoinLaundryStore.find({ owner: user.id });
+    if (!coinLaundryStores) {
+      return {
+        error: {
+          msg: "店舗が見つかりませんでした",
+          status: 404,
+        },
+      };
+    }
+    return { datas: JSON.parse(JSON.stringify(coinLaundryStores)) };
+  } catch (err) {
+    return {
+      error: { msg: "予期しないエラー", status: 400 },
+    };
   }
-  return res.json();
 }
 
 const Page = async () => {
-  const datas = await fetcher();
+  const { datas, error } = await getData();
+
+  if (error) return <ErrorPage title={datas.title} status={datas.status} />;
 
   return (
     <Box

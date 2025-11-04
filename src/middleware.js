@@ -1,8 +1,20 @@
 import { updateSession } from "@/utils/supabase/middleware";
+import { NextResponse } from "next/server";
 
 export async function middleware(request) {
-  // update user's auth session
-  return await updateSession(request);
+  const { supabaseResponse, user } = await updateSession(request);
+
+  const { pathname } = request.nextUrl;
+
+  const protectedPaths = ["/account", "/coinLaundry", "/collectMoney"];
+
+  if (!user && protectedPaths.some((path) => pathname.startsWith(path))) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/auth/login";
+    return NextResponse.redirect(url);
+  }
+
+  return supabaseResponse;
 }
 
 export const config = {

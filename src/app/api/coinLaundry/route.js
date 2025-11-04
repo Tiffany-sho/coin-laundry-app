@@ -1,30 +1,22 @@
-import CoinLaundryStore from "@/models/coinLaundryStore";
 import dbConnect from "@/lib/dbConnect";
+import CoinLaundryStore from "@/models/coinLaundryStore";
+import { createClient } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
-
-export async function GET() {
-  await dbConnect();
-
-  try {
-    const coinLaundryStores = await CoinLaundryStore.find({});
-    if (!coinLaundryStores) {
-      return NextResponse.json(
-        { msg: "店舗が見つかりませんでした", result: "failure" },
-        { status: 404 }
-      );
-    }
-    return NextResponse.json(coinLaundryStores);
-  } catch (err) {
-    return NextResponse.json(
-      { msg: "予期しないエラーが発生しました", result: "failure" },
-      { status: 400 }
-    );
-  }
-}
 
 export async function POST(request) {
   await dbConnect();
 
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json(
+      { msg: "Unauthorized", result: "failure" },
+      { status: 401 }
+    );
+  }
   const formData = await request.formData();
   const store = formData.get("store");
   const location = formData.get("location");
@@ -45,11 +37,13 @@ export async function POST(request) {
       description,
       machines,
       images,
+      owner: user.id,
     });
     await newCoinLaundry.save();
     const newId = newCoinLaundry._id;
     return NextResponse.json({ store, id: newId });
-  } catch {
+  } catch (err) {
+    console.error(err);
     return NextResponse.json({ msg: "'登録に失敗しました。" }, { status: 500 });
   }
 }

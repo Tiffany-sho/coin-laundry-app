@@ -43,6 +43,10 @@ const coinLaundryStoreSchema = new Schema({
       },
     },
   ],
+  owner: {
+    type: String,
+    required: true,
+  },
 });
 
 coinLaundryStoreSchema.post("findOneAndDelete", async function (doc) {

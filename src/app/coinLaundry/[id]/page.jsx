@@ -1,5 +1,5 @@
 import MonoCard from "@/app/feacher/coinLandry/components/MonoCard/MonoCard";
-import ErrorPage from "@/app/feacher/errorPage/ErrorPage/ErrorPage";
+import ErrorPage from "@/app/feacher/jumpPage/ErrorPage/ErrorPage";
 
 async function fetcher(id) {
   const res = await fetch(`http://localhost:3000/api/coinLaundry/${id}`);
