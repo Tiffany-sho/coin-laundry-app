@@ -29,15 +29,13 @@ import DeletePicture from "@/app/feacher/coinLandry/components/CoinLaundryForm/D
 import styles from "./CoinLaundryForm.module.css";
 import { useCoinLaundryForm } from "@/app/feacher/coinLandry/context/CoinlaundryForm/CoinLaundryFormContext";
 
-const CoinLaundryForm = ({ storeId, images, method }) => {
+const CoinLaundryForm = ({ storeId, images = [], method }) => {
   const { state, dispatch } = useCoinLaundryForm();
   const [open, setOpen] = useState(false);
   const formRef = useRef(null);
   const dialogRef = useRef(null);
 
   const postHander = async () => {
-    if (!formRef.current || state.isLoading) return;
-
     dispatch({ type: "SET_ISLOADING", payload: true });
     dispatch({ type: "SET_MSG", payload: "" });
 
@@ -138,7 +136,6 @@ const CoinLaundryForm = ({ storeId, images, method }) => {
       }
       return;
     }
-
     const finalImagePaths = new Set(finalImageUrlList.map((img) => img.path));
     const pathsToDelete = images
       .map((img) => img.path)

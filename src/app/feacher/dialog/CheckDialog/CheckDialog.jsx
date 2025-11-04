@@ -57,7 +57,7 @@ const CheckDialog = ({ method, postHander, dialogRef }) => {
                 {state.machines.length > 0 ? (
                   <Box as="ul" className={styles.machineList}>
                     {state.machines.map((machine) => (
-                      <li key={machine._id} className={styles.machineItem}>
+                      <li key={machine.name} className={styles.machineItem}>
                         <Flex justifyContent="space-between">
                           <div>
                             {machine.name} : {machine.num}個

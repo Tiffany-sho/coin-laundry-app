@@ -7,4 +7,14 @@ export default {
       "next",
     ],
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "hhdipgftsrsmmuqyifgt.supabase.co",
+        port: "",
+        pathname: "/storage/v1/object/public/**",
+      },
+    ],
+  },
 };
