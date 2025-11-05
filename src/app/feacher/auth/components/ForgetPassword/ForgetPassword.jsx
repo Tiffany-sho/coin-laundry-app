@@ -1,6 +1,15 @@
-import { Button, Card, Field, Input, Stack, Box } from "@chakra-ui/react";
+"use client";
+
+import { Button, Card, Field, Input, Stack, Box, Text } from "@chakra-ui/react";
+import { useActionState } from "react";
+
+const initState = {
+  message: null,
+  error: null,
+};
 
 export default function SendEmail({ action }) {
+  const [state, formAction] = useActionState(action, initState);
   return (
     <Box
       minH="100vh"
@@ -10,7 +19,7 @@ export default function SendEmail({ action }) {
       bg="gray.50"
       px={4}
     >
-      <form>
+      <form action={formAction}>
         <Card.Root
           maxW="md"
           w="full"
@@ -29,6 +38,8 @@ export default function SendEmail({ action }) {
 
           <Card.Body py={8} px={6}>
             <Stack gap="6" w="full">
+              {state?.error && <Text color="red.500">{state.error}</Text>}
+              {state?.message && <Text color="green.500">{state.message}</Text>}
               <Field.Root>
                 <Field.Label
                   htmlFor="email"
@@ -58,7 +69,6 @@ export default function SendEmail({ action }) {
             <Button
               variant="solid"
               colorScheme="blue"
-              formAction={action}
               type="submit"
               size="lg"
               w="full"

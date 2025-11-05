@@ -2,11 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-
 import { createClient } from "@/utils/supabase/server";
 import { headers } from "next/headers";
 
-export async function login(formData) {
+export async function login(preState, formData) {
   const supabase = await createClient();
 
   const data = {
@@ -17,13 +16,13 @@ export async function login(formData) {
   const { error } = await supabase.auth.signInWithPassword(data);
 
   if (error) {
-    redirect("/auth/login");
+    return { error: "メールアドレスまたはパスワードが間違っています" };
   }
   revalidatePath("/coinLaundry", "layout");
   redirect("/coinLaundry");
 }
 
-export async function signup(formData) {
+export async function signup(preState, formData) {
   const supabase = await createClient();
 
   const data = {
@@ -34,14 +33,16 @@ export async function signup(formData) {
   const { error } = await supabase.auth.signUp(data);
 
   if (error) {
-    redirect("/auth/signup");
+    return {
+      error: "エラーが発生しました。もう一度お願いします。",
+    };
   }
 
   revalidatePath("/coinLaundry", "layout");
   redirect("/coinLaundry");
 }
 
-export async function requestPasswordReset(formData) {
+export async function requestPasswordReset(preState, formData) {
   const headersList = headers();
   const origin = headersList.get("origin");
   const supabase = await createClient();
@@ -51,7 +52,8 @@ export async function requestPasswordReset(formData) {
     return { error: "メールアドレスを入力してください。" };
   }
 
-  const redirectUrl = `${origin}/auth/updatePassword`;
+  // nextパラメータを含めてリダイレクトURLを設定
+  const redirectUrl = `${origin}/auth/callback?next=/auth/updatePassword`;
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: redirectUrl,
@@ -67,7 +69,6 @@ export async function requestPasswordReset(formData) {
       "パスワードリセット用のメールを送信しました。受信トレイを確認してください。",
   };
 }
-
 export async function updatePassword(formData) {
   const supabase = await createClient();
   const password = formData.get("password");

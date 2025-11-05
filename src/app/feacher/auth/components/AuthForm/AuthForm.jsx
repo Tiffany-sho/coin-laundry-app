@@ -1,9 +1,18 @@
+"use client";
+
 import { Button, Card, Field, Input, Stack, Box, Text } from "@chakra-ui/react";
 import { PasswordInput } from "@/components/ui/password-input";
+import { useActionState } from "react";
 import Link from "next/link";
 import ProviderForm from "../ProviderForm/ProviderForm";
 
 export default function AuthForm({ mode, action }) {
+  const initState = {
+    message: null,
+    error: null,
+  };
+
+  const [state, formAction] = useActionState(action, initState);
   const isLogin = mode === "login";
   const title = isLogin ? "ログイン" : "サインアップ";
   const buttonText = isLogin ? "ログイン" : "サインアップ";
@@ -25,7 +34,7 @@ export default function AuthForm({ mode, action }) {
       bg="gray.50"
       px={4}
     >
-      <form>
+      <form action={formAction}>
         <Card.Root
           maxW="md"
           w="full"
@@ -44,6 +53,7 @@ export default function AuthForm({ mode, action }) {
 
           <Card.Body py={8} px={6}>
             <Stack gap="6" w="full">
+              {state?.error && <Text color="red.600">{state.error}</Text>}
               <Field.Root>
                 <Field.Label
                   htmlFor="email"
@@ -99,7 +109,7 @@ export default function AuthForm({ mode, action }) {
                       textDecoration: "underline",
                     }}
                   >
-                    パスワードを忘れたとき
+                    パスワードを忘れた場合
                   </Text>
                 </Link>
               </Text>
@@ -110,7 +120,6 @@ export default function AuthForm({ mode, action }) {
             <Button
               variant="solid"
               colorScheme="blue"
-              formAction={action}
               type="submit"
               size="lg"
               w="full"
