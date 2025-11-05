@@ -1,6 +1,7 @@
 import { Button, Card, Field, Input, Stack, Box, Text } from "@chakra-ui/react";
 import { PasswordInput } from "@/components/ui/password-input";
 import Link from "next/link";
+import ProviderForm from "../ProviderForm/ProviderForm";
 
 export default function AuthForm({ mode, action }) {
   const isLogin = mode === "login";
@@ -87,6 +88,21 @@ export default function AuthForm({ mode, action }) {
                   }}
                 />
               </Field.Root>
+              <Text fontSize="sm" color="gray.600">
+                <Link href="/auth/forgetPassword" passHref>
+                  <Text
+                    as="span"
+                    color="blue.500"
+                    fontWeight="semibold"
+                    _hover={{
+                      color: "blue.600",
+                      textDecoration: "underline",
+                    }}
+                  >
+                    パスワードを忘れたとき
+                  </Text>
+                </Link>
+              </Text>
             </Stack>
           </Card.Body>
 
@@ -126,6 +142,7 @@ export default function AuthForm({ mode, action }) {
                 </Link>
               </Text>
             </Box>
+            <ProviderForm title={title} />
           </Card.Footer>
         </Card.Root>
       </form>

@@ -39,7 +39,6 @@ async function getData() {
 
 const Page = async () => {
   const { datas, error } = await getData();
-
   if (error) return <ErrorPage title={datas.title} status={datas.status} />;
 
   return (

@@ -1,12 +1,24 @@
 import CoinLaundryStore from "@/models/coinLaundryStore";
-import CollectMoney from "@/models/collectMoney";
 import dbConnect from "@/lib/dbConnect";
 import mongoose from "mongoose";
 import { NextResponse } from "next/server";
+import { createClient } from "@/utils/supabase/server";
 
 export async function GET(request, { params }) {
   await dbConnect();
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  console.log(user);
   try {
+    if (!user) {
+      return NextResponse.json(
+        { msg: "Unauthorized", result: "failure" },
+        { status: 401 }
+      );
+    }
     const { id } = await params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -18,7 +30,11 @@ export async function GET(request, { params }) {
 
     const coinLaundryStore = await CoinLaundryStore.findById(id);
 
-    if (!coinLaundryStore) {
+    if (
+      coinLaundryStore.owner === user.id ||
+      !coinLaundryStore ||
+      coinLaundryStore.length === 0
+    ) {
       return NextResponse.json(
         { msg: "店舗が見つかりませんでした", result: "failure" },
         { status: 404 }
