@@ -52,7 +52,6 @@ export async function requestPasswordReset(preState, formData) {
     return { error: "メールアドレスを入力してください。" };
   }
 
-  // nextパラメータを含めてリダイレクトURLを設定
   const redirectUrl = `${origin}/auth/callback?next=/auth/updatePassword`;
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {

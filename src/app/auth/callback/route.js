@@ -17,7 +17,6 @@ export async function GET(request) {
 
   const supabase = await createClient();
 
-  // パスワードリセット用のトークン処理（古い方式）
   if (token_hash && type === "recovery") {
     const { error } = await supabase.auth.verifyOtp({
       type: "recovery",
@@ -42,20 +41,11 @@ export async function GET(request) {
     return NextResponse.redirect(`${origin}/auth/auth-code-error`);
   }
 
-  // コード交換処理（サインアップ/ログイン + パスワードリセット）
   if (code) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
-      // セッションからユーザー情報を取得してパスワードリセットかどうか判定
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      // パスワードリセットフローの場合は updatePassword ページへ
-      // next パラメータが /auth/updatePassword を含むか確認
-      if (next.includes("/auth/updatePassword") || next === "/") {
-        // ここでパスワードリセットと判定
+      if (next.includes("/auth/updatePassword")) {
         const redirectPath = "/auth/updatePassword";
         revalidatePath(redirectPath, "layout");
 
@@ -73,7 +63,6 @@ export async function GET(request) {
         }
       }
 
-      // 通常のログイン/サインアップフロー
       revalidatePath(next, "layout");
 
       const forwardedHost = request.headers.get("x-forwarded-host");
