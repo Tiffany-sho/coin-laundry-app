@@ -1,13 +1,9 @@
 import MonoCard from "@/app/feacher/coinLandry/components/MonoCard/MonoCard";
 import ErrorPage from "@/app/feacher/jumpPage/ErrorPage/ErrorPage";
 
-import CoinLaundryStore from "@/models/coinLaundryStore";
-import dbConnect from "@/lib/dbConnect";
-import mongoose from "mongoose";
 import { createClient } from "@/utils/supabase/server";
 
 async function getData(id) {
-  await dbConnect();
   const supabase = await createClient();
   const {
     data: { user },
@@ -20,32 +16,25 @@ async function getData(id) {
       };
     }
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return {
-        error: {
-          msg: "IDの形式が正しくありません。",
-          status: 400,
-        },
-      };
-    }
-    const coinLaundryStore = await CoinLaundryStore.findById(id);
+    const { data: coinLaundryStore, error } = await supabase
+      .from("laundry_store")
+      .select("*")
+      .eq("id", id);
 
-    if (
-      !coinLaundryStore ||
-      coinLaundryStore.length === 0 ||
-      coinLaundryStore.owner !== user.id
-    ) {
+    if (error) {
       return {
-        error: {
-          msg: "店舗が見つかりませんでした",
-          status: 404,
-        },
+        error: { msg: "データの取得に失敗しました", status: 500 },
       };
     }
 
-    return { data: JSON.parse(JSON.stringify(coinLaundryStore)) };
+    if (coinLaundryStore.length === 0) {
+      return {
+        error: { msg: "店舗が見つかりませんでした", status: 404 },
+      };
+    }
+
+    return { data: coinLaundryStore[0] };
   } catch (err) {
-    console.error(err);
     return {
       error: { msg: "予期しないエラー", status: 400 },
     };

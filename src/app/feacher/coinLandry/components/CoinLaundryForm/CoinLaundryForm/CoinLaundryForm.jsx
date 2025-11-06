@@ -28,6 +28,7 @@ import UploadPicture from "@/app/feacher/coinLandry/components/CoinLaundryForm/U
 import DeletePicture from "@/app/feacher/coinLandry/components/CoinLaundryForm/DeletePicture/DeletePicture";
 import styles from "./CoinLaundryForm.module.css";
 import { useCoinLaundryForm } from "@/app/feacher/coinLandry/context/CoinlaundryForm/CoinLaundryFormContext";
+import { createStore, updateStore } from "@/app/coinLaundry/action";
 
 const CoinLaundryForm = ({ storeId, images = [], method }) => {
   const { state, dispatch } = useCoinLaundryForm();
@@ -90,30 +91,22 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
     formData.append("machines", JSON.stringify(newMachine));
     formData.append("images", JSON.stringify(finalImageUrlList));
 
-    let response;
     let responseData;
 
     try {
       if (method === "POST") {
-        response = await fetch("/api/coinLaundry", {
-          method: "POST",
-          body: formData,
-        });
+        const { data, error } = await createStore(formData);
+        if (error) {
+          throw new Error(error.message || "ストアの作成に失敗しました");
+        }
+        responseData = data;
       } else if (method === "PUT") {
-        response = await fetch(`/api/coinLaundry/${storeId}`, {
-          method: "PUT",
-          body: formData,
-        });
+        const { data, error } = await updateStore(formData, storeId);
+        if (error) {
+          throw new Error(error.message || "ストアの作成に失敗しました");
+        }
+        responseData = data;
       }
-
-      if (!response.ok) {
-        const errorRes = await response.json();
-        throw new Error(
-          errorRes.msg || `HTTP error! status: ${response.status}`
-        );
-      }
-
-      responseData = await response.json();
     } catch (error) {
       console.error("API Error:", error);
       dispatch({
@@ -159,7 +152,7 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
     );
     setTimeout(() => {
       dispatch({ type: "SET_ISLOADING", payload: false });
-    }, 3000);
+    }, 10000);
     redirect(`/coinLaundry/${responseData.id}`);
   };
 

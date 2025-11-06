@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Box, Button, Card, Image, Flex } from "@chakra-ui/react";
 
 const CoinLaundryList = ({ coinLaundry, valiant }) => {
+  // console.log(coinLaundry.id);
   return (
     <Card.Root
       flexDirection="row"
@@ -62,7 +63,7 @@ const CoinLaundryList = ({ coinLaundry, valiant }) => {
 
         <Card.Footer p={{ base: 4, md: 6 }} pt={0} gap={3}>
           <Link
-            href={`/coinLaundry/${coinLaundry._id}/${
+            href={`/coinLaundry/${coinLaundry.id}/${
               valiant === "collect" ? "coinDataList" : ""
             }`}
           >

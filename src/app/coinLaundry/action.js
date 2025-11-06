@@ -1,0 +1,77 @@
+"use server";
+
+import { createClient } from "@/utils/supabase/server";
+import { deleteImage } from "../api/supabaseFunctions/route";
+
+export async function createStore(formData) {
+  const supabase = await createClient();
+
+  const machinesString = formData.get("machines");
+  const imagesString = formData.get("images");
+
+  const machinesData = machinesString ? JSON.parse(machinesString) : [];
+  const imagesData = imagesString ? JSON.parse(imagesString) : [];
+
+  const { data, error } = await supabase
+    .from("laundry_store")
+    .insert({
+      store: formData.get("store"),
+      location: formData.get("location"),
+      description: formData.get("description"),
+      machines: machinesData,
+      images: imagesData,
+    })
+    .select("id, store");
+
+  if (error) {
+    return { error: error.message };
+  }
+  return { data: data[0] };
+}
+
+export async function updateStore(formData, id) {
+  const supabase = await createClient();
+  const machinesString = formData.get("machines");
+  const imagesString = formData.get("images");
+
+  const machinesData = machinesString ? JSON.parse(machinesString) : [];
+  const imagesData = imagesString ? JSON.parse(imagesString) : [];
+
+  const { data, error } = await supabase
+    .from("laundry_store")
+    .update({
+      store: formData.get("store"),
+      location: formData.get("location"),
+      description: formData.get("description"),
+      machines: machinesData,
+      images: imagesData,
+    })
+    .eq("id", id)
+    .select("id, store");
+
+  if (error) {
+    return { error: error.message };
+  }
+  return { data: data[0] };
+}
+
+export async function deleteStore(id) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("laundry_store")
+    .delete()
+    .eq("id", id)
+    .select("id, store,images");
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  Promise.all(data[0].images.map((imageFile) => deleteImage(imageFile.path)))
+    .then(() => console.log("Old images cleaned up."))
+    .catch((err) => console.error("Cleanup deletion failed:", err));
+
+  console.log(data[0]);
+  return { data: data[0] };
+}

@@ -1,18 +1,43 @@
 import CoinLaundryForm from "@/app/feacher/coinLandry/components/CoinLaundryForm/CoinLaundryForm/CoinLaundryForm";
 import CoinLaundryFormContextProvider from "@/app/feacher/coinLandry/context/CoinlaundryForm/CoinLaundryFormContext";
+import { createClient } from "@/utils/supabase/server";
 
-async function fetcher(id) {
-  const res = await fetch(`http://localhost:3000/api/coinLaundry/${id}`);
+async function getData(id) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch data");
+  try {
+    if (!user) {
+      return {
+        error: { msg: "Unauthorized", status: 401 },
+      };
+    }
+
+    const { data: coinLaundryStore, error } = await supabase
+      .from("laundry_store")
+      .select("*")
+      .eq("id", id);
+
+    if (error) {
+      return {
+        error: { msg: "データの取得に失敗しました", status: 500 },
+      };
+    }
+
+    return { data: coinLaundryStore[0] };
+  } catch (err) {
+    return {
+      error: { msg: "予期しないエラー", status: 400 },
+    };
   }
-  return res.json();
 }
 
 const updateLaundry = async ({ params }) => {
   const { id } = await params;
-  const data = await fetcher(id);
+  const { data, error } = await getData(id);
+  if (error) return <ErrorPage title={error.msg} status={error.status} />;
   return (
     <CoinLaundryFormContextProvider coinData={data}>
       <CoinLaundryForm storeId={id} images={data.images} method="PUT" />;

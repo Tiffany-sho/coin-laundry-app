@@ -1,0 +1,89 @@
+
+/* メニューボタン */
+.menuBtn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: black;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+  z-index: 20;
+}
+
+.menuBtn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: 60px;
+  right: 16px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  min-width: 180px;
+  z-index: 30;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: white;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 15px;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+
+.menuItem svg {
+  width: 18px;
+  height: 18px;
+}
+
+.menuItem.edit {
+  color: #2d3748;
+  border-bottom: 1px solid #e2e8f0;
+  margin-left: 4%;
+}
+
+.menuItem.delete {
+  color: #e53e3e;
+}
+
+.menuOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 25;
+}
