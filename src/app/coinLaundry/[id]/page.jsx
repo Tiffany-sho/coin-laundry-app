@@ -31,9 +31,9 @@ async function getData(id) {
     const coinLaundryStore = await CoinLaundryStore.findById(id);
 
     if (
-      coinLaundryStore.owner !== user.id ||
       !coinLaundryStore ||
-      coinLaundryStore.length === 0
+      coinLaundryStore.length === 0 ||
+      coinLaundryStore.owner !== user.id
     ) {
       return {
         error: {

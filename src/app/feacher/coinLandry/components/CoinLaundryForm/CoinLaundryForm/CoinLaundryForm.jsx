@@ -147,7 +147,6 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
         .catch((err) => console.error("Cleanup deletion failed:", err));
     }
 
-    dispatch({ type: "SET_ISLOADING", payload: false });
     sessionStorage.setItem(
       "toast",
       JSON.stringify({
@@ -158,6 +157,9 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
         closable: true,
       })
     );
+    setTimeout(() => {
+      dispatch({ type: "SET_ISLOADING", payload: false });
+    }, 3000);
     redirect(`/coinLaundry/${responseData.id}`);
   };
 

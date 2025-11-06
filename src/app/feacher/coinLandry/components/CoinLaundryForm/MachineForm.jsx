@@ -75,8 +75,8 @@ const MachineForm = ({ setOpen }) => {
                     個数
                   </Text>
                   <NumberInput.Root unstyled spinOnPress={false}>
-                    <HStack gap="3" justify="flex-start">
-                      {machine.num !== 0 && (
+                    <HStack gap="3" justify="center">
+                      {machine.num !== 0 ? (
                         <NumberInput.DecrementTrigger asChild>
                           <IconButton
                             variant="outline"
@@ -90,6 +90,19 @@ const MachineForm = ({ setOpen }) => {
                             <LuMinus />
                           </IconButton>
                         </NumberInput.DecrementTrigger>
+                      ) : (
+                        <IconButton
+                          variant="outline"
+                          size="md"
+                          bg="white"
+                          borderColor="gray.300"
+                          color="gray.700"
+                          transition="all 0.2s"
+                          disabled={true}
+                          onClick={() => handleCountChange(machine.name, -1)}
+                        >
+                          <LuMinus />
+                        </IconButton>
                       )}
 
                       <NumberInput.ValueText

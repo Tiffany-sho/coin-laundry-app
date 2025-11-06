@@ -7,13 +7,13 @@ import {
   Text,
   Flex,
   Image,
+  Spinner,
 } from "@chakra-ui/react";
 import { useCoinLaundryForm } from "@/app/feacher/coinLandry/context/CoinlaundryForm/CoinLaundryFormContext";
 import styles from "./CheckDialog.module.css";
 
 const CheckDialog = ({ method, postHander, dialogRef }) => {
   const { state } = useCoinLaundryForm();
-
   return (
     <Dialog.Root
       role="alertdialog"
@@ -56,17 +56,20 @@ const CheckDialog = ({ method, postHander, dialogRef }) => {
                 <Text className={styles.infoLabel}>機械</Text>
                 {state.machines.length > 0 ? (
                   <Box as="ul" className={styles.machineList}>
-                    {state.machines.map((machine) => (
-                      <li key={machine.name} className={styles.machineItem}>
-                        <Flex justifyContent="space-between">
-                          <div>
-                            {machine.name} : {machine.num}個
-                          </div>
-
-                          <div>価格帯 : {machine.comment}</div>
-                        </Flex>
-                      </li>
-                    ))}
+                    {state.machines
+                      .filter((machine) => machine.num !== 0)
+                      .map((machine) => (
+                        <li key={machine.name} className={styles.machineItem}>
+                          <Flex justifyContent="space-between">
+                            <div>
+                              {machine.name} : {machine.num}個
+                            </div>
+                            {machine.comment && (
+                              <div>価格帯 : {machine.comment}</div>
+                            )}
+                          </Flex>
+                        </li>
+                      ))}
                   </Box>
                 ) : (
                   <Text className={styles.emptyState}>
@@ -115,17 +118,27 @@ const CheckDialog = ({ method, postHander, dialogRef }) => {
                   variant="outline"
                   ref={dialogRef}
                   className={styles.cancelButton}
+                  disabled={state.isLoading}
                 >
                   キャンセル
                 </Button>
               </Dialog.ActionTrigger>
-              <Button onClick={postHander} className={styles.submitButton}>
+              <Button
+                onClick={postHander}
+                className={styles.submitButton}
+                disabled={state.isLoading}
+              >
+                {state.isLoading && <Spinner />}
                 {method === "POST" && "登録"}
                 {method === "PUT" && "編集"}
               </Button>
             </Dialog.Footer>
             <Dialog.CloseTrigger asChild>
-              <CloseButton size="sm" className={styles.closeButton} />
+              <CloseButton
+                size="sm"
+                className={styles.closeButton}
+                disabled={state.isLoading}
+              />
             </Dialog.CloseTrigger>
           </Dialog.Content>
         </Dialog.Positioner>
