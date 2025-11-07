@@ -80,7 +80,7 @@ const CoinLaundryList = ({ coinLaundry, valiant }) => {
           </Link>
 
           {valiant === "collect" && (
-            <Link href={`/collectMoney/${coinLaundry._id}`}>
+            <Link href={`/collectMoney/${coinLaundry.id}/newData`}>
               <Button
                 variant="solid"
                 size={{ base: "sm", md: "md" }}

@@ -1,5 +1,5 @@
-import CoinLaundryForm from "@/app/feacher/coinLandry/components/CoinLaundryForm/CoinLaundryForm/CoinLaundryForm";
-import CoinLaundryFormContextProvider from "@/app/feacher/coinLandry/context/CoinlaundryForm/CoinLaundryFormContext";
+import CollectMoneyForm from "@/app/feacher/collectMoney/components/collectMoneyForm/CollectMoneyForm";
+import ErrorPage from "@/app/feacher/jumpPage/ErrorPage/ErrorPage";
 import { createClient } from "@/utils/supabase/server";
 
 async function getData(id) {
@@ -17,7 +17,7 @@ async function getData(id) {
 
     const { data: coinLaundryStore, error } = await supabase
       .from("laundry_store")
-      .select("*")
+      .select("machines,id,store")
       .eq("id", id)
       .eq("owner", user.id)
       .single();
@@ -29,6 +29,12 @@ async function getData(id) {
       };
     }
 
+    if (coinLaundryStore.length === 0) {
+      return {
+        error: { msg: "店舗が見つかりませんでした", status: 404 },
+      };
+    }
+
     return { data: coinLaundryStore };
   } catch (err) {
     return {
@@ -36,15 +42,12 @@ async function getData(id) {
     };
   }
 }
-const updateLaundry = async ({ params }) => {
+
+const Page = async ({ params }) => {
   const { id } = await params;
   const { data, error } = await getData(id);
   if (error) return <ErrorPage title={error.msg} status={error.status} />;
-  return (
-    <CoinLaundryFormContextProvider coinData={data}>
-      <CoinLaundryForm storeId={id} images={data.images} method="PUT" />;
-    </CoinLaundryFormContextProvider>
-  );
+  return <CollectMoneyForm coinLaundry={data} />;
 };
 
-export default updateLaundry;
+export default Page;

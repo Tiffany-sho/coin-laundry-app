@@ -8,8 +8,6 @@ import { createClient } from "@/utils/supabase/server";
 import dbConnect from "@/lib/dbConnect";
 
 async function getData() {
-  await dbConnect();
-
   const supabase = await createClient();
   const {
     data: { user },
@@ -21,16 +19,18 @@ async function getData() {
         error: { msg: "Unauthorized", status: 401 },
       };
     }
-    const coinLaundryStores = await CoinLaundryStore.find({ owner: user.id });
-    if (!coinLaundryStores) {
+    const { data: coinLaundryStores, error } = await supabase
+      .from("laundry_store")
+      .select("*")
+      .eq("owner", user.id);
+
+    if (error) {
       return {
-        error: {
-          msg: "店舗が見つかりませんでした",
-          status: 404,
-        },
+        error: { msg: "データの取得に失敗しました", status: 500 },
       };
     }
-    return { datas: JSON.parse(JSON.stringify(coinLaundryStores)) };
+
+    return { datas: coinLaundryStores };
   } catch (err) {
     return {
       error: { msg: "予期しないエラー", status: 400 },
@@ -40,8 +40,7 @@ async function getData() {
 
 const Page = async () => {
   const { datas, error } = await getData();
-
-  if (error) return <ErrorPage title={datas.title} status={datas.status} />;
+  if (error) return <ErrorPage title={error.msg} status={error.status} />;
 
   return (
     <Box
@@ -100,7 +99,7 @@ const Page = async () => {
               return (
                 <CoinLaundryList
                   coinLaundry={data}
-                  key={data._id}
+                  key={data.id}
                   valiant="collect"
                 />
               );

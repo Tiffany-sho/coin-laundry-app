@@ -19,21 +19,18 @@ async function getData(id) {
     const { data: coinLaundryStore, error } = await supabase
       .from("laundry_store")
       .select("*")
-      .eq("id", id);
+      .eq("id", id)
+      .eq("owner", user.id)
+      .single();
 
     if (error) {
+      console.error(error);
       return {
         error: { msg: "データの取得に失敗しました", status: 500 },
       };
     }
 
-    if (coinLaundryStore.length === 0) {
-      return {
-        error: { msg: "店舗が見つかりませんでした", status: 404 },
-      };
-    }
-
-    return { data: coinLaundryStore[0] };
+    return { data: coinLaundryStore };
   } catch (err) {
     return {
       error: { msg: "予期しないエラー", status: 400 },

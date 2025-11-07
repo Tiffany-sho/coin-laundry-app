@@ -22,12 +22,13 @@ export async function createStore(formData) {
       machines: machinesData,
       images: imagesData,
     })
-    .select("id, store");
+    .select("id, store")
+    .single();
 
   if (error) {
     return { error: error.message };
   }
-  return { data: data[0] };
+  return { data: data };
 }
 
 export async function updateStore(formData, id) {
@@ -48,13 +49,14 @@ export async function updateStore(formData, id) {
       images: imagesData,
     })
     .eq("id", id)
-    .select("id, store");
+    .select("id, store")
+    .single();
 
   if (error) {
     return { error: error.message };
   }
-  console.log(BACKET_NAME);
-  return { data: data[0] };
+
+  return { data: data };
 }
 
 export async function deleteStore(id) {
@@ -64,7 +66,8 @@ export async function deleteStore(id) {
     .from("laundry_store")
     .delete()
     .eq("id", id)
-    .select("id, store,images");
+    .select("id, store")
+    .single();
 
   if (error) {
     return { error: error.message };
@@ -74,8 +77,7 @@ export async function deleteStore(id) {
     .then(() => console.log("Old images cleaned up."))
     .catch((err) => console.error("Cleanup deletion failed:", err));
 
-  console.log(data[0]);
-  return { data: data[0] };
+  return { data: data };
 }
 
 const deleteImage = async (filePath) => {

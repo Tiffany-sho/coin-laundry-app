@@ -61,7 +61,7 @@ const MonoCard = ({ coinLaundry }) => {
             </ul>
           </div>
           <div className={Styles.cardFooter}>
-            <Link href={`/collectMoney/${coinLaundry._id}`}>
+            <Link href={`/collectMoney/${coinLaundry.id}/newData`}>
               <button className={Styles.actionButton}>
                 <Icon.PiMoney />
                 <span>集金</span>
