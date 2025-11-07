@@ -1,7 +1,8 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
-import { deleteImage } from "../api/supabaseFunctions/route";
+
+const BACKET_NAME = process.env.NEXT_PUBLIC_BACKET_NAME;
 
 export async function createStore(formData) {
   const supabase = await createClient();
@@ -52,6 +53,7 @@ export async function updateStore(formData, id) {
   if (error) {
     return { error: error.message };
   }
+  console.log(BACKET_NAME);
   return { data: data[0] };
 }
 
@@ -75,3 +77,20 @@ export async function deleteStore(id) {
   console.log(data[0]);
   return { data: data[0] };
 }
+
+const deleteImage = async (filePath) => {
+  const supabase = await createClient();
+  const { data, error } = await supabase.storage
+    .from(BACKET_NAME)
+    .remove([`laundry/${filePath}`]);
+
+  if (error) {
+    console.error("Error deleting file:", error.message);
+    return false;
+  }
+  if (data.length === 0) {
+    console.error("Error deleting file:");
+    return false;
+  }
+  return true;
+};

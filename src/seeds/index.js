@@ -34,12 +34,17 @@ import { createServerClient } from "@supabase/ssr";
 import stores from "./store.js";
 import { cookies } from "next/headers.js"; // ⬅️ 1. cookies をインポートする
 
+const NEXT_PUBLIC_SUPABASE_URL = "https://hhdipgftsrsmmuqyifgt.supabase.co";
+const NEXT_PUBLIC_SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhoZGlwZ2Z0c3JzbW11cXlpZmd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkyNDQ1MDEsImV4cCI6MjA3NDgyMDUwMX0.4P5Gekjh3OnWGwAorT9C8yYFtLtz_JPMFpXfBaNfUvg";
+const NEXT_PUBLIC_BACKET_NAME = "Laundry-Images";
+
 async function createClient() {
   const cookieStore = cookies(); // ⬅️ インポートしたので関数が正しく呼ばれる
 
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    NEXT_PUBLIC_SUPABASE_URL,
+    NEXT_PUBLIC_SUPABASE_ANON_KEY,
     {
       cookies: {
         getAll() {
@@ -89,7 +94,7 @@ async function deleteStore() {
   const { error } = await supabase
     .from("laundry_store")
     .delete()
-    .eq("owner_id", ownerIdToDelete); // ⬅️ 'owner_id' がこのIDの行を全て削除
+    .eq("owner", ownerIdToDelete); // ⬅️ 'owner_id' がこのIDの行を全て削除
 
   if (error) {
     console.error("Delete Error:", error.message); // ⬅️ 詳細なエラーを見る
@@ -98,26 +103,26 @@ async function deleteStore() {
 }
 
 const resetStore = async () => {
-  console.log(process.env.SUPABASE_URL);
-  // try {
-  //   const deleteResult = await deleteStore(); // ⬅️ error を受け取る
-  //   if (deleteResult && deleteResult.error) {
-  //     // ⬅️ error があるかチェック
-  //     throw new Error(deleteResult.error || "ストアの削除に失敗しました");
-  //   }
-  //   console.log("削除成功");
+  console.log(NEXT_PUBLIC_SUPABASE_URL);
+  try {
+    const deleteResult = await deleteStore(); // ⬅️ error を受け取る
+    if (deleteResult && deleteResult.error) {
+      // ⬅️ error があるかチェック
+      throw new Error(deleteResult.error || "ストアの削除に失敗しました");
+    }
+    console.log("削除成功");
 
-  //   for (let i = 0; i < stores.length; i++) {
-  //     const createResult = await createStore(stores[i]); // ⬅️ error を受け取る
-  //     if (createResult && createResult.error) {
-  //       // ⬅️ error があるかチェック
-  //       throw new Error(createResult.error || "ストアの作成に失敗しました");
-  //     }
-  //   }
-  //   console.log("データリセット成功");
-  // } catch (err) {
-  //   console.log("データリセット失敗:", err.message); // ⬅️ エラーメッセージを表示
-  // }
+    for (let i = 0; i < stores.length; i++) {
+      const createResult = await createStore(stores[i]); // ⬅️ error を受け取る
+      if (createResult && createResult.error) {
+        // ⬅️ error があるかチェック
+        throw new Error(createResult.error || "ストアの作成に失敗しました");
+      }
+    }
+    console.log("データリセット成功");
+  } catch (err) {
+    console.log("データリセット失敗:", err.message); // ⬅️ エラーメッセージを表示
+  }
 };
 
 resetStore();

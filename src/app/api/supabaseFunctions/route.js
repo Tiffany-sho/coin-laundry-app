@@ -28,8 +28,6 @@ export const deleteImage = async (filePath) => {
     .from(BACKET_NAME)
     .remove([`laundry/${filePath}`]);
 
-  console.log(`laundry/${filePath}`);
-  console.log(error);
   if (error) {
     console.error("Error deleting file:", error.message);
     return false;
