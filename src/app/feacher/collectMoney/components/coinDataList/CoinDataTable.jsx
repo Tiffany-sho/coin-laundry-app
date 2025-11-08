@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { Table } from "@chakra-ui/react";
+import { Table, Badge, Text } from "@chakra-ui/react";
 import { createNowData } from "@/date";
 
 const DataTable = ({ items, selectedItemId, onRowClick, open }) => {
@@ -19,32 +19,82 @@ const DataTable = ({ items, selectedItemId, onRowClick, open }) => {
       onRowClick(item);
     }
   };
+
   return (
-    <Table.Root size="sm" interactive>
-      <Table.Header>
+    <Table.Root size="md" interactive variant="line">
+      <Table.Header bg="gray.50">
         <Table.Row>
-          <Table.ColumnHeader>店舗</Table.ColumnHeader>
-          <Table.ColumnHeader>合計売上</Table.ColumnHeader>
-          <Table.ColumnHeader>記録日</Table.ColumnHeader>
+          <Table.ColumnHeader
+            fontWeight="bold"
+            fontSize="sm"
+            color="gray.700"
+            py={4}
+          >
+            店舗
+          </Table.ColumnHeader>
+          <Table.ColumnHeader
+            fontWeight="bold"
+            fontSize="sm"
+            color="gray.700"
+            textAlign="right"
+          >
+            合計売上
+          </Table.ColumnHeader>
+          <Table.ColumnHeader
+            fontWeight="bold"
+            fontSize="sm"
+            color="gray.700"
+            textAlign="right"
+          >
+            記録日
+          </Table.ColumnHeader>
         </Table.Row>
       </Table.Header>
       <Table.Body>
-        {items.map((item) => (
-          <Table.Row
-            key={item.id}
-            onClick={() => toggleHander(item)}
-            bgColor={selectedItemId === item.id ? "gray.200" : "transparent"}
-            cursor="pointer"
-          >
-            <Table.Cell>{item.laundryName}店</Table.Cell>
-            <Table.Cell>
-              {item.fundsArray.reduce((accumulator, currentValue) => {
-                return accumulator + parseInt(currentValue.funds);
-              }, 0)}
-            </Table.Cell>
-            <Table.Cell>{createNowData(item.date)}</Table.Cell>
-          </Table.Row>
-        ))}
+        {items.map((item, index) => {
+          const total = item.fundsArray.reduce((accumulator, currentValue) => {
+            return accumulator + parseInt(currentValue.funds);
+          }, 0);
+
+          return (
+            <Table.Row
+              key={item.id}
+              onClick={() => toggleHander(item)}
+              bgColor={selectedItemId === item.id ? "blue.50" : "transparent"}
+              cursor="pointer"
+              _hover={{
+                bgColor: selectedItemId === item.id ? "blue.100" : "gray.50",
+                transform: "scale(1.01)",
+              }}
+              transition="all 0.2s"
+              borderBottom={index === items.length - 1 ? "none" : "1px solid"}
+              borderColor="gray.100"
+            >
+              <Table.Cell py={4}>
+                <Text fontWeight="semibold" color="gray.800">
+                  {item.laundryName}店
+                </Text>
+              </Table.Cell>
+              <Table.Cell textAlign="right">
+                <Badge
+                  colorScheme={total > 5000 ? "green" : "gray"}
+                  fontSize="md"
+                  px={3}
+                  py={1}
+                  borderRadius="full"
+                  fontWeight="bold"
+                >
+                  ¥{total.toLocaleString()}
+                </Badge>
+              </Table.Cell>
+              <Table.Cell textAlign="right">
+                <Text fontSize="sm" color="gray.600">
+                  {createNowData(item.date)}
+                </Text>
+              </Table.Cell>
+            </Table.Row>
+          );
+        })}
       </Table.Body>
     </Table.Root>
   );

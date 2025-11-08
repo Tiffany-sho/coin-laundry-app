@@ -3,9 +3,7 @@ import CoinLaundryList from "@/app/feacher/coinLandry/components/CoinLaundryList
 import { Heading, Button, Box, Container, Flex } from "@chakra-ui/react";
 import ErrorPage from "@/app/feacher/jumpPage/ErrorPage/ErrorPage";
 
-import CoinLaundryStore from "@/models/coinLaundryStore";
 import { createClient } from "@/utils/supabase/server";
-import dbConnect from "@/lib/dbConnect";
 
 async function getData() {
   const supabase = await createClient();

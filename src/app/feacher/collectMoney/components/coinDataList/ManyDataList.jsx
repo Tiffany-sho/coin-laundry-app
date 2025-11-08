@@ -1,6 +1,6 @@
 "use client";
 import useSWR from "swr";
-import MoneyDataList from "./CoinDataList";
+import MoneyDataList from "./CoinDataList/CoinDataList";
 import { Spinner, Text } from "@chakra-ui/react";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
