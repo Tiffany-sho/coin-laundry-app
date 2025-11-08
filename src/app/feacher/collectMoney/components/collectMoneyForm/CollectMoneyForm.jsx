@@ -19,6 +19,7 @@ import {
 import { FaArrowsRotate } from "react-icons/fa6";
 import EpochTimeSelector from "./selectDate/SelectDate";
 import { createData } from "@/app/collectMoney/action";
+import CheckDialog from "@/app/feacher/dialog/CheckDialogCollectMoney/CheckDialogCollectMoney";
 
 const coinWeight = 4.8;
 const CollectMoneyForm = ({ coinLaundry }) => {
@@ -157,7 +158,7 @@ const CollectMoneyForm = ({ coinLaundry }) => {
       py={8}
       px={4}
     >
-      <form onSubmit={onSubmit}>
+      <form>
         <Card.Root maxW="2xl" w="full" boxShadow="lg" borderRadius="lg">
           <Card.Header
             bg="gray.600"
@@ -324,20 +325,13 @@ const CollectMoneyForm = ({ coinLaundry }) => {
                 キャンセル
               </Button>
             </Link>
-            <Button
-              variant="solid"
-              colorScheme="blue"
-              size="lg"
-              type="submit"
-              fontWeight="semibold"
-              disabled={isLoading}
-              _focus={{
-                boxShadow: "0 0 0 3px var(--chakra-colors-blue-200)",
-                outline: "none",
-              }}
-            >
-              {isLoading && <Spinner />} 登録
-            </Button>
+
+            <CheckDialog
+              postHander={onSubmit}
+              isLoading={isLoading}
+              data={machinesAndFunds}
+              epoc={epoc}
+            />
           </Card.Footer>
 
           {msg && (
