@@ -68,13 +68,6 @@ const Navbar = ({ user }) => {
                   <span>アカウント</span>
                 </Link>
               </li>
-              <li>
-                <form action="/api/auth/logout" method="post">
-                  <button type="submit" className={styles.logoutBtn}>
-                    <span>ログアウト</span>
-                  </button>
-                </form>
-              </li>
             </>
           ) : (
             <>

@@ -2,10 +2,8 @@
 
 import {
   Table,
-  Button,
   Editable,
   IconButton,
-  Code,
   Box,
   Badge,
   Flex,
@@ -133,7 +131,7 @@ const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
   };
 
   const totalRevenue = item.fundsArray.reduce((accumulator, currentValue) => {
-    return accumulator + parseInt(currentValue.funds);
+    return accumulator + parseInt(currentValue.funds) * 100;
   }, 0);
 
   return (
@@ -198,12 +196,12 @@ const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
               color="gray.700"
               textAlign="right"
             >
-              売上
+              売上(×100)
             </Table.ColumnHeader>
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {toggleArray.map((item, index) => (
+          {toggleArray.map((item) => (
             <Table.Row
               key={item.id}
               _hover={{ bg: "gray.50" }}

@@ -34,13 +34,11 @@ const lineColor = [
   "brown.solid",
 ];
 
-// カスタムツールチップコンポーネント
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload || payload.length === 0) {
     return null;
   }
 
-  // 合計金額を計算
   const total = payload.reduce((sum, entry) => sum + (entry.value || 0), 0);
 
   return (
@@ -177,7 +175,7 @@ const ManyCoinDataChart = ({ data }) => {
   }
 
   return (
-    <Chart.Root maxH="sm" chart={chart}>
+    <Chart.Root maxH="lg" chart={chart}>
       <LineChart data={chart.data}>
         <CartesianGrid stroke={chart.color("border")} vertical={false} />
         <XAxis
@@ -191,7 +189,7 @@ const ManyCoinDataChart = ({ data }) => {
           tickLine={false}
           tickMargin={10}
           stroke={chart.color("border")}
-          tickFormatter={(value) => `¥${value.toLocaleString()}`}
+          tickFormatter={(value) => `¥${value / 100}万`}
         />
         <Tooltip
           animationDuration={100}

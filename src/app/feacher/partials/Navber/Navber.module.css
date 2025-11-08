@@ -104,10 +104,9 @@
   transform: translateY(-100%);
 }
 
-/* タブレット: 769px以上ではNavbarのみ表示 */
-@media (min-width: 769px) {
-  .navbar {
-    display: block;
+@media (max-width: 769px) {
+ .navItem {
+    display:none;
   }
 }
 

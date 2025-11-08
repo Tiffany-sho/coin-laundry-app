@@ -180,8 +180,8 @@ const MoneyDataList = ({ valiant, coinData }) => {
                                   <Text className={styles.drawerDate}>
                                     {createNowData(selectedItem.date)}
                                   </Text>
+                                  <DataClipBoard data={selectedItem} />
                                 </Box>
-                                <DataClipBoard data={selectedItem} />
                               </Flex>
                             </Drawer.Title>
                           </Drawer.Header>

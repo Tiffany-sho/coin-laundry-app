@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LuMapPin } from "react-icons/lu";
 import { Box, Button, Card, Image, Flex } from "@chakra-ui/react";
 
 const CoinLaundryList = ({ coinLaundry, valiant }) => {
@@ -8,9 +9,8 @@ const CoinLaundryList = ({ coinLaundry, valiant }) => {
       flexDirection="row"
       overflow="hidden"
       maxW="1200px"
-      w="90%"
-      mx="auto"
-      mb={4}
+      w="100%"
+      mb={2}
       boxShadow="lg"
       borderRadius="16px"
       transition="all 0.3s"
@@ -44,7 +44,7 @@ const CoinLaundryList = ({ coinLaundry, valiant }) => {
         <Card.Body p={{ base: 4, md: 6 }}>
           <Card.Title
             mb={3}
-            fontSize={{ base: "xl", md: "2xl" }}
+            fontSize={{ base: "md", md: "xl" }}
             fontWeight="bold"
             color="gray.700"
             letterSpacing="tight"
@@ -52,13 +52,15 @@ const CoinLaundryList = ({ coinLaundry, valiant }) => {
             {coinLaundry.store}店
           </Card.Title>
           <Card.Description
-            fontSize={{ base: "sm", md: "md" }}
+            display="inline-flex"
+            alignItems="center"
+            fontSize={{ base: "xs", md: "sm" }}
             color="gray.600"
             lineHeight="1.7"
             noOfLines={2}
           >
-            {coinLaundry.description.slice(0, 100)}
-            {coinLaundry.description.length > 50 && "..."}
+            <LuMapPin />
+            {coinLaundry.location}
           </Card.Description>
         </Card.Body>
 

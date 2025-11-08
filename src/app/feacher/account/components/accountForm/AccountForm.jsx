@@ -13,7 +13,6 @@ export default function AccountForm({ user }) {
   const getProfile = useCallback(async () => {
     try {
       setLoading(true);
-      console.log(user.id);
       const { data, error, status } = await supabase
         .from("profiles")
         .select(`full_name, username, website`)

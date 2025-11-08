@@ -52,9 +52,10 @@ const DataTable = ({ items, selectedItemId, onRowClick, open }) => {
       </Table.Header>
       <Table.Body>
         {items.map((item, index) => {
-          const total = item.fundsArray.reduce((accumulator, currentValue) => {
-            return accumulator + parseInt(currentValue.funds);
-          }, 0);
+          const total =
+            item.fundsArray.reduce((accumulator, currentValue) => {
+              return accumulator + parseInt(currentValue.funds);
+            }, 0) * 100;
 
           return (
             <Table.Row
@@ -77,7 +78,7 @@ const DataTable = ({ items, selectedItemId, onRowClick, open }) => {
               </Table.Cell>
               <Table.Cell textAlign="right">
                 <Badge
-                  colorScheme={total > 5000 ? "green" : "gray"}
+                  color={total > 200000 ? "green.600" : "gray.600"}
                   fontSize="md"
                   px={3}
                   py={1}
