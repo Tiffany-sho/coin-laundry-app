@@ -3,9 +3,9 @@
 import { createContext, useContext, useReducer } from "react";
 
 const initialState = {
-  store: "",
-  location: "",
-  description: "",
+  store: null,
+  location: null,
+  description: null,
   machines: [
     {
       name: "洗濯乾燥機",

@@ -11,11 +11,11 @@ export const olderOrder = (array) => {
 export const incomeOrder = (array) => {
   const newArray = [...array].sort(
     (a, b) =>
-      b.moneyArray.reduce((accumulator, currentValue) => {
-        return accumulator + parseInt(currentValue.money);
+      b.fundsArray.reduce((accumulator, currentValue) => {
+        return accumulator + parseInt(currentValue.funds);
       }, 0) -
-      a.moneyArray.reduce((accumulator, currentValue) => {
-        return accumulator + parseInt(currentValue.money);
+      a.fundsArray.reduce((accumulator, currentValue) => {
+        return accumulator + parseInt(currentValue.funds);
       }, 0)
   );
   return newArray;

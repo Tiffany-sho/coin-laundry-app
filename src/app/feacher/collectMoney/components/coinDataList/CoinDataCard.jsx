@@ -1,6 +1,5 @@
 "use client";
 
-import { useSWRConfig } from "swr";
 import {
   Table,
   Button,
@@ -14,18 +13,20 @@ import { toaster } from "@/components/ui/toaster";
 import { LuCheck, LuPencilLine, LuX } from "react-icons/lu";
 import { useEffect, useState } from "react";
 import AlertDialog from "@/app/feacher/dialog/AlertDialog";
+import { deleteData, updateData } from "@/app/collectMoney/action";
 
-const MoneyDataCard = ({ item, onRowClick, setOpen, valiant }) => {
+const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
   const [toggleArray, setToggleArray] = useState([]);
   const [msg, setMsg] = useState("");
 
+  console.log(toggleArray);
   useEffect(() => {
     const getArray = () => {
-      const array = item.moneyArray.map((machines) => {
+      const array = item.fundsArray.map((machines) => {
         return {
-          id: machines._id,
-          machine: machines.machine.name,
-          money: machines.money,
+          id: machines.id,
+          machine: machines.name,
+          funds: machines.funds,
           editing: false,
           sending: false,
         };
@@ -35,40 +36,34 @@ const MoneyDataCard = ({ item, onRowClick, setOpen, valiant }) => {
     getArray();
   }, []);
 
-  const { mutate } = useSWRConfig();
-
   const onSubmit = (e) => {
     e.preventDefault();
   };
 
-  const deleteAction = () => {
-    fetch(`/api/coinLaundry/${item.storeId}/collectMoney/${item._id}`, {
-      method: "delete",
-    }).then((res) => {
-      if (!res.ok) {
-        return res.json().then((res) => {
-          return res.msg;
-        });
+  const deleteAction = async () => {
+    try {
+      const result = await deleteData(item.id);
+
+      if (result.error) {
+        throw new Error(result.error.message || "削除に失敗しました");
       }
-      return res.json().then((res) => {
-        onRowClick(null);
-        setOpen(false);
-        toaster.create({
-          description: `${res.store}(${createNowData(
-            res.date
-          )})の集金データを削除しました`,
-          type: "warning",
-          closable: true,
-        });
-        if (valiant === "manyStore") {
-          mutate("/api/collectMoney");
-        } else if (valiant === "aStore") {
-          mutate(`/api/coinLaundry/${item.storeId}/collectMoney`);
-        }
-      });
+    } catch (error) {
+      console.error("API Error:", error);
+      setMsg(error);
+    }
+
+    onRowClick(null);
+    setOpen(false);
+    toaster.create({
+      description: `${item.laundryName}店(${createNowData(
+        item.date
+      )})の集金データを削除しました`,
+      type: "warning",
+      closable: true,
     });
   };
-  const editAbleForm = (id, e, action) => {
+
+  const editAbleForm = async (id, e, action) => {
     setToggleArray((prevArray) => {
       return prevArray.map((item) => {
         if (id === item.id) {
@@ -77,7 +72,7 @@ const MoneyDataCard = ({ item, onRowClick, setOpen, valiant }) => {
             const value = input.replace(/[^0-9]/g, "");
             return {
               ...item,
-              money: parseInt(value),
+              funds: parseInt(value),
               editing: true,
               sending: false,
             };
@@ -85,7 +80,7 @@ const MoneyDataCard = ({ item, onRowClick, setOpen, valiant }) => {
             const value = input.replace(/[^0-9]/g, "");
             return {
               ...item,
-              money: parseInt(value),
+              funds: parseInt(value),
               editing: false,
               sending: false,
             };
@@ -93,7 +88,7 @@ const MoneyDataCard = ({ item, onRowClick, setOpen, valiant }) => {
             const value = input.replace(/[^0-9]/g, "");
             return {
               ...item,
-              money: parseInt(value),
+              funds: parseInt(value),
               editing: false,
               sending: true,
             };
@@ -105,33 +100,32 @@ const MoneyDataCard = ({ item, onRowClick, setOpen, valiant }) => {
       });
     });
     if (action === "submit") {
-      const editMachine = toggleArray.find((item) => item.id === id);
-      fetch(`/api/collectMoney/${item._id}`, {
-        method: "PUT",
-        body: JSON.stringify(editMachine),
-      })
-        .then((res) => {
-          if (!res.ok) {
-            return res.json().then((res) => {
-              return res.msg;
-            });
-          }
-          return res.json().then((res) => {
-            toaster.create({
-              description: `${res.machine}店(${res.store})の集金データを更新しました`,
-              type: "success",
-              closable: true,
-            });
-            if (valiant === "manyStore") {
-              mutate("/api/collectMoney");
-            } else if (valiant === "aStore") {
-              mutate(`/api/coinLaundry/${item.storeId}/collectMoney`);
-            }
-          });
-        })
-        .then((msg) => {
-          setMsg(msg);
-        });
+      const editMachine = toggleArray.map((item) => {
+        const newObj = {
+          id: item.id,
+          name: item.machine,
+          funds: item.funds,
+        };
+        return newObj;
+      });
+      try {
+        const result = await updateData(editMachine, item.id);
+
+        if (result.error) {
+          throw new Error(result.error.message || "編集に失敗しました");
+        }
+      } catch (error) {
+        console.error("API Error:", error);
+        setMsg(error);
+      }
+
+      toaster.create({
+        description: `${item.laundryName}店(${createNowData(
+          item.date
+        )})の集金データを更新しました`,
+        type: "success",
+        closable: true,
+      });
     }
   };
   return (
@@ -158,7 +152,7 @@ const MoneyDataCard = ({ item, onRowClick, setOpen, valiant }) => {
               </Table.Cell>
               <Table.Cell>
                 <Editable.Root
-                  defaultValue={item.money.toString()}
+                  defaultValue={item.funds.toString()}
                   submitMode="enter"
                   onValueChange={(e) => editAbleForm(item.id, e, "change")}
                   onValueRevert={(e) => editAbleForm(item.id, e, "reset")}
@@ -190,12 +184,12 @@ const MoneyDataCard = ({ item, onRowClick, setOpen, valiant }) => {
               </Table.Cell>
             </Table.Row>
           ))}
-          <Table.Row key={item.total}>
+          <Table.Row key="total">
             <Table.Cell>合計</Table.Cell>
             <Table.Cell>
               {" "}
-              {item.moneyArray.reduce((accumulator, currentValue) => {
-                return accumulator + parseInt(currentValue.money);
+              {item.fundsArray.reduce((accumulator, currentValue) => {
+                return accumulator + parseInt(currentValue.funds);
               }, 0)}
             </Table.Cell>
           </Table.Row>
@@ -204,7 +198,7 @@ const MoneyDataCard = ({ item, onRowClick, setOpen, valiant }) => {
       <form onSubmit={onSubmit}>
         <Box mt="5%">
           <AlertDialog
-            target={`${item.store}店(${createNowData(item.date)})`}
+            target={`${item.laundryName}店(${createNowData(item.date)})`}
             deleteAction={deleteAction}
           />
         </Box>

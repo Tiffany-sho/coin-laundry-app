@@ -57,7 +57,8 @@ const CoinLaundryList = ({ coinLaundry, valiant }) => {
             lineHeight="1.7"
             noOfLines={2}
           >
-            {coinLaundry.description}
+            {coinLaundry.description.slice(0, 100)}
+            {coinLaundry.description.length > 100 && "..."}
           </Card.Description>
         </Card.Body>
 

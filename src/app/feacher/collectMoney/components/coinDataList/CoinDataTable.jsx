@@ -13,7 +13,7 @@ const DataTable = ({ items, selectedItemId, onRowClick, open }) => {
 
   const toggleHander = (item) => {
     const id = selectedItemId;
-    if (id === item._id) {
+    if (id === item.id) {
       onRowClick(null);
     } else {
       onRowClick(item);
@@ -31,15 +31,15 @@ const DataTable = ({ items, selectedItemId, onRowClick, open }) => {
       <Table.Body>
         {items.map((item) => (
           <Table.Row
-            key={item._id}
+            key={item.id}
             onClick={() => toggleHander(item)}
-            bgColor={selectedItemId === item._id ? "gray.200" : "transparent"}
+            bgColor={selectedItemId === item.id ? "gray.200" : "transparent"}
             cursor="pointer"
           >
-            <Table.Cell>{item.store}店</Table.Cell>
+            <Table.Cell>{item.laundryName}店</Table.Cell>
             <Table.Cell>
-              {item.moneyArray.reduce((accumulator, currentValue) => {
-                return accumulator + parseInt(currentValue.money);
+              {item.fundsArray.reduce((accumulator, currentValue) => {
+                return accumulator + parseInt(currentValue.funds);
               }, 0)}
             </Table.Cell>
             <Table.Cell>{createNowData(item.date)}</Table.Cell>

@@ -3,11 +3,13 @@ import { Clipboard, IconButton } from "@chakra-ui/react";
 
 const DataClipBoard = ({ data }) => {
   const copyText = `
-  ${data.store}店\n${createNowData(data.date)}\n${data.moneyArray.map(
+  ${data.laundryName}店\n${createNowData(data.date)}\n${data.fundsArray.map(
     (item) => {
-      return `${item.machine.name}:${item.money}\n`;
+      return `${item.name}:${item.funds}\n`;
     }
-  )}
+  )}\n合計:${data.fundsArray.reduce((accumulator, currentValue) => {
+    return accumulator + parseInt(currentValue.funds);
+  }, 0)}
   `;
   return (
     <Clipboard.Root value={copyText}>

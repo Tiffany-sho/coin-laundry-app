@@ -41,7 +41,13 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
     dispatch({ type: "SET_MSG", payload: "" });
 
     const formData = new FormData(formRef.current);
-    const newMachine = state.machines.filter((machine) => machine.num > 0);
+    const newMachine = state.machines
+      .filter((machine) => machine.num > 0)
+      .map((machine) => {
+        const newObj = { ...machine };
+        newObj.id = crypto.randomUUID();
+        return newObj;
+      });
 
     const filesToUpload = state.newPictures.filter((item) => item.file);
 
@@ -94,6 +100,13 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
     let responseData;
 
     try {
+      if (
+        state.store === "" ||
+        state.location === "" ||
+        state.description === ""
+      ) {
+        throw new Error("空のフォームデータがあります。");
+      }
       if (method === "POST") {
         const { data, error } = await createStore(formData);
         if (error) {

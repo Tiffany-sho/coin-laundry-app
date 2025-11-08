@@ -31,9 +31,7 @@ const MonoCard = ({ coinLaundry }) => {
           <div className={Styles.cardBody}>
             <ActionMenu id={coinLaundry.id} store={coinLaundry.store} />
 
-            <h1 className={Styles.title}>
-              せんたくランド {coinLaundry.store}店
-            </h1>
+            <h1 className={Styles.title}>{coinLaundry.store}店</h1>
 
             <div className={Styles.locationLabel}>
               <LuMapPin />
@@ -49,7 +47,7 @@ const MonoCard = ({ coinLaundry }) => {
 
             <ul className={Styles.machineList}>
               {coinLaundry.machines.map((machine) => (
-                <li key={machine.name} className={Styles.machineItem}>
+                <li key={machine.id} className={Styles.machineItem}>
                   <div className={Styles.machineTitle}>{machine.name}</div>
 
                   <div>

@@ -66,14 +66,14 @@ export async function deleteStore(id) {
     .from("laundry_store")
     .delete()
     .eq("id", id)
-    .select("id, store")
+    .select("id, store , images")
     .single();
 
   if (error) {
     return { error: error.message };
   }
 
-  Promise.all(data[0].images.map((imageFile) => deleteImage(imageFile.path)))
+  Promise.all(data.images.map((imageFile) => deleteImage(imageFile.path)))
     .then(() => console.log("Old images cleaned up."))
     .catch((err) => console.error("Cleanup deletion failed:", err));
 

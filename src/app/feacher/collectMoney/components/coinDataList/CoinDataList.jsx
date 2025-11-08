@@ -64,12 +64,12 @@ const MoneyDataList = ({ valiant, coinData }) => {
   useEffect(() => {
     if (coinData && selectedItem) {
       const updatedSelectedItem = coinData.find(
-        (item) => item._id === selectedItem._id
+        (item) => item.id === selectedItem.id
       );
       setSelectedItem(updatedSelectedItem);
     }
   }, [coinData]);
-
+  console.log(selectedItem);
   return (
     <Flex direction="column" alignItems="center" justifyContent="center">
       <Card.Root size="lg" mt="5%" mb="5%" w="90%">
@@ -78,16 +78,16 @@ const MoneyDataList = ({ valiant, coinData }) => {
             <Heading size="md" mb={4}>
               <Flex justifyContent="space-between">
                 <Heading size="3xl">
-                  {valiant === "aStore" && `${coinData[0].store}店`}
+                  {valiant === "aStore" && `${coinData[0].laundryName}店`}
                   {valiant === "manyStore" && "全データ一覧"}
                 </Heading>
                 <Box>
                   総額
                   <Box textStyle="3xl">
                     {coinData.reduce((accumulator, current) => {
-                      const summary = current.moneyArray.reduce(
+                      const summary = current.fundsArray.reduce(
                         (accumulator, currentValue) => {
-                          return accumulator + parseInt(currentValue.money);
+                          return accumulator + parseInt(currentValue.funds);
                         },
                         0
                       );
@@ -131,13 +131,14 @@ const MoneyDataList = ({ valiant, coinData }) => {
                       <Drawer.Title>
                         <Flex justifyContent="space-between" mt="10%">
                           <Box>
-                            {valiant === "aStore" && `${selectedItem.store}店`}
+                            {valiant === "aStore" &&
+                              `${selectedItem.laundryName}店`}
                             {valiant === "manyStore" && (
                               <Link
                                 variant="underline"
-                                href={`/coinLaundry/${selectedItem.storeId}/coinDataList`}
+                                href={`/coinLaundry/${selectedItem.laundryId}/coinDataList`}
                               >
-                                {selectedItem.store}店
+                                {selectedItem.laundryName}店
                               </Link>
                             )}
 

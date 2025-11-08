@@ -26,10 +26,10 @@ const CollectMoneyForm = ({ coinLaundry }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [epoc, setEpoc] = useState(null);
 
-  const [machinesAndMoney, setMachinesAndMoney] = useState(() => {
+  const [machinesAndFunds, setMachinesAndFunds] = useState(() => {
     const initialValue = coinLaundry.machines.map((machine) => ({
       machine,
-      money: null,
+      funds: null,
       weight: null,
       toggle: false,
     }));
@@ -37,15 +37,15 @@ const CollectMoneyForm = ({ coinLaundry }) => {
   });
 
   const hander = (machine, action, event) => {
-    setMachinesAndMoney((prevMachines) => {
+    setMachinesAndFunds((prevMachines) => {
       return prevMachines.map((prevMachine) => {
         if (prevMachine.machine.name === machine) {
           if (action === "inputCoin") {
             const coins = parseInt(event.value);
             if (coins === "") {
-              return { ...prevMachine, money: null };
+              return { ...prevMachine, funds: null };
             }
-            return { ...prevMachine, money: coins };
+            return { ...prevMachine, funds: coins };
           } else if (action === "inputWeight") {
             const weight = parseInt(event.value);
             if (weight === "") {
@@ -67,16 +67,16 @@ const CollectMoneyForm = ({ coinLaundry }) => {
               return {
                 ...prevMachine,
                 toggle: !toggleBoolean,
-                money: Math.ceil(weight / coinWeight),
+                funds: Math.ceil(weight / coinWeight),
               };
             } else {
-              const coins = prevMachine.money;
+              const coins = prevMachine.funds;
               const weight = prevMachine.weight;
               if (!coins) {
                 return {
                   ...prevMachine,
                   toggle: !toggleBoolean,
-                  money: null,
+                  funds: null,
                   weight: null,
                 };
               }
@@ -98,16 +98,16 @@ const CollectMoneyForm = ({ coinLaundry }) => {
     setMsg("");
     event.preventDefault();
 
-    const postArray = machinesAndMoney.map((machineAndMoney) => {
-      if (!machineAndMoney.money && machineAndMoney.weight) {
+    const postArray = machinesAndFunds.map((machineAndFunds) => {
+      if (!machineAndFunds.funds && machineAndFunds.weight) {
         return {
-          machine: machineAndMoney.machine,
-          money: Math.ceil(machineAndMoney.weight / coinWeight),
+          machine: machineAndFunds.machine,
+          funds: Math.ceil(machineAndFunds.weight / coinWeight),
         };
       }
       return {
-        machine: machineAndMoney.machine,
-        money: machineAndMoney.money,
+        machine: machineAndFunds.machine,
+        funds: machineAndFunds.funds,
       };
     });
 
@@ -117,7 +117,7 @@ const CollectMoneyForm = ({ coinLaundry }) => {
       store: coinLaundry.store,
       storeId: coinLaundry.id,
       date,
-      moneyArray: postArray,
+      fundsArray: postArray,
     };
 
     let responseData;
@@ -133,11 +133,10 @@ const CollectMoneyForm = ({ coinLaundry }) => {
       setMsg("API Error:", error);
     }
 
-    console.log(responseData);
     sessionStorage.setItem(
       "toast",
       JSON.stringify({
-        description: `${responseData.storeName}店の集金データの登録が完了しました。`,
+        description: `${responseData.laundryName}店の集金データの登録が完了しました。`,
         type: "success",
         closable: true,
       })
@@ -145,7 +144,7 @@ const CollectMoneyForm = ({ coinLaundry }) => {
     setTimeout(() => {
       setIsLoading(false);
     }, 10000);
-    redirect(`/coinLaundry/${responseData.storeId}/coinDataList`);
+    redirect(`/coinLaundry/${responseData.laundryId}/coinDataList`);
   };
 
   return (
@@ -185,10 +184,10 @@ const CollectMoneyForm = ({ coinLaundry }) => {
               </Box>
 
               <Stack gap={5} w="full">
-                {machinesAndMoney.map((machineAndMoney) => {
+                {machinesAndFunds.map((machineAndFunds) => {
                   return (
                     <Field.Root
-                      key={machineAndMoney.machine.name}
+                      key={machineAndFunds.machine.name}
                       p={4}
                       bg="white"
                       borderWidth="1px"
@@ -201,21 +200,21 @@ const CollectMoneyForm = ({ coinLaundry }) => {
                         color="gray.700"
                         mb={3}
                       >
-                        {machineAndMoney.machine.name}
+                        {machineAndFunds.machine.name}
                       </Field.Label>
                       <HStack gap={3}>
-                        {machineAndMoney.toggle ? (
+                        {machineAndFunds.toggle ? (
                           <NumberInput.Root
                             min={0}
                             maxW="250px"
                             value={
-                              machineAndMoney.weight
-                                ? machineAndMoney.weight
+                              machineAndFunds.weight
+                                ? machineAndFunds.weight
                                 : ""
                             }
                             onValueChange={(e) =>
                               hander(
-                                machineAndMoney.machine.name,
+                                machineAndFunds.machine.name,
                                 "inputWeight",
                                 e
                               )
@@ -242,13 +241,13 @@ const CollectMoneyForm = ({ coinLaundry }) => {
                             min={0}
                             maxW="250px"
                             value={
-                              machineAndMoney.money !== null
-                                ? machineAndMoney.money
+                              machineAndFunds.funds !== null
+                                ? machineAndFunds.funds
                                 : ""
                             }
                             onValueChange={(e) =>
                               hander(
-                                machineAndMoney.machine.name,
+                                machineAndFunds.machine.name,
                                 "inputCoin",
                                 e
                               )
@@ -281,7 +280,7 @@ const CollectMoneyForm = ({ coinLaundry }) => {
                           borderColor="gray.300"
                           color="gray.600"
                           onClick={(e) =>
-                            hander(machineAndMoney.machine.name, "toggle", e)
+                            hander(machineAndFunds.machine.name, "toggle", e)
                           }
                           _focus={{
                             borderColor: "blue.500",
