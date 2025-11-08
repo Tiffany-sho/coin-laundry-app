@@ -1,7 +1,7 @@
 "use client";
 
-import { Button, Card, Field, Input, Stack, Box, Text } from "@chakra-ui/react";
 import { useActionState } from "react";
+import styles from "./ForgetPassword.module.css";
 
 const initState = {
   message: null,
@@ -10,80 +10,48 @@ const initState = {
 
 export default function SendEmail({ action }) {
   const [state, formAction] = useActionState(action, initState);
+
   return (
-    <Box
-      minH="100vh"
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      bg="gray.50"
-      px={4}
-    >
-      <form action={formAction}>
-        <Card.Root
-          maxW="md"
-          w="full"
-          boxShadow="xl"
-          borderRadius="xl"
-          overflow="hidden"
-        >
-          <Card.Header bg="gray.700" color="white" py={6} textAlign="center">
-            <Card.Title fontSize="2xl" fontWeight="bold" mb={2}>
-              パスワード変更
-            </Card.Title>
-            <Card.Description color="blue.50" fontSize="sm">
-              ダミー
-            </Card.Description>
-          </Card.Header>
+    <div className={styles.container}>
+      <form action={formAction} className={styles.form}>
+        <div className={styles.card}>
+          <div className={styles.cardHeader}>
+            <h1 className={styles.title}>パスワード変更</h1>
+            <p className={styles.description}>
+              登録されているメールアドレスを入力してください
+            </p>
+          </div>
 
-          <Card.Body py={8} px={6}>
-            <Stack gap="6" w="full">
-              {state?.error && <Text color="red.500">{state.error}</Text>}
-              {state?.message && <Text color="green.500">{state.message}</Text>}
-              <Field.Root>
-                <Field.Label
-                  htmlFor="email"
-                  fontSize="sm"
-                  fontWeight="semibold"
-                >
-                  メールアドレス
-                </Field.Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="メールアドレス"
-                  required
-                  size="lg"
-                  borderRadius="md"
-                  _focus={{
-                    borderColor: "blue.500",
-                    boxShadow: "0 0 0 1px var(--chakra-colors-blue-500)",
-                  }}
-                />
-              </Field.Root>
-            </Stack>
-          </Card.Body>
+          <div className={styles.cardBody}>
+            {state?.error && (
+              <div className={styles.errorMessage}>{state.error}</div>
+            )}
+            {state?.message && (
+              <div className={styles.successMessage}>{state.message}</div>
+            )}
 
-          <Card.Footer flexDirection="column" gap={4} px={6} pb={6}>
-            <Button
-              variant="solid"
-              colorScheme="blue"
-              type="submit"
-              size="lg"
-              w="full"
-              fontWeight="bold"
-              _hover={{
-                transform: "translateY(-2px)",
-                boxShadow: "lg",
-              }}
-              transition="all 0.2s"
-            >
+            <div className={styles.fieldGroup}>
+              <label htmlFor="email" className={styles.label}>
+                メールアドレス
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="example@email.com"
+                required
+                className={styles.input}
+              />
+            </div>
+          </div>
+
+          <div className={styles.cardFooter}>
+            <button type="submit" className={styles.submitButton}>
               送信
-            </Button>
-          </Card.Footer>
-        </Card.Root>
+            </button>
+          </div>
+        </div>
       </form>
-    </Box>
+    </div>
   );
 }

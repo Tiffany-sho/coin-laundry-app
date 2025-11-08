@@ -1,0 +1,14 @@
+import { createClient } from "@/utils/supabase/server";
+import FooterNavbar from "./FooterNavber";
+
+const FooterNavbarWrapper = async () => {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  return <FooterNavbar user={user} />;
+};
+
+export default FooterNavbarWrapper;

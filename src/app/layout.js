@@ -1,20 +1,22 @@
 import { Provider } from "@/components/ui/provider";
-import { Box } from "@chakra-ui/react";
-import Navber from "@/app/feacher/partials/Navbar";
 import Footer from "@/app/feacher/partials/Footer";
 import { Toaster } from "@/components/ui/toaster";
+import NavbarWrapper from "@/app/feacher/partials/Navber/NavbarWrapper";
+import FooterNavbarWrapper from "@/app/feacher/partials/FooterNavbar/FooterNavbarWrapper";
+import styles from "./layout.module.css";
 
 export default function RootLayout({ children }) {
   return (
     <html suppressHydrationWarning>
       <body>
         <Provider>
-          <Box display="flex" flexDirection="column" minHeight="100vh">
-            <Navber />
-            {children && children}
+          <div className={styles.layoutContainer}>
+            <NavbarWrapper />
+            <main className={styles.mainContent}>{children}</main>
             <Toaster />
+            <FooterNavbarWrapper />
             <Footer />
-          </Box>
+          </div>
         </Provider>
       </body>
     </html>

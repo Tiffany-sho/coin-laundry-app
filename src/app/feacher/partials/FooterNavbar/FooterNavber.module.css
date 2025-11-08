@@ -1,0 +1,104 @@
+.footerNavbar {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background-color: white;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+  padding: 0.5rem 0;
+  border-top: 1px solid #e2e8f0;
+  transition: transform 0.3s ease-in-out;
+}
+
+.footerNavbar.hidden {
+  transform: translateY(100%);
+}
+
+.container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.navItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  color: #2d3748;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex: 1;
+  max-width: 100px;
+}
+
+.navItem:hover,
+.navItem:active {
+  background-color: #f7fafc;
+  color: #4299e1;
+}
+
+.icon {
+  font-size: 1.5rem;
+}
+
+.label {
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.logoutForm {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  max-width: 100px;
+}
+
+.logoutForm .navItem {
+  color: #e53e3e;
+  width: 100%;
+}
+
+.logoutForm .navItem:hover {
+  color: #c53030;
+  background-color: #fff5f5;
+}
+
+/* スマホ: 639px以下でFooterNavbarのみ表示 */
+@media (max-width: 639px) {
+  .footerNavbar {
+    display: block;
+  }
+}
+
+/* タブレット: 640px-768pxでFooterNavbarのみ表示 */
+@media (min-width: 640px) and (max-width: 768px) {
+  .footerNavbar {
+    display: block;
+  }
+  
+  .icon {
+    font-size: 1.4rem;
+  }
+  
+  .label {
+    font-size: 0.75rem;
+  }
+}
+
+/* PC: 769px以上はFooterNavbarを非表示 */
+@media (min-width: 769px) {
+  .footerNavbar {
+    display: none;
+  }
+}

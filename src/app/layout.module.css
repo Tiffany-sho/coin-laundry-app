@@ -1,0 +1,25 @@
+.layoutContainer {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f7fafc;
+}
+
+.mainContent {
+  flex: 1;
+  width: 100%;
+}
+
+/* スマホ・タブレット用: フッターナビゲーション分の余白 */
+@media (max-width: 768px) {
+  .mainContent {
+    padding-bottom: 70px;
+  }
+}
+
+/* PC用: 余白なし */
+@media (min-width: 769px) {
+  .mainContent {
+    padding-bottom: 0;
+  }
+}

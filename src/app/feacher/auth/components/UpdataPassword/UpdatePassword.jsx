@@ -1,79 +1,61 @@
-import { Button, Card, Field, Input, Stack, Box } from "@chakra-ui/react";
-import { PasswordInput } from "@/components/ui/password-input";
+"use client";
+
+import { useState } from "react";
+import styles from "./UpdatePassword.module.css";
 
 export default function ChangePassword({ action }) {
-  return (
-    <Box
-      minH="100vh"
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      bg="gray.50"
-      px={4}
-    >
-      <form>
-        <Card.Root
-          maxW="md"
-          w="full"
-          boxShadow="xl"
-          borderRadius="xl"
-          overflow="hidden"
-        >
-          <Card.Header bg="gray.700" color="white" py={6} textAlign="center">
-            <Card.Title fontSize="2xl" fontWeight="bold" mb={2}>
-              パスワード変更
-            </Card.Title>
-            <Card.Description color="blue.50" fontSize="sm">
-              ダミー
-            </Card.Description>
-          </Card.Header>
+  const [showPassword, setShowPassword] = useState(false);
 
-          <Card.Body py={8} px={6}>
-            <Stack gap="6" w="full">
-              <Field.Root>
-                <Field.Label
-                  htmlFor="password"
-                  fontSize="sm"
-                  fontWeight="semibold"
-                >
-                  パスワード
-                </Field.Label>
-                <PasswordInput
+  return (
+    <div className={styles.container}>
+      <form className={styles.form}>
+        <div className={styles.card}>
+          <div className={styles.cardHeader}>
+            <h1 className={styles.title}>パスワード変更</h1>
+            <p className={styles.description}>
+              新しいパスワードを入力してください
+            </p>
+          </div>
+
+          <div className={styles.cardBody}>
+            <div className={styles.fieldGroup}>
+              <label htmlFor="password" className={styles.label}>
+                新しいパスワード
+              </label>
+              <div className={styles.passwordWrapper}>
+                <input
                   id="password"
                   name="password"
-                  placeholder="パスワード"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="新しいパスワード"
                   required
-                  size="lg"
-                  borderRadius="md"
-                  _focus={{
-                    borderColor: "blue.500",
-                    boxShadow: "0 0 0 1px var(--chakra-colors-blue-500)",
-                  }}
+                  className={styles.input}
                 />
-              </Field.Root>
-            </Stack>
-          </Card.Body>
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className={styles.toggleButton}
+                  aria-label={
+                    showPassword ? "パスワードを隠す" : "パスワードを表示"
+                  }
+                >
+                  {showPassword ? "👁️" : "👁️‍🗨️"}
+                </button>
+              </div>
+            </div>
+          </div>
 
-          <Card.Footer flexDirection="column" gap={4} px={6} pb={6}>
-            <Button
-              variant="solid"
-              colorScheme="blue"
+          <div className={styles.cardFooter}>
+            <button
               formAction={action}
               type="submit"
-              size="lg"
-              w="full"
-              fontWeight="bold"
-              _hover={{
-                transform: "translateY(-2px)",
-                boxShadow: "lg",
-              }}
-              transition="all 0.2s"
+              className={styles.submitButton}
             >
               変更
-            </Button>
-          </Card.Footer>
-        </Card.Root>
+            </button>
+          </div>
+        </div>
       </form>
-    </Box>
+    </div>
   );
 }
