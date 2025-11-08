@@ -11,7 +11,7 @@ import {
 
 import { getYearMonth } from "@/date";
 import { useEffect, useState } from "react";
-import { Spinner } from "@chakra-ui/react";
+import { Spinner, Box, Text } from "@chakra-ui/react";
 
 const lineColor = [
   "red.solid",
@@ -34,6 +34,71 @@ const lineColor = [
   "brown.solid",
 ];
 
+// カスタムツールチップコンポーネント
+const CustomTooltip = ({ active, payload, label }) => {
+  if (!active || !payload || payload.length === 0) {
+    return null;
+  }
+
+  // 合計金額を計算
+  const total = payload.reduce((sum, entry) => sum + (entry.value || 0), 0);
+
+  return (
+    <Box
+      bg="white"
+      p={3}
+      border="1px solid"
+      borderColor="gray.200"
+      borderRadius="md"
+      boxShadow="lg"
+      minW="200px"
+    >
+      <Text fontWeight="bold" mb={2} fontSize="sm" color="gray.700">
+        {label}
+      </Text>
+
+      {payload.map((entry, index) => (
+        <Box
+          key={`item-${index}`}
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          py={1}
+          borderBottom={index < payload.length - 1 ? "1px solid" : "none"}
+          borderColor="gray.100"
+        >
+          <Box display="flex" alignItems="center" gap={2}>
+            <Box w="10px" h="10px" borderRadius="full" bg={entry.color} />
+            <Text fontSize="xs" color="gray.600">
+              {entry.name}:
+            </Text>
+          </Box>
+          <Text fontSize="xs" fontWeight="semibold" color="gray.800">
+            ¥{entry.value?.toLocaleString()}
+          </Text>
+        </Box>
+      ))}
+
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        mt={2}
+        pt={2}
+        borderTop="2px solid"
+        borderColor="gray.300"
+      >
+        <Text fontSize="sm" fontWeight="bold" color="gray.700">
+          合計:
+        </Text>
+        <Text fontSize="sm" fontWeight="bold" color="blue.600">
+          ¥{total.toLocaleString()}
+        </Text>
+      </Box>
+    </Box>
+  );
+};
+
 const ManyCoinDataChart = ({ data }) => {
   const [chartData, setChartData] = useState([]);
   const [chartSeries, setChartSeries] = useState([]);
@@ -44,7 +109,6 @@ const ManyCoinDataChart = ({ data }) => {
 
   useEffect(() => {
     if (!data) return;
-
     const newDataList = [...data].sort((a, b) => a.date - b.date);
     const arrayDate = newDataList.reduce((acc, num) => {
       const month = getYearMonth(num.date);
@@ -54,21 +118,24 @@ const ManyCoinDataChart = ({ data }) => {
         const obj = {
           month,
         };
-        obj[num.store] = num.moneyArray.reduce((accumulator, currentValue) => {
-          return accumulator + parseInt(currentValue.money);
-        }, 0);
+        obj[num.laundryName] = num.fundsArray.reduce(
+          (accumulator, currentValue) => {
+            return accumulator + parseInt(currentValue.funds);
+          },
+          0
+        );
         acc.push(obj);
       } else {
-        if (existsObj[num.store]) {
-          existsObj[num.store] =
-            existsObj[num.store] +
-            num.moneyArray.reduce((accumulator, currentValue) => {
-              return accumulator + parseInt(currentValue.money);
+        if (existsObj[num.laundryName]) {
+          existsObj[num.laundryName] =
+            existsObj[num.laundryName] +
+            num.fundsArray.reduce((accumulator, currentValue) => {
+              return accumulator + parseInt(currentValue.funds);
             }, 0);
         } else {
-          existsObj[num.store] = num.moneyArray.reduce(
+          existsObj[num.laundryName] = num.fundsArray.reduce(
             (accumulator, currentValue) => {
-              return accumulator + parseInt(currentValue.money);
+              return accumulator + parseInt(currentValue.funds);
             },
             0
           );
@@ -81,8 +148,8 @@ const ManyCoinDataChart = ({ data }) => {
     let i = 0;
 
     const arraySeries = newDataList.reduce((acc, num) => {
-      const store = num.store;
-      const storeId = num.storeId;
+      const store = num.laundryName;
+      const storeId = num.laundryId;
       const alreadyObj = acc.some((item) => item.nameId === storeId);
       if (!alreadyObj) {
         const obj = {
@@ -95,8 +162,14 @@ const ManyCoinDataChart = ({ data }) => {
       }
       return acc;
     }, []);
-
-    setChartSeries(arraySeries);
+    const series = arraySeries.map((item) => {
+      const obj = {
+        name: item.name,
+        color: item.color,
+      };
+      return obj;
+    });
+    setChartSeries(series);
   }, [data]);
 
   if (chartData.length === 0 || chartSeries.length === 0) {
@@ -118,23 +191,28 @@ const ManyCoinDataChart = ({ data }) => {
           tickLine={false}
           tickMargin={10}
           stroke={chart.color("border")}
+          tickFormatter={(value) => `¥${value.toLocaleString()}`}
         />
         <Tooltip
           animationDuration={100}
-          cursor={false}
-          content={<Chart.Tooltip />}
+          cursor={{ stroke: "#ccc", strokeWidth: 1, strokeDasharray: "5 5" }}
+          content={<CustomTooltip />}
         />
         <Legend content={<Chart.Legend />} />
-        {chart.series.map((item) => (
-          <Line
-            key={item.name}
-            isAnimationActive={false}
-            dataKey={chart.key(item.name)}
-            fill={chart.color(item.color)}
-            stroke={chart.color(item.color)}
-            strokeWidth={2}
-          />
-        ))}
+        {chart.series.map((item) => {
+          return (
+            <Line
+              key={item.name}
+              isAnimationActive={false}
+              dataKey={chart.key(item.name)}
+              fill={chart.color(item.color)}
+              stroke={chart.color(item.color)}
+              strokeWidth={2}
+              dot={{ r: 4 }}
+              activeDot={{ r: 6 }}
+            />
+          );
+        })}
       </LineChart>
     </Chart.Root>
   );
