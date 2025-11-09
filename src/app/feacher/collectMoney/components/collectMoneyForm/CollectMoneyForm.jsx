@@ -19,7 +19,6 @@ import { FaArrowsRotate } from "react-icons/fa6";
 import EpochTimeSelector from "./selectDate/SelectDate";
 import { createData } from "@/app/collectMoney/action";
 import CheckDialog from "@/app/feacher/dialog/CheckDialogCollectMoney/CheckDialogCollectMoney";
-
 const coinWeight = 4.8;
 const CollectMoneyForm = ({ coinLaundry }) => {
   const [msg, setMsg] = useState("");

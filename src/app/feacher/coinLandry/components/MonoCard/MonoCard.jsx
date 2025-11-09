@@ -28,7 +28,6 @@ import {
   Grid,
 } from "@chakra-ui/react";
 import MonoDataTotal from "../CoinLaundryList/MonoDataTotal";
-import { redirect } from "next/navigation";
 
 const MonoCard = ({ coinLaundry }) => {
   useEffect(() => {

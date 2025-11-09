@@ -70,7 +70,8 @@ const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
         if (id === item.id) {
           const input = e.value;
           if (action === "change") {
-            if (input === "") {
+            const value = input.replace(/[^0-9]/g, "");
+            if (value === "") {
               return {
                 ...item,
                 funds: 0,
@@ -78,7 +79,6 @@ const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
                 sending: false,
               };
             } else {
-              const value = input.replace(/[^0-9]/g, "");
               return {
                 ...item,
                 funds: parseInt(value),
@@ -87,7 +87,8 @@ const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
               };
             }
           } else if (action === "reset") {
-            if (input === "") {
+            const value = input.replace(/[^0-9]/g, "");
+            if (value === "") {
               return {
                 ...item,
                 funds: 0,
@@ -95,7 +96,6 @@ const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
                 sending: false,
               };
             } else {
-              const value = input.replace(/[^0-9]/g, "");
               return {
                 ...item,
                 funds: parseInt(value),
@@ -104,7 +104,8 @@ const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
               };
             }
           } else if (action === "submit") {
-            if (input === "") {
+            const value = input.replace(/[^0-9]/g, "");
+            if (value === "") {
               return {
                 ...item,
                 funds: 0,
@@ -112,7 +113,6 @@ const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
                 sending: true,
               };
             } else {
-              const value = input.replace(/[^0-9]/g, "");
               return {
                 ...item,
                 funds: parseInt(value),

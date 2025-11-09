@@ -18,7 +18,7 @@ export async function createClient() {
               cookieStore.set(name, value, options)
             );
           } catch {
-            console.log("サーバ接続失敗");
+            console.error("サーバ接続失敗");
           }
         },
       },

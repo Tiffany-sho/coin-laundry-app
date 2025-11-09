@@ -29,7 +29,6 @@ export default function AccountForm({ user }) {
         setWebsite(data.website);
       }
     } catch (error) {
-      console.log(error);
       alert("Error loading user data!");
     } finally {
       setLoading(false);
@@ -55,7 +54,6 @@ export default function AccountForm({ user }) {
       if (error) throw error;
       alert("Profile updated!");
     } catch (error) {
-      console.log(error);
       alert("Error updating the data!");
     } finally {
       setLoading(false);
