@@ -7,9 +7,10 @@ import {
   useListCollection,
   Box,
 } from "@chakra-ui/react";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const SearchBox = ({ selectItems }) => {
+  const router = useRouter();
   const { contains } = useFilter({ sensitivity: "base" });
   const { collection, filter } = useListCollection({
     initialItems: selectItems,
@@ -68,7 +69,7 @@ const SearchBox = ({ selectItems }) => {
                     bg: "blue.100",
                   }}
                   onClick={() => {
-                    redirect(`/coinLaundry/${item.value}`);
+                    router.push(`/coinLaundry/${item.value}`);
                   }}
                 >
                   {item.label}
