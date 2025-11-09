@@ -1,12 +1,11 @@
-# Vercelにデプロイしたくないファイルを指定
+# Vercel にデプロイしたくないファイルを指定
 
 # ローカルの開発環境用ファイル
+
 .env.local
 .env
 README.md
 
 # テストデータやドキュメント
-/api/
-/seeds/
-/models/
 
+/seeds/

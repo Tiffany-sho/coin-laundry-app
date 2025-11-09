@@ -4,6 +4,8 @@ import { LuMapPin } from "react-icons/lu";
 import { Button, Card, Flex, Image, Box, Grid } from "@chakra-ui/react";
 import DisplayMonthBenifit from "./DisplayMonthBenifit";
 import NowLaundryNum from "./NowLaundryNum";
+import { TbCoinYenFilled } from "react-icons/tb";
+import { BiMessageSquareDetail } from "react-icons/bi";
 
 const CoinLaundryList = ({ coinLaundry }) => {
   return (
@@ -55,7 +57,6 @@ const CoinLaundryList = ({ coinLaundry }) => {
           {coinLaundry.location}
         </Card.Description>
 
-        {/* 統計情報 */}
         <Grid templateColumns="1fr 1fr" gap={3} mt={2}>
           <Box
             bg="blue.50"
@@ -66,15 +67,8 @@ const CoinLaundryList = ({ coinLaundry }) => {
           >
             <DisplayMonthBenifit id={coinLaundry.id} />
           </Box>
-          <Box
-            bg="green.50"
-            p={3}
-            borderRadius="lg"
-            borderLeft="4px solid"
-            borderColor="green.500"
-          >
-            <NowLaundryNum />
-          </Box>
+
+          <NowLaundryNum id={coinLaundry.id} />
         </Grid>
       </Card.Body>
 
@@ -90,7 +84,7 @@ const CoinLaundryList = ({ coinLaundry }) => {
               transition="all 0.2s"
               _hover={{ bg: "gray.800" }}
             >
-              詳細
+              <BiMessageSquareDetail /> 詳細
             </Button>
           </Link>
 
@@ -108,7 +102,7 @@ const CoinLaundryList = ({ coinLaundry }) => {
               transition="all 0.2s"
               _hover={{ bg: "gray.50" }}
             >
-              集金
+              <TbCoinYenFilled /> 集金
             </Button>
           </Link>
         </Flex>

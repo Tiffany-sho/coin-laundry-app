@@ -54,7 +54,6 @@ const Page = async () => {
         py={8}
       >
         <Container maxW="1400px" px={{ base: 4, md: 6 }}>
-          {/* ヘッダーセクション */}
           <VStack gap={6} mb={8} align="stretch">
             <Flex
               direction={{ base: "column", md: "row" }}
@@ -76,7 +75,6 @@ const Page = async () => {
             </Flex>
           </VStack>
 
-          {/* コンテンツエリア */}
           <Box>
             {datas.length === 0 ? (
               <Box
@@ -108,7 +106,6 @@ const Page = async () => {
                     <CoinLaundry.CoinLaundryList
                       coinLaundry={data}
                       key={data.id}
-                      valiant="view"
                     />
                   );
                 })}

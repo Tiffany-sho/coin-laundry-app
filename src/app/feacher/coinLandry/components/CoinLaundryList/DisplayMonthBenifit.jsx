@@ -1,7 +1,7 @@
 // ============================================
 import { createNowData, getYearMonth } from "@/date";
 import { createClient } from "@/utils/supabase/server";
-import { Box, Text, VStack } from "@chakra-ui/react";
+import { Text, VStack } from "@chakra-ui/react";
 import ErrorPage from "@/app/feacher/jumpPage/ErrorPage/ErrorPage";
 
 const getData = async (id) => {

@@ -2,8 +2,6 @@
 
 import { createClient } from "@/utils/supabase/server";
 
-const BACKET_NAME = process.env.NEXT_PUBLIC_BACKET_NAME;
-
 export async function createStore(formData) {
   const supabase = await createClient();
 
@@ -13,7 +11,7 @@ export async function createStore(formData) {
   const machinesData = machinesString ? JSON.parse(machinesString) : [];
   const imagesData = imagesString ? JSON.parse(imagesString) : [];
 
-  const { data, error } = await supabase
+  const { data, storeError } = await supabase
     .from("laundry_store")
     .insert({
       store: formData.get("store"),
@@ -25,9 +23,20 @@ export async function createStore(formData) {
     .select("id, store")
     .single();
 
-  if (error) {
-    return { error: error.message };
+  if (storeError) {
+    return { error: storeError.message };
   }
+
+  const { error: stockError } = await supabase.from("laundry_stock").insert({
+    laundryId: data.id,
+    detergent: 0,
+    softener: 0,
+  });
+
+  if (stockError) {
+    return { error: stockError.message };
+  }
+
   return { data: data };
 }
 
@@ -83,7 +92,7 @@ export async function deleteStore(id) {
 const deleteImage = async (filePath) => {
   const supabase = await createClient();
   const { data, error } = await supabase.storage
-    .from(BACKET_NAME)
+    .from("Laundry-Images")
     .remove([`laundry/${filePath}`]);
 
   if (error) {

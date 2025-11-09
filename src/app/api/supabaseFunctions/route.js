@@ -1,12 +1,10 @@
 import { createClient } from "@/utils/supabase/client";
 
-const BACKET_NAME = process.env.NEXT_PUBLIC_BACKET_NAME;
-
 const supabase = createClient();
 
 export const uploadImage = async (filename, file) => {
   const { error } = await supabase.storage
-    .from(BACKET_NAME)
+    .from("Laundry-Images")
     .upload(`laundry/${filename}`, file);
 
   if (error) {
@@ -17,7 +15,7 @@ export const uploadImage = async (filename, file) => {
 
 export const getImage = (filename) => {
   const { data } = supabase.storage
-    .from(BACKET_NAME)
+    .from("Laundry-Images")
     .getPublicUrl(`laundry/${filename}`);
 
   return data;
@@ -25,7 +23,7 @@ export const getImage = (filename) => {
 
 export const deleteImage = async (filePath) => {
   const { data, error } = await supabase.storage
-    .from(BACKET_NAME)
+    .from("Laundry-Images")
     .remove([`laundry/${filePath}`]);
 
   if (error) {
