@@ -1,6 +1,6 @@
 "use client";
 
-import MoneyDataList from "./CoinDataList/CoinDataList";
+import MoneyDataList from "./CoinDataList";
 import { Spinner } from "@chakra-ui/react";
 import ErrorPage from "@/app/feacher/jumpPage/ErrorPage/ErrorPage";
 import { createClient } from "@/utils/supabase/client";

@@ -1,6 +1,6 @@
 "use client";
 
-import MoneyDataList from "./CoinDataList/CoinDataList";
+import MoneyDataList from "./CoinDataList";
 import { Spinner, Text } from "@chakra-ui/react";
 import { createClient } from "@/utils/supabase/client";
 import { useEffect, useState } from "react";

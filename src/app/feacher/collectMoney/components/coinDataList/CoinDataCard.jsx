@@ -70,29 +70,56 @@ const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
         if (id === item.id) {
           const input = e.value;
           if (action === "change") {
-            const value = input.replace(/[^0-9]/g, "");
-            return {
-              ...item,
-              funds: parseInt(value),
-              editing: true,
-              sending: false,
-            };
+            if (input === "") {
+              return {
+                ...item,
+                funds: 0,
+                editing: true,
+                sending: false,
+              };
+            } else {
+              const value = input.replace(/[^0-9]/g, "");
+              return {
+                ...item,
+                funds: parseInt(value),
+                editing: true,
+                sending: false,
+              };
+            }
           } else if (action === "reset") {
-            const value = input.replace(/[^0-9]/g, "");
-            return {
-              ...item,
-              funds: parseInt(value),
-              editing: false,
-              sending: false,
-            };
+            if (input === "") {
+              return {
+                ...item,
+                funds: 0,
+                editing: false,
+                sending: false,
+              };
+            } else {
+              const value = input.replace(/[^0-9]/g, "");
+              return {
+                ...item,
+                funds: parseInt(value),
+                editing: false,
+                sending: false,
+              };
+            }
           } else if (action === "submit") {
-            const value = input.replace(/[^0-9]/g, "");
-            return {
-              ...item,
-              funds: parseInt(value),
-              editing: false,
-              sending: true,
-            };
+            if (input === "") {
+              return {
+                ...item,
+                funds: 0,
+                editing: false,
+                sending: true,
+              };
+            } else {
+              const value = input.replace(/[^0-9]/g, "");
+              return {
+                ...item,
+                funds: parseInt(value),
+                editing: false,
+                sending: true,
+              };
+            }
           } else {
             return item;
           }
@@ -245,8 +272,8 @@ const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
                       _hover={{ bg: "gray.100" }}
                     />
                     <Editable.Input
-                      w="80px"
-                      textAlign="right"
+                      w="50px"
+                      textAlign="left"
                       fontSize="lg"
                       fontWeight="semibold"
                     />

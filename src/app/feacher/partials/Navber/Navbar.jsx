@@ -60,7 +60,7 @@ const Navbar = ({ user }) => {
               </li>
               <li>
                 <Link href="/collectMoney" className={styles.navItem}>
-                  <span>集金</span>
+                  <span>収益</span>
                 </Link>
               </li>
               <li>

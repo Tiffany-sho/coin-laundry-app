@@ -58,7 +58,7 @@ const FooterNavbar = ({ user }) => {
               <span className={styles.icon}>
                 <Icon.BiCoinStack />
               </span>
-              <span className={styles.label}>集金</span>
+              <span className={styles.label}>収益</span>
             </Link>
             <Link href="/account" className={styles.navItem}>
               <span className={styles.icon}>

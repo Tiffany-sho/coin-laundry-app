@@ -1,7 +1,6 @@
 import * as CoinLaundry from "@/app/feacher/coinLandry/components/CoinLaundryList/index";
-import { Heading, Box, Container } from "@chakra-ui/react";
+import { Heading, Box, Container, Flex, Text, VStack } from "@chakra-ui/react";
 import ErrorPage from "@/app/feacher/jumpPage/ErrorPage/ErrorPage";
-
 import { createClient } from "@/utils/supabase/server";
 
 async function getData() {
@@ -39,6 +38,14 @@ const Page = async () => {
   const { datas, error } = await getData();
   if (error) return <ErrorPage title={error.msg} status={error.status} />;
 
+  const selectItems = datas.map((data) => {
+    const newItem = {
+      label: `${data.store} (${data.location})`,
+      value: data.id,
+    };
+    return newItem;
+  });
+
   return (
     <>
       <Box
@@ -47,16 +54,29 @@ const Page = async () => {
         py={8}
       >
         <Container maxW="1400px" px={{ base: 4, md: 6 }}>
-          <Heading
-            fontSize={{ base: "2xl", md: "4xl" }}
-            fontWeight="bold"
-            color="gray.700"
-            letterSpacing="tight"
-            mb={8}
-          >
-            集金店舗一覧
-          </Heading>
+          {/* ヘッダーセクション */}
+          <VStack gap={6} mb={8} align="stretch">
+            <Flex
+              direction={{ base: "column", md: "row" }}
+              justify="space-between"
+              align={{ base: "stretch", md: "center" }}
+              gap={4}
+            >
+              <Box>
+                <Text color="gray.600" fontSize={{ base: "sm", md: "md" }}>
+                  {datas.length > 0
+                    ? `全${datas.length}店舗`
+                    : "店舗を追加してください"}
+                </Text>
+              </Box>
 
+              {datas.length > 0 && (
+                <CoinLaundry.SearchBox selectItems={selectItems} />
+              )}
+            </Flex>
+          </VStack>
+
+          {/* コンテンツエリア */}
           <Box>
             {datas.length === 0 ? (
               <Box
@@ -66,20 +86,33 @@ const Page = async () => {
                 textAlign="center"
                 boxShadow="md"
               >
-                <Heading size="lg" color="gray.500" fontWeight="medium">
+                <Heading size="lg" color="gray.500" fontWeight="medium" mb={2}>
                   店舗がありません
                 </Heading>
+                <Text color="gray.400" fontSize="sm">
+                  右下のボタンから新しい店舗を追加できます
+                </Text>
               </Box>
             ) : (
-              datas.map((data) => {
-                return (
-                  <CoinLaundry.CoinLaundryList
-                    coinLaundry={data}
-                    key={data.id}
-                    valiant="view"
-                  />
-                );
-              })
+              <Box
+                display="grid"
+                gridTemplateColumns={{
+                  base: "1fr",
+                  md: "repeat(2, 1fr)",
+                  lg: "repeat(3, 1fr)",
+                }}
+                gap={6}
+              >
+                {datas.map((data) => {
+                  return (
+                    <CoinLaundry.CoinLaundryList
+                      coinLaundry={data}
+                      key={data.id}
+                      valiant="view"
+                    />
+                  );
+                })}
+              </Box>
             )}
           </Box>
         </Container>

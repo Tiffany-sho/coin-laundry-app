@@ -12,7 +12,6 @@ import {
   HStack,
   InputGroup,
   NumberInput,
-  Spinner,
   Stack,
 } from "@chakra-ui/react";
 
@@ -242,9 +241,7 @@ const CollectMoneyForm = ({ coinLaundry }) => {
                             min={0}
                             maxW="250px"
                             value={
-                              machineAndFunds.funds !== null
-                                ? machineAndFunds.funds
-                                : ""
+                              machineAndFunds.funds ? machineAndFunds.funds : ""
                             }
                             onValueChange={(e) =>
                               hander(
@@ -309,7 +306,7 @@ const CollectMoneyForm = ({ coinLaundry }) => {
             borderTop="1px"
             borderColor="gray.200"
           >
-            <Link href={"/collectMoney"}>
+            <Link href={`/coinLaundry/${coinLaundry.id}`}>
               <Button
                 variant="outline"
                 size="lg"
