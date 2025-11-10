@@ -65,61 +65,38 @@ const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
   };
 
   const editAbleForm = async (id, e, action) => {
+    const regex = /\D/;
     setToggleArray((prevArray) => {
       return prevArray.map((item) => {
         if (id === item.id) {
           const input = e.value;
+          if (regex.test(input)) {
+            setMsg("数字以外の文字が含まれています");
+            return item;
+          } else {
+            setMsg("");
+          }
           if (action === "change") {
-            const value = input.replace(/[^0-9]/g, "");
-            if (value === "") {
-              return {
-                ...item,
-                funds: 0,
-                editing: true,
-                sending: false,
-              };
-            } else {
-              return {
-                ...item,
-                funds: parseInt(value),
-                editing: true,
-                sending: false,
-              };
-            }
+            return {
+              ...item,
+              funds: parseInt(input),
+              editing: true,
+              sending: false,
+            };
           } else if (action === "reset") {
-            const value = input.replace(/[^0-9]/g, "");
-            if (value === "") {
-              return {
-                ...item,
-                funds: 0,
-                editing: false,
-                sending: false,
-              };
-            } else {
-              return {
-                ...item,
-                funds: parseInt(value),
-                editing: false,
-                sending: false,
-              };
-            }
+            return {
+              ...item,
+              funds: parseInt(input),
+              editing: false,
+              sending: false,
+            };
           } else if (action === "submit") {
-            const value = input.replace(/[^0-9]/g, "");
-            if (value === "") {
-              return {
-                ...item,
-                funds: 0,
-                editing: false,
-                sending: true,
-              };
-            } else {
-              return {
-                ...item,
-                funds: parseInt(value),
-                editing: false,
-                sending: true,
-              };
-            }
+            return {
+              ...item,
+              funds: parseInt(input),
+              editing: false,
+              sending: true,
+            };
           } else {
             return item;
           }
@@ -128,23 +105,27 @@ const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
       });
     });
     if (action === "submit") {
-      const editMachine = toggleArray.map((item) => {
-        const newObj = {
-          id: item.id,
-          name: item.machine,
-          funds: item.funds,
-        };
-        return newObj;
-      });
+      const input = e.value;
       try {
+        if (regex.test(input)) {
+          throw new Error("数字以外の文字が含まれています");
+        }
+        const editMachine = toggleArray.map((item) => {
+          const newObj = {
+            id: item.id,
+            name: item.machine,
+            funds: item.funds,
+          };
+          return newObj;
+        });
         const result = await updateData(editMachine, item.id);
 
         if (result.error) {
           throw new Error(result.error.message || "編集に失敗しました");
         }
       } catch (error) {
-        console.error("API Error:", error);
         setMsg(error);
+        return;
       }
 
       toaster.create({
@@ -154,6 +135,7 @@ const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
         type: "success",
         closable: true,
       });
+      setMsg("");
     }
   };
 
@@ -166,7 +148,6 @@ const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
       {msg && (
         <Alert.Root status="error" mb={4} borderRadius="lg">
           <Alert.Indicator />
-          <Alert.Title>エラーが発生しました</Alert.Title>
           <Alert.Description>{msg}</Alert.Description>
         </Alert.Root>
       )}

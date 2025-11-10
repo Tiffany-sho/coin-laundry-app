@@ -39,7 +39,8 @@ const CustomTooltip = ({ active, payload, label }) => {
     return null;
   }
 
-  const total = payload.reduce((sum, entry) => sum + (entry.value || 0), 0);
+  const total =
+    payload.reduce((sum, entry) => sum + (entry.value || 0), 0) * 100;
 
   return (
     <Box
@@ -49,33 +50,36 @@ const CustomTooltip = ({ active, payload, label }) => {
       borderColor="gray.200"
       borderRadius="md"
       boxShadow="lg"
-      minW="200px"
+      minW="250px"
     >
       <Text fontWeight="bold" mb={2} fontSize="sm" color="gray.700">
         {label}
       </Text>
 
-      {payload.map((entry, index) => (
-        <Box
-          key={`item-${index}`}
-          display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-          py={1}
-          borderBottom={index < payload.length - 1 ? "1px solid" : "none"}
-          borderColor="gray.100"
-        >
-          <Box display="flex" alignItems="center" gap={2}>
-            <Box w="10px" h="10px" borderRadius="full" bg={entry.color} />
-            <Text fontSize="xs" color="gray.600">
-              {entry.name}:
+      {payload.map((entry, index) => {
+        const monthTotal = entry.value * 100;
+        return (
+          <Box
+            key={`item-${index}`}
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            py={1}
+            borderBottom={index < payload.length - 1 ? "1px solid" : "none"}
+            borderColor="gray.100"
+          >
+            <Box display="flex" alignItems="center" gap={2}>
+              <Box w="10px" h="10px" borderRadius="full" bg={entry.color} />
+              <Text fontSize="xs" color="gray.600">
+                {entry.name}:
+              </Text>
+            </Box>
+            <Text fontSize="xs" fontWeight="semibold" color="gray.800">
+              ¥{monthTotal.toLocaleString()}
             </Text>
           </Box>
-          <Text fontSize="xs" fontWeight="semibold" color="gray.800">
-            ¥{entry.value?.toLocaleString()}
-          </Text>
-        </Box>
-      ))}
+        );
+      })}
 
       <Box
         display="flex"
@@ -179,18 +183,26 @@ const ManyCoinDataChart = ({ data }) => {
       <LineChart data={chart.data}>
         <CartesianGrid stroke={chart.color("border")} vertical={false} />
         <XAxis
+          height={25}
           axisLine={false}
           dataKey={chart.key("month")}
           tickFormatter={(value) => `${value.slice(5, 10)}月`}
           stroke={chart.color("border")}
         />
-
+        <YAxis
+          width={50}
+          axisLine={false}
+          tickLine={false}
+          tickMargin={10}
+          stroke={chart.color("border")}
+          domain={["dataMin-100", "dataMax+100"]}
+        />
         <Tooltip
           animationDuration={100}
           cursor={{ stroke: "#ccc", strokeWidth: 1, strokeDasharray: "5 5" }}
           content={<CustomTooltip />}
         />
-        <Legend content={<Chart.Legend />} />
+        <Legend content={<Chart.Legend interaction="click" />} />
         {chart.series.map((item) => {
           return (
             <Line
@@ -202,6 +214,7 @@ const ManyCoinDataChart = ({ data }) => {
               strokeWidth={2}
               dot={{ r: 4 }}
               activeDot={{ r: 6 }}
+              opacity={chart.getSeriesOpacity(item.name)}
             />
           );
         })}

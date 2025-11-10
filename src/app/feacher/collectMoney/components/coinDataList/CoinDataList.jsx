@@ -187,7 +187,7 @@ const MoneyDataList = ({ valiant, coinData }) => {
 
               <Box
                 bg="white"
-                p={{ base: 4, md: 6 }}
+                px={{ base: 3, md: 6 }}
                 borderRadius="16px"
                 boxShadow="0 4px 15px rgba(0, 0, 0, 0.05)"
               >
@@ -203,7 +203,6 @@ const MoneyDataList = ({ valiant, coinData }) => {
             bg="linear-gradient(to bottom, #fafafa, #ffffff)"
           >
             <VStack align="stretch" gap={4}>
-              {/* ソート選択 */}
               <Box
                 p={4}
                 bg="gray.50"
