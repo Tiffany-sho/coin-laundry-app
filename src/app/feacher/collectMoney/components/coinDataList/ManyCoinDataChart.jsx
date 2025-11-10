@@ -184,13 +184,7 @@ const ManyCoinDataChart = ({ data }) => {
           tickFormatter={(value) => `${value.slice(5, 10)}月`}
           stroke={chart.color("border")}
         />
-        <YAxis
-          axisLine={false}
-          tickLine={false}
-          tickMargin={10}
-          stroke={chart.color("border")}
-          tickFormatter={(value) => `¥${value / 100}万`}
-        />
+
         <Tooltip
           animationDuration={100}
           cursor={{ stroke: "#ccc", strokeWidth: 1, strokeDasharray: "5 5" }}

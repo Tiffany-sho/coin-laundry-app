@@ -58,10 +58,10 @@ const MonoCoinDataChart = ({ data }) => {
         >
           <LabelList
             dataKey={chart.key("uv")}
-            position="right"
+            position="top"
             offset={10}
             style={{
-              fontWeight: "600",
+              fontWeight: "500",
               fill: chart.color("fg"),
             }}
           />

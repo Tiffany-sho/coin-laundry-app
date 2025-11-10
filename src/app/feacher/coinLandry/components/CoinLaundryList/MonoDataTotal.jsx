@@ -1,4 +1,3 @@
-import ErrorPage from "@/app/feacher/jumpPage/ErrorPage/ErrorPage";
 import { createClient } from "@/utils/supabase/client";
 import { Spinner, Text, VStack } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
