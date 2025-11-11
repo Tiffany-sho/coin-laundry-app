@@ -6,6 +6,7 @@ import DisplayMonthBenifit from "./DisplayMonthBenifit";
 import NowLaundryNum from "./NowLaundryNum";
 import { TbCoinYenFilled } from "react-icons/tb";
 import { BiMessageSquareDetail } from "react-icons/bi";
+import MachinesState from "./MachinesState";
 
 const CoinLaundryList = ({ coinLaundry }) => {
   return (
@@ -68,7 +69,10 @@ const CoinLaundryList = ({ coinLaundry }) => {
             <DisplayMonthBenifit id={coinLaundry.id} />
           </Box>
 
-          <NowLaundryNum id={coinLaundry.id} />
+          <Flex gap={5} alignContent="space-around" flexDirection="column">
+            <NowLaundryNum id={coinLaundry.id} />
+            <MachinesState id={coinLaundry.id} />
+          </Flex>
         </Grid>
       </Card.Body>
 

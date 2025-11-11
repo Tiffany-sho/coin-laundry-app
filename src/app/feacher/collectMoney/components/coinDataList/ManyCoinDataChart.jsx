@@ -18,8 +18,6 @@ const lineColor = [
   "purple.solid",
   "blue.solid",
   "green.solid",
-  "yellow.solid",
-  "orange.solid",
   "pink.solid",
   "teal.solid",
   "cyan.solid",
@@ -183,14 +181,14 @@ const ManyCoinDataChart = ({ data }) => {
       <LineChart data={chart.data}>
         <CartesianGrid stroke={chart.color("border")} vertical={false} />
         <XAxis
-          height={25}
+          height={15}
           axisLine={false}
           dataKey={chart.key("month")}
           tickFormatter={(value) => `${value.slice(5, 10)}月`}
           stroke={chart.color("border")}
         />
         <YAxis
-          width={50}
+          width={25}
           axisLine={false}
           tickLine={false}
           tickMargin={10}

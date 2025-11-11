@@ -18,7 +18,7 @@ import { LuMinus, LuPlus } from "react-icons/lu";
 import { useEffect, useState } from "react";
 import { toaster } from "@/components/ui/toaster";
 
-const NowLaundryNum = ({ id }) => {
+const MachinesState = ({ id }) => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -88,15 +88,15 @@ const NowLaundryNum = ({ id }) => {
   if (loading)
     return (
       <Box
-        bg="green.50"
+        bg="yellow.50"
         p={3}
         borderRadius="lg"
         borderLeft="4px solid"
-        borderColor="green.500"
+        borderColor="yellow.300"
       >
         <VStack>
-          <Spinner size="sm" color="green.500" />
-          <Text fontSize="xs" color="gray.500">
+          <Spinner size="sm" color="yellow.300" />
+          <Text fontSize="xs" color="yellow.300">
             読み込み中...
           </Text>
         </VStack>
@@ -110,7 +110,7 @@ const NowLaundryNum = ({ id }) => {
         p={3}
         borderRadius="lg"
         borderLeft="4px solid"
-        borderColor="red.500"
+        borderColor="red.300"
       >
         <Text fontSize="sm" color="red.600" fontWeight="medium">
           データを入手できませんでした
@@ -122,7 +122,6 @@ const NowLaundryNum = ({ id }) => {
     <Dialog.Root
       onOpenChange={(e) => {
         if (e.open) {
-          // ダイアログを開く時に現在の値をリセット
           setDetergent(data.detergent);
           setSoftener(data.softener);
         }
@@ -130,51 +129,30 @@ const NowLaundryNum = ({ id }) => {
     >
       <Dialog.Trigger asChild>
         <Box
-          bg="green.50"
+          bg="yellow.50"
           p={3}
           borderRadius="lg"
           borderLeft="4px solid"
-          borderColor="green.500"
+          borderColor="yellow.300"
           cursor="pointer"
           transition="all 0.2s"
           _hover={{
-            bg: "green.100",
+            bg: "yellow.100",
             transform: "translateY(-2px)",
             boxShadow: "md",
           }}
         >
           <VStack align="stretch" gap={2}>
             <Text fontSize="xs" color="gray.600" fontWeight="semibold">
-              在庫状況
+              設備状況
             </Text>
-            <HStack gap={2} flexWrap="wrap">
-              <Badge
-                bg={data.detergent > 1 ? "green.200" : "red.300"}
-                color={data.detergent > 1 ? "green.800" : "red.800"}
-                fontSize="xs"
-                px={2}
-                py={1}
-                borderRadius="md"
-                fontWeight="semibold"
-              >
-                洗剤: {data.detergent}
-              </Badge>
-              <Badge
-                bg={data.softener > 1 ? "green.200" : "red.300"}
-                color={data.softener > 1 ? "green.800" : "red.800"}
-                fontSize="xs"
-                px={2}
-                py={1}
-                borderRadius="md"
-                fontWeight="semibold"
-              >
-                柔軟剤: {data.softener}
-              </Badge>
-            </HStack>
+
             <Text
               fontSize="xs"
               color={
-                data.detergent < 2 || data.softener < 2 ? "red.600" : "gray.600"
+                data.detergent < 2 || data.softener < 2
+                  ? "red.600"
+                  : "yellow.600"
               }
               fontWeight="medium"
               mt={1}
@@ -196,12 +174,12 @@ const NowLaundryNum = ({ id }) => {
             boxShadow="xl"
           >
             <Dialog.Header
-              bg="green.50"
+              bg="yellow.50"
               borderBottom="1px solid"
-              borderColor="green.200"
+              borderColor="yellow.200"
               p={6}
             >
-              <Dialog.Title fontSize="xl" fontWeight="bold" color="green.900">
+              <Dialog.Title fontSize="xl" fontWeight="bold" color="yellow.900">
                 在庫管理
               </Dialog.Title>
             </Dialog.Header>
@@ -213,7 +191,7 @@ const NowLaundryNum = ({ id }) => {
                 right={4}
                 bg="white"
                 borderRadius="full"
-                _hover={{ bg: "gray.100" }}
+                _hover={{ bg: "yellow.100" }}
               />
             </Dialog.CloseTrigger>
 
@@ -331,7 +309,7 @@ const NowLaundryNum = ({ id }) => {
 
             <Dialog.Footer
               borderTop="1px solid"
-              borderColor="gray.200"
+              borderColor="yellow.200"
               p={6}
               gap={3}
             >
@@ -343,7 +321,7 @@ const NowLaundryNum = ({ id }) => {
               <Dialog.ActionTrigger asChild>
                 <Button
                   size="lg"
-                  colorScheme="green"
+                  colorScheme="yellow"
                   onClick={handleSave}
                   loading={isSaving}
                   borderRadius="full"
@@ -360,4 +338,4 @@ const NowLaundryNum = ({ id }) => {
   );
 };
 
-export default NowLaundryNum;
+export default MachinesState;

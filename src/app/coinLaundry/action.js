@@ -27,7 +27,7 @@ export async function createStore(formData) {
     return { error: storeError.message };
   }
 
-  const { error: stockError } = await supabase.from("laundry_stock").insert({
+  const { error: stockError } = await supabase.from("laundry_state").insert({
     laundryId: data.id,
     detergent: 0,
     softener: 0,

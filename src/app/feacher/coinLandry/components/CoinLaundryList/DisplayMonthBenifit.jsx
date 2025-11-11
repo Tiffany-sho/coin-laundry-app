@@ -1,29 +1,45 @@
-import { createNowData, getYearMonth } from "@/date";
+import { changeEpocFromBackYearMonth, createNowData } from "@/date";
 import {
   changeEpocFromNextYearMonth,
   changeEpocFromNowYearMonth,
 } from "@/date";
 import { createClient } from "@/utils/supabase/server";
-import { Text, VStack } from "@chakra-ui/react";
+import { Text, VStack, Box, HStack, Badge } from "@chakra-ui/react";
+import { LuTrendingUp, LuTrendingDown, LuMinus } from "react-icons/lu";
 import ErrorPage from "@/app/feacher/jumpPage/ErrorPage/ErrorPage";
 
 const getData = async (id) => {
   const supabase = await createClient();
 
-  const epocYearMonth = changeEpocFromNowYearMonth();
-  const epocYearNextMonth = changeEpocFromNextYearMonth();
+  const epocYearBeforeMonth = changeEpocFromBackYearMonth();
+  const epocYearAfterMonth = changeEpocFromNextYearMonth();
 
   const { data, error } = await supabase
     .from("collect_funds")
     .select("date,fundsArray")
     .eq("laundryId", id)
-    .gt("date", epocYearMonth)
-    .lt("date", epocYearNextMonth);
+    .gt("date", epocYearBeforeMonth)
+    .lt("date", epocYearAfterMonth);
 
   if (error) {
     return {
       error: error.message,
     };
+  }
+
+  if (data.length === 0) {
+    const { data, error } = await supabase
+      .from("collect_funds")
+      .select("date,fundsArray")
+      .eq("laundryId", id)
+      .lt("date", epocYearBeforeMonth);
+
+    if (error) {
+      return {
+        error: error.message,
+      };
+    }
+    return { data: data };
   }
 
   return { data: data };
@@ -32,29 +48,184 @@ const getData = async (id) => {
 const DisplayMonthBenifit = async ({ id }) => {
   const { data, error } = await getData(id);
   if (error) return <ErrorPage title={error.msg} status={error.status} />;
+  const epocYearMonth = changeEpocFromNowYearMonth();
+  const epocYearBeforeMonth = changeEpocFromBackYearMonth();
+  const epocYearAfterMonth = changeEpocFromNextYearMonth();
 
-  const monthBenefit =
-    data.reduce((accumulator, currentValue) => {
-      return (
-        accumulator +
-        currentValue.fundsArray.reduce((accumulator, currentValue) => {
-          return accumulator + currentValue.funds;
-        }, 0)
-      );
-    }, 0) * 100;
+  const thisMonthBenefit =
+    data
+      .filter(
+        (item) => item.date >= epocYearMonth && item.date < epocYearAfterMonth
+      )
+      .reduce((accumulator, currentValue) => {
+        return (
+          accumulator +
+          currentValue.fundsArray.reduce((accumulator, currentValue) => {
+            return accumulator + currentValue.funds;
+          }, 0)
+        );
+      }, 0) * 100;
+
+  const lastMonthBenefit =
+    data
+      .filter(
+        (item) => item.date < epocYearMonth && item.date >= epocYearBeforeMonth
+      )
+      .reduce((accumulator, currentValue) => {
+        return (
+          accumulator +
+          currentValue.fundsArray.reduce((accumulator, currentValue) => {
+            return accumulator + currentValue.funds;
+          }, 0)
+        );
+      }, 0) * 100;
 
   const lastestDate = data.reduce((max, current) => {
     return current.date > max ? current.date : max;
   }, 0);
 
+  const difference = thisMonthBenefit - lastMonthBenefit;
+  const percentageChange =
+    lastMonthBenefit > 0
+      ? ((difference / lastMonthBenefit) * 100).toFixed(1)
+      : 0;
+
+  const isIncrease = difference > 0;
+  const isDecrease = difference < 0;
+  const isEqual = difference === 0;
+
   return (
-    <VStack align="stretch" gap={1}>
-      <Text fontSize="xs" color="gray.600" fontWeight="medium">
-        今月の売上
-      </Text>
-      <Text fontSize="xl" fontWeight="bold" color="blue.700">
-        ¥{monthBenefit.toLocaleString()}
-      </Text>
+    <VStack align="stretch" gap={3}>
+      <Box>
+        <Text fontSize="xs" color="gray.600" fontWeight="medium" mb={1}>
+          今月の売上
+        </Text>
+        <HStack align="baseline" gap={2}>
+          <Text
+            fontSize="2xl"
+            fontWeight="bold"
+            color={
+              isIncrease ? "green.700" : isDecrease ? "red.700" : "blue.700"
+            }
+          >
+            ¥{thisMonthBenefit.toLocaleString()}
+          </Text>
+          {!isEqual && (
+            <Badge
+              colorScheme={isIncrease ? "green" : "red"}
+              fontSize="xs"
+              px={2}
+              py={1}
+              borderRadius="full"
+              display="flex"
+              alignItems="center"
+              gap={1}
+            >
+              {isIncrease ? (
+                <LuTrendingUp size={12} />
+              ) : (
+                <LuTrendingDown size={12} />
+              )}
+              {isIncrease ? "+" : ""}
+              {percentageChange}%
+            </Badge>
+          )}
+          {isEqual && (
+            <Badge
+              colorScheme="gray"
+              fontSize="xs"
+              px={2}
+              py={1}
+              borderRadius="full"
+              display="flex"
+              alignItems="center"
+              gap={1}
+            >
+              <LuMinus size={12} />
+              変動なし
+            </Badge>
+          )}
+        </HStack>
+      </Box>
+
+      <Box>
+        <VStack align="stretch" gap={2}>
+          <Box>
+            <HStack justify="space-between" mb={1}>
+              <Text fontSize="2xs" color="gray.500" fontWeight="medium">
+                今月
+              </Text>
+              <Text fontSize="2xs" color="gray.500" fontWeight="bold">
+                ¥{thisMonthBenefit.toLocaleString()}
+              </Text>
+            </HStack>
+            <Box h="8px" bg="gray.100" borderRadius="full" overflow="hidden">
+              <Box
+                h="100%"
+                bg={
+                  isIncrease ? "green.400" : isDecrease ? "red.400" : "blue.400"
+                }
+                borderRadius="full"
+                w={`${Math.min(
+                  100,
+                  (thisMonthBenefit /
+                    Math.max(thisMonthBenefit, lastMonthBenefit)) *
+                    100
+                )}%`}
+                transition="width 0.5s ease"
+              />
+            </Box>
+          </Box>
+
+          <Box>
+            <HStack justify="space-between" mb={1}>
+              <Text fontSize="2xs" color="gray.500" fontWeight="medium">
+                先月
+              </Text>
+              <Text fontSize="2xs" color="gray.500" fontWeight="bold">
+                ¥{lastMonthBenefit.toLocaleString()}
+              </Text>
+            </HStack>
+            <Box h="8px" bg="gray.100" borderRadius="full" overflow="hidden">
+              <Box
+                h="100%"
+                bg="blue.300"
+                borderRadius="full"
+                w={`${Math.min(
+                  100,
+                  (lastMonthBenefit /
+                    Math.max(thisMonthBenefit, lastMonthBenefit)) *
+                    100
+                )}%`}
+                transition="width 0.5s ease"
+              />
+            </Box>
+          </Box>
+        </VStack>
+      </Box>
+
+      {/* 増減額の表示 */}
+      {!isEqual && (
+        <Box
+          p={2}
+          bg={isIncrease ? "green.50" : "red.50"}
+          borderRadius="md"
+          border="1px solid"
+          borderColor={isIncrease ? "green.200" : "red.200"}
+        >
+          <Text
+            fontSize="xs"
+            color={isIncrease ? "green.700" : "red.700"}
+            fontWeight="semibold"
+            textAlign="center"
+          >
+            {isIncrease ? "+" : ""}¥{Math.abs(difference).toLocaleString()}
+            {isIncrease ? " の増加" : " の減少"}
+          </Text>
+        </Box>
+      )}
+
+      {/* 最終回収日 */}
       <Text fontSize="xs" color="gray.500" mt={1}>
         最終回収: {createNowData(lastestDate)}
       </Text>

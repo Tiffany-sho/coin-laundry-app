@@ -125,6 +125,13 @@ const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
         }
       } catch (error) {
         setMsg(error);
+        toaster.create({
+          description: `${item.laundryName}店(${createNowData(
+            item.date
+          )})の集金データの編集に失敗しました`,
+          type: "error",
+          closable: true,
+        });
         return;
       }
 
