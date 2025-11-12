@@ -17,6 +17,7 @@ import {
 import { LuMinus, LuPlus } from "react-icons/lu";
 import { useEffect, useState } from "react";
 import { toaster } from "@/components/ui/toaster";
+import * as Icon from "./CoinLaundryList/Icon";
 
 const NowLaundryNum = ({ id }) => {
   const [data, setData] = useState(null);
@@ -66,7 +67,6 @@ const NowLaundryNum = ({ id }) => {
 
     if (error) {
       toaster.create({
-        title: "エラー",
         description: "在庫の更新に失敗しました",
         type: "error",
       });
@@ -77,7 +77,6 @@ const NowLaundryNum = ({ id }) => {
         softener: softener,
       }));
       toaster.create({
-        title: "成功",
         description: "在庫を更新しました",
         type: "success",
       });
@@ -122,7 +121,6 @@ const NowLaundryNum = ({ id }) => {
     <Dialog.Root
       onOpenChange={(e) => {
         if (e.open) {
-          // ダイアログを開く時に現在の値をリセット
           setDetergent(data.detergent);
           setSoftener(data.softener);
         }
@@ -130,23 +128,45 @@ const NowLaundryNum = ({ id }) => {
     >
       <Dialog.Trigger asChild>
         <Box
-          bg="green.50"
+          bg={data.detergent > 1 && data.softener > 1 ? "green.50" : "red.50"}
           p={3}
           borderRadius="lg"
           borderLeft="4px solid"
-          borderColor="green.500"
+          borderColor={
+            data.detergent > 1 && data.softener > 1 ? "green.500" : "red.500"
+          }
           cursor="pointer"
           transition="all 0.2s"
           _hover={{
-            bg: "green.100",
+            bg:
+              data.detergent > 1 && data.softener > 1 ? "green.100" : "red.100",
             transform: "translateY(-2px)",
             boxShadow: "md",
           }}
         >
           <VStack align="stretch" gap={2}>
-            <Text fontSize="xs" color="gray.600" fontWeight="semibold">
-              在庫状況
-            </Text>
+            <HStack justify="space-between">
+              <Text fontSize="xs" color="gray.600" fontWeight="semibold">
+                在庫状況
+              </Text>
+              <Box
+                bg={
+                  data.detergent > 1 && data.softener > 1
+                    ? "green.500"
+                    : "red.500"
+                }
+                color="white"
+                borderRadius="full"
+                p={1}
+              >
+                {data.detergent > 1 && data.softener > 1 ? (
+                  <Icon.LuCheck size={14} />
+                ) : (
+                  <Icon.CiCircleAlert size={14} />
+                )}
+              </Box>
+            </HStack>
+
             <HStack gap={2} flexWrap="wrap">
               <Badge
                 bg={data.detergent > 1 ? "green.200" : "red.300"}
@@ -182,6 +202,9 @@ const NowLaundryNum = ({ id }) => {
               {data.detergent < 2 || data.softener < 2
                 ? " 在庫不足"
                 : " 在庫良好"}
+            </Text>
+            <Text fontSize="2xs" color="gray.500" mt={1}>
+              タップして在庫編集
             </Text>
           </VStack>
         </Box>
@@ -219,7 +242,6 @@ const NowLaundryNum = ({ id }) => {
 
             <Dialog.Body p={6}>
               <VStack align="stretch" gap={6}>
-                {/* 洗剤 */}
                 <Box
                   p={4}
                   bg="blue.50"
@@ -271,7 +293,6 @@ const NowLaundryNum = ({ id }) => {
                   </VStack>
                 </Box>
 
-                {/* 柔軟剤 */}
                 <Box
                   p={4}
                   bg="purple.50"

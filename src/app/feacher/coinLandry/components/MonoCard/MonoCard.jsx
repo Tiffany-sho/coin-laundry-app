@@ -28,6 +28,8 @@ import {
   Grid,
 } from "@chakra-ui/react";
 import MonoDataTotal from "../CoinLaundryList/MonoDataTotal";
+import MachinesState from "../MachinesState";
+import NowLaundryNum from "../NowLaundryNum";
 
 const MonoCard = ({ coinLaundry }) => {
   useEffect(() => {
@@ -288,6 +290,9 @@ const MonoCard = ({ coinLaundry }) => {
                     </Link>
                   </VStack>
                 </Box>
+
+                <MachinesState id={coinLaundry.id} />
+                <NowLaundryNum id={coinLaundry.id} />
               </Grid>
             </VStack>
           </Box>

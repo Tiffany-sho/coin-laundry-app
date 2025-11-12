@@ -23,7 +23,7 @@ const coinWeight = 4.8;
 const CollectMoneyForm = ({ coinLaundry }) => {
   const [msg, setMsg] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [epoc, setEpoc] = useState(null);
+  const [epoc, setEpoc] = useState(Date.now());
 
   const [machinesAndFunds, setMachinesAndFunds] = useState(() => {
     const initialValue = coinLaundry.machines.map((machine) => ({
@@ -110,12 +110,10 @@ const CollectMoneyForm = ({ coinLaundry }) => {
       };
     });
 
-    const date = epoc ? epoc : Date.now();
-
     const formData = {
       store: coinLaundry.store,
       storeId: coinLaundry.id,
-      date,
+      date: epoc,
       fundsArray: postArray,
     };
 

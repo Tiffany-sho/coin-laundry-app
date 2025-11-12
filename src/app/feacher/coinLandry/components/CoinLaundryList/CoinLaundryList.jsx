@@ -3,10 +3,10 @@ import Link from "next/link";
 import { LuMapPin } from "react-icons/lu";
 import { Button, Card, Flex, Image, Box, Grid } from "@chakra-ui/react";
 import DisplayMonthBenifit from "./DisplayMonthBenifit";
-import NowLaundryNum from "./NowLaundryNum";
+import NowLaundryNum from "../NowLaundryNum";
 import { TbCoinYenFilled } from "react-icons/tb";
 import { BiMessageSquareDetail } from "react-icons/bi";
-import MachinesState from "./MachinesState";
+import MachinesState from "../MachinesState";
 
 const CoinLaundryList = ({ coinLaundry }) => {
   return (
@@ -69,7 +69,7 @@ const CoinLaundryList = ({ coinLaundry }) => {
             <DisplayMonthBenifit id={coinLaundry.id} />
           </Box>
 
-          <Flex gap={5} alignContent="space-around" flexDirection="column">
+          <Flex gap={3} alignContent="space-around" flexDirection="column">
             <NowLaundryNum id={coinLaundry.id} />
             <MachinesState id={coinLaundry.id} />
           </Flex>
