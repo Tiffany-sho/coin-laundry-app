@@ -375,25 +375,29 @@ const MachinesState = ({ id }) => {
               p={6}
               gap={3}
             >
-              <Button
-                variant="outline"
-                size="lg"
-                borderRadius="full"
-                px={6}
-                onClick={() => setMachines(data.machines)}
-              >
-                キャンセル
-              </Button>
-              <Button
-                size="lg"
-                bg="orange"
-                onClick={handleSave}
-                loading={isSaving}
-                borderRadius="full"
-                px={8}
-              >
-                保存
-              </Button>
+              <Dialog.ActionTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  borderRadius="full"
+                  px={6}
+                  onClick={() => setMachines(data.machines)}
+                >
+                  キャンセル
+                </Button>
+              </Dialog.ActionTrigger>
+              <Dialog.ActionTrigger asChild>
+                <Button
+                  size="lg"
+                  variant="solid"
+                  onClick={handleSave}
+                  loading={isSaving}
+                  borderRadius="full"
+                  px={8}
+                >
+                  保存
+                </Button>
+              </Dialog.ActionTrigger>
             </Dialog.Footer>
           </Dialog.Content>
         </Dialog.Positioner>
