@@ -291,8 +291,8 @@ const MonoCard = ({ coinLaundry }) => {
                   </VStack>
                 </Box>
 
-                <MachinesState id={coinLaundry.id} />
                 <NowLaundryNum id={coinLaundry.id} />
+                <MachinesState id={coinLaundry.id} />
               </Grid>
             </VStack>
           </Box>

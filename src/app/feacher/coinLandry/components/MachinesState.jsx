@@ -296,7 +296,7 @@ const MachinesState = ({ id }) => {
                               {machine.name}
                             </Heading>
                             <Badge
-                              colorScheme={machine.break ? "red" : "green"}
+                              bg={machine.break ? "red" : "green"}
                               fontSize="xs"
                               px={2}
                               py={1}
@@ -311,7 +311,7 @@ const MachinesState = ({ id }) => {
                               onCheckedChange={(e) =>
                                 changeMachineState(e, machine.id, "switch")
                               }
-                              colorScheme={machine.break ? "red" : "green"}
+                              bg={machine.break ? "red" : "green"}
                               size="lg"
                             >
                               <Switch.HiddenInput />
@@ -355,7 +355,7 @@ const MachinesState = ({ id }) => {
                               />
                               {machine.comment && (
                                 <HStack>
-                                  <Badge colorScheme="blue" fontSize="2xs">
+                                  <Badge bg="blue" fontSize="2xs">
                                     {machine.comment.length}文字
                                   </Badge>
                                 </HStack>
@@ -387,7 +387,7 @@ const MachinesState = ({ id }) => {
               </Button>
               <Button
                 size="lg"
-                colorScheme="orange"
+                bg="orange"
                 onClick={handleSave}
                 loading={isSaving}
                 borderRadius="full"
