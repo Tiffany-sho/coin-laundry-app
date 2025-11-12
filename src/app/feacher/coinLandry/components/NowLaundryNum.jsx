@@ -17,7 +17,7 @@ import {
 import { LuMinus, LuPlus } from "react-icons/lu";
 import { useEffect, useState } from "react";
 import { toaster } from "@/components/ui/toaster";
-import * as Icon from "./CoinLaundryList/Icon";
+import * as Icon from "./Icon";
 
 const NowLaundryNum = ({ id }) => {
   const [data, setData] = useState(null);

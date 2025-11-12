@@ -17,7 +17,7 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { toaster } from "@/components/ui/toaster";
-import * as Icon from "./CoinLaundryList/Icon";
+import * as Icon from "./Icon";
 
 const MachinesState = ({ id }) => {
   const [data, setData] = useState(null);
@@ -296,7 +296,7 @@ const MachinesState = ({ id }) => {
                               {machine.name}
                             </Heading>
                             <Badge
-                              bg={machine.break ? "red" : "green"}
+                              bg={machine.break ? "red.300" : "green.300"}
                               fontSize="xs"
                               px={2}
                               py={1}
@@ -311,7 +311,6 @@ const MachinesState = ({ id }) => {
                               onCheckedChange={(e) =>
                                 changeMachineState(e, machine.id, "switch")
                               }
-                              bg={machine.break ? "red" : "green"}
                               size="lg"
                             >
                               <Switch.HiddenInput />
@@ -355,7 +354,7 @@ const MachinesState = ({ id }) => {
                               />
                               {machine.comment && (
                                 <HStack>
-                                  <Badge bg="blue" fontSize="2xs">
+                                  <Badge bg="blue.200" fontSize="2xs">
                                     {machine.comment.length}文字
                                   </Badge>
                                 </HStack>

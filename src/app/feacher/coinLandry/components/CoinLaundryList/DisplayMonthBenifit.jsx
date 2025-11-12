@@ -97,7 +97,7 @@ const DisplayMonthBenifit = async ({ id }) => {
   return (
     <VStack align="stretch" gap={3}>
       <Box>
-        <Text fontSize="xs" color="gray.600" fontWeight="medium" mb={1}>
+        <Text fontSize="xs" color="gray.600" fontWeight="bold" mb={1}>
           今月の売上
         </Text>
         <HStack align="baseline" gap={2}>
