@@ -119,7 +119,6 @@ export default function AuthForm({ mode, action }) {
           <Card.Footer flexDirection="column" gap={4} px={6} pb={6}>
             <Button
               variant="solid"
-              bg="blue"
               type="submit"
               size="lg"
               w="full"
