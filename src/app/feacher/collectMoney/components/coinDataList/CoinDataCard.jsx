@@ -15,10 +15,11 @@ import { toaster } from "@/components/ui/toaster";
 import { LuCheck, LuPencilLine, LuX } from "react-icons/lu";
 import { useEffect, useState } from "react";
 import AlertDialog from "@/app/feacher/dialog/AlertDialog";
-import { deleteData, updateData } from "@/app/collectMoney/action";
+import { updateData } from "@/app/collectMoney/action";
 
 const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
   const [toggleArray, setToggleArray] = useState([]);
+  const [totalFunds, setTotalFunds] = useState(item.totalFunds);
   const [msg, setMsg] = useState("");
 
   useEffect(() => {
@@ -37,118 +38,146 @@ const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
     getArray();
   }, []);
 
-  const onSubmit = (e) => {
-    e.preventDefault();
+  const moveCursorToEnd = (e) => {
+    const input = e.target;
+    const length = input.value.length;
+    setTimeout(() => {
+      input.setSelectionRange(length, length);
+    }, 0);
   };
 
-  const deleteAction = async () => {
-    try {
-      const result = await deleteData(item.id);
-
-      if (result.error) {
-        throw new Error(result.error.message || "削除に失敗しました");
-      }
-    } catch (error) {
-      console.error("API Error:", error);
-      setMsg(error);
+  const validateNumberInput = (input) => {
+    const regex = /\D/;
+    if (regex.test(input)) {
+      setMsg("数字以外の文字が含まれています");
+      return false;
     }
+    setMsg("");
+    return true;
+  };
 
-    onRowClick(null);
-    setOpen(false);
+  const showToast = (type, isSuccess) => {
+    const description = isSuccess
+      ? `${item.laundryName}店(${createNowData(
+          item.date
+        )})の集金データを更新しました`
+      : `${item.laundryName}店(${createNowData(
+          item.date
+        )})の集金データの編集に失敗しました`;
+
     toaster.create({
-      description: `${item.laundryName}店(${createNowData(
-        item.date
-      )})の集金データを削除しました`,
-      type: "warning",
+      description,
+      type,
       closable: true,
     });
   };
 
   const editAbleForm = async (id, e, action) => {
-    const regex = /\D/;
     setToggleArray((prevArray) => {
       return prevArray.map((item) => {
         if (id === item.id) {
           const input = e.value;
-          if (regex.test(input)) {
-            setMsg("数字以外の文字が含まれています");
+          if (!validateNumberInput(input)) {
             return item;
-          } else {
-            setMsg("");
           }
+
+          const parsedValue = parseInt(input);
+
           if (action === "change") {
             return {
               ...item,
-              funds: parseInt(input),
+              funds: parsedValue,
               editing: true,
               sending: false,
             };
           } else if (action === "reset") {
             return {
               ...item,
-              funds: parseInt(input),
+              funds: parsedValue,
               editing: false,
               sending: false,
             };
           } else if (action === "submit") {
             return {
               ...item,
-              funds: parseInt(input),
+              funds: parsedValue,
               editing: false,
               sending: true,
             };
-          } else {
-            return item;
           }
         }
         return item;
       });
     });
+
     if (action === "submit") {
-      const input = e.value;
-      try {
-        if (regex.test(input)) {
-          throw new Error("数字以外の文字が含まれています");
-        }
-        const editMachine = toggleArray.map((item) => {
-          const newObj = {
-            id: item.id,
-            name: item.machine,
-            funds: item.funds,
-          };
-          return newObj;
-        });
-        const result = await updateData(editMachine, item.id);
-
-        if (result.error) {
-          throw new Error(result.error.message || "編集に失敗しました");
-        }
-      } catch (error) {
-        setMsg(error);
-        toaster.create({
-          description: `${item.laundryName}店(${createNowData(
-            item.date
-          )})の集金データの編集に失敗しました`,
-          type: "error",
-          closable: true,
-        });
-        return;
-      }
-
-      toaster.create({
-        description: `${item.laundryName}店(${createNowData(
-          item.date
-        )})の集金データを更新しました`,
-        type: "success",
-        closable: true,
-      });
-      setMsg("");
+      await submitMachineData(e.value);
     }
   };
 
-  const totalRevenue = item.fundsArray.reduce((accumulator, currentValue) => {
-    return accumulator + parseInt(currentValue.funds) * 100;
-  }, 0);
+  const submitMachineData = async (input) => {
+    try {
+      if (!validateNumberInput(input)) {
+        throw new Error("数字以外の文字が含まれています");
+      }
+
+      const editMachine = toggleArray.map((item) => ({
+        id: item.id,
+        name: item.machine,
+        funds: item.funds,
+      }));
+
+      const totalFunds =
+        editMachine.reduce((acc, cur) => acc + cur.funds, 0) * 100;
+      const result = await updateData(editMachine, totalFunds, item.id);
+
+      if (result.error) {
+        throw new Error(result.error.message || "編集に失敗しました");
+      }
+
+      showToast("success", true);
+      setMsg("");
+    } catch (error) {
+      setMsg(error.message);
+      showToast("error", false);
+    }
+  };
+
+  const handleTotalFundsChange = (e) => {
+    const input = e.value;
+    if (validateNumberInput(input)) {
+      setTotalFunds(parseInt(input) || 0);
+    }
+  };
+
+  const handleTotalFundsRevert = () => {
+    setTotalFunds(item.totalFunds);
+    setMsg("");
+  };
+
+  const handleTotalFundsCommit = async (e) => {
+    const input = e.value;
+    try {
+      if (!validateNumberInput(input)) {
+        throw new Error("数字以外の文字が含まれています");
+      }
+
+      const result = await updateData([], parseInt(input), item.id);
+
+      if (result.error) {
+        throw new Error(result.error.message || "編集に失敗しました");
+      }
+
+      showToast("success", true);
+      setMsg("");
+    } catch (error) {
+      setMsg(error.message);
+      setTotalFunds(item.totalFunds);
+      showToast("error", false);
+    }
+  };
+
+  const totalRevenue = item.totalFunds;
 
   return (
     <Box>
@@ -159,169 +188,219 @@ const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
         </Alert.Root>
       )}
 
-      <Box
-        mb={6}
-        p={5}
-        bg="gradient-to-r"
-        gradientFrom="blue.50"
-        gradientTo="purple.50"
-        borderRadius="xl"
-        border="1px solid"
-        borderColor="blue.100"
-      >
-        <Flex justifyContent="space-between" alignItems="center">
+      {item.fundsArray.length > 0 ? (
+        <>
+          <Box
+            mb={6}
+            p={5}
+            bg="gradient-to-r"
+            gradientFrom="blue.50"
+            gradientTo="purple.50"
+            borderRadius="xl"
+            border="1px solid"
+            borderColor="blue.100"
+          >
+            <Flex justifyContent="space-between" alignItems="center">
+              <Box>
+                <Text fontSize="sm" color="gray.600" mb={1}>
+                  合計売上
+                </Text>
+                <Text fontSize="3xl" fontWeight="bold" color="gray.800">
+                  ¥{totalRevenue.toLocaleString()}
+                </Text>
+              </Box>
+
+              <Badge
+                colorScheme="blue"
+                fontSize="lg"
+                px={4}
+                py={2}
+                borderRadius="full"
+              >
+                {toggleArray.length}台
+              </Badge>
+            </Flex>
+          </Box>
+
+          <Table.Root
+            size="md"
+            variant="outline"
+            borderRadius="lg"
+            overflow="hidden"
+          >
+            <Table.Header bg="gray.50">
+              <Table.Row>
+                <Table.ColumnHeader
+                  fontWeight="bold"
+                  fontSize="sm"
+                  color="gray.700"
+                >
+                  設備
+                </Table.ColumnHeader>
+                <Table.ColumnHeader
+                  fontWeight="bold"
+                  fontSize="sm"
+                  color="gray.700"
+                  textAlign="right"
+                >
+                  売上(×100)
+                </Table.ColumnHeader>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {toggleArray.map((item) => (
+                <Table.Row
+                  key={item.id}
+                  _hover={{ bg: "gray.50" }}
+                  transition="background 0.2s"
+                >
+                  <Table.Cell py={4}>
+                    <Flex alignItems="center" gap={3}>
+                      <Text fontWeight="semibold" color="gray.800">
+                        {item.machine}
+                      </Text>
+                      {item.editing && <Badge fontSize="xs">編集中...</Badge>}
+                      {item.sending && <Badge fontSize="xs">編集済</Badge>}
+                    </Flex>
+                  </Table.Cell>
+                  <Table.Cell textAlign="right">
+                    <Editable.Root
+                      defaultValue={item.funds.toString()}
+                      submitMode="enter"
+                      onValueChange={(e) => editAbleForm(item.id, e, "change")}
+                      onValueRevert={(e) => editAbleForm(item.id, e, "reset")}
+                      onValueCommit={(e) => editAbleForm(item.id, e, "submit")}
+                    >
+                      <Flex
+                        alignItems="center"
+                        justifyContent="flex-end"
+                        gap={2}
+                      >
+                        <Editable.Preview
+                          fontWeight="semibold"
+                          fontSize="lg"
+                          px={3}
+                          py={1}
+                          borderRadius="md"
+                          _hover={{ bg: "gray.100" }}
+                        />
+                        <Editable.Input
+                          w="50px"
+                          textAlign="left"
+                          fontSize="16px"
+                          fontWeight="semibold"
+                          onFocus={moveCursorToEnd}
+                        />
+                        <Editable.Control>
+                          <Editable.EditTrigger asChild>
+                            <IconButton variant="ghost" size="sm">
+                              <LuPencilLine />
+                            </IconButton>
+                          </Editable.EditTrigger>
+                          <Editable.CancelTrigger asChild>
+                            <IconButton variant="outline" size="sm">
+                              <LuX />
+                            </IconButton>
+                          </Editable.CancelTrigger>
+                          <Editable.SubmitTrigger asChild>
+                            <IconButton variant="solid" size="sm">
+                              <LuCheck />
+                            </IconButton>
+                          </Editable.SubmitTrigger>
+                        </Editable.Control>
+                      </Flex>
+                    </Editable.Root>
+                  </Table.Cell>
+                </Table.Row>
+              ))}
+              <Table.Row bg="blue.50" fontWeight="bold">
+                <Table.Cell py={4}>
+                  <Text fontSize="lg" fontWeight="bold" color="gray.800">
+                    合計
+                  </Text>
+                </Table.Cell>
+                <Table.Cell textAlign="right">
+                  <Text fontSize="xl" fontWeight="bold" color="blue.600">
+                    ¥{totalRevenue.toLocaleString()}
+                  </Text>
+                </Table.Cell>
+              </Table.Row>
+            </Table.Body>
+          </Table.Root>
+        </>
+      ) : (
+        <Box
+          mb={6}
+          p={5}
+          bg="gradient-to-r"
+          gradientFrom="blue.50"
+          gradientTo="purple.50"
+          borderRadius="xl"
+          border="1px solid"
+          borderColor="blue.100"
+        >
           <Box>
             <Text fontSize="sm" color="gray.600" mb={1}>
               合計売上
             </Text>
-            <Text fontSize="3xl" fontWeight="bold" color="gray.800">
-              ¥{totalRevenue.toLocaleString()}
-            </Text>
-          </Box>
-          <Badge
-            colorScheme="blue"
-            fontSize="lg"
-            px={4}
-            py={2}
-            borderRadius="full"
-          >
-            {toggleArray.length}台
-          </Badge>
-        </Flex>
-      </Box>
-
-      <Table.Root
-        size="md"
-        variant="outline"
-        borderRadius="lg"
-        overflow="hidden"
-      >
-        <Table.Header bg="gray.50">
-          <Table.Row>
-            <Table.ColumnHeader
-              fontWeight="bold"
-              fontSize="sm"
-              color="gray.700"
+            <Editable.Root
+              defaultValue={totalFunds.toString()}
+              submitMode="enter"
+              onValueChange={handleTotalFundsChange}
+              onValueRevert={handleTotalFundsRevert}
+              onValueCommit={handleTotalFundsCommit}
             >
-              設備
-            </Table.ColumnHeader>
-            <Table.ColumnHeader
-              fontWeight="bold"
-              fontSize="sm"
-              color="gray.700"
-              textAlign="right"
-            >
-              売上(×100)
-            </Table.ColumnHeader>
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
-          {toggleArray.map((item) => (
-            <Table.Row
-              key={item.id}
-              _hover={{ bg: "gray.50" }}
-              transition="background 0.2s"
-            >
-              <Table.Cell py={4}>
-                <Flex alignItems="center" gap={3}>
-                  <Text fontWeight="semibold" color="gray.800">
-                    {item.machine}
-                  </Text>
-                  {item.editing && (
-                    <Badge colorScheme="yellow" fontSize="xs">
-                      編集中...
-                    </Badge>
-                  )}
-                  {item.sending && (
-                    <Badge colorScheme="green" fontSize="xs">
-                      編集済
-                    </Badge>
-                  )}
-                </Flex>
-              </Table.Cell>
-              <Table.Cell textAlign="right">
-                <Editable.Root
-                  defaultValue={item.funds.toString()}
-                  submitMode="enter"
-                  onValueChange={(e) => editAbleForm(item.id, e, "change")}
-                  onValueRevert={(e) => editAbleForm(item.id, e, "reset")}
-                  onValueCommit={(e) => editAbleForm(item.id, e, "submit")}
-                  onInteractOutside={(e) =>
-                    editAbleForm(item.id, e, "outPoint")
-                  }
+              <Flex alignItems="center" gap={2}>
+                <Editable.Preview
+                  fontSize="3xl"
+                  fontWeight="bold"
+                  color="gray.800"
+                  px={3}
+                  py={1}
+                  borderRadius="md"
+                  _hover={{ bg: "gray.100" }}
                 >
-                  <Flex alignItems="center" justifyContent="flex-end" gap={2}>
-                    <Editable.Preview
-                      fontWeight="semibold"
-                      fontSize="lg"
-                      px={3}
-                      py={1}
-                      borderRadius="md"
-                      _hover={{ bg: "gray.100" }}
-                    />
-                    <Editable.Input
-                      w="50px"
-                      textAlign="left"
-                      fontSize="lg"
-                      fontWeight="semibold"
-                    />
-                    <Editable.Control>
-                      <Editable.EditTrigger asChild>
-                        <IconButton
-                          variant="ghost"
-                          size="sm"
-                          colorScheme="blue"
-                        >
-                          <LuPencilLine />
-                        </IconButton>
-                      </Editable.EditTrigger>
-                      <Editable.CancelTrigger asChild>
-                        <IconButton
-                          variant="outline"
-                          size="sm"
-                          colorScheme="red"
-                        >
-                          <LuX />
-                        </IconButton>
-                      </Editable.CancelTrigger>
-                      <Editable.SubmitTrigger asChild>
-                        <IconButton
-                          variant="solid"
-                          size="sm"
-                          colorScheme="green"
-                        >
-                          <LuCheck />
-                        </IconButton>
-                      </Editable.SubmitTrigger>
-                    </Editable.Control>
-                  </Flex>
-                </Editable.Root>
-              </Table.Cell>
-            </Table.Row>
-          ))}
-          <Table.Row bg="blue.50" fontWeight="bold">
-            <Table.Cell py={4}>
-              <Text fontSize="lg" fontWeight="bold" color="gray.800">
-                合計
-              </Text>
-            </Table.Cell>
-            <Table.Cell textAlign="right">
-              <Text fontSize="xl" fontWeight="bold" color="blue.600">
-                ¥{totalRevenue.toLocaleString()}
-              </Text>
-            </Table.Cell>
-          </Table.Row>
-        </Table.Body>
-      </Table.Root>
-
-      <form onSubmit={onSubmit}>
-        <Box mt={6}>
-          <AlertDialog
-            target={`${item.laundryName}店(${createNowData(item.date)})`}
-            deleteAction={deleteAction}
-          />
+                  ¥{totalFunds.toLocaleString()}
+                </Editable.Preview>
+                <Editable.Input
+                  w="150px"
+                  fontSize="3xl"
+                  fontWeight="bold"
+                  color="gray.800"
+                  onFocus={moveCursorToEnd}
+                />
+                <Editable.Control>
+                  <Editable.EditTrigger asChild>
+                    <IconButton variant="ghost" size="sm">
+                      <LuPencilLine />
+                    </IconButton>
+                  </Editable.EditTrigger>
+                  <Editable.CancelTrigger asChild>
+                    <IconButton variant="outline" size="sm">
+                      <LuX />
+                    </IconButton>
+                  </Editable.CancelTrigger>
+                  <Editable.SubmitTrigger asChild>
+                    <IconButton variant="solid" size="sm">
+                      <LuCheck />
+                    </IconButton>
+                  </Editable.SubmitTrigger>
+                </Editable.Control>
+              </Flex>
+            </Editable.Root>
+          </Box>
         </Box>
-      </form>
+      )}
+
+      <Box mt={6}>
+        <AlertDialog
+          id={item.id}
+          target={`${item.laundryName}店(${createNowData(item.date)})`}
+          onRowClick={onRowClick}
+          setOpen={setOpen}
+          setMsg={setMsg}
+        />
+      </Box>
     </Box>
   );
 };

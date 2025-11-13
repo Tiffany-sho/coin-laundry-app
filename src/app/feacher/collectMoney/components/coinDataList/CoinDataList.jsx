@@ -15,6 +15,7 @@ import {
   VStack,
   HStack,
   Button,
+  Table,
 } from "@chakra-ui/react";
 import { toaster } from "@/components/ui/toaster";
 import MoneyDataTable from "@/app/feacher/collectMoney/components/coinDataList/CoinDataTable";
@@ -76,13 +77,9 @@ const MoneyDataList = ({ valiant, coinData }) => {
     }
   }, [coinData]);
 
-  const totalRevenue =
-    coinData.reduce((accumulator, current) => {
-      const summary = current.fundsArray.reduce((accumulator, currentValue) => {
-        return accumulator + parseInt(currentValue.funds);
-      }, 0);
-      return accumulator + summary;
-    }, 0) * 100;
+  const totalRevenue = coinData.reduce((accumulator, current) => {
+    return accumulator + current.totalFunds;
+  }, 0);
 
   return (
     <Box
@@ -225,12 +222,43 @@ const MoneyDataList = ({ valiant, coinData }) => {
                   boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)",
                 }}
               >
+                <Table.Root size="md" interactive variant="line">
+                  <Table.Header bg="gray.50">
+                    <Table.Row>
+                      <Table.ColumnHeader
+                        fontWeight="bold"
+                        fontSize="md"
+                        color="gray.700"
+                        py={4}
+                      >
+                        店舗
+                      </Table.ColumnHeader>
+                      <Table.ColumnHeader
+                        fontWeight="bold"
+                        fontSize="md"
+                        color="gray.700"
+                        textAlign="right"
+                      >
+                        合計売上
+                      </Table.ColumnHeader>
+                      <Table.ColumnHeader
+                        fontWeight="bold"
+                        fontSize="md"
+                        color="gray.700"
+                        textAlign="right"
+                      >
+                        記録日
+                      </Table.ColumnHeader>
+                    </Table.Row>
+                  </Table.Header>
+                </Table.Root>
+
                 <Drawer.Root open={open} onOpenChange={(e) => setOpen(e.open)}>
                   <Drawer.Trigger asChild>
                     <Box>
                       <MoneyDataTable
                         items={orderData}
-                        selectedItemId={selectedItem?._id}
+                        selectedItemId={selectedItem?.id}
                         onRowClick={setSelectedItem}
                         open={open}
                       />

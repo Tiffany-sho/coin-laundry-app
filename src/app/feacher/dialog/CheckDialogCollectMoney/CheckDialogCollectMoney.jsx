@@ -6,13 +6,87 @@ import {
   Portal,
   Text,
   Flex,
-  Image,
   Spinner,
 } from "@chakra-ui/react";
 import styles from "./CheckDialogCollectMoney.module.css";
-import { createNowData } from "@/date";
 
-const CheckDialog = ({ postHander, isLoading, data, epoc }) => {
+import { useState } from "react";
+import { redirect } from "next/navigation";
+import { createNowData } from "@/date";
+import { createData } from "@/app/collectMoney/action";
+
+const CheckDialog = ({
+  coinLaundry,
+  checked,
+  moneyTotal,
+  machinesAndFunds,
+  epoc,
+  setMsg,
+}) => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const postHander = async (event) => {
+    setIsLoading(true);
+    setMsg("");
+    event.preventDefault();
+
+    const postArray = checked
+      ? machinesAndFunds.map((machineAndFunds) => {
+          if (!machineAndFunds.funds && machineAndFunds.weight) {
+            return {
+              id: machineAndFunds.machine.id,
+              name: machineAndFunds.machine.name,
+              funds: Math.ceil(machineAndFunds.weight / coinWeight) || 0,
+            };
+          }
+          return {
+            id: machineAndFunds.machine.id,
+            name: machineAndFunds.machine.name,
+            funds: machineAndFunds.funds || 0,
+          };
+        })
+      : [];
+
+    const totalFunds = checked
+      ? postArray.reduce((accumulator, currentValue) => {
+          return accumulator + parseInt(currentValue.funds);
+        }, 0) * 100
+      : moneyTotal || 0;
+
+    const formData = {
+      store: coinLaundry.store,
+      storeId: coinLaundry.id,
+      date: epoc,
+      fundsArray: postArray,
+      totalFunds,
+    };
+
+    let responseData;
+    try {
+      const { data, error } = await createData(formData);
+
+      responseData = data;
+      if (error) {
+        throw new Error(error.message || "データの作成に失敗しました");
+      }
+    } catch (error) {
+      console.error("API Error:", error);
+      setMsg("API Error:", error);
+    }
+
+    sessionStorage.setItem(
+      "toast",
+      JSON.stringify({
+        description: `${responseData.laundryName}店の集金データの登録が完了しました。`,
+        type: "success",
+        closable: true,
+      })
+    );
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 10000);
+    redirect(`/coinLaundry/${responseData.laundryId}/coinDataList`);
+  };
   return (
     <Dialog.Root
       role="alertdialog"
@@ -44,15 +118,21 @@ const CheckDialog = ({ postHander, isLoading, data, epoc }) => {
                 <Text className={styles.infoLabel}>集金データ</Text>
 
                 <Box as="ul" className={styles.machineList}>
-                  {data.map((item) => (
-                    <li key={item.machine.id} className={styles.machineItem}>
-                      <Flex justifyContent="space-between">
-                        <div>
-                          {item.machine.name}:{item.funds}
-                        </div>
-                      </Flex>
-                    </li>
-                  ))}
+                  {checked ? (
+                    machinesAndFunds.map((item) => (
+                      <li key={item.machine.id} className={styles.machineItem}>
+                        <Flex justifyContent="space-between">
+                          <div>
+                            {item.machine.name}:{item.funds}
+                          </div>
+                        </Flex>
+                      </li>
+                    ))
+                  ) : (
+                    <Flex justifyContent="space-between">
+                      <div>合計金額:{moneyTotal}</div>
+                    </Flex>
+                  )}
                 </Box>
               </Box>
             </Dialog.Body>

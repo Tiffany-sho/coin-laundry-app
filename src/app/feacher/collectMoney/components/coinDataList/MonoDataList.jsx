@@ -10,6 +10,12 @@ const MonoDataList = ({ id, valiant }) => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const [orderAmount, setOrderAmount] = useState("date");
+  const [upOrder, setupOrder] = useState(true);
+  const [page, setPage] = useState(0);
+
+  const PAGE_SIZE = 20;
   const supabase = createClient();
 
   useEffect(() => {
@@ -19,11 +25,16 @@ const MonoDataList = ({ id, valiant }) => {
     }
 
     const fetchData = async () => {
+      const from = page * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+
       setLoading(true);
       const { data: initialData, error: initialError } = await supabase
         .from("collect_funds")
         .select("*")
-        .eq("laundryId", id);
+        .eq("laundryId", id)
+        .order(orderAmount, { ascending: upOrder })
+        .range(from, to);
 
       if (initialError) {
         setError(initialError.message);

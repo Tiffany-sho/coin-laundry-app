@@ -64,13 +64,12 @@ const MonoDataTotal = ({ id }) => {
     );
   }
 
-  const totalRevenue =
-    data.reduce((accumulator, current) => {
-      const summary = current.fundsArray.reduce((accumulator, currentValue) => {
-        return accumulator + parseInt(currentValue.funds);
-      }, 0);
-      return accumulator + summary;
-    }, 0) * 100;
+  const totalRevenue = data.reduce((accumulator, current) => {
+    const summary = current.fundsArray.reduce((accumulator, currentValue) => {
+      return accumulator + parseInt(currentValue.funds);
+    }, 0);
+    return accumulator + summary;
+  }, 0);
 
   return (
     <VStack align="stretch" gap={1}>

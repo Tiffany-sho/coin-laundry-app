@@ -37,9 +37,7 @@ const CustomTooltip = ({ active, payload, label }) => {
     return null;
   }
 
-  const total =
-    payload.reduce((sum, entry) => sum + (entry.value || 0), 0) * 100;
-
+  const total = payload.reduce((sum, entry) => sum + (entry.value || 0), 0);
   return (
     <Box
       bg="white"
@@ -118,27 +116,14 @@ const ManyCoinDataChart = ({ data }) => {
         const obj = {
           month,
         };
-        obj[num.laundryName] = num.fundsArray.reduce(
-          (accumulator, currentValue) => {
-            return accumulator + parseInt(currentValue.funds);
-          },
-          0
-        );
+        obj[num.laundryName] = num.totalFunds;
         acc.push(obj);
       } else {
         if (existsObj[num.laundryName]) {
           existsObj[num.laundryName] =
-            existsObj[num.laundryName] +
-            num.fundsArray.reduce((accumulator, currentValue) => {
-              return accumulator + parseInt(currentValue.funds);
-            }, 0);
+            existsObj[num.laundryName] + num.totalFunds;
         } else {
-          existsObj[num.laundryName] = num.fundsArray.reduce(
-            (accumulator, currentValue) => {
-              return accumulator + parseInt(currentValue.funds);
-            },
-            0
-          );
+          existsObj[num.laundryName] = num.totalFunds;
         }
       }
       return acc;

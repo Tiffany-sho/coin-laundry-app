@@ -16,9 +16,7 @@ const MonoCoinDataChart = ({ data }) => {
   useEffect(() => {
     const newDataList = [...data].sort((a, b) => a.date - b.date);
     const dataList = newDataList.map((item) => {
-      const total = item.fundsArray.reduce((accumulator, currentValue) => {
-        return accumulator + parseInt(currentValue.funds);
-      }, 0);
+      const total = item.totalFunds;
       const newObj = {
         name: createNowData(item.date),
         uv: total,

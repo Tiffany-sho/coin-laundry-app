@@ -5,24 +5,14 @@ import { createClient } from "@/utils/supabase/server";
 export async function createData(formData) {
   const supabase = await createClient();
 
-  const fundsAndFundsArray = formData.fundsArray.map((item) => {
-    if (!item.funds) {
-      item.funds = 0;
-    }
-    const newObj = {
-      id: item.machine.id,
-      name: item.machine.name,
-      funds: item.funds,
-    };
-    return newObj;
-  });
   const { data, error } = await supabase
     .from("collect_funds")
     .insert({
       laundryId: formData.storeId,
       laundryName: formData.store,
       date: formData.date,
-      fundsArray: fundsAndFundsArray,
+      fundsArray: formData.fundsArray,
+      totalFunds: formData.totalFunds,
     })
     .select("laundryId,laundryName")
     .single();
@@ -33,13 +23,14 @@ export async function createData(formData) {
   return { data: data };
 }
 
-export async function updateData(formData, id) {
+export async function updateData(fundsArray, totalFunds, id) {
   const supabase = await createClient();
 
   const { error } = await supabase
     .from("collect_funds")
     .update({
-      fundsArray: formData,
+      fundsArray,
+      totalFunds,
     })
     .eq("id", id);
 

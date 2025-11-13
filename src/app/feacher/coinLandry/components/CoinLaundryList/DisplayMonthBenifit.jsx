@@ -52,33 +52,31 @@ const DisplayMonthBenifit = async ({ id }) => {
   const epocYearBeforeMonth = changeEpocFromBackYearMonth();
   const epocYearAfterMonth = changeEpocFromNextYearMonth();
 
-  const thisMonthBenefit =
-    data
-      .filter(
-        (item) => item.date >= epocYearMonth && item.date < epocYearAfterMonth
-      )
-      .reduce((accumulator, currentValue) => {
-        return (
-          accumulator +
-          currentValue.fundsArray.reduce((accumulator, currentValue) => {
-            return accumulator + currentValue.funds;
-          }, 0)
-        );
-      }, 0) * 100;
+  const thisMonthBenefit = data
+    .filter(
+      (item) => item.date >= epocYearMonth && item.date < epocYearAfterMonth
+    )
+    .reduce((accumulator, currentValue) => {
+      return (
+        accumulator +
+        currentValue.fundsArray.reduce((accumulator, currentValue) => {
+          return accumulator + currentValue.funds;
+        }, 0)
+      );
+    }, 0);
 
-  const lastMonthBenefit =
-    data
-      .filter(
-        (item) => item.date < epocYearMonth && item.date >= epocYearBeforeMonth
-      )
-      .reduce((accumulator, currentValue) => {
-        return (
-          accumulator +
-          currentValue.fundsArray.reduce((accumulator, currentValue) => {
-            return accumulator + currentValue.funds;
-          }, 0)
-        );
-      }, 0) * 100;
+  const lastMonthBenefit = data
+    .filter(
+      (item) => item.date < epocYearMonth && item.date >= epocYearBeforeMonth
+    )
+    .reduce((accumulator, currentValue) => {
+      return (
+        accumulator +
+        currentValue.fundsArray.reduce((accumulator, currentValue) => {
+          return accumulator + currentValue.funds;
+        }, 0)
+      );
+    }, 0);
 
   const lastestDate = data.reduce((max, current) => {
     return current.date > max ? current.date : max;
