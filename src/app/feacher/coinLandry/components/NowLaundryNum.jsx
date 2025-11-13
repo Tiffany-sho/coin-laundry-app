@@ -95,7 +95,7 @@ const NowLaundryNum = ({ id }) => {
       >
         <VStack>
           <Spinner size="sm" color="green.500" />
-          <Text fontSize="xs" color="gray.500">
+          <Text fontSize="xs" color="green.500">
             読み込み中...
           </Text>
         </VStack>
@@ -146,7 +146,7 @@ const NowLaundryNum = ({ id }) => {
         >
           <VStack align="stretch" gap={2}>
             <HStack justify="space-between">
-              <Text fontSize="xs" color="gray.600" fontWeight="semibold">
+              <Text fontSize="xs" color="green.600" fontWeight="semibold">
                 在庫状況
               </Text>
               <Box
@@ -194,7 +194,9 @@ const NowLaundryNum = ({ id }) => {
             <Text
               fontSize="xs"
               color={
-                data.detergent < 2 || data.softener < 2 ? "red.600" : "gray.600"
+                data.detergent < 2 || data.softener < 2
+                  ? "red.600"
+                  : "green.600"
               }
               fontWeight="medium"
               mt={1}
@@ -203,7 +205,7 @@ const NowLaundryNum = ({ id }) => {
                 ? " 在庫不足"
                 : " 在庫良好"}
             </Text>
-            <Text fontSize="2xs" color="gray.500" mt={1}>
+            <Text fontSize="2xs" color="green.500" mt={1}>
               タップして在庫編集
             </Text>
           </VStack>
@@ -236,7 +238,7 @@ const NowLaundryNum = ({ id }) => {
                 right={4}
                 bg="white"
                 borderRadius="full"
-                _hover={{ bg: "gray.100" }}
+                _hover={{ bg: "green.100" }}
               />
             </Dialog.CloseTrigger>
 
@@ -244,20 +246,20 @@ const NowLaundryNum = ({ id }) => {
               <VStack align="stretch" gap={6}>
                 <Box
                   p={4}
-                  bg="blue.50"
+                  bg="green.50"
                   borderRadius="lg"
                   border="1px solid"
-                  borderColor="blue.200"
+                  borderColor="green.200"
                 >
                   <VStack align="stretch" gap={3}>
-                    <Heading size="sm" color="blue.900">
+                    <Heading size="sm" color="green.900">
                       洗剤（ソープ）
                     </Heading>
                     <HStack justify="center" gap={4}>
                       <IconButton
                         variant="solid"
                         size="lg"
-                        colorScheme="blue"
+                        bg="green"
                         onClick={() =>
                           setDetergent((prev) => Math.max(0, prev - 1))
                         }
@@ -272,18 +274,22 @@ const NowLaundryNum = ({ id }) => {
                         py={4}
                         borderRadius="lg"
                         border="2px solid"
-                        borderColor="blue.300"
+                        borderColor="green.300"
                         minW="100px"
                         textAlign="center"
                       >
-                        <Text fontSize="3xl" fontWeight="bold" color="blue.900">
+                        <Text
+                          fontSize="3xl"
+                          fontWeight="bold"
+                          color="green.900"
+                        >
                           {detergent}
                         </Text>
                       </Box>
                       <IconButton
                         variant="solid"
                         size="lg"
-                        colorScheme="blue"
+                        bg="green"
                         onClick={() => setDetergent((prev) => prev + 1)}
                         borderRadius="full"
                       >
@@ -295,20 +301,20 @@ const NowLaundryNum = ({ id }) => {
 
                 <Box
                   p={4}
-                  bg="purple.50"
+                  bg="green.50"
                   borderRadius="lg"
                   border="1px solid"
-                  borderColor="purple.200"
+                  borderColor="green.200"
                 >
                   <VStack align="stretch" gap={3}>
-                    <Heading size="sm" color="purple.900">
+                    <Heading size="sm" color="green.900">
                       柔軟剤（ソフター）
                     </Heading>
                     <HStack justify="center" gap={4}>
                       <IconButton
                         variant="solid"
                         size="lg"
-                        colorScheme="purple"
+                        bg="green"
                         onClick={() =>
                           setSoftener((prev) => Math.max(0, prev - 1))
                         }
@@ -323,14 +329,14 @@ const NowLaundryNum = ({ id }) => {
                         py={4}
                         borderRadius="lg"
                         border="2px solid"
-                        borderColor="purple.300"
+                        borderColor="green.300"
                         minW="100px"
                         textAlign="center"
                       >
                         <Text
                           fontSize="3xl"
                           fontWeight="bold"
-                          color="purple.900"
+                          color="green.900"
                         >
                           {softener}
                         </Text>
@@ -338,7 +344,7 @@ const NowLaundryNum = ({ id }) => {
                       <IconButton
                         variant="solid"
                         size="lg"
-                        colorScheme="purple"
+                        bg="green"
                         onClick={() => setSoftener((prev) => prev + 1)}
                         borderRadius="full"
                       >
@@ -352,7 +358,7 @@ const NowLaundryNum = ({ id }) => {
 
             <Dialog.Footer
               borderTop="1px solid"
-              borderColor="gray.200"
+              borderColor="green.200"
               p={6}
               gap={3}
             >
@@ -364,7 +370,7 @@ const NowLaundryNum = ({ id }) => {
               <Dialog.ActionTrigger asChild>
                 <Button
                   size="lg"
-                  colorScheme="green"
+                  bg="green.500"
                   onClick={handleSave}
                   loading={isSaving}
                   borderRadius="full"

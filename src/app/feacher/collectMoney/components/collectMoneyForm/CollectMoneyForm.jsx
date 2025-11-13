@@ -1,26 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Button,
   Card,
-  HStack,
   Stack,
   Switch,
   Text,
+  Flex,
+  Badge,
+  HStack,
 } from "@chakra-ui/react";
 import Link from "next/link";
 import EpochTimeSelector from "../selectDate/SelectDate";
-import CheckDialog from "@/app/feacher/dialog/CheckDialogCollectMoney/CheckDialogCollectMoney";
+import CheckDialog from "@/app/feacher/dialog/CheckDialogCollectMoney";
 
 import MachineAndMoney from "./MachineAndMoney";
 import MoneyTotal from "./MoneyTotal";
+
+import { RiMoneyCnyCircleLine } from "react-icons/ri";
+import { MdDateRange } from "react-icons/md";
+import FixSwitch from "./FixSwitch";
+import { createClient } from "@/utils/supabase/client";
 
 const CollectMoneyForm = ({ coinLaundry }) => {
   const [epoc, setEpoc] = useState(Date.now());
   const [msg, setMsg] = useState("");
   const [checked, setChecked] = useState(false);
+  const [fixed, setFixed] = useState(null);
   const [machinesAndFunds, setMachinesAndFunds] = useState(() => {
     const initialValue = coinLaundry.machines.map((machine) => ({
       machine,
@@ -32,83 +40,211 @@ const CollectMoneyForm = ({ coinLaundry }) => {
   });
   const [moneyTotal, setMoneyTotal] = useState();
 
+  useEffect(() => {
+    const getUserFixed = async () => {
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("collectMethod")
+        .eq("id", user.id)
+        .single();
+
+      if (data && data.collectMethod !== null) {
+        setChecked(data.collectMethod);
+        setFixed(true);
+      } else {
+        setFixed(false);
+      }
+    };
+
+    getUserFixed();
+  }, []);
+
+  const toggleChangeMethod = (e) => {
+    const value = e.checked;
+    setChecked(value);
+
+    if (fixed) {
+      uploadProfilesMethod(value);
+    }
+  };
+
+  const toggleChangeFixed = (e) => {
+    const isFixed = e.checked;
+    setFixed(isFixed);
+    if (isFixed) {
+      uploadProfilesMethod(checked);
+    } else {
+      uploadProfilesMethod(null);
+    }
+  };
+
+  const uploadProfilesMethod = async (method) => {
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) return;
+
+    const { error } = await supabase
+      .from("profiles")
+      .update({ collectMethod: method })
+      .eq("id", user.id);
+  };
   return (
     <Box
       minH="100vh"
       display="flex"
       alignItems="center"
       justifyContent="center"
-      bg="gray.50"
       py={8}
       px={4}
     >
-      <Card.Root maxW="2xl" w="full" boxShadow="lg" borderRadius="lg">
-        <Card.Header
-          bg="gray.600"
-          color="white"
-          py={5}
-          px={6}
-          borderTopRadius="lg"
-        >
-          <Card.Title fontSize="xl" fontWeight="bold">
-            {coinLaundry.store}店
-          </Card.Title>
+      <Card.Root
+        maxW="3xl"
+        w="full"
+        boxShadow="xl"
+        borderRadius="2xl"
+        overflow="hidden"
+      >
+        <Card.Header color="white" py={6} px={8}>
+          <Flex justify="space-between" align="center">
+            <Card.Title fontSize="2xl" fontWeight="bold" color="gray.800">
+              {coinLaundry.store}店
+            </Card.Title>
+            <Badge
+              bg="white"
+              px={3}
+              py={1}
+              borderRadius="full"
+              fontWeight="bold"
+              fontSize="md"
+            >
+              集金登録
+            </Badge>
+          </Flex>
         </Card.Header>
 
-        <Card.Body py={6} px={6}>
-          <Stack gap={6} w="full">
+        <Card.Body py={8} px={8}>
+          <Stack gap={8} w="full">
             <Box
-              p={4}
-              bg="gray.50"
-              borderRadius="md"
-              borderWidth="1px"
+              p={5}
+              bg="white"
+              borderRadius="xl"
+              borderWidth="2px"
               borderColor="gray.200"
+              shadow="sm"
+              transition="all 0.2s"
+              _hover={{ borderColor: "blue.300", shadow: "md" }}
             >
+              <HStack mb={3}>
+                <MdDateRange size={24} />
+                <Text fontSize="sm" fontWeight="semibold" color="gray.600">
+                  集金日
+                </Text>
+              </HStack>
+
               <EpochTimeSelector epoc={epoc} setEpoc={setEpoc} />
             </Box>
-            <HStack>
-              <Switch.Root
-                checked={checked}
-                onCheckedChange={(e) => setChecked(e.checked)}
-              >
-                <Switch.HiddenInput />
-                <Switch.Control>
-                  <Switch.Thumb />
-                </Switch.Control>
-                <Switch.Label />
-              </Switch.Root>
-            </HStack>
-            <Text>{checked ? "機種別集金" : "まとめて集金"}</Text>
+
+            <Box
+              p={5}
+              bg="white"
+              borderRadius="xl"
+              borderWidth="2px"
+              borderColor="gray.200"
+              shadow="sm"
+            >
+              <Flex align="center" justify="space-between">
+                <Box>
+                  <Text fontSize="md" fontWeight="semibold" color="gray.700">
+                    {checked ? "機種別集金" : "まとめて集金"}
+                  </Text>
+                  <Text fontSize="sm" color="gray.500" mt={1}>
+                    {checked
+                      ? "各機種ごとに金額を入力します"
+                      : "合計金額のみを入力します"}
+                  </Text>
+                </Box>
+                <Stack>
+                  <Switch.Root
+                    checked={checked}
+                    onCheckedChange={toggleChangeMethod}
+                    size="lg"
+                  >
+                    <Switch.HiddenInput />
+                    <Switch.Control bg={checked ? "blue.500" : "gray.300"}>
+                      <Switch.Thumb />
+                    </Switch.Control>
+                  </Switch.Root>
+                  <FixSwitch
+                    toggleChangeFixed={toggleChangeFixed}
+                    fixed={fixed}
+                  />
+                </Stack>
+              </Flex>
+            </Box>
+
+            <Box>
+              {checked ? (
+                <MachineAndMoney
+                  machinesAndFunds={machinesAndFunds}
+                  setMachinesAndFunds={setMachinesAndFunds}
+                />
+              ) : (
+                <Box
+                  p={6}
+                  bg="white"
+                  borderRadius="xl"
+                  borderWidth="2px"
+                  borderColor="gray.200"
+                  shadow="sm"
+                >
+                  <HStack mb={6}>
+                    <RiMoneyCnyCircleLine size={24} />
+                    <Text fontSize="md" fontWeight="semibold" color="gray.600">
+                      合計金額
+                    </Text>
+                  </HStack>
+
+                  <MoneyTotal
+                    moneyTotal={moneyTotal}
+                    setMoneyTotal={setMoneyTotal}
+                  />
+                </Box>
+              )}
+            </Box>
           </Stack>
-          {checked ? (
-            <MachineAndMoney
-              machinesAndFunds={machinesAndFunds}
-              setMachinesAndFunds={setMachinesAndFunds}
-            />
-          ) : (
-            <MoneyTotal moneyTotal={moneyTotal} setMoneyTotal={setMoneyTotal} />
-          )}
         </Card.Body>
 
         <Card.Footer
           justifyContent="flex-end"
           gap={3}
-          px={6}
-          pb={6}
-          pt={4}
-          borderTop="1px"
-          borderColor="gray.200"
+          px={8}
+          pb={8}
+          pt={6}
+          borderTop="2px"
+          borderColor="gray.100"
+          bg="gray.50"
         >
           <Link href={`/coinLaundry/${coinLaundry.id}`}>
             <Button
               variant="outline"
               size="lg"
-              colorScheme="gray"
-              fontWeight="medium"
-              _focus={{
-                borderColor: "blue.500",
-                boxShadow: "0 0 0 1px var(--chakra-colors-blue-500)",
-                outline: "none",
+              bg="white"
+              color="gray.700"
+              fontWeight="semibold"
+              px={8}
+              borderWidth="2px"
+              borderColor="gray.300"
+              _hover={{
+                bg: "gray.100",
+                borderColor: "gray.400",
               }}
             >
               キャンセル
@@ -126,19 +262,21 @@ const CollectMoneyForm = ({ coinLaundry }) => {
         </Card.Footer>
 
         {msg && (
-          <Box px={6} pb={6}>
-            <Text
-              color="red.600"
-              fontSize="sm"
-              fontWeight="medium"
-              p={3}
+          <Box px={8} pb={8}>
+            <Flex
+              align="center"
+              gap={3}
+              p={4}
               bg="red.50"
-              borderRadius="md"
-              borderWidth="1px"
+              borderRadius="lg"
+              borderWidth="2px"
               borderColor="red.200"
             >
-              {msg}
-            </Text>
+              <Text fontSize="lg">⚠️</Text>
+              <Text color="red.700" fontSize="sm" fontWeight="medium">
+                {msg}
+              </Text>
+            </Flex>
           </Box>
         )}
       </Card.Root>

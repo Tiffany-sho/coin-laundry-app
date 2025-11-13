@@ -110,7 +110,7 @@ const DisplayMonthBenifit = async ({ id }) => {
           </Text>
           {!isEqual && (
             <Badge
-              colorScheme={isIncrease ? "green" : "red"}
+              bg={isIncrease ? "green.200" : "red.200"}
               fontSize="xs"
               px={2}
               py={1}
@@ -130,7 +130,7 @@ const DisplayMonthBenifit = async ({ id }) => {
           )}
           {isEqual && (
             <Badge
-              colorScheme="gray"
+              bg="gray.200"
               fontSize="xs"
               px={2}
               py={1}
@@ -202,7 +202,6 @@ const DisplayMonthBenifit = async ({ id }) => {
         </VStack>
       </Box>
 
-      {/* 増減額の表示 */}
       {!isEqual && (
         <Box
           p={2}
@@ -223,7 +222,6 @@ const DisplayMonthBenifit = async ({ id }) => {
         </Box>
       )}
 
-      {/* 最終回収日 */}
       <Text fontSize="xs" color="gray.500" mt={1}>
         最終回収: {createNowData(lastestDate)}
       </Text>

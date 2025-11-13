@@ -48,11 +48,7 @@ const Page = async () => {
 
   return (
     <>
-      <Box
-        minH="100vh"
-        bg="linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)"
-        py={8}
-      >
+      <Box minH="100vh" py={8}>
         <Container maxW="1400px" px={{ base: 4, md: 6 }}>
           <VStack gap={6} mb={8} align="stretch">
             <Flex

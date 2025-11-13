@@ -221,9 +221,6 @@ const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
           <Box
             mb={6}
             p={5}
-            bg="gradient-to-r"
-            gradientFrom="blue.50"
-            gradientTo="purple.50"
             borderRadius="xl"
             border="1px solid"
             borderColor="blue.100"
@@ -239,7 +236,7 @@ const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
               </Box>
 
               <Badge
-                colorScheme="blue"
+                bg="blue.200"
                 fontSize="lg"
                 px={4}
                 py={2}
@@ -362,9 +359,6 @@ const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
         <Box
           mb={6}
           p={5}
-          bg="gradient-to-r"
-          gradientFrom="blue.50"
-          gradientTo="purple.50"
           borderRadius="xl"
           border="1px solid"
           borderColor="blue.100"

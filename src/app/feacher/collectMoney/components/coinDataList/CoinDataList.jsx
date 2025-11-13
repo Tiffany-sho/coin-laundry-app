@@ -82,12 +82,7 @@ const MoneyDataList = ({ valiant, coinData }) => {
   }, 0);
 
   return (
-    <Box
-      minH="100vh"
-      bg="linear-gradient(135deg, #ffffff 0%, #f7fafc 50%, #edf2f7 100%)"
-      py={{ base: 6, md: 12 }}
-      px={{ base: 3, md: 4 }}
-    >
+    <Box minH="100vh" py={{ base: 6, md: 12 }} px={{ base: 3, md: 4 }}>
       <Container maxW="1400px" px={0}>
         <Card.Root
           size="lg"
@@ -97,7 +92,6 @@ const MoneyDataList = ({ valiant, coinData }) => {
           bg="white"
         >
           <Card.Header
-            bg="linear-gradient(135deg, #ffffff 0%, #f7fafc 100%)"
             p={{ base: 6, md: 8 }}
             borderBottom="1px solid"
             borderColor="gray.200"
@@ -170,7 +164,7 @@ const MoneyDataList = ({ valiant, coinData }) => {
                       {totalRevenue.toLocaleString()}
                     </Text>
                     <Badge
-                      colorScheme="gray"
+                      bg="gray.200"
                       fontSize="md"
                       px={3}
                       py={1}
@@ -195,10 +189,7 @@ const MoneyDataList = ({ valiant, coinData }) => {
               </Box>
             </VStack>
           </Card.Header>
-          <Card.Body
-            p={{ base: 4, md: 6 }}
-            bg="linear-gradient(to bottom, #fafafa, #ffffff)"
-          >
+          <Card.Body p={{ base: 4, md: 6 }}>
             <VStack align="stretch" gap={4}>
               <Box
                 p={4}

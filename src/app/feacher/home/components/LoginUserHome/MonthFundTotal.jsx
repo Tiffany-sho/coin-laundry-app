@@ -17,7 +17,6 @@ const getData = async (id) => {
     .gt("date", epocYearMonth)
     .lt("date", epocYearNextMonth);
 
-  console.log(data);
   if (error) {
     return {
       error: error.message,

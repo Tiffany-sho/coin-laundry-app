@@ -45,12 +45,7 @@ const MonoCard = ({ coinLaundry }) => {
   }, []);
 
   return (
-    <Box
-      minH="100vh"
-      bg="linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)"
-      py={{ base: 6, md: 10 }}
-      px={{ base: 4, md: 6 }}
-    >
+    <Box minH="100vh" py={{ base: 6, md: 10 }} px={{ base: 4, md: 6 }}>
       <Container maxW="900px" px={0}>
         <Box
           bg="white"
@@ -202,7 +197,7 @@ const MonoCard = ({ coinLaundry }) => {
                                   </Heading>
                                   <HStack gap={2} flexWrap="wrap">
                                     <Badge
-                                      colorScheme="blue"
+                                      bg="blue"
                                       fontSize="sm"
                                       px={3}
                                       py={1}
@@ -212,7 +207,7 @@ const MonoCard = ({ coinLaundry }) => {
                                     </Badge>
                                     {machine.comment && (
                                       <Badge
-                                        colorScheme="green"
+                                        bg="green"
                                         fontSize="sm"
                                         px={3}
                                         py={1}
