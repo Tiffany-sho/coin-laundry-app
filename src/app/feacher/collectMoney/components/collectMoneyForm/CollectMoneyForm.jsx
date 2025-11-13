@@ -11,7 +11,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import Link from "next/link";
-import EpochTimeSelector from "./selectDate/SelectDate";
+import EpochTimeSelector from "../selectDate/SelectDate";
 import CheckDialog from "@/app/feacher/dialog/CheckDialogCollectMoney/CheckDialogCollectMoney";
 
 import MachineAndMoney from "./MachineAndMoney";
@@ -64,7 +64,7 @@ const CollectMoneyForm = ({ coinLaundry }) => {
               borderWidth="1px"
               borderColor="gray.200"
             >
-              <EpochTimeSelector setEpoc={setEpoc} />
+              <EpochTimeSelector epoc={epoc} setEpoc={setEpoc} />
             </Box>
             <HStack>
               <Switch.Root

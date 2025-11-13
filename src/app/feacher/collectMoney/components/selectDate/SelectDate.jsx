@@ -2,20 +2,22 @@ import { useEffect, useState } from "react";
 import styles from "./SelectDate.module.css";
 import { getEpochTimeInSeconds } from "@/date";
 
-export default function EpochTimeSelector({ setEpoc }) {
-  const now = new Date();
-  const [year, setYear] = useState(now.getFullYear());
-  const [month, setMonth] = useState(now.getMonth() + 1);
-  const [day, setDay] = useState(now.getDate());
+export default function EpochTimeSelector({
+  epoc,
+  setEpoc,
+  submitFunc = () => {},
+}) {
+  const date = new Date(epoc);
+  const [year, setYear] = useState(date.getFullYear());
+  const [month, setMonth] = useState(date.getMonth() + 1);
+  const [day, setDay] = useState(date.getDate());
   const [isEditing, setIsEditing] = useState(false);
 
   const years = Array.from(
     { length: 61 },
-    (_, i) => now.getFullYear() - 50 + i
+    (_, i) => date.getFullYear() - 50 + i
   );
-
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
-
   const daysInMonth = new Date(year, month, 0).getDate();
   const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
@@ -38,6 +40,7 @@ export default function EpochTimeSelector({ setEpoc }) {
     setIsEditing(false);
     const epocTime = getEpochTimeInSeconds(year, month, day);
     setEpoc(epocTime);
+    submitFunc(epocTime);
   };
   return (
     <div>

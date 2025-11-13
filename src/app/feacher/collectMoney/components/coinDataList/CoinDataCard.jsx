@@ -15,11 +15,13 @@ import { toaster } from "@/components/ui/toaster";
 import { LuCheck, LuPencilLine, LuX } from "react-icons/lu";
 import { useEffect, useState } from "react";
 import AlertDialog from "@/app/feacher/dialog/AlertDialog";
-import { updateData } from "@/app/collectMoney/action";
+import { updateData, updateDate } from "@/app/collectMoney/action";
+import EpochTimeSelector from "../selectDate/SelectDate";
 
 const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
   const [toggleArray, setToggleArray] = useState([]);
   const [totalFunds, setTotalFunds] = useState(item.totalFunds);
+  const [date, setDate] = useState(item.date);
   const [msg, setMsg] = useState("");
 
   useEffect(() => {
@@ -143,6 +145,27 @@ const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
     }
   };
 
+  const submitDate = async (date) => {
+    try {
+      const result = await updateDate(date, item.id);
+
+      if (result.error) {
+        throw new Error(result.error.message || "編集に失敗しました");
+      }
+      toaster.create({
+        description: `${item.laundryName}店(${createNowData(
+          result.data.date
+        )})に日付を更新しました`,
+        type: "success",
+        closable: true,
+      });
+      setMsg("");
+    } catch (error) {
+      setMsg(error.message);
+      showToast("error", false);
+    }
+  };
+
   const handleTotalFundsChange = (e) => {
     const input = e.value;
     if (validateNumberInput(input)) {
@@ -187,6 +210,11 @@ const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
           <Alert.Description>{msg}</Alert.Description>
         </Alert.Root>
       )}
+      <EpochTimeSelector
+        epoc={date}
+        setEpoc={setDate}
+        submitFunc={submitDate}
+      />
 
       {item.fundsArray.length > 0 ? (
         <>

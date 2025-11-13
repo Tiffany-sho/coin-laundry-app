@@ -300,13 +300,6 @@ const MoneyDataList = ({ valiant, coinData }) => {
                                     {selectedItem.laundryName}店
                                   </Link>
                                 )}
-                                <Text
-                                  fontSize="sm"
-                                  color="gray.600"
-                                  fontWeight="medium"
-                                >
-                                  {createNowData(selectedItem.date)}
-                                </Text>
                                 <Box mt={2}>
                                   <DataClipBoard data={selectedItem} />
                                 </Box>

@@ -37,6 +37,24 @@ export async function updateData(fundsArray, totalFunds, id) {
   return { error: error };
 }
 
+export async function updateDate(date, id) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("collect_funds")
+    .update({
+      date,
+    })
+    .eq("id", id)
+    .select("date")
+    .single();
+
+  if (error) {
+    return { error: error };
+  }
+  return { data: data };
+}
+
 export async function deleteData(id) {
   const supabase = await createClient();
 
