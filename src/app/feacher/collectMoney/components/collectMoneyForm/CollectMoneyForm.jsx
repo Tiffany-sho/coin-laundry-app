@@ -21,6 +21,8 @@ import MoneyTotal from "./MoneyTotal";
 
 import { RiMoneyCnyCircleLine } from "react-icons/ri";
 import { MdDateRange } from "react-icons/md";
+import { MdOutlineErrorOutline } from "react-icons/md";
+
 import FixSwitch from "./FixSwitch";
 import { createClient } from "@/utils/supabase/client";
 
@@ -96,6 +98,7 @@ const CollectMoneyForm = ({ coinLaundry }) => {
       .update({ collectMethod: method })
       .eq("id", user.id);
   };
+
   return (
     <Box
       minH="100vh"
@@ -108,22 +111,24 @@ const CollectMoneyForm = ({ coinLaundry }) => {
       <Card.Root
         maxW="3xl"
         w="full"
-        boxShadow="xl"
+        boxShadow="2xl"
         borderRadius="2xl"
         overflow="hidden"
+        bg="white"
       >
-        <Card.Header color="white" py={6} px={8}>
+        <Card.Header bg="gray.500" color="white" py={6} px={8}>
           <Flex justify="space-between" align="center">
-            <Card.Title fontSize="2xl" fontWeight="bold" color="gray.800">
+            <Card.Title fontSize="2xl" fontWeight="bold">
               {coinLaundry.store}店
             </Card.Title>
             <Badge
-              bg="white"
+              bg="teal.400"
+              color="white"
               px={3}
               py={1}
               borderRadius="full"
-              fontWeight="bold"
-              fontSize="md"
+              fontWeight="semibold"
+              fontSize="sm"
             >
               集金登録
             </Badge>
@@ -132,37 +137,38 @@ const CollectMoneyForm = ({ coinLaundry }) => {
 
         <Card.Body py={8} px={8}>
           <Stack gap={8} w="full">
+            {/* 日付選択 */}
             <Box
               p={5}
-              bg="white"
+              bg="gray.50"
               borderRadius="xl"
-              borderWidth="2px"
+              borderWidth="1px"
               borderColor="gray.200"
               shadow="sm"
               transition="all 0.2s"
-              _hover={{ borderColor: "blue.300", shadow: "md" }}
+              _hover={{ borderColor: "teal.400", shadow: "md" }}
             >
-              <HStack mb={3}>
-                <MdDateRange size={24} />
-                <Text fontSize="sm" fontWeight="semibold" color="gray.600">
+              <HStack mb={3} color="gray.600">
+                <MdDateRange size={20} />
+                <Text fontSize="sm" fontWeight="semibold">
                   集金日
                 </Text>
               </HStack>
-
               <EpochTimeSelector epoc={epoc} setEpoc={setEpoc} />
             </Box>
 
+            {/* 集金方法切り替え */}
             <Box
               p={5}
-              bg="white"
+              bg="gray.50"
               borderRadius="xl"
-              borderWidth="2px"
+              borderWidth="1px"
               borderColor="gray.200"
               shadow="sm"
             >
-              <Flex align="center" justify="space-between">
-                <Box>
-                  <Text fontSize="md" fontWeight="semibold" color="gray.700">
+              <Flex align="center" justify="space-between" mb={4}>
+                <Box flex="1">
+                  <Text fontSize="md" fontWeight="semibold" color="gray.800">
                     {checked ? "機種別集金" : "まとめて集金"}
                   </Text>
                   <Text fontSize="sm" color="gray.500" mt={1}>
@@ -171,23 +177,24 @@ const CollectMoneyForm = ({ coinLaundry }) => {
                       : "合計金額のみを入力します"}
                   </Text>
                 </Box>
-                <Stack>
-                  <Switch.Root
-                    checked={checked}
-                    onCheckedChange={toggleChangeMethod}
-                    size="lg"
-                  >
-                    <Switch.HiddenInput />
-                    <Switch.Control bg={checked ? "blue.500" : "gray.300"}>
-                      <Switch.Thumb />
-                    </Switch.Control>
-                  </Switch.Root>
-                  <FixSwitch
-                    toggleChangeFixed={toggleChangeFixed}
-                    fixed={fixed}
-                  />
-                </Stack>
+                <Switch.Root
+                  checked={checked}
+                  onCheckedChange={toggleChangeMethod}
+                  size="lg"
+                >
+                  <Switch.HiddenInput />
+                  <Switch.Control bg={checked ? "blue.500" : "gray.300"}>
+                    <Switch.Thumb />
+                  </Switch.Control>
+                </Switch.Root>
               </Flex>
+
+              <Box pt={4} borderTop="1px" borderColor="gray.200">
+                <FixSwitch
+                  toggleChangeFixed={toggleChangeFixed}
+                  fixed={fixed}
+                />
+              </Box>
             </Box>
 
             <Box>
@@ -199,19 +206,18 @@ const CollectMoneyForm = ({ coinLaundry }) => {
               ) : (
                 <Box
                   p={6}
-                  bg="white"
+                  bg="gray.50"
                   borderRadius="xl"
-                  borderWidth="2px"
+                  borderWidth="1px"
                   borderColor="gray.200"
                   shadow="sm"
                 >
-                  <HStack mb={6}>
-                    <RiMoneyCnyCircleLine size={24} />
-                    <Text fontSize="md" fontWeight="semibold" color="gray.600">
+                  <HStack mb={4} color="gray.600">
+                    <RiMoneyCnyCircleLine size={20} />
+                    <Text fontSize="sm" fontWeight="semibold">
                       合計金額
                     </Text>
                   </HStack>
-
                   <MoneyTotal
                     moneyTotal={moneyTotal}
                     setMoneyTotal={setMoneyTotal}
@@ -228,9 +234,9 @@ const CollectMoneyForm = ({ coinLaundry }) => {
           px={8}
           pb={8}
           pt={6}
-          borderTop="2px"
-          borderColor="gray.100"
-          bg="gray.50"
+          borderTop="1px"
+          borderColor="gray.200"
+          bg="white"
         >
           <Link href={`/coinLaundry/${coinLaundry.id}`}>
             <Button
@@ -243,7 +249,7 @@ const CollectMoneyForm = ({ coinLaundry }) => {
               borderWidth="2px"
               borderColor="gray.300"
               _hover={{
-                bg: "gray.100",
+                bg: "gray.50",
                 borderColor: "gray.400",
               }}
             >
@@ -269,10 +275,10 @@ const CollectMoneyForm = ({ coinLaundry }) => {
               p={4}
               bg="red.50"
               borderRadius="lg"
-              borderWidth="2px"
+              borderWidth="1px"
               borderColor="red.200"
             >
-              <Text fontSize="lg">⚠️</Text>
+              <MdOutlineErrorOutline />
               <Text color="red.700" fontSize="sm" fontWeight="medium">
                 {msg}
               </Text>

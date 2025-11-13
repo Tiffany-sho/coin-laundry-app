@@ -2,8 +2,6 @@
 
 import {
   Button,
-  Field,
-  HStack,
   InputGroup,
   NumberInput,
   Stack,
@@ -23,13 +21,13 @@ const MachineAndMoney = ({ machinesAndFunds, setMachinesAndFunds }) => {
         if (prevMachine.machine.name === machine) {
           if (action === "inputCoin") {
             const coins = parseInt(event.value);
-            if (coins === "") {
+            if (!coins) {
               return { ...prevMachine, funds: null };
             }
             return { ...prevMachine, funds: coins };
           } else if (action === "inputWeight") {
             const weight = parseInt(event.value);
-            if (weight === "") {
+            if (!weight) {
               return { ...prevMachine, weight: null };
             }
             return { ...prevMachine, weight: weight };
@@ -76,7 +74,7 @@ const MachineAndMoney = ({ machinesAndFunds, setMachinesAndFunds }) => {
 
   return (
     <Stack gap={4} w="full">
-      {machinesAndFunds.map((machineAndFunds, index) => {
+      {machinesAndFunds.map((machineAndFunds) => {
         return (
           <Box
             key={machineAndFunds.machine.name}
@@ -178,12 +176,7 @@ const MachineAndMoney = ({ machinesAndFunds, setMachinesAndFunds }) => {
                 <NumberInput.Control />
                 <InputGroup
                   startAddon={
-                    <Box
-                      px={4}
-                      fontWeight="semibold"
-                      color="gray.600"
-                      bg="gray.100"
-                    >
+                    <Box fontWeight="semibold" color="gray.600" bg="gray.100">
                       枚
                     </Box>
                   }
@@ -210,7 +203,7 @@ const MachineAndMoney = ({ machinesAndFunds, setMachinesAndFunds }) => {
             {machineAndFunds.funds && (
               <Box mt={3} p={3} bg="blue.50" borderRadius="md">
                 <Text fontSize="sm" color="blue.700" fontWeight="semibold">
-                  💴 合計: ¥{(machineAndFunds.funds * 100).toLocaleString()}
+                  合計: ¥{(machineAndFunds.funds * 100).toLocaleString()}
                 </Text>
               </Box>
             )}

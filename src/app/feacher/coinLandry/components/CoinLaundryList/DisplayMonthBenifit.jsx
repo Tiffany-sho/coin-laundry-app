@@ -16,7 +16,7 @@ const getData = async (id) => {
 
   const { data, error } = await supabase
     .from("collect_funds")
-    .select("date,fundsArray")
+    .select("date,totalFunds")
     .eq("laundryId", id)
     .gt("date", epocYearBeforeMonth)
     .lt("date", epocYearAfterMonth);
@@ -57,12 +57,7 @@ const DisplayMonthBenifit = async ({ id }) => {
       (item) => item.date >= epocYearMonth && item.date < epocYearAfterMonth
     )
     .reduce((accumulator, currentValue) => {
-      return (
-        accumulator +
-        currentValue.fundsArray.reduce((accumulator, currentValue) => {
-          return accumulator + currentValue.funds;
-        }, 0)
-      );
+      return accumulator + currentValue.totalFunds;
     }, 0);
 
   const lastMonthBenefit = data
@@ -70,12 +65,7 @@ const DisplayMonthBenifit = async ({ id }) => {
       (item) => item.date < epocYearMonth && item.date >= epocYearBeforeMonth
     )
     .reduce((accumulator, currentValue) => {
-      return (
-        accumulator +
-        currentValue.fundsArray.reduce((accumulator, currentValue) => {
-          return accumulator + currentValue.funds;
-        }, 0)
-      );
+      return accumulator + currentValue.totalFunds;
     }, 0);
 
   const lastestDate = data.reduce((max, current) => {

@@ -197,7 +197,6 @@ const MonoCard = ({ coinLaundry }) => {
                                   </Heading>
                                   <HStack gap={2} flexWrap="wrap">
                                     <Badge
-                                      bg="blue"
                                       fontSize="sm"
                                       px={3}
                                       py={1}
@@ -207,7 +206,6 @@ const MonoCard = ({ coinLaundry }) => {
                                     </Badge>
                                     {machine.comment && (
                                       <Badge
-                                        bg="green"
                                         fontSize="sm"
                                         px={3}
                                         py={1}

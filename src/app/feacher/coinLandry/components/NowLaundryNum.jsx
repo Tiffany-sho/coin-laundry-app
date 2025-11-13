@@ -244,13 +244,7 @@ const NowLaundryNum = ({ id }) => {
 
             <Dialog.Body p={6}>
               <VStack align="stretch" gap={6}>
-                <Box
-                  p={4}
-                  bg="green.50"
-                  borderRadius="lg"
-                  border="1px solid"
-                  borderColor="green.200"
-                >
+                <Box p={4} borderRadius="lg" border="1px solid">
                   <VStack align="stretch" gap={3}>
                     <Heading size="sm" color="green.900">
                       洗剤（ソープ）
@@ -259,7 +253,7 @@ const NowLaundryNum = ({ id }) => {
                       <IconButton
                         variant="solid"
                         size="lg"
-                        bg="green"
+                        bg="gray.600"
                         onClick={() =>
                           setDetergent((prev) => Math.max(0, prev - 1))
                         }
@@ -274,7 +268,6 @@ const NowLaundryNum = ({ id }) => {
                         py={4}
                         borderRadius="lg"
                         border="2px solid"
-                        borderColor="green.300"
                         minW="100px"
                         textAlign="center"
                       >
@@ -289,7 +282,7 @@ const NowLaundryNum = ({ id }) => {
                       <IconButton
                         variant="solid"
                         size="lg"
-                        bg="green"
+                        bg="gray.600"
                         onClick={() => setDetergent((prev) => prev + 1)}
                         borderRadius="full"
                       >
@@ -299,13 +292,7 @@ const NowLaundryNum = ({ id }) => {
                   </VStack>
                 </Box>
 
-                <Box
-                  p={4}
-                  bg="green.50"
-                  borderRadius="lg"
-                  border="1px solid"
-                  borderColor="green.200"
-                >
+                <Box p={4} borderRadius="lg" border="1px solid">
                   <VStack align="stretch" gap={3}>
                     <Heading size="sm" color="green.900">
                       柔軟剤（ソフター）
@@ -314,7 +301,7 @@ const NowLaundryNum = ({ id }) => {
                       <IconButton
                         variant="solid"
                         size="lg"
-                        bg="green"
+                        bg="gray.600"
                         onClick={() =>
                           setSoftener((prev) => Math.max(0, prev - 1))
                         }
@@ -329,22 +316,17 @@ const NowLaundryNum = ({ id }) => {
                         py={4}
                         borderRadius="lg"
                         border="2px solid"
-                        borderColor="green.300"
                         minW="100px"
                         textAlign="center"
                       >
-                        <Text
-                          fontSize="3xl"
-                          fontWeight="bold"
-                          color="green.900"
-                        >
+                        <Text fontSize="3xl" fontWeight="bold">
                           {softener}
                         </Text>
                       </Box>
                       <IconButton
                         variant="solid"
                         size="lg"
-                        bg="green"
+                        bg="gray.600"
                         onClick={() => setSoftener((prev) => prev + 1)}
                         borderRadius="full"
                       >
@@ -370,7 +352,6 @@ const NowLaundryNum = ({ id }) => {
               <Dialog.ActionTrigger asChild>
                 <Button
                   size="lg"
-                  bg="green.500"
                   onClick={handleSave}
                   loading={isSaving}
                   borderRadius="full"

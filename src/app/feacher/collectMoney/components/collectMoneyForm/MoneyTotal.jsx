@@ -12,13 +12,7 @@ const MoneyTotal = ({ moneyTotal, setMoneyTotal }) => {
         <NumberInput.Control />
         <InputGroup
           startAddon={
-            <Box
-              px={4}
-              fontWeight="bold"
-              fontSize="lg"
-              color="gray.700"
-              bg="gray.100"
-            >
+            <Box fontWeight="bold" fontSize="lg" color="gray.700" bg="gray.100">
               ¥
             </Box>
           }
