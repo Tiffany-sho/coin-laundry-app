@@ -58,7 +58,7 @@ const CoinLaundryList = ({ coinLaundry }) => {
           {coinLaundry.location}
         </Card.Description>
 
-        <Grid templateColumns="1fr 1fr" gap={3} mt={2}>
+        <Grid templateRow="1fr 1fr" gap={3} mt={2}>
           <Box
             bg="blue.50"
             p={3}
@@ -69,7 +69,7 @@ const CoinLaundryList = ({ coinLaundry }) => {
             <DisplayMonthBenifit id={coinLaundry.id} />
           </Box>
 
-          <Flex gap={3} alignContent="space-around" flexDirection="column">
+          <Flex gap={3} alignContent="space-around" flexDirection="row">
             <NowLaundryNum id={coinLaundry.id} />
             <MachinesState id={coinLaundry.id} />
           </Flex>

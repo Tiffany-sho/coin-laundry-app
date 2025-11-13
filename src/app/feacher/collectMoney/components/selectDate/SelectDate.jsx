@@ -23,11 +23,6 @@ export default function EpochTimeSelector({
 
   const selectedDate = new Date(year, month - 1, day);
 
-  useEffect(() => {
-    const epocTime = getEpochTimeInSeconds(year, month, day);
-    setEpoc(epocTime);
-  }, [year, month, day]);
-
   const formatDate = (date) => {
     return date.toLocaleDateString("ja-JP", {
       year: "numeric",

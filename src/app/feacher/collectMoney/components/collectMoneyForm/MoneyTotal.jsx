@@ -20,7 +20,7 @@ const MoneyTotal = ({ moneyTotal, setMoneyTotal }) => {
           <NumberInput.Input
             placeholder="合計金額を入力してください"
             size="lg"
-            fontSize="18px"
+            fontSize="16px"
             fontWeight="semibold"
             borderWidth="2px"
             borderColor="gray.300"
