@@ -243,7 +243,7 @@ const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
                   color="gray.700"
                   textAlign="right"
                 >
-                  売上(×100)
+                  売上
                 </Table.ColumnHeader>
               </Table.Row>
             </Table.Header>
@@ -283,7 +283,9 @@ const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
                           py={1}
                           borderRadius="md"
                           _hover={{ bg: "gray.100" }}
-                        />
+                        >
+                          ¥{(item.funds * 100).toLocaleString()}
+                        </Editable.Preview>
                         <Editable.Input
                           w="50px"
                           textAlign="left"
