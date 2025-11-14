@@ -87,11 +87,11 @@ const CoinMonoDataTable = ({ id }) => {
         setError(null);
       }
       setLoading(false);
-    };
 
-    if (id) {
-      channel = setupChannel(id);
-    }
+      if (id) {
+        channel = setupChannel(id);
+      }
+    };
 
     fetchData();
 
