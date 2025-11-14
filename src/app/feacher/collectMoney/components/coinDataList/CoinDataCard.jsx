@@ -431,7 +431,7 @@ const MoneyDataCard = () => {
           id={selectedItem.id}
           target={`${selectedItem.laundryName}店(${createNowData(
             selectedItem.date
-          )})`}
+          )}`}
           onRowClick={setSelectedItem}
           setOpen={setOpen}
           setMsg={setMsg}

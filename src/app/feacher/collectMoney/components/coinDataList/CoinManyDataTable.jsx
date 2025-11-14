@@ -24,6 +24,43 @@ const CoinManyDataTable = () => {
   const PAGE_SIZE = 20;
   const supabase = createClient();
 
+  const setupChannel = (user) => {
+    const channelName = `collect_funds_changes_${user.id}`;
+    const channel = supabase
+      .channel(channelName)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "collect_funds",
+          filter: `collecter=eq.${user.id}`,
+        },
+        (payload) => {
+          if (payload.eventType === "INSERT") {
+            setData((currentData) => [...currentData, payload.new]);
+          }
+          if (payload.eventType === "UPDATE") {
+            setData((currentData) =>
+              currentData.map((item) =>
+                item.id === payload.new.id ? payload.new : item
+              )
+            );
+          }
+          if (payload.eventType === "DELETE") {
+            setData((currentData) =>
+              currentData.filter((item) => item.id !== payload.old.id)
+            );
+          }
+        }
+      )
+      .subscribe();
+
+    return channel;
+  };
+
+  let channel;
+
   useEffect(() => {
     const fetchData = async () => {
       const {
@@ -48,41 +85,18 @@ const CoinManyDataTable = () => {
         setError(null);
       }
       setLoading(false);
+
+      if (user) {
+        channel = setupChannel(user);
+      }
     };
 
     fetchData();
 
-    const channel = supabase
-      .channel(`collect_funds_changes`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "collect_funds",
-        },
-        (payload) => {
-          if (payload.eventType === "INSERT") {
-            setData((currentData) => [...currentData, payload.new]);
-          }
-          if (payload.eventType === "UPDATE") {
-            setData((currentData) =>
-              currentData.map((item) =>
-                item.id === payload.new.id ? payload.new : item
-              )
-            );
-          }
-          if (payload.eventType === "DELETE") {
-            setData((currentData) =>
-              currentData.filter((item) => item.id !== payload.old.id)
-            );
-          }
-        }
-      )
-      .subscribe();
-
     return () => {
-      supabase.removeChannel(channel);
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
     };
   }, [supabase, page, orderAmount, upOrder]);
 
@@ -101,7 +115,7 @@ const CoinManyDataTable = () => {
   if (error) return <div>エラー</div>;
 
   if (!data || data.length === 0) {
-    return <TableLoading />;
+    return <div>データが見つかりませんでした</div>;
   }
 
   return (

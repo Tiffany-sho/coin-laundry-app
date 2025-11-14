@@ -24,38 +24,10 @@ const CoinMonoDataTable = ({ id }) => {
   const PAGE_SIZE = 20;
   const supabase = createClient();
 
-  useEffect(() => {
-    if (!id) {
-      setLoading(false);
-      return;
-    }
-
-    const fetchData = async () => {
-      const from = page * PAGE_SIZE;
-      const to = from + PAGE_SIZE - 1;
-
-      setLoading(true);
-      const { data: initialData, error: initialError } = await supabase
-        .from("collect_funds")
-        .select("*")
-        .eq("laundryId", id)
-        .order(orderAmount, { ascending: upOrder })
-        .range(from, to);
-
-      if (initialError) {
-        setError(initialError.message);
-        setData(null);
-      } else {
-        setData(initialData);
-        setError(null);
-      }
-      setLoading(false);
-    };
-
-    fetchData();
-
+  const setupChannel = (id) => {
+    const channelName = `collect_funds_changes_for_${id}`;
     const channel = supabase
-      .channel(`collect_funds_changes_for_${id}`)
+      .channel(channelName)
       .on(
         "postgres_changes",
         {
@@ -84,8 +56,49 @@ const CoinMonoDataTable = ({ id }) => {
       )
       .subscribe();
 
+    return channel;
+  };
+
+  let channel;
+
+  useEffect(() => {
+    if (!id) {
+      setLoading(false);
+      return;
+    }
+
+    const fetchData = async () => {
+      const from = page * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+
+      setLoading(true);
+      const { data: initialData, error: initialError } = await supabase
+        .from("collect_funds")
+        .select("*")
+        .eq("laundryId", id)
+        .order(orderAmount, { ascending: upOrder })
+        .range(from, to);
+
+      if (initialError) {
+        setError(initialError.message);
+        setData(null);
+      } else {
+        setData(initialData);
+        setError(null);
+      }
+      setLoading(false);
+    };
+
+    if (id) {
+      channel = setupChannel(id);
+    }
+
+    fetchData();
+
     return () => {
-      supabase.removeChannel(channel);
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
     };
   }, [id, supabase, page, orderAmount, upOrder]);
 
