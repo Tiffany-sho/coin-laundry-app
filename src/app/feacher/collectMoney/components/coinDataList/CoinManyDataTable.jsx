@@ -66,6 +66,12 @@ const CoinManyDataTable = () => {
       const {
         data: { user },
       } = await supabase.auth.getUser();
+
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
       const from = page * PAGE_SIZE;
       const to = from + PAGE_SIZE - 1;
 

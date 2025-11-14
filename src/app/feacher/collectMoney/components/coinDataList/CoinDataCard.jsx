@@ -23,25 +23,26 @@ import { useUploadPage } from "../../context/UploadPageContext";
 const MoneyDataCard = () => {
   const { selectedItem, setSelectedItem, setOpen } = useUploadPage();
   const [toggleArray, setToggleArray] = useState([]);
-  const [totalFunds, setTotalFunds] = useState(selectedItem.totalFunds);
+  const [totalFunds, setTotalFunds] = useState(selectedItem.totalFunds || 0);
   const [date, setDate] = useState(selectedItem.date);
   const [msg, setMsg] = useState("");
 
   useEffect(() => {
-    const getArray = () => {
-      const array = selectedItem.fundsArray.map((machines) => {
-        return {
-          id: machines.id,
-          machine: machines.name,
-          funds: machines.funds,
-          editing: false,
-          sending: false,
-        };
-      });
-      setToggleArray(array);
-    };
-    getArray();
-  }, []);
+    if (!selectedItem) return;
+
+    const array = selectedItem.fundsArray.map((machines) => {
+      return {
+        id: machines.id,
+        machine: machines.name,
+        funds: machines.funds,
+        editing: false,
+        sending: false,
+      };
+    });
+    setToggleArray(array);
+    setTotalFunds(selectedItem.totalFunds || 0);
+    setDate(selectedItem.date);
+  }, [selectedItem]);
 
   const moveCursorToEnd = (e) => {
     const input = e.target;
@@ -81,7 +82,7 @@ const MoneyDataCard = () => {
     setToggleArray((prevArray) => {
       return prevArray.map((item) => {
         if (id === item.id) {
-          const input = e.value;
+          const input = e.value || 0;
           if (!validateNumberInput(input)) {
             return item;
           }

@@ -66,7 +66,6 @@ const CoinMonoDataTable = ({ id }) => {
       setLoading(false);
       return;
     }
-
     const fetchData = async () => {
       const from = page * PAGE_SIZE;
       const to = from + PAGE_SIZE - 1;
@@ -122,7 +121,7 @@ const CoinMonoDataTable = ({ id }) => {
   return (
     <Table.Body>
       {data.map((item, index) => {
-        const total = item.totalFunds;
+        const total = item.totalFunds || 0;
 
         return (
           <Table.Row

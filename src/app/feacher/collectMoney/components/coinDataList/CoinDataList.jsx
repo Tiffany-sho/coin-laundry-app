@@ -47,7 +47,9 @@ const MoneyDataList = ({ valiant, laundryData, laundryId = "" }) => {
       const updatedSelectedItem = laundryData.find(
         (item) => item.id === selectedItem.id
       );
-      setSelectedItem(updatedSelectedItem);
+      if (updatedSelectedItem) {
+        setSelectedItem(updatedSelectedItem);
+      }
     }
   }, [laundryData]);
 
