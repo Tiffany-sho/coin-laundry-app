@@ -246,7 +246,11 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
                   />
                 </Field.Root>
 
-                <Drawer.Root open={open} onOpenChange={(e) => setOpen(e.open)}>
+                <Drawer.Root
+                  size={{ base: "xs", md: "md" }}
+                  open={open}
+                  onOpenChange={(e) => setOpen(e.open)}
+                >
                   <Drawer.Trigger asChild>
                     <Button
                       className={styles.drawerButton}

@@ -151,7 +151,7 @@ const MoneyDataCard = () => {
 
   const submitDate = async (date) => {
     try {
-      const result = await updateDate(date, item.id);
+      const result = await updateDate(date, selectedItem.id);
 
       if (result.error) {
         throw new Error(result.error.message || "編集に失敗しました");

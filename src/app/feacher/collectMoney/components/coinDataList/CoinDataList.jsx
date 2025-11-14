@@ -223,7 +223,7 @@ const MoneyDataList = ({ valiant, laundryData, laundryId = "" }) => {
                 </Table.Root>
 
                 <Drawer.Root
-                  size="lg"
+                  size={{ base: "xs", md: "md" }}
                   open={open}
                   onOpenChange={(e) => {
                     setOpen(e.open);

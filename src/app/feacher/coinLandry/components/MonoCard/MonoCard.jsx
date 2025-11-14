@@ -96,7 +96,7 @@ const MonoCard = ({ coinLaundry }) => {
                 gap={4}
                 mt={2}
               >
-                <Drawer.Root>
+                <Drawer.Root size={{ base: "xs", md: "md" }}>
                   <Drawer.Trigger asChild>
                     <Box
                       p={5}
