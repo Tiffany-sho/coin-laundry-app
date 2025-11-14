@@ -1,21 +1,15 @@
 "use client";
 
 import MoneyDataList from "./CoinDataList";
-import { Spinner } from "@chakra-ui/react";
 import ErrorPage from "@/app/feacher/jumpPage/ErrorPage/ErrorPage";
 import { createClient } from "@/utils/supabase/client";
 import { useEffect, useState } from "react";
+import PageLoading from "@/app/feacher/partials/Loading";
 
 const MonoDataList = ({ id, valiant }) => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  const [orderAmount, setOrderAmount] = useState("date");
-  const [upOrder, setupOrder] = useState(true);
-  const [page, setPage] = useState(0);
-
-  const PAGE_SIZE = 20;
   const supabase = createClient();
 
   useEffect(() => {
@@ -25,16 +19,11 @@ const MonoDataList = ({ id, valiant }) => {
     }
 
     const fetchData = async () => {
-      const from = page * PAGE_SIZE;
-      const to = from + PAGE_SIZE - 1;
-
       setLoading(true);
       const { data: initialData, error: initialError } = await supabase
         .from("collect_funds")
-        .select("*")
-        .eq("laundryId", id)
-        .order(orderAmount, { ascending: upOrder })
-        .range(from, to);
+        .select("laundryId , laundryName ,totalFunds ,date")
+        .eq("laundryId", id);
 
       if (initialError) {
         setError(initialError.message);
@@ -83,14 +72,14 @@ const MonoDataList = ({ id, valiant }) => {
     };
   }, [id, supabase]);
 
-  if (loading) return <Spinner />;
+  if (loading) return <PageLoading />;
   if (error) return <ErrorPage title={error} status={500} />;
 
   if (!data || data.length === 0) {
     return <ErrorPage title="集金データがありません" status={404} />;
   }
 
-  return <MoneyDataList valiant={valiant} coinData={data} />;
+  return <MoneyDataList valiant={valiant} laundryData={data} laundryId={id} />;
 };
 
 export default MonoDataList;

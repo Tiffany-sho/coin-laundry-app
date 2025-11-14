@@ -7,7 +7,7 @@ const DataClipBoard = ({ data }) => {
     (item) => {
       return `${item.name}:${item.funds * 100}`;
     }
-  )}\n合計:¥${data.totalFunds * 100}
+  )}\n合計:¥${data.totalFunds}
   `.replaceAll(",", "\n");
   return (
     <Clipboard.Root value={copyText}>

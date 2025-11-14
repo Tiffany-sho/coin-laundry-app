@@ -1,5 +1,5 @@
 // CoinDataList.jsx
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import {
   Card,
   Box,
@@ -18,22 +18,18 @@ import {
   Table,
 } from "@chakra-ui/react";
 import { toaster } from "@/components/ui/toaster";
-import MoneyDataTable from "@/app/feacher/collectMoney/components/coinDataList/CoinDataTable";
 import MoneyDataCard from "@/app/feacher/collectMoney/components/coinDataList/CoinDataCard";
-import * as Order from "@/createArray/dateOrder";
+import CoinMonoDataTable from "@/app/feacher/collectMoney/components/coinDataList/CoinMonoDataTable";
 import OrderSelecter from "./OrderSelecter";
-import { createNowData } from "@/date";
 import MonoCoinDataChart from "./MonoCoinDataChart";
 import ManyCoinDataChart from "./ManyCoinDataChart";
 import DataClipBoard from "./DataClipBoard";
 import { LuPlus } from "react-icons/lu";
+import { useUploadPage } from "../../context/UploadPageContext";
+import CoinManyDataTable from "./CoinManyDataTable";
 
-const MoneyDataList = ({ valiant, coinData }) => {
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [open, setOpen] = useState(false);
-  const [order, setOrder] = useState(["newer"]);
-  const [orderData, setOrderData] = useState([]);
-
+const MoneyDataList = ({ valiant, laundryData, laundryId = "" }) => {
+  const { selectedItem, setSelectedItem, open, setOpen } = useUploadPage();
   useEffect(() => {
     setTimeout(() => {
       const toastInfo = sessionStorage.getItem("toast");
@@ -47,37 +43,15 @@ const MoneyDataList = ({ valiant, coinData }) => {
   }, []);
 
   useEffect(() => {
-    if (!coinData) return;
-
-    const getSetOrder = () => {
-      switch (order[0]) {
-        case "newer":
-          const newerArray = Order.newerOrder(coinData);
-          return newerArray;
-        case "older":
-          const olderArray = Order.olderOrder(coinData);
-          return olderArray;
-        case "income":
-          const incomeArray = Order.incomeOrder(coinData);
-          return incomeArray;
-        default:
-          return coinData;
-      }
-    };
-    const newArray = getSetOrder();
-    setOrderData(newArray);
-  }, [coinData, order]);
-
-  useEffect(() => {
-    if (coinData && selectedItem) {
-      const updatedSelectedItem = coinData.find(
+    if (laundryData && selectedItem) {
+      const updatedSelectedItem = laundryData.find(
         (item) => item.id === selectedItem.id
       );
       setSelectedItem(updatedSelectedItem);
     }
-  }, [coinData]);
+  }, [laundryData]);
 
-  const totalRevenue = coinData.reduce((accumulator, current) => {
+  const totalRevenue = laundryData.reduce((accumulator, current) => {
     return accumulator + current.totalFunds;
   }, 0);
 
@@ -109,13 +83,13 @@ const MoneyDataList = ({ valiant, coinData }) => {
                   color="gray.800"
                   letterSpacing="tight"
                 >
-                  {valiant === "aStore" && `${coinData[0].laundryName}店`}
+                  {valiant === "aStore" && `${laundryData[0].laundryName}店`}
                   {valiant === "manyStore" && "全集計データ"}
                 </Heading>
 
                 {valiant === "aStore" && (
                   <Link
-                    href={`/collectMoney/${coinData[0].laundryId}/newData`}
+                    href={`/collectMoney/${laundryData[0].laundryId}/newData`}
                     _hover={{ textDecoration: "none" }}
                   >
                     <Button
@@ -182,9 +156,11 @@ const MoneyDataList = ({ valiant, coinData }) => {
                 borderRadius="16px"
                 boxShadow="0 4px 15px rgba(0, 0, 0, 0.05)"
               >
-                {valiant === "aStore" && <MonoCoinDataChart data={orderData} />}
+                {valiant === "aStore" && (
+                  <MonoCoinDataChart data={laundryData} />
+                )}
                 {valiant === "manyStore" && (
-                  <ManyCoinDataChart data={orderData} />
+                  <ManyCoinDataChart data={laundryData} />
                 )}
               </Box>
             </VStack>
@@ -198,7 +174,7 @@ const MoneyDataList = ({ valiant, coinData }) => {
                 border="1px solid"
                 borderColor="gray.200"
               >
-                <OrderSelecter setOrder={setOrder} />
+                <OrderSelecter />
               </Box>
 
               <Box
@@ -242,19 +218,17 @@ const MoneyDataList = ({ valiant, coinData }) => {
                       </Table.ColumnHeader>
                     </Table.Row>
                   </Table.Header>
+                  {valiant === "aStore" && <CoinMonoDataTable id={laundryId} />}
+                  {valiant === "manyStore" && <CoinManyDataTable />}
                 </Table.Root>
 
-                <Drawer.Root open={open} onOpenChange={(e) => setOpen(e.open)}>
-                  <Drawer.Trigger asChild>
-                    <Box>
-                      <MoneyDataTable
-                        items={orderData}
-                        selectedItemId={selectedItem?.id}
-                        onRowClick={setSelectedItem}
-                        open={open}
-                      />
-                    </Box>
-                  </Drawer.Trigger>
+                <Drawer.Root
+                  size="lg"
+                  open={open}
+                  onOpenChange={(e) => {
+                    setOpen(e.open);
+                  }}
+                >
                   <Portal>
                     <Drawer.Backdrop />
                     <Drawer.Positioner>
@@ -297,13 +271,7 @@ const MoneyDataList = ({ valiant, coinData }) => {
                               </VStack>
                             </Drawer.Header>
                             <Drawer.Body bg="white" p={6}>
-                              <MoneyDataCard
-                                item={selectedItem}
-                                onRowClick={setSelectedItem}
-                                setOpen={setOpen}
-                                valiant={valiant}
-                                key={selectedItem._id}
-                              />
+                              <MoneyDataCard key={selectedItem._id} />
                             </Drawer.Body>
                             <Drawer.CloseTrigger asChild>
                               <CloseButton

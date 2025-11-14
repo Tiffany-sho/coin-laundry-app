@@ -1,19 +1,44 @@
-import { Select,Portal,Stack,createListCollection } from "@chakra-ui/react";
+import { Select, Portal, Stack, createListCollection } from "@chakra-ui/react";
+import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
+import { useEffect, useState } from "react";
 
 const frameworks = createListCollection({
   items: [
     { label: "新しい順", value: "newer" },
     { label: "古い順", value: "older" },
-    { label: "売上順", value: "income" },
+    { label: "売上が多い順", value: "fundsUpper" },
+    { label: "売上が少ない順", value: "fundsDown" },
   ],
 });
 
-const OrderSelecter = ({setOrder}) => {
+const OrderSelecter = () => {
+  const { setOrderAmount, setUpOrder } = useUploadPage();
+  const [order, setOrder] = useState(["newer"]);
+  useEffect(() => {
+    switch (order[0]) {
+      case "newer":
+        setOrderAmount("date");
+        setUpOrder(false);
+        break;
+      case "older":
+        setOrderAmount("date");
+        setUpOrder(true);
+        break;
+      case "fundsUpper":
+        setOrderAmount("totalFunds");
+        setUpOrder(false);
+        break;
+      case "fundsDown":
+        setOrderAmount("totalFunds");
+        setUpOrder(true);
+        break;
+    }
+  }, [order]);
   return (
     <Select.Root
       collection={frameworks}
       size="sm"
-      width="120px"
+      width="200px"
       ml="auto"
       defaultValue={["newer"]}
       onValueChange={(e) => setOrder(e.value)}

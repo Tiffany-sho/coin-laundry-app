@@ -9,6 +9,7 @@ import {
   Flex,
   Text,
   Alert,
+  Stack,
 } from "@chakra-ui/react";
 import { createNowData } from "@/date";
 import { toaster } from "@/components/ui/toaster";
@@ -17,16 +18,18 @@ import { useEffect, useState } from "react";
 import AlertDialog from "@/app/feacher/dialog/AlertDialog";
 import { updateData, updateDate } from "@/app/collectMoney/action";
 import EpochTimeSelector from "../selectDate/SelectDate";
+import { useUploadPage } from "../../context/UploadPageContext";
 
-const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
+const MoneyDataCard = () => {
+  const { selectedItem, setSelectedItem, setOpen } = useUploadPage();
   const [toggleArray, setToggleArray] = useState([]);
-  const [totalFunds, setTotalFunds] = useState(item.totalFunds);
-  const [date, setDate] = useState(item.date);
+  const [totalFunds, setTotalFunds] = useState(selectedItem.totalFunds);
+  const [date, setDate] = useState(selectedItem.date);
   const [msg, setMsg] = useState("");
 
   useEffect(() => {
     const getArray = () => {
-      const array = item.fundsArray.map((machines) => {
+      const array = selectedItem.fundsArray.map((machines) => {
         return {
           id: machines.id,
           machine: machines.name,
@@ -60,11 +63,11 @@ const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
 
   const showToast = (type, isSuccess) => {
     const description = isSuccess
-      ? `${item.laundryName}店(${createNowData(
-          item.date
+      ? `${selectedItem.laundryName}店(${createNowData(
+          selectedItem.date
         )})の集金データを更新しました`
-      : `${item.laundryName}店(${createNowData(
-          item.date
+      : `${selectedItem.laundryName}店(${createNowData(
+          selectedItem.date
         )})の集金データの編集に失敗しました`;
 
     toaster.create({
@@ -131,13 +134,14 @@ const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
 
       const totalFunds =
         editMachine.reduce((acc, cur) => acc + cur.funds, 0) * 100;
-      const result = await updateData(editMachine, totalFunds, item.id);
+      const result = await updateData(editMachine, totalFunds, selectedItem.id);
 
       if (result.error) {
         throw new Error(result.error.message || "編集に失敗しました");
       }
 
       showToast("success", true);
+      setTotalFunds(totalFunds);
       setMsg("");
     } catch (error) {
       setMsg(error.message);
@@ -153,7 +157,7 @@ const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
         throw new Error(result.error.message || "編集に失敗しました");
       }
       toaster.create({
-        description: `${item.laundryName}店(${createNowData(
+        description: `${selectedItem.laundryName}店(${createNowData(
           result.data.date
         )})に日付を更新しました`,
         type: "success",
@@ -174,7 +178,7 @@ const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
   };
 
   const handleTotalFundsRevert = () => {
-    setTotalFunds(item.totalFunds);
+    setTotalFunds(selectedItem.totalFunds);
     setMsg("");
   };
 
@@ -185,7 +189,7 @@ const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
         throw new Error("数字以外の文字が含まれています");
       }
 
-      const result = await updateData([], parseInt(input), item.id);
+      const result = await updateData([], parseInt(input), selectedItem.id);
 
       if (result.error) {
         throw new Error(result.error.message || "編集に失敗しました");
@@ -195,12 +199,10 @@ const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
       setMsg("");
     } catch (error) {
       setMsg(error.message);
-      setTotalFunds(item.totalFunds);
+      setTotalFunds(selectedItem.totalFunds);
       showToast("error", false);
     }
   };
-
-  const totalRevenue = item.totalFunds;
 
   return (
     <Box>
@@ -216,7 +218,7 @@ const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
         submitFunc={submitDate}
       />
 
-      {item.fundsArray.length > 0 ? (
+      {selectedItem.fundsArray.length > 0 ? (
         <>
           <Box
             mb={6}
@@ -231,7 +233,7 @@ const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
                   合計売上
                 </Text>
                 <Text fontSize="3xl" fontWeight="bold" color="gray.800">
-                  ¥{totalRevenue.toLocaleString()}
+                  ¥{totalFunds.toLocaleString()}
                 </Text>
               </Box>
 
@@ -280,13 +282,21 @@ const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
                   transition="background 0.2s"
                 >
                   <Table.Cell py={4}>
-                    <Flex alignItems="center" gap={3}>
+                    <Stack alignItems="center" gap={3}>
                       <Text fontWeight="semibold" color="gray.800">
                         {item.machine}
                       </Text>
-                      {item.editing && <Badge fontSize="xs">編集中...</Badge>}
-                      {item.sending && <Badge fontSize="xs">編集済</Badge>}
-                    </Flex>
+                      {item.editing && (
+                        <Badge bg="blue.200" fontSize="xs">
+                          編集中...
+                        </Badge>
+                      )}
+                      {item.sending && (
+                        <Badge bg="green.200" fontSize="xs">
+                          編集済
+                        </Badge>
+                      )}
+                    </Stack>
                   </Table.Cell>
                   <Table.Cell textAlign="right">
                     <Editable.Root
@@ -348,7 +358,7 @@ const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
                 </Table.Cell>
                 <Table.Cell textAlign="right">
                   <Text fontSize="xl" fontWeight="bold" color="blue.600">
-                    ¥{totalRevenue.toLocaleString()}
+                    ¥{totalFunds.toLocaleString()}
                   </Text>
                 </Table.Cell>
               </Table.Row>
@@ -418,9 +428,11 @@ const MoneyDataCard = ({ item, onRowClick, setOpen }) => {
 
       <Box mt={6}>
         <AlertDialog
-          id={item.id}
-          target={`${item.laundryName}店(${createNowData(item.date)})`}
-          onRowClick={onRowClick}
+          id={selectedItem.id}
+          target={`${selectedItem.laundryName}店(${createNowData(
+            selectedItem.date
+          )})`}
+          onRowClick={setSelectedItem}
           setOpen={setOpen}
           setMsg={setMsg}
         />

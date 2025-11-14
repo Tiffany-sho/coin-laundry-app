@@ -5,6 +5,7 @@ import { Spinner, Text } from "@chakra-ui/react";
 import { createClient } from "@/utils/supabase/client";
 import { useEffect, useState } from "react";
 import ErrorPage from "@/app/feacher/jumpPage/ErrorPage/ErrorPage";
+import PageLoading from "@/app/feacher/partials/Loading";
 
 const ManyDataList = ({ valiant }) => {
   const [data, setData] = useState(null);
@@ -20,7 +21,7 @@ const ManyDataList = ({ valiant }) => {
       setLoading(true);
       const { data: initialData, error: initialError } = await supabase
         .from("collect_funds")
-        .select("*")
+        .select("laundryId,totalFunds,date,laundryName")
         .eq("collecter", user.id);
 
       if (initialError) {
@@ -69,13 +70,13 @@ const ManyDataList = ({ valiant }) => {
     };
   }, [supabase]);
 
-  if (loading) return <Spinner />;
+  if (loading) return <PageLoading />;
   if (error) return <ErrorPage title={error} status={500} />;
 
   if (!data || data.length === 0) {
     return <ErrorPage title="集金データがありません" status={404} />;
   }
-  return <MoneyDataList valiant={valiant} coinData={data} />;
+  return <MoneyDataList valiant={valiant} laundryData={data} />;
 };
 
 export default ManyDataList;
