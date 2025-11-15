@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Table, Badge, Text, Box, Spinner } from "@chakra-ui/react";
 import { createNowData } from "@/date";
 import { createClient } from "@/utils/supabase/client";
@@ -8,9 +8,9 @@ import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageCont
 import TableLoading from "@/app/feacher/partials/TableLoading";
 
 const CoinManyDataTable = () => {
-  const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [data, setData] = useState(null);
 
   const {
     orderAmount,
@@ -22,7 +22,10 @@ const CoinManyDataTable = () => {
     setOpen,
   } = useUploadPage();
   const PAGE_SIZE = 20;
+
   const supabase = createClient();
+
+  const channelRef = useRef(null);
 
   const setupChannel = (user) => {
     const channelName = `collect_funds_changes_${user.id}`;
@@ -56,10 +59,8 @@ const CoinManyDataTable = () => {
       )
       .subscribe();
 
-    return channel;
+    channelRef.current = channel;
   };
-
-  let channel;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -93,15 +94,16 @@ const CoinManyDataTable = () => {
       setLoading(false);
 
       if (user) {
-        channel = setupChannel(user);
+        setupChannel(user);
       }
     };
 
     fetchData();
 
     return () => {
-      if (channel) {
-        supabase.removeChannel(channel);
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
       }
     };
   }, [supabase, page, orderAmount, upOrder]);
@@ -118,12 +120,11 @@ const CoinManyDataTable = () => {
   };
 
   if (loading) return <TableLoading />;
-  if (error) return <div>エラー</div>;
+  if (error) return <TableError message={error.message} />;
 
   if (!data || data.length === 0) {
-    return <div>データが見つかりませんでした</div>;
+    return <TableError message="データがありません" />;
   }
-
   return (
     <Table.Body>
       {data.map((item, index) => {

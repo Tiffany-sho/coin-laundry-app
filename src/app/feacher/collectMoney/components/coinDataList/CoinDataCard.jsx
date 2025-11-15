@@ -22,24 +22,12 @@ import { useUploadPage } from "../../context/UploadPageContext";
 
 const MoneyDataCard = () => {
   const { selectedItem, setSelectedItem, setOpen } = useUploadPage();
-  const [toggleArray, setToggleArray] = useState([]);
   const [totalFunds, setTotalFunds] = useState(selectedItem.totalFunds || 0);
   const [date, setDate] = useState(selectedItem.date);
   const [msg, setMsg] = useState("");
 
   useEffect(() => {
     if (!selectedItem) return;
-
-    const array = selectedItem.fundsArray.map((machines) => {
-      return {
-        id: machines.id,
-        machine: machines.name,
-        funds: machines.funds,
-        editing: false,
-        sending: false,
-      };
-    });
-    setToggleArray(array);
     setTotalFunds(selectedItem.totalFunds || 0);
     setDate(selectedItem.date);
   }, [selectedItem]);
@@ -79,8 +67,8 @@ const MoneyDataCard = () => {
   };
 
   const editAbleForm = async (id, e, action) => {
-    setToggleArray((prevArray) => {
-      return prevArray.map((item) => {
+    setSelectedItem((item) => {
+      const fundsAndMachines = item.fundsArray.map((item) => {
         if (id === item.id) {
           const input = e.value || 0;
           if (!validateNumberInput(input)) {
@@ -93,27 +81,23 @@ const MoneyDataCard = () => {
             return {
               ...item,
               funds: parsedValue,
-              editing: true,
-              sending: false,
             };
           } else if (action === "reset") {
             return {
               ...item,
               funds: parsedValue,
-              editing: false,
-              sending: false,
             };
           } else if (action === "submit") {
             return {
               ...item,
               funds: parsedValue,
-              editing: false,
-              sending: true,
             };
           }
         }
         return item;
       });
+
+      return { ...item, fundsArray: fundsAndMachines };
     });
 
     if (action === "submit") {
@@ -127,15 +111,13 @@ const MoneyDataCard = () => {
         throw new Error("数字以外の文字が含まれています");
       }
 
-      const editMachine = toggleArray.map((item) => ({
-        id: item.id,
-        name: item.machine,
-        funds: item.funds,
-      }));
-
       const totalFunds =
-        editMachine.reduce((acc, cur) => acc + cur.funds, 0) * 100;
-      const result = await updateData(editMachine, totalFunds, selectedItem.id);
+        selectedItem.fundsArray.reduce((acc, cur) => acc + cur.funds, 0) * 100;
+      const result = await updateData(
+        selectedItem.fundsArray,
+        totalFunds,
+        selectedItem.id
+      );
 
       if (result.error) {
         throw new Error(result.error.message || "編集に失敗しました");
@@ -245,7 +227,7 @@ const MoneyDataCard = () => {
                 py={2}
                 borderRadius="full"
               >
-                {toggleArray.length}台
+                {selectedItem.fundsArray.length}台
               </Badge>
             </Flex>
           </Box>
@@ -276,7 +258,7 @@ const MoneyDataCard = () => {
               </Table.Row>
             </Table.Header>
             <Table.Body>
-              {toggleArray.map((item) => (
+              {selectedItem.fundsArray.map((item) => (
                 <Table.Row
                   key={item.id}
                   _hover={{ bg: "gray.50" }}
@@ -285,18 +267,8 @@ const MoneyDataCard = () => {
                   <Table.Cell py={4}>
                     <Stack alignItems="center" gap={3}>
                       <Text fontWeight="semibold" color="gray.800">
-                        {item.machine}
+                        {item.name}
                       </Text>
-                      {item.editing && (
-                        <Badge bg="blue.200" fontSize="xs">
-                          編集中...
-                        </Badge>
-                      )}
-                      {item.sending && (
-                        <Badge bg="green.200" fontSize="xs">
-                          編集済
-                        </Badge>
-                      )}
                     </Stack>
                   </Table.Cell>
                   <Table.Cell textAlign="right">

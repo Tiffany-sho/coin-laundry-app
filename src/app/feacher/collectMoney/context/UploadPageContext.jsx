@@ -12,6 +12,8 @@ export const UploadPageProvider = ({ children }) => {
   const [upOrder, setUpOrder] = useState(false);
   const [page, setPage] = useState(0);
 
+  const [data, setData] = useState(null);
+
   const value = {
     selectedItem,
     setSelectedItem,
@@ -23,6 +25,8 @@ export const UploadPageProvider = ({ children }) => {
     setUpOrder,
     page,
     setPage,
+    data,
+    setData,
   };
 
   return (

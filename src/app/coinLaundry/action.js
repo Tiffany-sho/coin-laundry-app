@@ -4,14 +4,20 @@ import { createClient } from "@/utils/supabase/server";
 
 export async function createStore(formData) {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
+  if (!user) {
+    return { error: "ユーザーが認証されていません。" };
+  }
   const machinesString = formData.get("machines");
   const imagesString = formData.get("images");
 
   const machinesData = machinesString ? JSON.parse(machinesString) : [];
   const imagesData = imagesString ? JSON.parse(imagesString) : [];
 
-  const { data, storeError } = await supabase
+  const { data, error: storeError } = await supabase
     .from("laundry_store")
     .insert({
       store: formData.get("store"),
@@ -19,18 +25,29 @@ export async function createStore(formData) {
       description: formData.get("description"),
       machines: machinesData,
       images: imagesData,
+      owner: user.id,
     })
-    .select("id, store")
+    .select("id,machines,store")
     .single();
 
   if (storeError) {
     return { error: storeError.message };
   }
+  const machinesState = data.machines.map((machine) => {
+    const newObj = {
+      id: machine.id,
+      name: machine.name,
+      break: false,
+      comment: "",
+    };
+    return newObj;
+  });
 
   const { error: stockError } = await supabase.from("laundry_state").insert({
     laundryId: data.id,
     detergent: 0,
     softener: 0,
+    machines: machinesState,
   });
 
   if (stockError) {

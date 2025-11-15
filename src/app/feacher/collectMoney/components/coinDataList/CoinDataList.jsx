@@ -1,5 +1,6 @@
-// CoinDataList.jsx
-import { useEffect } from "react";
+"use client";
+
+import { useEffect, useState } from "react";
 import {
   Card,
   Box,
@@ -16,6 +17,8 @@ import {
   HStack,
   Button,
   Table,
+  Stack,
+  Skeleton,
 } from "@chakra-ui/react";
 import { toaster } from "@/components/ui/toaster";
 import MoneyDataCard from "@/app/feacher/collectMoney/components/coinDataList/CoinDataCard";
@@ -28,8 +31,11 @@ import { LuPlus } from "react-icons/lu";
 import { useUploadPage } from "../../context/UploadPageContext";
 import CoinManyDataTable from "./CoinManyDataTable";
 
-const MoneyDataList = ({ valiant, laundryData, laundryId = "" }) => {
-  const { selectedItem, setSelectedItem, open, setOpen } = useUploadPage();
+const MoneyDataList = ({ valiant, laundryInfo }) => {
+  const { selectedItem, setSelectedItem, open, setOpen, data } =
+    useUploadPage();
+
+  const [totalRevenue, setTotalRevenue] = useState(null);
   useEffect(() => {
     setTimeout(() => {
       const toastInfo = sessionStorage.getItem("toast");
@@ -42,20 +48,25 @@ const MoneyDataList = ({ valiant, laundryData, laundryId = "" }) => {
     }, 0);
   }, []);
 
-  useEffect(() => {
-    if (laundryData && selectedItem) {
-      const updatedSelectedItem = laundryData.find(
-        (item) => item.id === selectedItem.id
-      );
-      if (updatedSelectedItem) {
-        setSelectedItem(updatedSelectedItem);
-      }
-    }
-  }, [laundryData]);
+  // このコードの意味を忘れた。不具合あればここかも
+  // useEffect(() => {
+  //   if (data && selectedItem) {
+  //     const updatedSelectedItem = data.find(
+  //       (item) => item.id === selectedItem.id
+  //     );
+  //     if (updatedSelectedItem) {
+  //       setSelectedItem(updatedSelectedItem);
+  //     }
+  //   }
+  // }, [data]);
 
-  const totalRevenue = laundryData.reduce((accumulator, current) => {
-    return accumulator + current.totalFunds;
-  }, 0);
+  useEffect(() => {
+    if (!data) return;
+    const totalRevenue = data.reduce((accumulator, current) => {
+      return accumulator + current.totalFunds;
+    }, 0);
+    setTotalRevenue(totalRevenue);
+  }, [data]);
 
   return (
     <Box minH="100vh" py={{ base: 6, md: 12 }} px={{ base: 3, md: 4 }}>
@@ -85,13 +96,13 @@ const MoneyDataList = ({ valiant, laundryData, laundryId = "" }) => {
                   color="gray.800"
                   letterSpacing="tight"
                 >
-                  {valiant === "aStore" && `${laundryData[0].laundryName}店`}
+                  {valiant === "aStore" && `${laundryInfo.laundryName}店`}
                   {valiant === "manyStore" && "全集計データ"}
                 </Heading>
 
                 {valiant === "aStore" && (
                   <Link
-                    href={`/collectMoney/${laundryData[0].laundryId}/newData`}
+                    href={`/collectMoney/${laundryInfo.laundryId}/newData`}
                     _hover={{ textDecoration: "none" }}
                   >
                     <Button
@@ -127,18 +138,24 @@ const MoneyDataList = ({ valiant, laundryData, laundryId = "" }) => {
                   >
                     総額
                   </Text>
+
                   <HStack align="baseline" flexWrap="wrap" gap={2}>
                     <Text fontSize="2xl" fontWeight="bold" color="gray.700">
                       ¥
                     </Text>
-                    <Text
-                      fontSize={{ base: "3xl", md: "5xl" }}
-                      fontWeight="extrabold"
-                      color="gray.800"
-                      lineHeight="1"
-                    >
-                      {totalRevenue.toLocaleString()}
-                    </Text>
+                    {totalRevenue ? (
+                      <Text
+                        fontSize={{ base: "3xl", md: "5xl" }}
+                        fontWeight="extrabold"
+                        color="gray.800"
+                        lineHeight="1"
+                      >
+                        {totalRevenue.toLocaleString()}
+                      </Text>
+                    ) : (
+                      <Skeleton height="10" width="20%" />
+                    )}
+
                     <Badge
                       bg="gray.200"
                       fontSize="md"
@@ -159,11 +176,9 @@ const MoneyDataList = ({ valiant, laundryData, laundryId = "" }) => {
                 boxShadow="0 4px 15px rgba(0, 0, 0, 0.05)"
               >
                 {valiant === "aStore" && (
-                  <MonoCoinDataChart data={laundryData} />
+                  <MonoCoinDataChart id={laundryInfo.laundryId} />
                 )}
-                {valiant === "manyStore" && (
-                  <ManyCoinDataChart data={laundryData} />
-                )}
+                {valiant === "manyStore" && <ManyCoinDataChart />}
               </Box>
             </VStack>
           </Card.Header>
@@ -220,7 +235,9 @@ const MoneyDataList = ({ valiant, laundryData, laundryId = "" }) => {
                       </Table.ColumnHeader>
                     </Table.Row>
                   </Table.Header>
-                  {valiant === "aStore" && <CoinMonoDataTable id={laundryId} />}
+                  {valiant === "aStore" && (
+                    <CoinMonoDataTable id={laundryInfo.laundryId} />
+                  )}
                   {valiant === "manyStore" && <CoinManyDataTable />}
                 </Table.Root>
 

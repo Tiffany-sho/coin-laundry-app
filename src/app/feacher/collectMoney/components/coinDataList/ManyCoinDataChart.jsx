@@ -10,8 +10,11 @@ import {
 } from "recharts";
 
 import { getYearMonth } from "@/date";
-import { useEffect, useState } from "react";
-import { Spinner, Box, Text } from "@chakra-ui/react";
+import { useEffect, useRef, useState } from "react";
+import { Box, Text } from "@chakra-ui/react";
+import ChartLoading from "@/app/feacher/partials/ChartLoading";
+import { createClient } from "@/utils/supabase/client";
+import { useUploadPage } from "../../context/UploadPageContext";
 
 const lineColor = [
   "red.solid",
@@ -97,13 +100,96 @@ const CustomTooltip = ({ active, payload, label }) => {
   );
 };
 
-const ManyCoinDataChart = ({ data }) => {
+const ManyCoinDataChart = () => {
+  const { data, setData } = useUploadPage();
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [chartData, setChartData] = useState([]);
   const [chartSeries, setChartSeries] = useState([]);
   const chart = useChart({
     data: chartData,
     series: chartSeries,
   });
+
+  const supabase = createClient();
+
+  const channelRef = useRef(null);
+
+  const setupChannel = (user) => {
+    const channelName = `collect_funds_ManyChart_${user.id}`;
+    const channel = supabase
+      .channel(channelName)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "collect_funds",
+          filter: `collecter=eq.${user.id}`,
+        },
+        (payload) => {
+          if (payload.eventType === "INSERT") {
+            setData((currentData) => [...currentData, payload.new]);
+          }
+          if (payload.eventType === "UPDATE") {
+            setData((currentData) =>
+              currentData.map((item) =>
+                item.id === payload.new.id ? payload.new : item
+              )
+            );
+          }
+          if (payload.eventType === "DELETE") {
+            setData((currentData) =>
+              currentData.filter((item) => item.id !== payload.old.id)
+            );
+          }
+        }
+      )
+      .subscribe();
+
+    channelRef.current = channel;
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      const { data: initialData, error: initialError } = await supabase
+        .from("collect_funds")
+        .select("*")
+        .eq("collecter", user.id);
+
+      if (initialError) {
+        setError(initialError.message);
+        setData(null);
+      } else {
+        setData(initialData);
+        setError(null);
+      }
+      setLoading(false);
+
+      if (user) {
+        setupChannel(user);
+      }
+    };
+
+    fetchData();
+
+    return () => {
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
+      }
+    };
+  }, [supabase]);
 
   useEffect(() => {
     if (!data) return;
@@ -157,8 +243,14 @@ const ManyCoinDataChart = ({ data }) => {
     setChartSeries(series);
   }, [data]);
 
+  if (loading) return <ChartLoading />;
+  if (error) return <ChartError message={error.messaage} />;
+
+  if (!data || data.length === 0) {
+    return <ChartError message="データが見つかりませんでした" />;
+  }
   if (chartData.length === 0 || chartSeries.length === 0) {
-    return <Spinner />;
+    return <ChartLoading />;
   }
 
   return (

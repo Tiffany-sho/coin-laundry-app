@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Chart, useChart } from "@chakra-ui/charts";
 import {
   CartesianGrid,
@@ -9,11 +9,100 @@ import {
   XAxis,
 } from "recharts";
 import { createNowData } from "@/date";
+import ChartLoading from "@/app/feacher/partials/ChartLoading";
+import { useUploadPage } from "../../context/UploadPageContext";
+import { createClient } from "@/utils/supabase/client";
+import ChartError from "@/app/feacher/partials/ChartError";
 
-const MonoCoinDataChart = ({ data }) => {
+const MonoCoinDataChart = ({ id }) => {
+  const { data, setData } = useUploadPage();
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [chartData, setChartData] = useState([]);
 
+  const supabase = createClient();
+
+  const channelRef = useRef(null);
+
+  const setupChannel = (user) => {
+    const channelName = `collect_funds_MonoChart_${user.id}`;
+    const channel = supabase
+      .channel(channelName)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "collect_funds",
+          filter: `collecter=eq.${user.id}`,
+        },
+        (payload) => {
+          if (payload.eventType === "INSERT") {
+            setData((currentData) => [...currentData, payload.new]);
+          }
+          if (payload.eventType === "UPDATE") {
+            setData((currentData) =>
+              currentData.map((item) =>
+                item.id === payload.new.id ? payload.new : item
+              )
+            );
+          }
+          if (payload.eventType === "DELETE") {
+            setData((currentData) =>
+              currentData.filter((item) => item.id !== payload.old.id)
+            );
+          }
+        }
+      )
+      .subscribe();
+
+    channelRef.current = channel;
+  };
+
   useEffect(() => {
+    const fetchData = async (id) => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      const { data: initialData, error: initialError } = await supabase
+        .from("collect_funds")
+        .select("*")
+        .eq("laundryId", id)
+        .eq("collecter", user.id);
+
+      if (initialError) {
+        setError(initialError.message);
+        setData(null);
+      } else {
+        setData(initialData);
+        setError(null);
+      }
+      setLoading(false);
+
+      if (user) {
+        setupChannel(user);
+      }
+    };
+
+    fetchData(id);
+
+    return () => {
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
+      }
+    };
+  }, [supabase]);
+
+  useEffect(() => {
+    if (!data) return;
     const newDataList = [...data].sort((a, b) => a.date - b.date);
     const dataList = newDataList.map((item) => {
       const total = item.totalFunds;
@@ -25,12 +114,24 @@ const MonoCoinDataChart = ({ data }) => {
     });
     setChartData(dataList);
   }, [data]);
+
   const chart = useChart({
     data: chartData,
+    dataKey: "coinData",
   });
 
+  if (loading) return <ChartLoading />;
+  if (error) return <ChartError message={error.messaage} />;
+
+  if (!data || data.length === 0) {
+    return <ChartError message="データが見つかりませんでした" />;
+  }
+  if (chartData.length === 0) {
+    return <ChartLoading />;
+  }
+
   return (
-    <Chart.Root maxH="md" chart={chart}>
+    <Chart.Root minWidth="0" chart={chart}>
       <LineChart data={chart.data} margin={{ left: 40, right: 40, top: 40 }}>
         <CartesianGrid
           stroke={chart.color("border")}
