@@ -12,7 +12,7 @@ const frameworks = createListCollection({
 });
 
 const OrderSelecter = () => {
-  const { setOrderAmount, setUpOrder } = useUploadPage();
+  const { setOrderAmount, setUpOrder, setPage } = useUploadPage();
   const [order, setOrder] = useState(["newer"]);
   useEffect(() => {
     switch (order[0]) {
@@ -33,6 +33,7 @@ const OrderSelecter = () => {
         setUpOrder(true);
         break;
     }
+    setPage(1);
   }, [order]);
   return (
     <Select.Root

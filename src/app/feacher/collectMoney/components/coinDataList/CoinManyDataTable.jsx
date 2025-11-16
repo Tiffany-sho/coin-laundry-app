@@ -1,27 +1,28 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Table, Badge, Text, Box, Spinner } from "@chakra-ui/react";
+import { Table, Badge, Text } from "@chakra-ui/react";
 import { createNowData } from "@/date";
 import { createClient } from "@/utils/supabase/client";
 import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
 import TableLoading from "@/app/feacher/partials/TableLoading";
+import TableError from "@/app/feacher/partials/TableError";
 
 const CoinManyDataTable = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [data, setData] = useState(null);
 
   const {
+    PAGE_SIZE,
     orderAmount,
     upOrder,
-    page,
     selectedItemId,
     setSelectedItem,
     open,
     setOpen,
+    displayData,
+    setDisplayData,
   } = useUploadPage();
-  const PAGE_SIZE = 20;
 
   const supabase = createClient();
 
@@ -41,17 +42,17 @@ const CoinManyDataTable = () => {
         },
         (payload) => {
           if (payload.eventType === "INSERT") {
-            setData((currentData) => [...currentData, payload.new]);
+            setDisplayData((currentData) => [...currentData, payload.new]);
           }
           if (payload.eventType === "UPDATE") {
-            setData((currentData) =>
+            setDisplayData((currentData) =>
               currentData.map((item) =>
                 item.id === payload.new.id ? payload.new : item
               )
             );
           }
           if (payload.eventType === "DELETE") {
-            setData((currentData) =>
+            setDisplayData((currentData) =>
               currentData.filter((item) => item.id !== payload.old.id)
             );
           }
@@ -73,22 +74,19 @@ const CoinManyDataTable = () => {
         return;
       }
 
-      const from = page * PAGE_SIZE;
-      const to = from + PAGE_SIZE - 1;
-
       setLoading(true);
       const { data: initialData, error: initialError } = await supabase
         .from("collect_funds")
         .select("*")
         .eq("collecter", user.id)
         .order(orderAmount, { ascending: upOrder })
-        .range(from, to);
+        .range(0, PAGE_SIZE - 1);
 
       if (initialError) {
         setError(initialError.message);
-        setData(null);
+        setDisplayData(null);
       } else {
-        setData(initialData);
+        setDisplayData(initialData);
         setError(null);
       }
       setLoading(false);
@@ -106,7 +104,7 @@ const CoinManyDataTable = () => {
         channelRef.current = null;
       }
     };
-  }, [supabase, page, orderAmount, upOrder]);
+  }, [supabase, orderAmount, upOrder]);
 
   useEffect(() => {
     if (!open) {
@@ -122,12 +120,12 @@ const CoinManyDataTable = () => {
   if (loading) return <TableLoading />;
   if (error) return <TableError message={error.message} />;
 
-  if (!data || data.length === 0) {
+  if (!displayData || displayData.length === 0) {
     return <TableError message="データがありません" />;
   }
   return (
     <Table.Body>
-      {data.map((item, index) => {
+      {displayData.map((item, index) => {
         const total = item.totalFunds;
 
         return (
@@ -141,7 +139,9 @@ const CoinManyDataTable = () => {
               transform: "scale(1.01)",
             }}
             transition="all 0.2s"
-            borderBottom={index === data.length - 1 ? "none" : "1px solid"}
+            borderBottom={
+              index === displayData.length - 1 ? "none" : "1px solid"
+            }
             borderColor="gray.100"
           >
             <Table.Cell py={4}>

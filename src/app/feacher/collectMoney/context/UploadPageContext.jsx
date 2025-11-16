@@ -10,11 +10,16 @@ export const UploadPageProvider = ({ children }) => {
 
   const [orderAmount, setOrderAmount] = useState("date");
   const [upOrder, setUpOrder] = useState(false);
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(1);
 
   const [data, setData] = useState(null);
 
+  const [displayData, setDisplayData] = useState([]);
+
+  const PAGE_SIZE = 20;
+
   const value = {
+    PAGE_SIZE,
     selectedItem,
     setSelectedItem,
     open,
@@ -27,6 +32,8 @@ export const UploadPageProvider = ({ children }) => {
     setPage,
     data,
     setData,
+    displayData,
+    setDisplayData,
   };
 
   return (
