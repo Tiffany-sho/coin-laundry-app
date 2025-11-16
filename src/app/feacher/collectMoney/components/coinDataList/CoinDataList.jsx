@@ -30,10 +30,9 @@ import DataClipBoard from "./DataClipBoard";
 import { LuPlus } from "@/app/feacher/Icon";
 import { useUploadPage } from "../../context/UploadPageContext";
 import CoinManyDataTable from "./CoinManyDataTable";
-import AddDataBtn from "./AddDataBtn";
 
 const MoneyDataList = ({ valiant, laundryInfo }) => {
-  const { selectedItem, setSelectedItem, open, setOpen, data, setPage } =
+  const { selectedItem, setSelectedItem, open, setOpen, data } =
     useUploadPage();
 
   const [totalRevenue, setTotalRevenue] = useState(null);
@@ -195,7 +194,7 @@ const MoneyDataList = ({ valiant, laundryInfo }) => {
                 <OrderSelecter />
               </Box>
 
-              <Stack
+              <Box
                 borderRadius="16px"
                 overflow="hidden"
                 boxShadow="0 2px 10px rgba(0, 0, 0, 0.04)"
@@ -241,11 +240,6 @@ const MoneyDataList = ({ valiant, laundryInfo }) => {
                   )}
                   {valiant === "manyStore" && <CoinManyDataTable />}
                 </Table.Root>
-
-                {valiant === "aStore" && (
-                  <AddDataBtn id={laundryInfo.laundryId} />
-                )}
-                {valiant === "manyStore" && <AddDataBtn />}
 
                 <Drawer.Root
                   size={{ base: "xs", md: "md" }}
@@ -321,7 +315,7 @@ const MoneyDataList = ({ valiant, laundryInfo }) => {
                     </Drawer.Positioner>
                   </Portal>
                 </Drawer.Root>
-              </Stack>
+              </Box>
             </VStack>
           </Card.Body>
         </Card.Root>
