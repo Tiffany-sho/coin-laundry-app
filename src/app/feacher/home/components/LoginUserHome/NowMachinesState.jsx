@@ -140,7 +140,7 @@ const NowMachinesState = async ({ id }) => {
               <VStack align="stretch" gap={2}>
                 <HStack justify="space-between">
                   <HStack gap={2}>
-                    <Icon.LiaStoreSolid color="#E53E3E" size={18} />
+                    <Icon.MdStore color="#E53E3E" size={18} />
                     <Text fontSize="sm" fontWeight="bold" color="gray.800">
                       {item.laundryName}
                     </Text>
