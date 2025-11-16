@@ -7,15 +7,26 @@ const getData = async () => {
   const supabase = await createClient();
   const {
     data: { user },
-    error,
+    authError,
   } = await supabase.auth.getUser();
   try {
+    if (authError) {
+      return {
+        error: { msg: "データの取得に失敗しました", status: 500 },
+      };
+    }
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .single();
+
     if (error) {
       return {
         error: { msg: "データの取得に失敗しました", status: 500 },
       };
     }
-    return { data: user };
+    return { data: data };
   } catch (err) {
     return {
       error: { msg: "予期しないエラー", status: 400 },
@@ -34,7 +45,7 @@ const Home = async () => {
 
   return (
     <>
-      <LoginUserHome id={data.id} />
+      <LoginUserHome id={data.id} username={data.username} />
     </>
   );
 };
