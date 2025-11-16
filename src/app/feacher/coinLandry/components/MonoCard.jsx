@@ -3,15 +3,9 @@
 import { useEffect } from "react";
 import { toaster } from "@/components/ui/toaster";
 import Link from "next/link";
-import {
-  PiHandCoinsLight,
-  LuWrench,
-  PiMapPin,
-  TbCoinYenFilled,
-  VscGraphLine,
-} from "./MonoCardIcon";
-import ImageCarousel from "../ImageCarusel/ImageCarusel";
-import ActionMenu from "../ActionMenu/ActionMenu";
+import * as Icon from "@/app/feacher/Icon";
+import ImageCarousel from "./ImageCarusel/ImageCarusel";
+import ActionMenu from "./ActionMenu/ActionMenu";
 import {
   Box,
   Container,
@@ -27,9 +21,9 @@ import {
   Badge,
   Grid,
 } from "@chakra-ui/react";
-import MonoDataTotal from "../CoinLaundryList/MonoDataTotal";
-import MachinesState from "../MachinesState";
-import NowLaundryNum from "../NowLaundryNum";
+import MonoDataTotal from "./CoinLaundryList/MonoDataTotal";
+import MachinesState from "./MachinesState";
+import NowLaundryNum from "./NowLaundryNum";
 
 const MonoCard = ({ coinLaundry }) => {
   useEffect(() => {
@@ -69,7 +63,7 @@ const MonoCard = ({ coinLaundry }) => {
               </Heading>
 
               <HStack color="gray.600" fontSize="sm" fontWeight="semibold">
-                <PiMapPin size={18} />
+                <Icon.PiMapPin size={18} />
                 <Text>{coinLaundry.location}</Text>
               </HStack>
               {coinLaundry.description && (
@@ -127,7 +121,7 @@ const MonoCard = ({ coinLaundry }) => {
                             borderRadius="full"
                             p={2}
                           >
-                            <LuWrench size={20} />
+                            <Icon.LuWrench size={20} />
                           </Box>
                         </HStack>
                         <Text fontSize="2xl" fontWeight="bold" color="blue.700">
@@ -155,7 +149,7 @@ const MonoCard = ({ coinLaundry }) => {
                               borderRadius="full"
                               p={2}
                             >
-                              <LuWrench size={24} />
+                              <Icon.LuWrench size={24} />
                             </Box>
                             <Drawer.Title fontSize="xl" fontWeight="bold">
                               設備一覧
@@ -262,7 +256,7 @@ const MonoCard = ({ coinLaundry }) => {
                         borderRadius="full"
                         p={2}
                       >
-                        <TbCoinYenFilled size={20} />
+                        <Icon.TbCoinYenFilled size={20} />
                       </Box>
                     </HStack>
                     <MonoDataTotal id={coinLaundry.id} />
@@ -277,7 +271,7 @@ const MonoCard = ({ coinLaundry }) => {
                           boxShadow: "md",
                         }}
                       >
-                        <VscGraphLine />
+                        <Icon.VscGraphLine />
                         集計データページへ
                       </Button>
                     </Link>
@@ -310,7 +304,7 @@ const MonoCard = ({ coinLaundry }) => {
                 transition="all 0.2s"
                 boxShadow="md"
               >
-                <PiHandCoinsLight size={24} />
+                <Icon.PiHandCoinsLight size={24} />
                 集金を開始
               </Button>
             </Link>

@@ -1,7 +1,5 @@
 import { Box, Flex, Text, Button } from "@chakra-ui/react";
-import { BiErrorCircle } from "react-icons/bi";
-import { LuRefreshCw } from "react-icons/lu";
-
+import * as Icon from "@/app/feacher/Icon";
 const ChartError = ({
   message = "データの読み込みに失敗しました",
   onRetry,
@@ -20,7 +18,6 @@ const ChartError = ({
         p={8}
         gap={6}
       >
-        {/* エラーアイコン */}
         <Box
           position="relative"
           animation="shake 0.5s ease-in-out"
@@ -42,7 +39,6 @@ const ChartError = ({
             justifyContent="center"
             position="relative"
           >
-            {/* パルスエフェクト */}
             <Box
               position="absolute"
               w="100%"
@@ -63,11 +59,10 @@ const ChartError = ({
                 },
               }}
             />
-            <BiErrorCircle size={48} color="#DC2626" />
+            <Icon.CiCircleAlert size={48} color="#DC2626" />
           </Box>
         </Box>
 
-        {/* エラーメッセージ */}
         <Box textAlign="center" maxW="400px">
           <Text fontSize="xl" fontWeight="bold" color="red.700" mb={2}>
             エラーが発生しました
@@ -77,7 +72,6 @@ const ChartError = ({
           </Text>
         </Box>
 
-        {/* リトライボタン */}
         {onRetry && (
           <Button
             size="lg"
@@ -94,12 +88,11 @@ const ChartError = ({
             borderRadius="full"
             fontWeight="semibold"
           >
-            <LuRefreshCw />
+            <Icon.LuRefreshCw />
             再読み込み
           </Button>
         )}
 
-        {/* 装飾的な要素 */}
         <Box
           position="absolute"
           top="20%"

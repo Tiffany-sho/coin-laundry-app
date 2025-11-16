@@ -17,7 +17,7 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { toaster } from "@/components/ui/toaster";
-import * as Icon from "./Icon";
+import * as Icon from "@/app/feacher/Icon";
 
 const MachinesState = ({ id }) => {
   const [data, setData] = useState(null);

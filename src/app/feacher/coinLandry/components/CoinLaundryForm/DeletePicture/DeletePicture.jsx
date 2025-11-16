@@ -1,5 +1,5 @@
 import { useCoinLaundryForm } from "@/app/feacher/coinLandry/context/CoinlaundryForm/CoinLaundryFormContext";
-import { LuX } from "react-icons/lu";
+import * as Icon from "@/app/feacher/Icon";
 import styles from "./DeletePicture.module.css";
 
 const DeletePicture = () => {
@@ -20,10 +20,11 @@ const DeletePicture = () => {
             <img src={item.url} alt="既存の写真" />
             <button
               type="button"
+              color="black"
               className={styles.deleteButton}
               onClick={() => deleteAction(item.url)}
             >
-              <LuX />
+              <Icon.LuX />
             </button>
           </div>
         ))}

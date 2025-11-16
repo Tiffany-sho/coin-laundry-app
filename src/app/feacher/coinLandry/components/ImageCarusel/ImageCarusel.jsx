@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Styles from "./ImageCarusel.module.css";
-import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
+import * as Icon from "@/app/feacher/Icon";
 
 const ImageCarousel = ({ images }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -58,13 +58,13 @@ const ImageCarousel = ({ images }) => {
             className={`${Styles.navigationButton} ${Styles.prev}`}
             onClick={goToPrevious}
           >
-            <LuChevronLeft size={24} />
+            <Icon.LuChevronLeft size={24} />
           </button>
           <button
             className={`${Styles.navigationButton} ${Styles.next}`}
             onClick={goToNext}
           >
-            <LuChevronRight size={24} />
+            <Icon.LuChevronRight size={24} />
           </button>
 
           <div className={Styles.carouselControls}>

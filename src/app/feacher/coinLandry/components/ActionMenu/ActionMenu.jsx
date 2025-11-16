@@ -4,7 +4,7 @@ import { toaster } from "@/components/ui/toaster";
 import Styles from "./ActionMenu.module.css";
 import { redirect } from "next/navigation";
 import AlertDialog from "@/app/feacher/dialog/AlertDialog";
-import * as Icon from "../MonoCard/MonoCardIcon";
+import * as Icon from "@/app/feacher/Icon";
 import { deleteStore } from "@/app/coinLaundry/action";
 
 const ActionMenu = ({ id, store }) => {

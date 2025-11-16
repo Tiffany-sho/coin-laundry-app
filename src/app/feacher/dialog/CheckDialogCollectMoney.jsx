@@ -17,9 +17,7 @@ import { redirect } from "next/navigation";
 import { createNowData } from "@/date";
 import { createData } from "@/app/collectMoney/action";
 
-import { RiMoneyCnyCircleLine } from "react-icons/ri";
-import { MdDateRange } from "react-icons/md";
-import { LiaStoreSolid } from "react-icons/lia";
+import * as Icon from "@/app/feacher/Icon";
 
 const coinWeight = 4.8;
 
@@ -139,7 +137,7 @@ const CheckDialog = ({
               <Stack gap={6}>
                 <Box>
                   <HStack mb={2}>
-                    <LiaStoreSolid size={24} />
+                    <Icon.LiaStoreSolid size={24} />
                     <Text fontSize="sm" fontWeight="semibold" color="gray.600">
                       店舗
                     </Text>
@@ -159,7 +157,7 @@ const CheckDialog = ({
                 </Box>
                 <Box>
                   <HStack mb={2}>
-                    <MdDateRange size={24} />
+                    <Icon.LuCalendar size={24} />
                     <Text fontSize="sm" fontWeight="semibold" color="gray.600">
                       日付
                     </Text>
@@ -182,7 +180,7 @@ const CheckDialog = ({
 
                 <Box>
                   <HStack mb={3}>
-                    <RiMoneyCnyCircleLine size={24} />
+                    <Icon.RiMoneyCnyCircleLine size={24} />
                     <Text fontSize="sm" fontWeight="semibold" color="gray.600">
                       集金データ
                     </Text>

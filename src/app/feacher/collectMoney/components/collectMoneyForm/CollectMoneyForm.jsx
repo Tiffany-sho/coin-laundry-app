@@ -19,9 +19,7 @@ import CheckDialog from "@/app/feacher/dialog/CheckDialogCollectMoney";
 import MachineAndMoney from "./MachineAndMoney";
 import MoneyTotal from "./MoneyTotal";
 
-import { RiMoneyCnyCircleLine } from "react-icons/ri";
-import { MdDateRange } from "react-icons/md";
-import { MdOutlineErrorOutline } from "react-icons/md";
+import * as Icon from "@/app/feacher/Icon";
 
 import FixSwitch from "./FixSwitch";
 import { createClient } from "@/utils/supabase/client";
@@ -149,7 +147,7 @@ const CollectMoneyForm = ({ coinLaundry }) => {
               _hover={{ borderColor: "teal.400", shadow: "md" }}
             >
               <HStack mb={3} color="gray.600">
-                <MdDateRange size={20} />
+                <Icon.LuCalendar size={20} />
                 <Text fontSize="sm" fontWeight="semibold">
                   集金日
                 </Text>
@@ -157,7 +155,6 @@ const CollectMoneyForm = ({ coinLaundry }) => {
               <EpochTimeSelector epoc={epoc} setEpoc={setEpoc} />
             </Box>
 
-            {/* 集金方法切り替え */}
             <Box
               p={5}
               bg="gray.50"
@@ -213,7 +210,7 @@ const CollectMoneyForm = ({ coinLaundry }) => {
                   shadow="sm"
                 >
                   <HStack mb={4} color="gray.600">
-                    <RiMoneyCnyCircleLine size={20} />
+                    <Icon.RiMoneyCnyCircleLine size={20} />
                     <Text fontSize="sm" fontWeight="semibold">
                       合計金額
                     </Text>
@@ -278,7 +275,7 @@ const CollectMoneyForm = ({ coinLaundry }) => {
               borderWidth="1px"
               borderColor="red.200"
             >
-              <MdOutlineErrorOutline />
+              <Icon.LiaStoreSolid />
               <Text color="red.700" fontSize="sm" fontWeight="medium">
                 {msg}
               </Text>

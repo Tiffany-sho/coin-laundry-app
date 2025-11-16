@@ -26,9 +26,9 @@ import {
 import CheckDialog from "@/app/feacher/dialog/CheckDialog/CheckDialog";
 import UploadPicture from "@/app/feacher/coinLandry/components/CoinLaundryForm/UploadPicture/UploadPicture";
 import DeletePicture from "@/app/feacher/coinLandry/components/CoinLaundryForm/DeletePicture/DeletePicture";
-import styles from "./CoinLaundryForm.module.css";
 import { useCoinLaundryForm } from "@/app/feacher/coinLandry/context/CoinlaundryForm/CoinLaundryFormContext";
 import { createStore, updateStore } from "@/app/coinLaundry/action";
+import styles from "./CoinLaundryForm.module.css";
 
 const CoinLaundryForm = ({ storeId, images = [], method }) => {
   const { state, dispatch } = useCoinLaundryForm();

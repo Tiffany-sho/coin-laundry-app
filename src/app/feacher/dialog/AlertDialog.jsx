@@ -1,7 +1,7 @@
 import { deleteData } from "@/app/collectMoney/action";
 import { toaster } from "@/components/ui/toaster";
 import { Button, CloseButton, Dialog, Portal } from "@chakra-ui/react";
-import { LuTrash2 } from "react-icons/lu";
+import { LuTrash2 } from "@/app/feacher/Icon";
 
 const AlertDialog = ({ id, target, setOpen, onRowClick, setMsg }) => {
   const deleteAction = async () => {

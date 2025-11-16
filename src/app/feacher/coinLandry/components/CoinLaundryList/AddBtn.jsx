@@ -1,6 +1,6 @@
 import { Box, Button } from "@chakra-ui/react";
 import Link from "next/link";
-import { IoMdAdd } from "react-icons/io";
+import { LuPlus } from "@/app/feacher/Icon";
 
 const AddBtn = () => {
   return (
@@ -21,7 +21,7 @@ const AddBtn = () => {
         _hover={{ bgColor: "gray.600" }}
       >
         <Box>
-          <IoMdAdd style={{ height: "35px", width: "35px" }} />
+          <LuPlus style={{ height: "35px", width: "35px" }} />
         </Box>
       </Button>
     </Link>

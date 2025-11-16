@@ -1,9 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
 import { Badge, Box, HStack, Text, VStack, Grid } from "@chakra-ui/react";
-import { LuCheck } from "react-icons/lu";
-import { CiCircleAlert } from "react-icons/ci";
-import { MdStore } from "react-icons/md";
-
+import * as Icon from "@/app/feacher/Icon";
 const supabase = await createClient();
 
 const getData = async (id) => {
@@ -59,7 +56,7 @@ const NowMachinesState = async ({ id }) => {
               設備状況
             </Text>
             <Box bg="green.500" color="white" borderRadius="full" p={1.5}>
-              <LuCheck size={16} />
+              <Icon.LuCheck size={16} />
             </Box>
           </HStack>
 
@@ -92,7 +89,7 @@ const NowMachinesState = async ({ id }) => {
             設備状況
           </Text>
           <Box bg="red.500" color="white" borderRadius="full" p={1.5}>
-            <CiCircleAlert size={16} />
+            <Icon.CiCircleAlert size={16} />
           </Box>
         </HStack>
 
@@ -143,7 +140,7 @@ const NowMachinesState = async ({ id }) => {
               <VStack align="stretch" gap={2}>
                 <HStack justify="space-between">
                   <HStack gap={2}>
-                    <MdStore color="#E53E3E" size={18} />
+                    <Icon.LiaStoreSolid color="#E53E3E" size={18} />
                     <Text fontSize="sm" fontWeight="bold" color="gray.800">
                       {item.laundryName}
                     </Text>

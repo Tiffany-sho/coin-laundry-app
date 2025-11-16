@@ -1,5 +1,5 @@
-import { Box, Flex, Text, Spinner } from "@chakra-ui/react";
-import { TbCoinYenFilled } from "react-icons/tb";
+import { Box, Flex, Text } from "@chakra-ui/react";
+import { TbCoinYenFilled } from "@/app/feacher/Icon";
 
 const PageLoading = () => {
   return (
@@ -76,7 +76,6 @@ const PageLoading = () => {
           </Text>
         </Box>
 
-        {/* プログレスドット */}
         <Flex gap={2}>
           {[0, 1, 2].map((i) => (
             <Box

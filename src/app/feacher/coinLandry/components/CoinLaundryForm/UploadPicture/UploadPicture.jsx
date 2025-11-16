@@ -1,7 +1,7 @@
 "use client";
 
 import { FileUpload } from "@chakra-ui/react";
-import { LuFileImage, LuX } from "react-icons/lu";
+import * as Icon from "@/app/feacher/Icon";
 import { useCoinLaundryForm } from "@/app/feacher/coinLandry/context/CoinlaundryForm/CoinLaundryFormContext";
 import styles from "./UploadPicture.module.css";
 
@@ -23,7 +23,7 @@ const FileUploadList = () => {
             className={styles.deleteButton}
             onClick={() => deleteAction(item)}
           >
-            <LuX />
+            <Icon.LuX />
           </button>
         </div>
       ))}
@@ -54,7 +54,7 @@ const UploadPicture = () => {
           <FileUpload.HiddenInput />
           <FileUpload.Trigger asChild>
             <button type="button" className={styles.uploadButton}>
-              <LuFileImage />
+              <Icon.LuFileImage />
               画像をアップロード
             </button>
           </FileUpload.Trigger>

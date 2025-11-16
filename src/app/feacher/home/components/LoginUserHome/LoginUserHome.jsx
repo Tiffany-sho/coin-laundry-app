@@ -10,8 +10,7 @@ import {
   Button,
   Badge,
 } from "@chakra-ui/react";
-import { LuCalendar } from "react-icons/lu";
-import { MdTrendingUp } from "react-icons/md";
+import * as Icon from "@/app/feacher/Icon";
 import MonthFundTotal from "./MonthFundTotal";
 import NowMachinesState from "./NowMachinesState";
 import NowStockState from "./NowStockState";
@@ -47,7 +46,7 @@ const LoginUserHome = ({ id, username = "集金担当者" }) => {
               {getGreeting()}、{username}さん
             </Heading>
             <HStack gap={2} color="gray.600">
-              <LuCalendar size={16} />
+              <Icon.LuCalendar size={16} />
               <Text fontSize={{ base: "sm", md: "md" }}>
                 {getCurrentDate()}
               </Text>
@@ -86,7 +85,7 @@ const LoginUserHome = ({ id, username = "集金担当者" }) => {
             <VStack align="stretch" gap={3} position="relative">
               <HStack justify="space-between">
                 <HStack gap={2}>
-                  <MdTrendingUp color="white" size={24} />
+                  <Icon.LuTrendingUp color="white" size={24} />
                   <Text
                     fontSize={{ base: "sm", md: "md" }}
                     color="white"

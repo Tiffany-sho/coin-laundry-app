@@ -1,8 +1,7 @@
 "use client";
 
-import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
-import * as Icon from "../Icon";
+import * as Icon from "@/app/feacher/Icon";
 import styles from "./FooterNavber.module.css";
 import { useEffect, useState } from "react";
 
@@ -15,13 +14,10 @@ const FooterNavbar = ({ user }) => {
       const currentScrollY = window.scrollY;
 
       if (currentScrollY < 10) {
-        // 最上部付近では常に表示
         setIsVisible(true);
       } else if (currentScrollY < lastScrollY) {
-        // 上スクロール: 表示
         setIsVisible(true);
       } else if (currentScrollY > lastScrollY && currentScrollY > 80) {
-        // 下スクロール: 非表示
         setIsVisible(false);
       }
 

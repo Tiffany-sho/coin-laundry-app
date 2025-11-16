@@ -1,4 +1,4 @@
-import MonoCard from "@/app/feacher/coinLandry/components/MonoCard/MonoCard";
+import MonoCard from "@/app/feacher/coinLandry/components/MonoCard";
 import ErrorPage from "@/app/feacher/jumpPage/ErrorPage/ErrorPage";
 
 import { createClient } from "@/utils/supabase/server";

@@ -1,6 +1,5 @@
 import { Table, Flex, Text, Button, Box } from "@chakra-ui/react";
-import { BiErrorCircle } from "react-icons/bi";
-import { LuRefreshCw } from "react-icons/lu";
+import * as Icon from "@/app/feacher/Icon";
 
 const TableError = ({
   message = "データの読み込みに失敗しました",
@@ -24,7 +23,6 @@ const TableError = ({
               },
             }}
           >
-            {/* エラーアイコン */}
             <Box
               position="relative"
               animation="shake 0.5s ease-in-out"
@@ -46,7 +44,6 @@ const TableError = ({
                 justifyContent="center"
                 position="relative"
               >
-                {/* パルスエフェクト */}
                 <Box
                   position="absolute"
                   w="100%"
@@ -67,11 +64,10 @@ const TableError = ({
                     },
                   }}
                 />
-                <BiErrorCircle size={36} color="#DC2626" />
+                <Icon.CiCircleAlert size={36} color="#DC2626" />
               </Box>
             </Box>
 
-            {/* エラーメッセージ */}
             <Box textAlign="center" maxW="500px" px={4}>
               <Text fontSize="lg" fontWeight="bold" color="red.700" mb={2}>
                 エラーが発生しました
@@ -81,7 +77,6 @@ const TableError = ({
               </Text>
             </Box>
 
-            {/* リトライボタン */}
             {onRetry && (
               <Button
                 size="md"
@@ -99,7 +94,7 @@ const TableError = ({
                 fontWeight="semibold"
                 mt={2}
               >
-                <LuRefreshCw />
+                <Icon.LuRefreshCw />
                 再読み込み
               </Button>
             )}

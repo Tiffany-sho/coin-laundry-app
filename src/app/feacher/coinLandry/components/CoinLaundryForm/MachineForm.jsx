@@ -12,7 +12,7 @@ import {
   Textarea,
   Box,
 } from "@chakra-ui/react";
-import { LuMinus, LuPlus } from "react-icons/lu";
+import * as Icon from "@/app/feacher/Icon";
 import PropoverForm from "./PropoverForm";
 import { useCoinLaundryForm } from "@/app/feacher/coinLandry/context/CoinlaundryForm/CoinLaundryFormContext";
 
@@ -87,7 +87,7 @@ const MachineForm = ({ setOpen }) => {
                             transition="all 0.2s"
                             onClick={() => handleCountChange(machine.name, -1)}
                           >
-                            <LuMinus />
+                            <Icon.LuMinus />
                           </IconButton>
                         </NumberInput.DecrementTrigger>
                       ) : (
@@ -101,7 +101,7 @@ const MachineForm = ({ setOpen }) => {
                           disabled={true}
                           onClick={() => handleCountChange(machine.name, -1)}
                         >
-                          <LuMinus />
+                          <Icon.LuMinus />
                         </IconButton>
                       )}
 
@@ -129,7 +129,7 @@ const MachineForm = ({ setOpen }) => {
                           transition="all 0.2s"
                           onClick={() => handleCountChange(machine.name, 1)}
                         >
-                          <LuPlus />
+                          <Icon.LuPlus />
                         </IconButton>
                       </NumberInput.IncrementTrigger>
                     </HStack>

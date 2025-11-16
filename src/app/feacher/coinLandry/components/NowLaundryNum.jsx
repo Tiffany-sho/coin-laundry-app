@@ -14,10 +14,9 @@ import {
   Box,
   Heading,
 } from "@chakra-ui/react";
-import { LuMinus, LuPlus } from "react-icons/lu";
+import * as Icon from "@/app/feacher/Icon";
 import { useEffect, useState } from "react";
 import { toaster } from "@/components/ui/toaster";
-import * as Icon from "./Icon";
 
 const NowLaundryNum = ({ id }) => {
   const [data, setData] = useState(null);
@@ -271,7 +270,7 @@ const NowLaundryNum = ({ id }) => {
                         disabled={detergent <= 0}
                         borderRadius="full"
                       >
-                        <LuMinus />
+                        <Icon.LuMinus />
                       </IconButton>
                       <Box
                         bg="white"
@@ -297,7 +296,7 @@ const NowLaundryNum = ({ id }) => {
                         onClick={() => setDetergent((prev) => prev + 1)}
                         borderRadius="full"
                       >
-                        <LuPlus />
+                        <Icon.LuPlus />
                       </IconButton>
                     </HStack>
                   </VStack>
@@ -319,7 +318,7 @@ const NowLaundryNum = ({ id }) => {
                         disabled={softener <= 0}
                         borderRadius="full"
                       >
-                        <LuMinus />
+                        <Icon.LuMinus />
                       </IconButton>
                       <Box
                         bg="white"
@@ -341,7 +340,7 @@ const NowLaundryNum = ({ id }) => {
                         onClick={() => setSoftener((prev) => prev + 1)}
                         borderRadius="full"
                       >
-                        <LuPlus />
+                        <Icon.LuPlus />
                       </IconButton>
                     </HStack>
                   </VStack>

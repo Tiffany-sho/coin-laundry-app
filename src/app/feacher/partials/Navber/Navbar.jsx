@@ -1,6 +1,5 @@
 "use client";
 
-import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import styles from "./Navber.module.css";
 import { Image } from "@chakra-ui/react";

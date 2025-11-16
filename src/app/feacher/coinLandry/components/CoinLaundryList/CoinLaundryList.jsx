@@ -1,11 +1,9 @@
 // CoinLaundryList.jsx
 import Link from "next/link";
-import { LuMapPin } from "react-icons/lu";
 import { Button, Card, Flex, Image, Box, Grid } from "@chakra-ui/react";
 import DisplayMonthBenifit from "./DisplayMonthBenifit";
 import NowLaundryNum from "../NowLaundryNum";
-import { TbCoinYenFilled } from "react-icons/tb";
-import { BiMessageSquareDetail } from "react-icons/bi";
+import * as Icon from "@/app/feacher/Icon";
 import MachinesState from "../MachinesState";
 
 const CoinLaundryList = ({ coinLaundry }) => {
@@ -54,7 +52,7 @@ const CoinLaundryList = ({ coinLaundry }) => {
           color="gray.600"
           lineHeight="1.7"
         >
-          <LuMapPin />
+          <Icon.PiMapPin />
           {coinLaundry.location}
         </Card.Description>
 
@@ -88,7 +86,7 @@ const CoinLaundryList = ({ coinLaundry }) => {
               transition="all 0.2s"
               _hover={{ bg: "gray.800" }}
             >
-              <BiMessageSquareDetail /> 詳細
+              <Icon.BiMessageSquareDetail /> 詳細
             </Button>
           </Link>
 
@@ -106,7 +104,7 @@ const CoinLaundryList = ({ coinLaundry }) => {
               transition="all 0.2s"
               _hover={{ bg: "gray.50" }}
             >
-              <TbCoinYenFilled /> 集金
+              <Icon.TbCoinYenFilled /> 集金
             </Button>
           </Link>
         </Flex>

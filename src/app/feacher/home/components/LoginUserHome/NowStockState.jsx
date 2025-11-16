@@ -1,8 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
-import { Badge, Box, HStack, Text, VStack, Icon } from "@chakra-ui/react";
-import { LuCheck, LuPackage } from "react-icons/lu";
-import { CiCircleAlert } from "react-icons/ci";
-import { MdStore } from "react-icons/md";
+import { Badge, Box, HStack, Text, VStack } from "@chakra-ui/react";
+import * as Icon from "@/app/feacher/Icon";
 
 const getData = async (id) => {
   const supabase = await createClient();
@@ -59,7 +57,7 @@ const NowStockState = async ({ id }) => {
               在庫状況
             </Text>
             <Box bg="green.500" color="white" borderRadius="full" p={1.5}>
-              <LuCheck size={16} />
+              <Icon.LuCheck size={16} />
             </Box>
           </HStack>
 
@@ -92,7 +90,7 @@ const NowStockState = async ({ id }) => {
             在庫状況
           </Text>
           <Box bg="orange.500" color="white" borderRadius="full" p={1.5}>
-            <CiCircleAlert size={16} />
+            <Icon.CiCircleAlert size={16} />
           </Box>
         </HStack>
 
@@ -146,7 +144,7 @@ const NowStockState = async ({ id }) => {
                 {/* 店舗名 */}
                 <HStack justify="space-between">
                   <HStack gap={2}>
-                    <MdStore
+                    <Icon.CiCircleAlert
                       color={isCritical ? "#E53E3E" : "#DD6B20"}
                       size={18}
                     />
@@ -195,7 +193,7 @@ const NowStockState = async ({ id }) => {
                     alignItems="center"
                     gap={1}
                   >
-                    <LuPackage size={12} />
+                    <Icon.LuPackage size={12} />
                     洗剤: {item.detergent}個
                   </Badge>
                   <Badge
@@ -222,7 +220,7 @@ const NowStockState = async ({ id }) => {
                     alignItems="center"
                     gap={1}
                   >
-                    <LuPackage size={12} />
+                    <Icon.LuPackage size={12} />
                     柔軟剤: {item.softener}個
                   </Badge>
                 </HStack>

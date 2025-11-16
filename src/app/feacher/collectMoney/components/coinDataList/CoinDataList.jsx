@@ -27,7 +27,7 @@ import OrderSelecter from "./OrderSelecter";
 import MonoCoinDataChart from "./MonoCoinDataChart";
 import ManyCoinDataChart from "./ManyCoinDataChart";
 import DataClipBoard from "./DataClipBoard";
-import { LuPlus } from "react-icons/lu";
+import { LuPlus } from "@/app/feacher/Icon";
 import { useUploadPage } from "../../context/UploadPageContext";
 import CoinManyDataTable from "./CoinManyDataTable";
 import AddDataBtn from "./AddDataBtn";

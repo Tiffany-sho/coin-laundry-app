@@ -10,7 +10,7 @@ import {
   Flex,
 } from "@chakra-ui/react";
 
-import { FaArrowsRotate } from "react-icons/fa6";
+import { LuRefreshCw } from "@/app/feacher/Icon";
 
 const coinWeight = 4.8;
 
@@ -121,7 +121,7 @@ const MachineAndMoney = ({ machinesAndFunds, setMachinesAndFunds }) => {
                 }}
                 transition="all 0.3s"
               >
-                <FaArrowsRotate size={18} />
+                <LuRefreshCw size={18} />
               </Button>
             </Flex>
 

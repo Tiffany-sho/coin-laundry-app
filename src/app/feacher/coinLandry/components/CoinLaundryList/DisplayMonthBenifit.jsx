@@ -5,7 +5,7 @@ import {
 } from "@/date";
 import { createClient } from "@/utils/supabase/server";
 import { Text, VStack, Box, HStack, Badge } from "@chakra-ui/react";
-import { LuTrendingUp, LuTrendingDown, LuMinus } from "react-icons/lu";
+import * as Icon from "@/app/feacher/Icon";
 import ErrorPage from "@/app/feacher/jumpPage/ErrorPage/ErrorPage";
 
 const getData = async (id) => {
@@ -110,9 +110,9 @@ const DisplayMonthBenifit = async ({ id }) => {
               gap={1}
             >
               {isIncrease ? (
-                <LuTrendingUp size={12} />
+                <Icon.LuTrendingUp size={12} />
               ) : (
-                <LuTrendingDown size={12} />
+                <Icon.LuTrendingDown size={12} />
               )}
               {isIncrease ? "+" : ""}
               {percentageChange}%
@@ -129,7 +129,7 @@ const DisplayMonthBenifit = async ({ id }) => {
               alignItems="center"
               gap={1}
             >
-              <LuMinus size={12} />
+              <Icon.LuMinus size={12} />
               変動なし
             </Badge>
           )}

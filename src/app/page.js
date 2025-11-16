@@ -43,11 +43,7 @@ const Home = async () => {
     return <NotLoginUserHome />;
   }
 
-  return (
-    <>
-      <LoginUserHome id={data.id} username={data.username} />
-    </>
-  );
+  return <LoginUserHome id={data.id} username={data.username} />;
 };
 
 export default Home;

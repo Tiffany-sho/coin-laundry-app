@@ -13,7 +13,7 @@ import {
 } from "@chakra-ui/react";
 import { createNowData } from "@/date";
 import { toaster } from "@/components/ui/toaster";
-import { LuCheck, LuPencilLine, LuX } from "react-icons/lu";
+import * as Icon from "@/app/feacher/Icon";
 import { useEffect, useState } from "react";
 import AlertDialog from "@/app/feacher/dialog/AlertDialog";
 import { updateData, updateDate } from "@/app/collectMoney/action";
@@ -304,17 +304,17 @@ const MoneyDataCard = () => {
                         <Editable.Control>
                           <Editable.EditTrigger asChild>
                             <IconButton variant="ghost" size="sm">
-                              <LuPencilLine />
+                              <Icon.LuPencilLine />
                             </IconButton>
                           </Editable.EditTrigger>
                           <Editable.CancelTrigger asChild>
                             <IconButton variant="outline" size="sm">
-                              <LuX />
+                              <Icon.LuX />
                             </IconButton>
                           </Editable.CancelTrigger>
                           <Editable.SubmitTrigger asChild>
                             <IconButton variant="solid" size="sm">
-                              <LuCheck />
+                              <Icon.LuCheck />
                             </IconButton>
                           </Editable.SubmitTrigger>
                         </Editable.Control>
@@ -379,17 +379,17 @@ const MoneyDataCard = () => {
                 <Editable.Control>
                   <Editable.EditTrigger asChild>
                     <IconButton variant="ghost" size="sm">
-                      <LuPencilLine />
+                      <Icon.LuPencilLine />
                     </IconButton>
                   </Editable.EditTrigger>
                   <Editable.CancelTrigger asChild>
                     <IconButton variant="outline" size="sm">
-                      <LuX />
+                      <Icon.LuX />
                     </IconButton>
                   </Editable.CancelTrigger>
                   <Editable.SubmitTrigger asChild>
                     <IconButton variant="solid" size="sm">
-                      <LuCheck />
+                      <Icon.LuCheck />
                     </IconButton>
                   </Editable.SubmitTrigger>
                 </Editable.Control>
