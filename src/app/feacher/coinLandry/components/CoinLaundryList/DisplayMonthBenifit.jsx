@@ -213,7 +213,7 @@ const DisplayMonthBenifit = async ({ id }) => {
       )}
 
       <Text fontSize="xs" color="gray.500" mt={1}>
-        最終回収: {createNowData(lastestDate)}
+        {lastestDate !== 0 && `最終回収: ${createNowData(lastestDate)}`}
       </Text>
     </VStack>
   );

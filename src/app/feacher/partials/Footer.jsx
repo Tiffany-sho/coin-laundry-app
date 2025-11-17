@@ -1,18 +1,11 @@
-import { Box, Heading, HStack, Stack, Text } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 
 const Footer = () => {
   return (
-    <Box
-      bg="gray.900"
-      color="gray.300"
-      py={2}
-      zIndex="2000"
-      position="relative"
-    >
+    <Box bg="gray.900" color="gray.300" zIndex="2000" position="relative" p={2}>
       <Box
         borderTop="1px"
         borderColor="gray.800"
-        pt={8}
         textAlign="center"
         fontSize="sm"
         color="gray.500"
