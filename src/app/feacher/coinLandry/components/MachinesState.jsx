@@ -33,22 +33,11 @@ const MachinesState = ({ id }) => {
       setLoading(false);
       return;
     }
-
-    const fetchData = async (id) => {
+    const fetchData = async () => {
       setLoading(true);
-      const {
-        data: { user },
-        authError,
-      } = await supabase.auth.getUser();
-
-      if (authError) {
-        setError(authError.message);
-        setData(null);
-      }
       const { data: initialData, error: initialError } = await supabase
         .from("laundry_state")
         .select("*")
-        .eq("stocker", user.id)
         .eq("laundryId", id)
         .single();
 
@@ -62,7 +51,7 @@ const MachinesState = ({ id }) => {
       }
       setLoading(false);
     };
-    fetchData(id);
+    fetchData();
   }, [id]);
 
   useEffect(() => {

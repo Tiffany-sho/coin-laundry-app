@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import {
   Box,
   Container,
@@ -11,29 +12,13 @@ import {
   Badge,
 } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
+=======
+>>>>>>> parent of d9b631f (ログインユーザのホーム画面完成)
 import MonthFundTotal from "./MonthFundTotal";
-import NowMachinesState from "./NowMachinesState";
-import NowStockState from "./NowStockState";
 
-const getGreeting = () => {
-  const hour = new Date().getHours();
-  if (hour < 11) return "おはようございます";
-  if (hour < 17) return "こんにちは";
-  return "こんばんは";
-};
-
-const getCurrentDate = () => {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth() + 1;
-  const date = today.getDate();
-  const days = ["日", "月", "火", "水", "木", "金", "土"];
-  const day = days[today.getDay()];
-  return `${year}年${month}月${date}日（${day}）`;
-};
-
-const LoginUserHome = ({ id, username = "集金担当者" }) => {
+const LoginUserHome = ({ id }) => {
   return (
+<<<<<<< HEAD
     <Box bg="gray.50" minH="100vh" pb={20}>
       <Container
         maxW="container.xl"
@@ -268,6 +253,12 @@ const LoginUserHome = ({ id, username = "集金担当者" }) => {
         </VStack>
       </Container>
     </Box>
+=======
+    <>
+      <div>おはようございます</div>
+      <MonthFundTotal id={id} />
+    </>
+>>>>>>> parent of d9b631f (ログインユーザのホーム画面完成)
   );
 };
 

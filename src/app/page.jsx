@@ -7,26 +7,15 @@ const getData = async () => {
   const supabase = await createClient();
   const {
     data: { user },
-    authError,
+    error,
   } = await supabase.auth.getUser();
   try {
-    if (authError) {
-      return {
-        error: { msg: "データの取得に失敗しました", status: 500 },
-      };
-    }
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", user.id)
-      .single();
-
     if (error) {
       return {
         error: { msg: "データの取得に失敗しました", status: 500 },
       };
     }
-    return { data: data };
+    return { data: user };
   } catch (err) {
     return {
       error: { msg: "予期しないエラー", status: 400 },
@@ -43,7 +32,15 @@ const Home = async () => {
     return <NotLoginUserHome />;
   }
 
+<<<<<<< HEAD:src/app/page.jsx
   return <LoginUserHome id={data.id} username={data.username} />;
+=======
+  return (
+    <>
+      <LoginUserHome id={data.id} />
+    </>
+  );
+>>>>>>> parent of d9b631f (ログインユーザのホーム画面完成):src/app/page.js
 };
 
 export default Home;

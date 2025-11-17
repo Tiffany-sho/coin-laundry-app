@@ -2,7 +2,7 @@
 
 import { createClient } from "@/utils/supabase/client";
 import { Button, Stack, Box, Text } from "@chakra-ui/react";
-import * as Icon from "@/app/feacher/Icon";
+import * as Icon from "./Icon";
 
 export default function ProviderForm({ title }) {
   const supabase = createClient();
