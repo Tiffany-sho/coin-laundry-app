@@ -17,11 +17,11 @@ const getData = async (id) => {
     (item) => item.detergent < 2 || item.softener < 2
   );
 
-  return { data: lowStockItems };
+  return { data: data, lowStockItems: lowStockItems };
 };
 
 const NowStockState = async ({ id }) => {
-  const { data: lowStockItems, error } = await getData(id);
+  const { data, lowStockItems, error } = await getData(id);
 
   if (error) {
     return (
@@ -34,6 +34,26 @@ const NowStockState = async ({ id }) => {
       >
         <Text color="red.700" fontWeight="semibold">
           データ取得失敗
+        </Text>
+      </Box>
+    );
+  }
+
+  if (!data || data.length === 0) {
+    return (
+      <Box
+        bg="green.50"
+        p={4}
+        borderRadius="lg"
+        border="2px solid"
+        borderLeft="4px solid"
+        borderColor="green.500"
+      >
+        <Text fontSize="sm" color="gray.600" fontWeight="semibold">
+          在庫状況
+        </Text>
+        <Text color="red.700" fontWeight="semibold">
+          店舗がありません
         </Text>
       </Box>
     );

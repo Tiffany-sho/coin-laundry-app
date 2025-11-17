@@ -15,6 +15,7 @@ import { Box, Text } from "@chakra-ui/react";
 import ChartLoading from "@/app/feacher/partials/ChartLoading";
 import { createClient } from "@/utils/supabase/client";
 import { useUploadPage } from "../../context/UploadPageContext";
+import ChartError from "@/app/feacher/partials/ChartError";
 
 const lineColor = [
   "red.solid",

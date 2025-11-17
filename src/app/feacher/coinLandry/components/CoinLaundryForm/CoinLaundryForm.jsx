@@ -12,6 +12,8 @@ import {
   CloseButton,
   Drawer,
   Portal,
+  Flex,
+  Text,
 } from "@chakra-ui/react";
 import { useState, useRef } from "react";
 import Link from "next/link";
@@ -24,11 +26,10 @@ import {
   deleteImage,
 } from "@/app/api/supabaseFunctions/route";
 import CheckDialog from "@/app/feacher/dialog/CheckDialog/CheckDialog";
-import UploadPicture from "@/app/feacher/coinLandry/components/CoinLaundryForm/UploadPicture/UploadPicture";
-import DeletePicture from "@/app/feacher/coinLandry/components/CoinLaundryForm/DeletePicture/DeletePicture";
+import UploadPicture from "@/app/feacher/coinLandry/components/CoinLaundryForm/UploadPicture";
+import DeletePicture from "@/app/feacher/coinLandry/components/CoinLaundryForm/DeletePicture";
 import { useCoinLaundryForm } from "@/app/feacher/coinLandry/context/CoinlaundryForm/CoinLaundryFormContext";
 import { createStore, updateStore } from "@/app/coinLaundry/action";
-import styles from "./CoinLaundryForm.module.css";
 
 const CoinLaundryForm = ({ storeId, images = [], method }) => {
   const { state, dispatch } = useCoinLaundryForm();
@@ -170,31 +171,81 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
   };
 
   return (
-    <div className={styles.formContainer}>
-      <div className={styles.formWrapper}>
+    <Flex
+      justify="center"
+      align="center"
+      minH="100vh"
+      p={{ base: 3, md: 5 }}
+      bg="gray.50"
+    >
+      <Box w="full" maxW="500px">
         <form ref={formRef}>
-          <Card.Root maxW="sm" size="lg">
-            <Card.Header>
-              <Card.Title>
+          <Card.Root
+            borderRadius="2xl"
+            boxShadow="xl"
+            bg="white"
+            overflow="hidden"
+          >
+            <Card.Header bg="gray.700" color="white" p={{ base: 4, md: 6 }}>
+              <Card.Title
+                fontSize={{ base: "xl", md: "2xl" }}
+                fontWeight="bold"
+                mb={state.msg ? 2 : 0}
+              >
                 {method === "POST" && "登録"}
                 {method === "PUT" && "編集"}フォーム
               </Card.Title>
               {state.msg && (
-                <div className={styles.errorMessage}>{state.msg}</div>
+                <Text color="red.300" fontSize="sm" fontWeight="medium" mt={2}>
+                  {state.msg}
+                </Text>
               )}
             </Card.Header>
-            <Card.Body>
-              <Stack gap="7" w="full">
+
+            <Card.Body p={{ base: 4, md: 8 }}>
+              <Stack gap={6} w="full">
                 <Field.Root>
-                  <Field.Label htmlFor="store">店舗名</Field.Label>
-                  <InputGroup endAddon="店">
+                  <Field.Label
+                    fontSize="sm"
+                    fontWeight="semibold"
+                    color="gray.700"
+                    mb={2}
+                  >
+                    店舗名
+                  </Field.Label>
+                  <InputGroup
+                    endAddon="店"
+                    endAddonProps={{
+                      bg: "gray.100",
+                      color: "gray.600",
+                      px: 4,
+                      fontWeight: "semibold",
+                      fontSize: "sm",
+                      borderLeft: "1px solid",
+                      borderColor: "gray.200",
+                    }}
+                  >
                     <Input
-                      size="xs"
                       type="text"
                       name="store"
                       id="store"
                       value={state.store}
-                      placeholder="例）四条河原町"
+                      placeholder="例)四条河原町"
+                      border="2px solid"
+                      borderColor="gray.200"
+                      borderRadius="lg"
+                      py={2.5}
+                      px={3}
+                      fontSize="16px"
+                      transition="all 0.2s"
+                      _focus={{
+                        borderColor: "gray.700",
+                        boxShadow: "0 0 0 3px rgba(45, 55, 72, 0.1)",
+                        outline: "none",
+                      }}
+                      _placeholder={{
+                        color: "gray.400",
+                      }}
                       onChange={(e) =>
                         dispatch({
                           type: "SET_FORM_DATA",
@@ -206,14 +257,35 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
                 </Field.Root>
 
                 <Field.Root>
-                  <Field.Label htmlFor="location">場所</Field.Label>
+                  <Field.Label
+                    fontSize="sm"
+                    fontWeight="semibold"
+                    color="gray.700"
+                    mb={2}
+                  >
+                    場所
+                  </Field.Label>
                   <Input
-                    size="xs"
                     type="text"
                     name="location"
                     id="location"
                     value={state.location}
-                    placeholder="例）京都府京都市下京区"
+                    placeholder="例)京都府京都市下京区"
+                    border="2px solid"
+                    borderColor="gray.200"
+                    borderRadius="lg"
+                    py={2.5}
+                    px={3}
+                    fontSize="16px"
+                    transition="all 0.2s"
+                    _focus={{
+                      borderColor: "gray.700",
+                      boxShadow: "0 0 0 3px rgba(45, 55, 72, 0.1)",
+                      outline: "none",
+                    }}
+                    _placeholder={{
+                      color: "gray.400",
+                    }}
                     onChange={(e) =>
                       dispatch({
                         type: "SET_FORM_DATA",
@@ -224,16 +296,36 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
                 </Field.Root>
 
                 <Field.Root>
-                  <Field.Label htmlFor="description">概要</Field.Label>
+                  <Field.Label
+                    fontSize="sm"
+                    fontWeight="semibold"
+                    color="gray.700"
+                    mb={2}
+                  >
+                    概要
+                  </Field.Label>
                   <Textarea
-                    size="xs"
-                    type="text"
                     name="description"
                     id="description"
                     resize="none"
                     h="20"
                     value={state.description}
-                    placeholder="例）デパートやブティックだけでなく、着物や書道具を商う古くからの店が並ぶ繁華街です。"
+                    placeholder="例)デパートやブティックだけでなく、着物や書道具を商う古くからの店が並ぶ繁華街です。"
+                    border="2px solid"
+                    borderColor="gray.200"
+                    borderRadius="lg"
+                    py={2.5}
+                    px={3}
+                    fontSize="16px"
+                    transition="all 0.2s"
+                    _focus={{
+                      borderColor: "gray.700",
+                      boxShadow: "0 0 0 3px rgba(45, 55, 72, 0.1)",
+                      outline: "none",
+                    }}
+                    _placeholder={{
+                      color: "gray.400",
+                    }}
                     onChange={(e) =>
                       dispatch({
                         type: "SET_FORM_DATA",
@@ -253,23 +345,46 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
                 >
                   <Drawer.Trigger asChild>
                     <Button
-                      className={styles.drawerButton}
+                      w="full"
+                      bg="gray.100"
+                      color="gray.700"
+                      fontWeight="semibold"
+                      py={3}
+                      borderRadius="lg"
+                      border="2px solid"
+                      borderColor="gray.200"
+                      transition="all 0.2s"
+                      _hover={{
+                        bg: "gray.200",
+                      }}
                       onClick={() => setOpen((prev) => !prev)}
                     >
                       {open ? "選択中..." : "機械選択"}
                     </Button>
                   </Drawer.Trigger>
                   <Portal>
-                    <Drawer.Backdrop />
+                    <Drawer.Backdrop bg="blackAlpha.600" />
                     <Drawer.Positioner>
-                      <Drawer.Content>
+                      <Drawer.Content borderRadius="xl">
                         {open && (
                           <>
-                            <Drawer.Body className={styles.drawerBody}>
+                            <Drawer.Body p={{ base: 4, md: 6 }}>
                               <MachineForm setOpen={setOpen} />
                             </Drawer.Body>
                             <Drawer.CloseTrigger asChild>
-                              <CloseButton />
+                              <CloseButton
+                                position="absolute"
+                                top={4}
+                                right={4}
+                                bg="white"
+                                borderRadius="full"
+                                boxShadow="sm"
+                                _hover={{
+                                  bg: "gray.100",
+                                  transform: "scale(1.1)",
+                                }}
+                                transition="all 0.2s"
+                              />
                             </Drawer.CloseTrigger>
                           </>
                         )}
@@ -282,9 +397,34 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
                 <DeletePicture />
               </Stack>
             </Card.Body>
-            <Card.Footer justifyContent="flex-end">
+
+            <Card.Footer
+              p={{ base: 4, md: 5 }}
+              bg="gray.50"
+              borderTop="1px solid"
+              borderColor="gray.200"
+              gap={3}
+              flexDirection={{ base: "column", md: "row" }}
+              justifyContent="flex-end"
+            >
               <Link href={`/coinLaundry/${storeId ? storeId : ""}`}>
-                <Button variant="outline" className={styles.cancelButton}>
+                <Button
+                  variant="outline"
+                  w={{ base: "full", md: "auto" }}
+                  minW={{ md: "100px" }}
+                  fontWeight="semibold"
+                  py={2.5}
+                  px={5}
+                  borderRadius="lg"
+                  border="2px solid"
+                  borderColor="gray.200"
+                  bg="white"
+                  color="gray.700"
+                  transition="all 0.2s"
+                  _hover={{
+                    bg: "gray.50",
+                  }}
+                >
                   キャンセル
                 </Button>
               </Link>
@@ -296,8 +436,8 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
             </Card.Footer>
           </Card.Root>
         </form>
-      </div>
-    </div>
+      </Box>
+    </Flex>
   );
 };
 

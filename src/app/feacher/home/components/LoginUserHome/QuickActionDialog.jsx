@@ -152,57 +152,67 @@ const QuickActionDialog = async ({ method }) => {
             </Dialog.CloseTrigger>
 
             <Dialog.Body p={{ base: 4, md: 6 }}>
-              <VStack align="stretch" gap={3}>
-                {data.map((item) => {
-                  return methodItem.key === "stock" ? (
-                    <Box key={item.id}>
-                      <Text
-                        fontSize="lg"
-                        fontWeight="semibold"
-                        color="gray.700"
-                        textAlign="center"
-                        my={3}
-                      >
-                        {item.store}店
-                      </Text>
-                      <HStack justifyContent="space-around">
-                        <NowLaundryNum id={item.id} />
-                        <MachinesState id={item.id} />
-                      </HStack>
-                    </Box>
-                  ) : (
-                    <Link
-                      key={item.id}
-                      href={`${methodItem.getURL(item.id)}`}
-                      style={{ width: "100%" }}
-                    >
-                      <Box
-                        p={4}
-                        borderRadius="lg"
-                        border="1px solid"
-                        borderColor="gray.200"
-                        bg="white"
-                        cursor="pointer"
-                        transition="all 0.2s"
-                        _hover={{
-                          bg: "blue.50",
-                          borderColor: "blue.300",
-                          transform: "translateX(4px)",
-                          boxShadow: "md",
-                        }}
-                      >
+              {!data || data.length === 0 ? (
+                <Text
+                  size={{ base: "md", md: "lg" }}
+                  color="blue.900"
+                  fontWeight="bold"
+                >
+                  店舗がありません
+                </Text>
+              ) : (
+                <VStack align="stretch" gap={3}>
+                  {data.map((item) => {
+                    return methodItem.key === "stock" ? (
+                      <Box key={item.id}>
                         <Text
-                          fontSize={{ base: "sm", md: "md" }}
+                          fontSize="lg"
                           fontWeight="semibold"
-                          color="gray.800"
+                          color="gray.700"
+                          textAlign="center"
+                          my={3}
                         >
                           {item.store}店
                         </Text>
+                        <HStack justifyContent="space-around">
+                          <NowLaundryNum id={item.id} />
+                          <MachinesState id={item.id} />
+                        </HStack>
                       </Box>
-                    </Link>
-                  );
-                })}
-              </VStack>
+                    ) : (
+                      <Link
+                        key={item.id}
+                        href={`${methodItem.getURL(item.id)}`}
+                        style={{ width: "100%" }}
+                      >
+                        <Box
+                          p={4}
+                          borderRadius="lg"
+                          border="1px solid"
+                          borderColor="gray.200"
+                          bg="white"
+                          cursor="pointer"
+                          transition="all 0.2s"
+                          _hover={{
+                            bg: "blue.50",
+                            borderColor: "blue.300",
+                            transform: "translateX(4px)",
+                            boxShadow: "md",
+                          }}
+                        >
+                          <Text
+                            fontSize={{ base: "sm", md: "md" }}
+                            fontWeight="semibold"
+                            color="gray.800"
+                          >
+                            {item.store}店
+                          </Text>
+                        </Box>
+                      </Link>
+                    );
+                  })}
+                </VStack>
+              )}
             </Dialog.Body>
 
             <Dialog.Footer

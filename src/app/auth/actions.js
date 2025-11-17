@@ -18,8 +18,8 @@ export async function login(preState, formData) {
   if (error) {
     return { error: "メールアドレスまたはパスワードが間違っています" };
   }
-  revalidatePath("/coinLaundry", "layout");
-  redirect("/coinLaundry");
+  revalidatePath("/", "layout");
+  redirect("/");
 }
 
 export async function signup(preState, formData) {
@@ -38,8 +38,8 @@ export async function signup(preState, formData) {
     };
   }
 
-  revalidatePath("/coinLaundry", "layout");
-  redirect("/coinLaundry");
+  revalidatePath("/", "layout");
+  redirect("/");
 }
 
 export async function requestPasswordReset(preState, formData) {

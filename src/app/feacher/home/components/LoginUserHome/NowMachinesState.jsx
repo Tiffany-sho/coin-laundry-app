@@ -17,11 +17,11 @@ const getData = async (id) => {
     (item) => item.machines.filter((machine) => machine.break).length !== 0
   );
 
-  return { data: breakMachines };
+  return { data: data, breakMachines: breakMachines };
 };
 
 const NowMachinesState = async ({ id }) => {
-  const { data: breakMachines, error } = await getData(id);
+  const { data, breakMachines, error } = await getData(id);
 
   if (error) {
     return (
@@ -34,6 +34,26 @@ const NowMachinesState = async ({ id }) => {
       >
         <Text color="red.700" fontWeight="semibold">
           データ取得失敗
+        </Text>
+      </Box>
+    );
+  }
+
+  if (!data || data.length === 0) {
+    return (
+      <Box
+        bg="green.50"
+        p={4}
+        borderRadius="lg"
+        border="2px solid"
+        borderLeft="4px solid"
+        borderColor="green.500"
+      >
+        <Text fontSize="sm" color="gray.600" fontWeight="semibold">
+          設備状況
+        </Text>
+        <Text color="red.700" fontWeight="semibold">
+          店舗がありません
         </Text>
       </Box>
     );

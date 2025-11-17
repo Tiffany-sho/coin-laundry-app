@@ -109,7 +109,7 @@ const LoginUserHome = ({ id, username = "集金担当者" }) => {
               <MonthFundTotal id={id} />
 
               <Text fontSize="xs" color="whiteAlpha.800" mt={1}>
-                前月比較や詳細は「利益」から確認できます
+                前月比較や詳細は「収益」から確認できます
               </Text>
             </VStack>
           </Box>

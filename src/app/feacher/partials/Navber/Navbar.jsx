@@ -74,7 +74,7 @@ const Navbar = ({ user }) => {
               </li>
               <li>
                 <Link href="/auth/signup" className={styles.signupBtn}>
-                  <span>サインイン</span>
+                  <span>サインアップ</span>
                 </Link>
               </li>
             </>

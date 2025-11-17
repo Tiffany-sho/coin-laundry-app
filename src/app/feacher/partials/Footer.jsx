@@ -2,7 +2,13 @@ import { Box, Heading, HStack, Stack, Text } from "@chakra-ui/react";
 
 const Footer = () => {
   return (
-    <Box bg="gray.900" color="gray.300" py={12}>
+    <Box
+      bg="gray.900"
+      color="gray.300"
+      py={12}
+      zIndex="3000"
+      position="relative"
+    >
       <Stack alignItems="center">
         <Heading size="sm" color="white" mb={3}>
           サポート

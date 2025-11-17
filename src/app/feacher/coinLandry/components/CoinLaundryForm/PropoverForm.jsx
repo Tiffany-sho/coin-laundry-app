@@ -34,6 +34,7 @@ const PropoverForm = () => {
                 <Field.Root>
                   <Field.Label>機械名</Field.Label>
                   <Input
+                    fontSize="16px"
                     placeholder="機械名"
                     onChange={(e) =>
                       setNewMachine((prev) => {

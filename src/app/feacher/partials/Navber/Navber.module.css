@@ -109,10 +109,13 @@
     display:none;
   }
   .loginBtn{
-    font-size: 0.5rem;
+    font-size: 0.75rem;
   }
   .signupBtn{
-     font-size: 0.5rem;
+     font-size: 0.75rem;
+  }
+  .logoText{
+   font-size: 1.25rem
   }
 }
 
