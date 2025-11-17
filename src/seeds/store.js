@@ -1,5 +1,6 @@
 const stores = [
   {
+    id: crypto.randomUUID(),
     store: "御薗橋",
     location: "京都府京都市北区大宮南田尻町53-1",
     description:
@@ -17,9 +18,10 @@ const stores = [
         url: "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/public/Laundry-Images/public/Mison.png",
       },
     ],
-    owner: "699f360f-d50e-46a0-bf10-38d96216a752",
+    owner: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
   },
   {
+    id: crypto.randomUUID(),
     store: "千本鞍馬口",
     location: "京都府京都市北区紫野南舟岡町15-2",
     description:
@@ -37,9 +39,10 @@ const stores = [
         url: "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/public/Laundry-Images/public/SenBon.png",
       },
     ],
-    owner: "699f360f-d50e-46a0-bf10-38d96216a752",
+    owner: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
   },
   {
+    id: crypto.randomUUID(),
     store: "衣笠わら天神",
     location: "京都府京都市北区衣笠高橋町1-23",
     description:
@@ -57,9 +60,10 @@ const stores = [
         url: "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/public/Laundry-Images/public/Kinugasa.png",
       },
     ],
-    owner: "699f360f-d50e-46a0-bf10-38d96216a752",
+    owner: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
   },
   {
+    id: crypto.randomUUID(),
     store: "丸太町小川",
     location: "京都府京都市中京区小川通丸太町下る中之町78",
     description:
@@ -76,9 +80,10 @@ const stores = [
         url: "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/public/Laundry-Images/public/Maruta.png",
       },
     ],
-    owner: "699f360f-d50e-46a0-bf10-38d96216a752",
+    owner: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
   },
   {
+    id: crypto.randomUUID(),
     store: "瀬田大江",
     location: "滋賀県大津市大江6丁目30-18",
     description:
@@ -96,9 +101,10 @@ const stores = [
         url: "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/public/Laundry-Images/public/Oue.png",
       },
     ],
-    owner: "699f360f-d50e-46a0-bf10-38d96216a752",
+    owner: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
   },
   {
+    id: crypto.randomUUID(),
     store: "西大路東六角",
     location: "京都府京都市中京区壬生西大竹町11",
     description:
@@ -115,7 +121,7 @@ const stores = [
         url: "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/public/Laundry-Images/public/Rokkaku.png",
       },
     ],
-    owner: "699f360f-d50e-46a0-bf10-38d96216a752",
+    owner: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
   },
 ];
 

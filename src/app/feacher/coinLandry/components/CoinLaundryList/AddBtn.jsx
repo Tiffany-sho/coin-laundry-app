@@ -7,9 +7,9 @@ const AddBtn = () => {
     <Link href={"/coinLaundry/new"}>
       <Button
         position="fixed"
-        bottom={{ base: "20px", md: "40px" }}
-        right={{ base: "20px", md: "40px" }}
-        zIndex="1000"
+        bottom={{ base: "20%", md: "30%" }}
+        right={{ base: "5%", md: "15%" }}
+        zIndex="3000"
         display="flex"
         flexDirection="column"
         justifyContent="center"

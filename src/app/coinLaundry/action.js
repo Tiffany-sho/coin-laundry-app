@@ -27,7 +27,7 @@ export async function createStore(formData) {
       images: imagesData,
       owner: user.id,
     })
-    .select("id,machines,store")
+    .select("id,machines,store,owner")
     .single();
 
   if (storeError) {
@@ -45,9 +45,11 @@ export async function createStore(formData) {
 
   const { error: stockError } = await supabase.from("laundry_state").insert({
     laundryId: data.id,
+    laundryName: data.name,
     detergent: 0,
     softener: 0,
     machines: machinesState,
+    stocker: data.owner,
   });
 
   if (stockError) {

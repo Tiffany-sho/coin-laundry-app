@@ -20,6 +20,7 @@ const supabase = createClient(supabaseUrl, supabaseKey, {
 });
 
 const storesToUpload = stores.map((store) => ({
+  id: store.id,
   store: store.store,
   location: store.location,
   description: store.description,
@@ -27,6 +28,25 @@ const storesToUpload = stores.map((store) => ({
   images: store.images,
   owner: store.owner,
 }));
+
+const machinesState = stores.map((store) => {
+  const newObj = store.machines.map((machine) => {
+    return {
+      id: machine.id,
+      name: machine.name,
+      break: false,
+      comment: "",
+    };
+  });
+  return {
+    laundryId: store.id,
+    laundryName: store.name,
+    detergent: 0,
+    softener: 0,
+    machines: newObj,
+    stocker: store.owner,
+  };
+});
 
 const uploadData = async () => {
   console.log("アップロードを開始します...");
@@ -36,7 +56,7 @@ const uploadData = async () => {
     const { error: deleteError } = await supabase
       .from("laundry_store")
       .delete()
-      .eq("owner", "699f360f-d50e-46a0-bf10-38d96216a752"); //
+      .eq("owner", "c21ed2db-5903-4ad9-99db-c42d72a352a0"); //
 
     if (deleteError) {
       console.error("削除エラー:", deleteError.message);
@@ -52,6 +72,15 @@ const uploadData = async () => {
     if (insertError) {
       console.error("挿入エラー:", insertError.message);
       throw insertError;
+    }
+
+    const { error: stockError } = await supabase
+      .from("laundry_state")
+      .insert(machinesState);
+
+    if (stockError) {
+      console.error("挿入エラー2:", stockError.message);
+      throw stockError;
     }
 
     console.log(
