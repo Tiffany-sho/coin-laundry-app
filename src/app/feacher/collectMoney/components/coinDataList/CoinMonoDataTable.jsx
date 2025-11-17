@@ -11,21 +11,21 @@ import TableError from "@/app/feacher/partials/TableError";
 const CoinMonoDataTable = ({ id }) => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [data, setData] = useState(null);
   const supabase = createClient();
 
   const channelRef = useRef(null);
 
   const {
+    PAGE_SIZE,
     orderAmount,
     upOrder,
-    page,
     selectedItemId,
     setSelectedItem,
     open,
     setOpen,
+    displayData,
+    setDisplayData,
   } = useUploadPage();
-  const PAGE_SIZE = 20;
 
   useEffect(() => {
     if (!open) {
@@ -58,17 +58,17 @@ const CoinMonoDataTable = ({ id }) => {
           },
           (payload) => {
             if (payload.eventType === "INSERT") {
-              setData((currentData) => [...currentData, payload.new]);
+              setDisplayData((currentData) => [...currentData, payload.new]);
             }
             if (payload.eventType === "UPDATE") {
-              setData((currentData) =>
+              setDisplayData((currentData) =>
                 currentData.map((item) =>
                   item.id === payload.new.id ? payload.new : item
                 )
               );
             }
             if (payload.eventType === "DELETE") {
-              setData((currentData) =>
+              setDisplayData((currentData) =>
                 currentData.filter((item) => item.id !== payload.old.id)
               );
             }
@@ -90,9 +90,6 @@ const CoinMonoDataTable = ({ id }) => {
         return;
       }
 
-      const from = page * PAGE_SIZE;
-      const to = from + PAGE_SIZE - 1;
-
       setLoading(true);
       const { data: initialData, error: initialError } = await supabase
         .from("collect_funds")
@@ -100,13 +97,13 @@ const CoinMonoDataTable = ({ id }) => {
         .eq("laundryId", id)
         .eq("collecter", user.id)
         .order(orderAmount, { ascending: upOrder })
-        .range(from, to);
+        .range(0, PAGE_SIZE - 1);
 
       if (initialError) {
         setError(initialError.message);
-        setData(null);
+        setDisplayData(null);
       } else {
-        setData(initialData);
+        setDisplayData(initialData);
         setError(null);
       }
       setLoading(false);
@@ -123,17 +120,17 @@ const CoinMonoDataTable = ({ id }) => {
         channelRef.current = null;
       }
     };
-  }, [id, page, orderAmount, upOrder, setSelectedItem]);
+  }, [id, orderAmount, upOrder, setSelectedItem]);
 
   if (loading) return <TableLoading />;
   if (error) return <TableError message={error.message} />;
 
-  if (!data || data.length === 0) {
+  if (!displayData || displayData.length === 0) {
     return <TableError message="データがありません" />;
   }
   return (
     <Table.Body>
-      {data.map((item, index) => {
+      {displayData.map((item, index) => {
         const total = item.totalFunds || 0;
 
         return (
@@ -147,7 +144,9 @@ const CoinMonoDataTable = ({ id }) => {
               transform: "scale(1.01)",
             }}
             transition="all 0.2s"
-            borderBottom={index === data.length - 1 ? "none" : "1px solid"}
+            borderBottom={
+              index === displayData.length - 1 ? "none" : "1px solid"
+            }
             borderColor="gray.100"
           >
             <Table.Cell py={4}>
