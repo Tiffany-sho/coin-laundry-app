@@ -1,5 +1,17 @@
+import ExplainFunction from "./ExplainFunction";
+import Procedure from "./Procedure";
+import Subscribe from "./Subscribe";
+import TopPop from "./TopPop";
+
 const NotLoginUserHome = () => {
-  return <div>Not Login</div>;
+  return (
+    <>
+      <TopPop />
+      <ExplainFunction />
+      <Procedure />
+      <Subscribe />
+    </>
+  );
 };
 
 export default NotLoginUserHome;

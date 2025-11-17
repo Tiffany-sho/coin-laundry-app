@@ -37,11 +37,7 @@ const getData = async () => {
 const Home = async () => {
   const { data, error } = await getData();
 
-  if (error) return <ErrorPage title={error.msg} status={error.status} />;
-
-  if (!data) {
-    return <NotLoginUserHome />;
-  }
+  if (error || !data) return <NotLoginUserHome />;
 
   return <LoginUserHome id={data.id} username={data.username} />;
 };
