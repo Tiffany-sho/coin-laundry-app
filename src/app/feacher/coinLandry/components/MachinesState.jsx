@@ -173,7 +173,11 @@ const MachinesState = ({ id }) => {
         >
           <VStack align="stretch" gap={2}>
             <HStack justify="space-between">
-              <Text fontSize="xs" color="gray.600" fontWeight="semibold">
+              <Text
+                fontSize="xs"
+                color={breakMachine.length === 0 ? "green.500" : "red.500"}
+                fontWeight="semibold"
+              >
                 設備状況
               </Text>
               <Box
@@ -230,7 +234,11 @@ const MachinesState = ({ id }) => {
               </VStack>
             )}
 
-            <Text fontSize="2xs" color="gray.500" mt={1}>
+            <Text
+              fontSize="2xs"
+              color={breakMachine.length === 0 ? "green.500" : "red.500"}
+              mt={1}
+            >
               タップして詳細を確認
             </Text>
           </VStack>

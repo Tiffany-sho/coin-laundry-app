@@ -7,13 +7,13 @@ import {
   Heading,
   Grid,
   GridItem,
-  Button,
   Badge,
 } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
 import MonthFundTotal from "./MonthFundTotal";
 import NowMachinesState from "./NowMachinesState";
 import NowStockState from "./NowStockState";
+import QuickAction from "./QuickAction";
 
 const getGreeting = () => {
   const hour = new Date().getHours();
@@ -132,134 +132,7 @@ const LoginUserHome = ({ id, username = "集金担当者" }) => {
               </GridItem>
             </Grid>
           </Box>
-
-          <Box>
-            <Heading size={{ base: "md", md: "lg" }} color="gray.800" mb={3}>
-              クイックアクション
-            </Heading>
-
-            <Grid
-              templateColumns={{ base: "repeat(2, 1fr)", md: "repeat(4, 1fr)" }}
-              gap={{ base: 2, md: 3 }}
-            >
-              <GridItem>
-                <Button
-                  w="full"
-                  h={{ base: "70px", md: "80px" }}
-                  flexDirection="column"
-                  gap={2}
-                  variant="outline"
-                  border="1px solid"
-                  borderColor="gray.200"
-                  _hover={{
-                    bg: "blue.50",
-                    borderColor: "blue.300",
-                    transform: "translateY(-2px)",
-                  }}
-                  transition="all 0.2s"
-                  boxShadow="sm"
-                >
-                  <Text fontSize={{ base: "2xl", md: "3xl" }}>
-                    <Icon.PiHandCoinsLight />
-                  </Text>
-                  <Text
-                    fontSize={{ base: "xs", md: "sm" }}
-                    fontWeight="semibold"
-                  >
-                    集金記録
-                  </Text>
-                </Button>
-              </GridItem>
-
-              <GridItem>
-                <Button
-                  w="full"
-                  h={{ base: "70px", md: "80px" }}
-                  flexDirection="column"
-                  gap={2}
-                  variant="outline"
-                  border="1px solid"
-                  borderColor="gray.200"
-                  _hover={{
-                    bg: "blue.50",
-                    borderColor: "blue.300",
-                    transform: "translateY(-2px)",
-                  }}
-                  transition="all 0.2s"
-                  boxShadow="sm"
-                >
-                  <Text fontSize={{ base: "2xl", md: "3xl" }}>
-                    <Icon.LuPackage />
-                  </Text>
-                  <Text
-                    fontSize={{ base: "xs", md: "sm" }}
-                    fontWeight="semibold"
-                  >
-                    在庫管理
-                  </Text>
-                </Button>
-              </GridItem>
-
-              <GridItem>
-                <Button
-                  w="full"
-                  h={{ base: "70px", md: "80px" }}
-                  flexDirection="column"
-                  gap={2}
-                  variant="outline"
-                  border="1px solid"
-                  borderColor="gray.200"
-                  _hover={{
-                    bg: "blue.50",
-                    borderColor: "blue.300",
-                    transform: "translateY(-2px)",
-                  }}
-                  transition="all 0.2s"
-                  boxShadow="sm"
-                >
-                  <Text fontSize={{ base: "2xl", md: "3xl" }}>
-                    <Icon.LiaStoreSolid />
-                  </Text>
-                  <Text
-                    fontSize={{ base: "xs", md: "sm" }}
-                    fontWeight="semibold"
-                  >
-                    店舗一覧
-                  </Text>
-                </Button>
-              </GridItem>
-
-              <GridItem>
-                <Button
-                  w="full"
-                  h={{ base: "70px", md: "80px" }}
-                  flexDirection="column"
-                  gap={2}
-                  variant="outline"
-                  border="1px solid"
-                  borderColor="gray.200"
-                  _hover={{
-                    bg: "blue.50",
-                    borderColor: "blue.300",
-                    transform: "translateY(-2px)",
-                  }}
-                  transition="all 0.2s"
-                  boxShadow="sm"
-                >
-                  <Text fontSize={{ base: "2xl", md: "3xl" }}>
-                    <Icon.VscGraphLine />
-                  </Text>
-                  <Text
-                    fontSize={{ base: "xs", md: "sm" }}
-                    fontWeight="semibold"
-                  >
-                    レポート
-                  </Text>
-                </Button>
-              </GridItem>
-            </Grid>
-          </Box>
-
+          <QuickAction />
           <Box
             bg="white"
             p={4}

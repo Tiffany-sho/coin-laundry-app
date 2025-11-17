@@ -4,6 +4,7 @@ import {
   Grid,
   GridItem,
   Heading,
+  Stack,
   Text,
   VStack,
 } from "@chakra-ui/react";
@@ -58,13 +59,13 @@ const ExplainFunction = () => {
           >
             {features.map((feature, index) => (
               <GridItem key={index}>
-                <Box
+                <Stack
+                  align="center"
                   p={{ base: 6, md: 8 }}
                   borderRadius="xl"
                   border="1px"
                   borderColor="gray.200"
                   bg="blue.50"
-                  textAlign="center"
                   _hover={{
                     borderColor: "blue.300",
                     boxShadow: "lg",
@@ -90,13 +91,14 @@ const ExplainFunction = () => {
                     {feature.title}
                   </Heading>
                   <Text
+                    textAlign="center"
                     color="gray.600"
                     fontSize={{ base: "sm", md: "md" }}
                     lineHeight="1.6"
                   >
                     {feature.description}
                   </Text>
-                </Box>
+                </Stack>
               </GridItem>
             ))}
           </Grid>

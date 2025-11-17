@@ -108,5 +108,11 @@
  .navItem {
     display:none;
   }
+  .loginBtn{
+    font-size: 0.5rem;
+  }
+  .signupBtn{
+     font-size: 0.5rem;
+  }
 }
 

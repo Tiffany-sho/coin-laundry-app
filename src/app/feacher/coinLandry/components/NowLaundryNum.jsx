@@ -145,7 +145,15 @@ const NowLaundryNum = ({ id }) => {
         >
           <VStack align="stretch" gap={2}>
             <HStack justify="space-between">
-              <Text fontSize="xs" color="green.600" fontWeight="semibold">
+              <Text
+                fontSize="xs"
+                color={
+                  data.detergent > 1 && data.softener > 1
+                    ? "green.500"
+                    : "red.500"
+                }
+                fontWeight="semibold"
+              >
                 在庫状況
               </Text>
               <Box
@@ -204,7 +212,15 @@ const NowLaundryNum = ({ id }) => {
                 ? " 在庫不足"
                 : " 在庫良好"}
             </Text>
-            <Text fontSize="2xs" color="green.500" mt={1}>
+            <Text
+              fontSize="2xs"
+              color={
+                data.detergent > 1 && data.softener > 1
+                  ? "green.500"
+                  : "red.500"
+              }
+              mt={1}
+            >
               タップして在庫編集
             </Text>
           </VStack>

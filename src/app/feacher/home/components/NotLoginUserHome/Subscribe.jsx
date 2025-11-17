@@ -6,6 +6,7 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
+import Link from "next/link";
 import React from "react";
 
 const Subscribe = () => {
@@ -24,19 +25,21 @@ const Subscribe = () => {
             今すぐ始めて、業務効率を改善しましょう
           </Heading>
           <Text fontSize="xl" color="blue.100">
-            クレジットカード不要・すぐに使い始められます
+            支払い不要・すぐに使い始められます
           </Text>
-          <Button
-            size="lg"
-            bg="white"
-            color="blue.600"
-            _hover={{ bg: "gray.50", transform: "translateY(-2px)" }}
-            boxShadow="xl"
-            fontSize="lg"
-            px={10}
-          >
-            無料アカウントを作成
-          </Button>
+          <Link href="/auth/login">
+            <Button
+              size="lg"
+              bg="white"
+              color="blue.600"
+              _hover={{ bg: "gray.50", transform: "translateY(-2px)" }}
+              boxShadow="xl"
+              fontSize="lg"
+              px={10}
+            >
+              無料アカウントを作成
+            </Button>
+          </Link>
         </VStack>
       </Container>
     </Box>

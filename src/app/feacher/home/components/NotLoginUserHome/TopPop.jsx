@@ -6,12 +6,12 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
+import Link from "next/link";
 import React from "react";
 
 const TopPop = () => {
   return (
     <Box position="relative" h="100vh" overflow="hidden">
-      {/* 背景画像 */}
       <Box
         position="absolute"
         inset={0}
@@ -20,10 +20,8 @@ const TopPop = () => {
         bgPosition="center"
       />
 
-      {/* 暗がりオーバーレイ */}
       <Box position="absolute" inset={0} bg="blackAlpha.600" />
 
-      {/* コンテンツ */}
       <Container
         maxW="container.lg"
         h="full"
@@ -32,7 +30,7 @@ const TopPop = () => {
         alignItems="center"
         justifyContent="center"
       >
-        <VStack spacing={8} textAlign="center">
+        <VStack spacing={10} textAlign="center">
           <Heading
             size={{ base: "xl", md: "2xl", lg: "3xl" }}
             color="white"
@@ -54,21 +52,27 @@ const TopPop = () => {
             売上管理から在庫管理まで、これひとつで完結。
           </Text>
 
-          <Button
-            size="lg"
-            colorScheme="blue"
-            px={10}
-            py={6}
-            fontSize="lg"
-            boxShadow="xl"
-            _hover={{
-              transform: "translateY(-2px)",
-              boxShadow: "2xl",
-            }}
-            transition="all 0.2s"
-          >
-            無料で始める
-          </Button>
+          <Link href="/auth/login">
+            <Button
+              variant="outline"
+              size="lg"
+              color="white"
+              border="2px white solid"
+              px={10}
+              py={6}
+              fontSize="lg"
+              fontWeight="bold"
+              boxShadow="xl"
+              _hover={{
+                transform: "translateY(-2px)",
+                boxShadow: "2xl",
+                color: "blue.400",
+              }}
+              transition="all 0.2s"
+            >
+              無料で始める
+            </Button>
+          </Link>
         </VStack>
       </Container>
     </Box>
