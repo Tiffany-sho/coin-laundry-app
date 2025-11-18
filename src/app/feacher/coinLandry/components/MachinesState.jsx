@@ -101,6 +101,7 @@ const MachinesState = ({ id }) => {
       toaster.create({
         description: "設備状態の更新に失敗しました",
         type: "error",
+        closable: true,
       });
     } else {
       setData((prev) => ({
@@ -110,6 +111,7 @@ const MachinesState = ({ id }) => {
       toaster.create({
         description: "設備状態を更新しました",
         type: "success",
+        closable: true,
       });
     }
     setIsSaving(false);

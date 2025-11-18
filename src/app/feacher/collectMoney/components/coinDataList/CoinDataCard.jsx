@@ -60,6 +60,7 @@ const MoneyDataCard = () => {
         )})の集金データの編集に失敗しました`;
 
     toaster.create({
+      placement: "top-end",
       description,
       type,
       closable: true,

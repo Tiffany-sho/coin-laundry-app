@@ -142,7 +142,7 @@ const LoginUserHome = ({ id, username = "集金担当者" }) => {
             textAlign="center"
           >
             <Text fontSize="xs" color="gray.500">
-              最終更新: {new Date().toLocaleTimeString("ja-JP")}
+              最終更新: {new Date().toLocaleTimeString()}
             </Text>
           </Box>
         </VStack>

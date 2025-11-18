@@ -68,6 +68,7 @@ const NowLaundryNum = ({ id }) => {
       toaster.create({
         description: "在庫の更新に失敗しました",
         type: "error",
+        closable: true,
       });
     } else {
       setData((prev) => ({
@@ -78,6 +79,7 @@ const NowLaundryNum = ({ id }) => {
       toaster.create({
         description: "在庫を更新しました",
         type: "success",
+        closable: true,
       });
     }
     setIsSaving(false);

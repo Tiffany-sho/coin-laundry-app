@@ -45,7 +45,7 @@ export async function createStore(formData) {
 
   const { error: stockError } = await supabase.from("laundry_state").insert({
     laundryId: data.id,
-    laundryName: data.name,
+    laundryName: data.store,
     detergent: 0,
     softener: 0,
     machines: machinesState,
@@ -77,11 +77,30 @@ export async function updateStore(formData, id) {
       images: imagesData,
     })
     .eq("id", id)
-    .select("id, store")
+    .select("id, store ,machines")
     .single();
 
   if (error) {
     return { error: error.message };
+  }
+
+  const machinesState = data.machines.map((machine) => {
+    const newObj = {
+      id: machine.id,
+      name: machine.name,
+      break: false,
+      comment: "",
+    };
+    return newObj;
+  });
+
+  const { error: stockError } = await supabase.from("laundry_state").update({
+    laundryName: data.store,
+    machines: machinesState,
+  });
+
+  if (stockError) {
+    return { error: stockError.message };
   }
 
   return { data: data };
