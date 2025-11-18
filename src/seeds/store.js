@@ -1,6 +1,6 @@
 const stores = [
   {
-    id: crypto.randomUUID(),
+    id: "a71b4261-7abb-4cc3-8855-be3b8d0dc474",
     store: "御薗橋",
     location: "京都府京都市北区大宮南田尻町53-1",
     description:
@@ -21,7 +21,7 @@ const stores = [
     owner: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
   },
   {
-    id: crypto.randomUUID(),
+    id: "46dcfae5-5193-46d6-babd-3c69d528b8c6",
     store: "千本鞍馬口",
     location: "京都府京都市北区紫野南舟岡町15-2",
     description:
@@ -42,7 +42,7 @@ const stores = [
     owner: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
   },
   {
-    id: crypto.randomUUID(),
+    id: "ed757d30-2e3c-447f-8e2c-ee298d3f9387",
     store: "衣笠わら天神",
     location: "京都府京都市北区衣笠高橋町1-23",
     description:
@@ -63,7 +63,7 @@ const stores = [
     owner: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
   },
   {
-    id: crypto.randomUUID(),
+    id: "c203b588-d7f8-4622-b2c0-9a70a929f0fd",
     store: "丸太町小川",
     location: "京都府京都市中京区小川通丸太町下る中之町78",
     description:
@@ -83,28 +83,7 @@ const stores = [
     owner: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
   },
   {
-    id: crypto.randomUUID(),
-    store: "瀬田大江",
-    location: "滋賀県大津市大江6丁目30-18",
-    description:
-      "滋賀県大津市にある24時間営業のコインランドリー。駐車場も完備されており、大型の洗濯機も利用可能です。",
-    machines: [
-      { id: 1, name: "洗濯乾燥機", num: 2, comment: "10kg/1000円" },
-      { id: 2, name: "乾燥機", num: 3, comment: "10kg/1000円" },
-      { id: 3, name: "洗濯機", num: 3, comment: "10kg/1000円" },
-      { id: 4, name: "シューズ洗濯機", num: 1, comment: "10kg/1000円" },
-      { id: 5, name: "ソフター自販機", num: 1, comment: "10kg/1000円" },
-    ],
-    images: [
-      {
-        path: "Oue.png",
-        url: "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/public/Laundry-Images/public/Oue.png",
-      },
-    ],
-    owner: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
-  },
-  {
-    id: crypto.randomUUID(),
+    id: "a9fa7a46-334c-4b76-955b-5f0e8d8c1c54",
     store: "西大路東六角",
     location: "京都府京都市中京区壬生西大竹町11",
     description:

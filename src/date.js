@@ -18,29 +18,13 @@ export const getYearMonth = (data) => {
   return `${year}-${String(month).padStart(2, "0")}`;
 };
 
-export const changeEpocFromNowYearMonth = () => {
+export const changeEpocFromNowYearMonth = (ago) => {
   const data = Date.now();
   const nowData = new Date(data);
   const year = nowData.getFullYear();
   const month = nowData.getMonth() + 1;
 
-  return Date.UTC(year, month - 1, 1) - EPOCH_ERROR;
-};
-
-export const changeEpocFromNextYearMonth = () => {
-  const data = Date.now();
-  const nowData = new Date(data);
-  const year = nowData.getFullYear();
-  const month = nowData.getMonth() + 1;
-  return Date.UTC(year, month, 1) - EPOCH_ERROR;
-};
-
-export const changeEpocFromBackYearMonth = () => {
-  const data = Date.now();
-  const nowData = new Date(data);
-  const year = nowData.getFullYear();
-  const month = nowData.getMonth() + 1;
-  return Date.UTC(year, month - 2, 1) - EPOCH_ERROR;
+  return Date.UTC(year, month - 1 + ago, 1) - EPOCH_ERROR;
 };
 
 export function getEpochTimeInSeconds(year, month, day) {

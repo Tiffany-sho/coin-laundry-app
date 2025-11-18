@@ -7,24 +7,43 @@ const AddDataBtn = ({ id = "" }) => {
   const supabase = createClient();
   const [isLoading, setIsLoading] = useState(false);
   const [displayBtn, setDisplayBtn] = useState(true);
-  const {
-    PAGE_SIZE,
-    page,
-    setPage,
-    orderAmount,
-    upOrder,
-    setDisplayData,
-    data,
-  } = useUploadPage();
+  const [dataCount, setDataCount] = useState(null);
+  const { PAGE_SIZE, page, setPage, orderAmount, upOrder, setDisplayData } =
+    useUploadPage();
 
   useEffect(() => {
-    if (!data) return;
-    if (data.length < page * PAGE_SIZE - 1) {
+    const getCount = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        setDataCount(null);
+      }
+
+      const { count, error } = await supabase
+        .from("collect_funds")
+        .select("*", { count: "exact", head: true })
+        .eq("collecter", user.id);
+
+      if (error) {
+        console.error(error);
+        setDataCount(null);
+      } else {
+        setDataCount(count);
+      }
+    };
+    getCount();
+  }, []);
+
+  useEffect(() => {
+    if (!dataCount) return;
+    if (dataCount < page * PAGE_SIZE - 1) {
       setDisplayBtn(false);
     } else {
       setDisplayBtn(true);
     }
-  }, [data, page]);
+  }, [dataCount, page, dataCount]);
 
   const addData = async () => {
     const {

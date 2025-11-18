@@ -116,8 +116,9 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
         responseData = data;
       } else if (method === "PUT") {
         const { data, error } = await updateStore(formData, storeId);
+
         if (error) {
-          throw new Error(error.message || "ストアの作成に失敗しました");
+          throw new Error(error.message || "ストアの編集に失敗しました");
         }
         responseData = data;
       }
@@ -195,14 +196,14 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
                 {method === "POST" && "登録"}
                 {method === "PUT" && "編集"}フォーム
               </Card.Title>
-              {state.msg && (
-                <Text color="red.300" fontSize="sm" fontWeight="medium" mt={2}>
-                  {state.msg}
-                </Text>
-              )}
             </Card.Header>
 
             <Card.Body p={{ base: 4, md: 8 }}>
+              {state.msg && (
+                <Text color="red.300" fontSize="md" fontWeight="medium" mt={2}>
+                  {state.msg}
+                </Text>
+              )}
               <Stack gap={6} w="full">
                 <Field.Root>
                   <Field.Label

@@ -1,15 +1,12 @@
-import {
-  changeEpocFromNextYearMonth,
-  changeEpocFromNowYearMonth,
-} from "@/date";
+import { changeEpocFromNowYearMonth } from "@/date";
 import { createClient } from "@/utils/supabase/server";
 import { HStack, Text, Box } from "@chakra-ui/react";
 
 const getData = async (id) => {
   const supabase = await createClient();
 
-  const epocYearMonth = changeEpocFromNowYearMonth();
-  const epocYearNextMonth = changeEpocFromNextYearMonth();
+  const epocYearMonth = changeEpocFromNowYearMonth(0);
+  const epocYearNextMonth = changeEpocFromNowYearMonth(1);
 
   const { data, error } = await supabase
     .from("collect_funds")

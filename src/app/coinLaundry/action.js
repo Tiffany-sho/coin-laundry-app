@@ -77,7 +77,7 @@ export async function updateStore(formData, id) {
       images: imagesData,
     })
     .eq("id", id)
-    .select("id, store ,machines")
+    .select("id, store ,machines ,owner")
     .single();
 
   if (error) {
@@ -88,16 +88,19 @@ export async function updateStore(formData, id) {
     const newObj = {
       id: machine.id,
       name: machine.name,
-      break: false,
+      break: machine.break || false,
       comment: "",
     };
     return newObj;
   });
 
-  const { error: stockError } = await supabase.from("laundry_state").update({
-    laundryName: data.store,
-    machines: machinesState,
-  });
+  const { error: stockError } = await supabase
+    .from("laundry_state")
+    .update({
+      laundryName: data.store,
+      machines: machinesState,
+    })
+    .eq("stocker", data.owner);
 
   if (stockError) {
     return { error: stockError.message };

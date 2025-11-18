@@ -8,7 +8,7 @@ import {
   Tooltip,
   XAxis,
 } from "recharts";
-import { createNowData } from "@/date";
+import { changeEpocFromNowYearMonth, createNowData } from "@/date";
 import ChartLoading from "@/app/feacher/partials/ChartLoading";
 import { useUploadPage } from "../../context/UploadPageContext";
 import { createClient } from "@/utils/supabase/client";
@@ -19,6 +19,8 @@ const MonoCoinDataChart = ({ id }) => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [chartData, setChartData] = useState([]);
+
+  const { period } = useUploadPage();
 
   const supabase = createClient();
 
@@ -61,6 +63,14 @@ const MonoCoinDataChart = ({ id }) => {
 
   useEffect(() => {
     const fetchData = async (id) => {
+      let orderPeriod;
+      if (period === "３ヶ月") {
+        orderPeriod = changeEpocFromNowYearMonth(-3);
+      } else if (period === "１年間") {
+        orderPeriod = changeEpocFromNowYearMonth(-12);
+      } else {
+        orderPeriod = 0;
+      }
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -75,7 +85,8 @@ const MonoCoinDataChart = ({ id }) => {
         .from("collect_funds")
         .select("*")
         .eq("laundryId", id)
-        .eq("collecter", user.id);
+        .eq("collecter", user.id)
+        .gt("date", orderPeriod);
 
       if (initialError) {
         setError(initialError.message);
@@ -99,7 +110,7 @@ const MonoCoinDataChart = ({ id }) => {
         channelRef.current = null;
       }
     };
-  }, [supabase]);
+  }, [supabase, period]);
 
   useEffect(() => {
     if (!data) return;

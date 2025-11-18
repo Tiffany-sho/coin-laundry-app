@@ -1,8 +1,5 @@
-import { changeEpocFromBackYearMonth, createNowData } from "@/date";
-import {
-  changeEpocFromNextYearMonth,
-  changeEpocFromNowYearMonth,
-} from "@/date";
+import { createNowData } from "@/date";
+import { changeEpocFromNowYearMonth } from "@/date";
 import { createClient } from "@/utils/supabase/server";
 import { Text, VStack, Box, HStack, Badge } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
@@ -11,8 +8,8 @@ import ErrorPage from "@/app/feacher/jumpPage/ErrorPage/ErrorPage";
 const getData = async (id) => {
   const supabase = await createClient();
 
-  const epocYearBeforeMonth = changeEpocFromBackYearMonth();
-  const epocYearAfterMonth = changeEpocFromNextYearMonth();
+  const epocYearBeforeMonth = changeEpocFromNowYearMonth(-1);
+  const epocYearAfterMonth = changeEpocFromNowYearMonth(1);
 
   const { data, error } = await supabase
     .from("collect_funds")
@@ -48,9 +45,9 @@ const getData = async (id) => {
 const DisplayMonthBenifit = async ({ id }) => {
   const { data, error } = await getData(id);
   if (error) return <ErrorPage title={error.msg} status={error.status} />;
-  const epocYearMonth = changeEpocFromNowYearMonth();
-  const epocYearBeforeMonth = changeEpocFromBackYearMonth();
-  const epocYearAfterMonth = changeEpocFromNextYearMonth();
+  const epocYearMonth = changeEpocFromNowYearMonth(0);
+  const epocYearBeforeMonth = changeEpocFromNowYearMonth(-1);
+  const epocYearAfterMonth = changeEpocFromNowYearMonth(1);
 
   const thisMonthBenefit = data
     .filter(

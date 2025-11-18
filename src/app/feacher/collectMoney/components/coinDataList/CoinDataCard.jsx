@@ -16,7 +16,7 @@ import { toaster } from "@/components/ui/toaster";
 import * as Icon from "@/app/feacher/Icon";
 import { useEffect, useState } from "react";
 import AlertDialog from "@/app/feacher/dialog/AlertDialog";
-import { updateData, updateDate } from "@/app/collectMoney/action";
+import { deleteData, updateData, updateDate } from "@/app/collectMoney/action";
 import EpochTimeSelector from "../selectDate/SelectDate";
 import { useUploadPage } from "../../context/UploadPageContext";
 
@@ -186,6 +186,26 @@ const MoneyDataCard = () => {
       setTotalFunds(selectedItem.totalFunds);
       showToast("error", false);
     }
+  };
+
+  const deleteAction = async () => {
+    try {
+      const result = await deleteData(selectedItem.id);
+
+      if (result.error) {
+        throw new Error(result.error.message || "削除に失敗しました");
+      }
+    } catch (error) {
+      console.error("API Error:", error);
+    }
+
+    setSelectedItem(null);
+    setOpen(false);
+    toaster.create({
+      description: "集金データを削除しました",
+      type: "warning",
+      closable: true,
+    });
   };
 
   return (
@@ -402,13 +422,10 @@ const MoneyDataCard = () => {
 
       <Box mt={6}>
         <AlertDialog
-          id={selectedItem.id}
           target={`${selectedItem.laundryName}店(${createNowData(
             selectedItem.date
           )}`}
-          onRowClick={setSelectedItem}
-          setOpen={setOpen}
-          setMsg={setMsg}
+          deleteAction={deleteAction}
         />
       </Box>
     </Box>

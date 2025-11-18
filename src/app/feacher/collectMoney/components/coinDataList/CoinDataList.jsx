@@ -31,10 +31,10 @@ import { LuPlus } from "@/app/feacher/Icon";
 import { useUploadPage } from "../../context/UploadPageContext";
 import CoinManyDataTable from "./CoinManyDataTable";
 import AddDataBtn from "./AddDataBtn";
+import SegmentedPeriod from "./SegmentedPeriod";
 
 const MoneyDataList = ({ valiant, laundryInfo }) => {
-  const { selectedItem, setSelectedItem, open, setOpen, data, setPage } =
-    useUploadPage();
+  const { selectedItem, open, setOpen, data, period } = useUploadPage();
 
   const [totalRevenue, setTotalRevenue] = useState(null);
   useEffect(() => {
@@ -48,18 +48,6 @@ const MoneyDataList = ({ valiant, laundryInfo }) => {
       sessionStorage.removeItem("toast");
     }, 0);
   }, []);
-
-  // このコードの意味を忘れた。不具合あればここかも
-  // useEffect(() => {
-  //   if (data && selectedItem) {
-  //     const updatedSelectedItem = data.find(
-  //       (item) => item.id === selectedItem.id
-  //     );
-  //     if (updatedSelectedItem) {
-  //       setSelectedItem(updatedSelectedItem);
-  //     }
-  //   }
-  // }, [data]);
 
   useEffect(() => {
     if (!data) return;
@@ -98,7 +86,7 @@ const MoneyDataList = ({ valiant, laundryInfo }) => {
                   letterSpacing="tight"
                 >
                   {valiant === "aStore" && `${laundryInfo.laundryName}店`}
-                  {valiant === "manyStore" && "全集計データ"}
+                  {valiant === "manyStore" && `過去${period}の集計データ`}
                 </Heading>
 
                 {valiant === "aStore" && (
@@ -181,6 +169,7 @@ const MoneyDataList = ({ valiant, laundryInfo }) => {
                 )}
                 {valiant === "manyStore" && <ManyCoinDataChart />}
               </Box>
+              <SegmentedPeriod />
             </VStack>
           </Card.Header>
           <Card.Body p={{ base: 4, md: 6 }}>

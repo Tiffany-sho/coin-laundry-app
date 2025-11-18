@@ -9,7 +9,7 @@ import {
   YAxis,
 } from "recharts";
 
-import { getYearMonth } from "@/date";
+import { changeEpocFromNowYearMonth, getYearMonth } from "@/date";
 import { useEffect, useRef, useState } from "react";
 import { Box, Text } from "@chakra-ui/react";
 import ChartLoading from "@/app/feacher/partials/ChartLoading";
@@ -112,6 +112,8 @@ const ManyCoinDataChart = () => {
     series: chartSeries,
   });
 
+  const { period } = useUploadPage();
+
   const supabase = createClient();
 
   const channelRef = useRef(null);
@@ -153,6 +155,14 @@ const ManyCoinDataChart = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      let orderPeriod;
+      if (period === "３ヶ月") {
+        orderPeriod = changeEpocFromNowYearMonth(-3);
+      } else if (period === "１年間") {
+        orderPeriod = changeEpocFromNowYearMonth(-12);
+      } else {
+        orderPeriod = 0;
+      }
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -166,7 +176,8 @@ const ManyCoinDataChart = () => {
       const { data: initialData, error: initialError } = await supabase
         .from("collect_funds")
         .select("*")
-        .eq("collecter", user.id);
+        .eq("collecter", user.id)
+        .gt("date", orderPeriod);
 
       if (initialError) {
         setError(initialError.message);
@@ -190,7 +201,7 @@ const ManyCoinDataChart = () => {
         channelRef.current = null;
       }
     };
-  }, [supabase]);
+  }, [supabase, period]);
 
   useEffect(() => {
     if (!data) return;
@@ -271,7 +282,7 @@ const ManyCoinDataChart = () => {
           tickLine={false}
           tickMargin={10}
           stroke={chart.color("border")}
-          domain={["dataMin-100", "dataMax+100"]}
+          domain={["dataMin-10000", "dataMax+10000"]}
         />
         <Tooltip
           animationDuration={100}

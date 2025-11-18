@@ -1,29 +1,7 @@
-import { deleteData } from "@/app/collectMoney/action";
-import { toaster } from "@/components/ui/toaster";
 import { Button, CloseButton, Dialog, Portal } from "@chakra-ui/react";
 import { LuTrash2 } from "@/app/feacher/Icon";
 
-const AlertDialog = ({ id, target, setOpen, onRowClick, setMsg }) => {
-  const deleteAction = async () => {
-    try {
-      const result = await deleteData(id);
-
-      if (result.error) {
-        throw new Error(result.error.message || "削除に失敗しました");
-      }
-    } catch (error) {
-      console.error("API Error:", error);
-      setMsg(error);
-    }
-
-    onRowClick(null);
-    setOpen(false);
-    toaster.create({
-      description: `${target})の集金データを削除しました`,
-      type: "warning",
-      closable: true,
-    });
-  };
+const AlertDialog = ({ target, deleteAction }) => {
   return (
     <Dialog.Root role="alertdialog" placement="center">
       <Dialog.Trigger asChild>
