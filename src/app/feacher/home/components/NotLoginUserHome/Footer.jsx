@@ -5,7 +5,7 @@ const Footer = () => {
     <Box
       bg="gray.900"
       color="gray.300"
-      py={12}
+      pt={12}
       zIndex="1300"
       position="relative"
     >
@@ -22,17 +22,6 @@ const Footer = () => {
           </Text>
         </HStack>
       </Stack>
-
-      <Box
-        borderTop="1px"
-        borderColor="gray.800"
-        pt={8}
-        textAlign="center"
-        fontSize="sm"
-        color="gray.500"
-      >
-        &copy;Collecie 2025
-      </Box>
     </Box>
   );
 };
