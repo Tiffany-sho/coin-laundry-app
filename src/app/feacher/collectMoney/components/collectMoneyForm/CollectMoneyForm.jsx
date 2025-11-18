@@ -11,6 +11,7 @@ import {
   Flex,
   Badge,
   HStack,
+  Spinner,
 } from "@chakra-ui/react";
 import Link from "next/link";
 import EpochTimeSelector from "../selectDate/SelectDate";
@@ -25,10 +26,13 @@ import FixSwitch from "./FixSwitch";
 import { createClient } from "@/utils/supabase/client";
 
 const CollectMoneyForm = ({ coinLaundry }) => {
+  const supabase = createClient();
   const [epoc, setEpoc] = useState(Date.now());
   const [msg, setMsg] = useState("");
+  const [loading, setLoading] = useState(true);
   const [checked, setChecked] = useState(false);
   const [fixed, setFixed] = useState(null);
+  const [moneyTotal, setMoneyTotal] = useState();
   const [machinesAndFunds, setMachinesAndFunds] = useState(() => {
     const initialValue = coinLaundry.machines.map((machine) => ({
       machine,
@@ -38,11 +42,10 @@ const CollectMoneyForm = ({ coinLaundry }) => {
     }));
     return initialValue;
   });
-  const [moneyTotal, setMoneyTotal] = useState();
 
   useEffect(() => {
     const getUserFixed = async () => {
-      const supabase = createClient();
+      setLoading(true);
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -53,11 +56,20 @@ const CollectMoneyForm = ({ coinLaundry }) => {
         .eq("id", user.id)
         .single();
 
+      if (error) {
+        setFixed(null);
+      }
+
       if (data && data.collectMethod !== null) {
-        setChecked(data.collectMethod);
+        const isChecked =
+          data.collectMethod === true || data.collectMethod === "true";
+        setChecked(isChecked);
         setFixed(true);
+        setLoading(false);
       } else {
+        setChecked(false);
         setFixed(false);
+        setLoading(false);
       }
     };
 
@@ -91,7 +103,7 @@ const CollectMoneyForm = ({ coinLaundry }) => {
 
     if (!user) return;
 
-    const { error } = await supabase
+    await supabase
       .from("profiles")
       .update({ collectMethod: method })
       .eq("id", user.id);
@@ -174,16 +186,20 @@ const CollectMoneyForm = ({ coinLaundry }) => {
                       : "合計金額のみを入力します"}
                   </Text>
                 </Box>
-                <Switch.Root
-                  checked={checked}
-                  onCheckedChange={toggleChangeMethod}
-                  size="lg"
-                >
-                  <Switch.HiddenInput />
-                  <Switch.Control bg={checked ? "blue.500" : "gray.300"}>
-                    <Switch.Thumb />
-                  </Switch.Control>
-                </Switch.Root>
+                {loading ? (
+                  <Spinner />
+                ) : (
+                  <Switch.Root
+                    checked={checked}
+                    onCheckedChange={toggleChangeMethod}
+                    size="lg"
+                  >
+                    <Switch.HiddenInput />
+                    <Switch.Control bg={checked ? "blue.500" : "gray.300"}>
+                      <Switch.Thumb />
+                    </Switch.Control>
+                  </Switch.Root>
+                )}
               </Flex>
 
               <Box pt={4} borderTop="1px" borderColor="gray.200">

@@ -9,7 +9,7 @@ const AddBtn = () => {
         position="fixed"
         bottom={{ base: "15%", md: "5%" }}
         right={{ base: "5%", md: "5%" }}
-        zIndex="3000"
+        zIndex="1350"
         display="flex"
         flexDirection="column"
         justifyContent="center"

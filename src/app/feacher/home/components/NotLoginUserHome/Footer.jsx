@@ -6,7 +6,7 @@ const Footer = () => {
       bg="gray.900"
       color="gray.300"
       py={12}
-      zIndex="3000"
+      zIndex="1300"
       position="relative"
     >
       <Stack alignItems="center">
