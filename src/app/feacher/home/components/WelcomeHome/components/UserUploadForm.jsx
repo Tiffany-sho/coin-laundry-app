@@ -1,7 +1,9 @@
-import { Button, Field, HStack, Input, VStack } from "@chakra-ui/react";
+import { Button, Field, HStack, Input, Text, VStack } from "@chakra-ui/react";
 import { useUploadProfiles } from "../context/UploadProfilesContext";
+import { useState } from "react";
 
 const UserUploadForm = () => {
+  const [msg, setMsg] = useState("");
   const {
     handleNext,
     handleBack,
@@ -11,8 +13,21 @@ const UserUploadForm = () => {
     setFullname,
   } = useUploadProfiles();
 
+  const nextStep = () => {
+    if (fullname === "" || username === "") {
+      setMsg("空のフォームデータがあります");
+    } else {
+      handleNext();
+    }
+  };
+
   return (
     <VStack align="stretch" gap={6}>
+      {msg && (
+        <Text color="red.400" fontWeight="bold">
+          {msg}
+        </Text>
+      )}
       <Field.Root>
         <Field.Label
           htmlFor="fullName"
@@ -100,7 +115,7 @@ const UserUploadForm = () => {
           fontWeight="semibold"
           borderRadius="lg"
           py={6}
-          onClick={handleNext}
+          onClick={nextStep}
           _hover={{
             bg: "blue.600",
             transform: "translateY(-2px)",

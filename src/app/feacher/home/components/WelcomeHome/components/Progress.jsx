@@ -8,12 +8,13 @@ import { useUploadProfiles } from "../context/UploadProfilesContext";
 import CollectMethodChoose from "./CollectMethodChoose";
 import AuthorityChoose from "./AuthorityChoose";
 import CheckProfiles from "./CheckProfiles";
+import FinishPage from "./FinishPage";
 
 const Progress = ({ user }) => {
   const { progress, totalSteps, step } = useUploadProfiles();
-
+  console.log(step);
   return (
-    <Box minH="100vh" bg="gray.50">
+    <Box minH="100vh" bg="gray.50" position="relative" zIndex="3000">
       <ProgressNavbar progress={progress} />
 
       <Flex
@@ -43,7 +44,7 @@ const Progress = ({ user }) => {
               {step === 3 && "集金方法を設定"}
               {step === 4 && "権限設定"}
               {step === 5 && "設定内容確認"}
-              {step > 5 && "設定が完了しました！"}
+              {step > 5 && "初期設定が完了しました！"}
             </Text>
             <Text fontSize="md" color="gray.600">
               ステップ {step} / {totalSteps}
@@ -56,7 +57,7 @@ const Progress = ({ user }) => {
             {step === 3 && <CollectMethodChoose />}
             {step === 4 && <AuthorityChoose />}
             {step === 5 && <CheckProfiles user={user} />}
-            {step > 5 && "設定が完了しました！"}
+            {step > 5 && <FinishPage />}
           </Box>
         </VStack>
       </Flex>

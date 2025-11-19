@@ -7,7 +7,7 @@ const UploadPageContext = createContext();
 export const UploadPageProvider = ({ children }) => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [open, setOpen] = useState(false);
-
+  const [displayBtn, setDisplayBtn] = useState(true);
   const [orderAmount, setOrderAmount] = useState("date");
   const [upOrder, setUpOrder] = useState(false);
   const [page, setPage] = useState(1);
@@ -36,6 +36,8 @@ export const UploadPageProvider = ({ children }) => {
     setDisplayData,
     period,
     setPeriod,
+    displayBtn,
+    setDisplayBtn,
   };
 
   return (

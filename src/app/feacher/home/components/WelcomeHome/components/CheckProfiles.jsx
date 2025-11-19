@@ -33,12 +33,12 @@ const CheckProfiles = ({ user }) => {
         updated_at: new Date().toISOString(),
       });
       if (error) throw error;
+      handleNext();
       toaster.create({
         description: "プロフィールを更新しました",
         type: "success",
         closable: true,
       });
-      handleNext();
     } catch (error) {
       toaster.create({
         description: "プロフィール更新に失敗しました",

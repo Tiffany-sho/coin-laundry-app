@@ -18,14 +18,14 @@ export default function AccountForm({ user }) {
   const [loading, setLoading] = useState(true);
   const [fullname, setFullname] = useState(null);
   const [username, setUsername] = useState(null);
-  const [website, setWebsite] = useState(null);
+  const [role, setRole] = useState(null);
 
   const getProfile = useCallback(async () => {
     try {
       setLoading(true);
       const { data, error, status } = await supabase
         .from("profiles")
-        .select(`full_name, username, website`)
+        .select(`full_name, username, role`)
         .eq("id", user.id)
         .single();
 
@@ -36,7 +36,7 @@ export default function AccountForm({ user }) {
       if (data) {
         setFullname(data.full_name);
         setUsername(data.username);
-        setWebsite(data.website);
+        setRole(data.role);
       }
     } catch (error) {
       alert("ユーザデータの取得に失敗しました");
@@ -49,15 +49,15 @@ export default function AccountForm({ user }) {
     getProfile();
   }, [user, getProfile]);
 
-  async function updateProfile({ username, website, avatarUrl }) {
+  async function updateProfile({ fullname, username, role }) {
     try {
       setLoading(true);
 
       const { error } = await supabase.from("profiles").upsert({
         id: user?.id,
         full_name: fullname,
-        username,
-        website,
+        username: username,
+        role: role,
         updated_at: new Date().toISOString(),
       });
       if (error) throw error;
@@ -194,16 +194,23 @@ export default function AccountForm({ user }) {
               mb={2}
               color="gray.700"
             >
-              ウェブサイト
+              役割
             </Field.Label>
             <Input
-              id="website"
-              type="url"
-              value={website || ""}
-              onChange={(e) => setWebsite(e.target.value)}
+              id="role"
+              type="text"
+              value={
+                role === "owner"
+                  ? "店舗管理者"
+                  : role === "collecter"
+                  ? "集金担当者"
+                  : "閲覧者" || ""
+              }
+              onChange={(e) => setRole(e.target.value)}
               border="1px solid"
               borderColor="gray.200"
               borderRadius="lg"
+              disabled
               py={3}
               px={4}
               fontSize="md"
@@ -228,7 +235,7 @@ export default function AccountForm({ user }) {
             borderRadius="lg"
             cursor="pointer"
             transition="all 0.2s"
-            onClick={() => updateProfile({ fullname, username, website })}
+            onClick={() => updateProfile({ fullname, username, role })}
             disabled={loading}
             _hover={{
               bg: "blue.600",

@@ -8,7 +8,19 @@ const NavbarWrapper = async () => {
     data: { user },
   } = await supabase.auth.getUser();
 
-  return <Navbar user={user} />;
+  if (user) {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id);
+
+    if (!data || data.length === 0 || error) {
+      return;
+    }
+    return <Navbar user={user} />;
+  } else {
+    return <Navbar user={user} />;
+  }
 };
 
 export default NavbarWrapper;

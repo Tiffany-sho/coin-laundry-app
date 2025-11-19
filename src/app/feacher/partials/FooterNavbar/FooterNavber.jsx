@@ -5,7 +5,7 @@ import * as Icon from "@/app/feacher/Icon";
 import styles from "./FooterNavber.module.css";
 import { useEffect, useState } from "react";
 
-const FooterNavbar = ({ user }) => {
+const FooterNavbar = () => {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
 
@@ -36,34 +36,32 @@ const FooterNavbar = ({ user }) => {
       className={`${styles.footerNavbar} ${!isVisible ? styles.hidden : ""}`}
     >
       <div className={styles.container}>
-        {user && (
-          <>
-            <Link href="/" className={styles.navItem}>
-              <span className={styles.icon}>
-                <Icon.IoHomeOutline />
-              </span>
-              <span className={styles.label}>ホーム</span>
-            </Link>
-            <Link href="/coinLaundry" className={styles.navItem}>
-              <span className={styles.icon}>
-                <Icon.MdOutlineLocalLaundryService />
-              </span>
-              <span className={styles.label}>店舗</span>
-            </Link>
-            <Link href="/collectMoney" className={styles.navItem}>
-              <span className={styles.icon}>
-                <Icon.BiCoinStack />
-              </span>
-              <span className={styles.label}>収益</span>
-            </Link>
-            <Link href="/account" className={styles.navItem}>
-              <span className={styles.icon}>
-                <Icon.RiAccountCircleLine />
-              </span>
-              <span className={styles.label}>アカウント</span>
-            </Link>
-          </>
-        )}
+        <>
+          <Link href="/" className={styles.navItem}>
+            <span className={styles.icon}>
+              <Icon.IoHomeOutline />
+            </span>
+            <span className={styles.label}>ホーム</span>
+          </Link>
+          <Link href="/coinLaundry" className={styles.navItem}>
+            <span className={styles.icon}>
+              <Icon.MdOutlineLocalLaundryService />
+            </span>
+            <span className={styles.label}>店舗</span>
+          </Link>
+          <Link href="/collectMoney" className={styles.navItem}>
+            <span className={styles.icon}>
+              <Icon.BiCoinStack />
+            </span>
+            <span className={styles.label}>収益</span>
+          </Link>
+          <Link href="/account" className={styles.navItem}>
+            <span className={styles.icon}>
+              <Icon.RiAccountCircleLine />
+            </span>
+            <span className={styles.label}>アカウント</span>
+          </Link>
+        </>
       </div>
     </nav>
   );

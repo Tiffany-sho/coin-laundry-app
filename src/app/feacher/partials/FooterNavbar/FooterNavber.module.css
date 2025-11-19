@@ -74,14 +74,12 @@
   background-color: #fff5f5;
 }
 
-/* スマホ: 639px以下でFooterNavbarのみ表示 */
 @media (max-width: 639px) {
   .footerNavbar {
     display: block;
   }
 }
 
-/* タブレット: 640px-768pxでFooterNavbarのみ表示 */
 @media (min-width: 640px) and (max-width: 768px) {
   .footerNavbar {
     display: block;
@@ -96,7 +94,6 @@
   }
 }
 
-/* PC: 769px以上はFooterNavbarを非表示 */
 @media (min-width: 769px) {
   .footerNavbar {
     display: none;

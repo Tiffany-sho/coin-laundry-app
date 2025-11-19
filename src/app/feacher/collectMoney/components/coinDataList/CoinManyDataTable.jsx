@@ -22,6 +22,7 @@ const CoinManyDataTable = () => {
     setOpen,
     displayData,
     setDisplayData,
+    setDisplayBtn,
   } = useUploadPage();
 
   const supabase = createClient();
@@ -86,6 +87,9 @@ const CoinManyDataTable = () => {
         setError(initialError.message);
         setDisplayData(null);
       } else {
+        if (initialData.length < PAGE_SIZE) {
+          setDisplayBtn(false);
+        }
         setDisplayData(initialData);
         setError(null);
       }

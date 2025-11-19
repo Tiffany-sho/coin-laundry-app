@@ -25,6 +25,7 @@ const CoinMonoDataTable = ({ id }) => {
     setOpen,
     displayData,
     setDisplayData,
+    setDisplayBtn,
   } = useUploadPage();
 
   useEffect(() => {
@@ -103,6 +104,9 @@ const CoinMonoDataTable = ({ id }) => {
         setError(initialError.message);
         setDisplayData(null);
       } else {
+        if (initialData.length < PAGE_SIZE) {
+          setDisplayBtn(false);
+        }
         setDisplayData(initialData);
         setError(null);
       }

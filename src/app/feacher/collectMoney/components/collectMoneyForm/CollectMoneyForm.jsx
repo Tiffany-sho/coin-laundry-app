@@ -63,8 +63,10 @@ const CollectMoneyForm = ({ coinLaundry }) => {
       if (data && data.collectMethod !== null) {
         if (data.collectMethod === "total") {
           setChecked(false);
-        } else {
+        } else if (data.collectMethod === "machines") {
           setChecked(true);
+        } else {
+          setChecked(null);
         }
         setFixed(true);
         setLoading(false);
@@ -106,14 +108,16 @@ const CollectMoneyForm = ({ coinLaundry }) => {
     if (!user) return;
 
     let collectMethod;
-    if (method === "true") {
-      collectMethod = "mchines";
+    if (method === null) {
+      collectMethod = null;
+    } else if (method) {
+      collectMethod = "machines";
     } else {
       collectMethod = "total";
     }
     await supabase
       .from("profiles")
-      .update({ collectMethod: method })
+      .update({ collectMethod: collectMethod })
       .eq("id", user.id);
   };
 

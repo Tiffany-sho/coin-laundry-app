@@ -8,7 +8,11 @@ const FooterNavbarWrapper = async () => {
     data: { user },
   } = await supabase.auth.getUser();
 
-  return <FooterNavbar user={user} />;
+  if (!user) {
+    return;
+  }
+
+  return <FooterNavbar />;
 };
 
 export default FooterNavbarWrapper;

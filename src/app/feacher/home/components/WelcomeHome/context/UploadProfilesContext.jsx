@@ -15,27 +15,22 @@ export const UploadProfilesProvider = ({ children }) => {
 
   const handleNext = () => {
     if (step < totalSteps) {
+      setProgress(Math.floor((step / totalSteps) * 100));
       setStep(step + 1);
-      setProgress((step / totalSteps) * 100);
     } else {
       setProgress(100);
+      setStep(step + 1);
     }
   };
 
   const handleBack = () => {
     setStep(step - 1);
-    setProgress(((step - 2) / totalSteps) * 100);
-  };
-
-  const handleReset = () => {
-    setStep(1);
-    setProgress(0);
+    setProgress(Math.floor(((step - 2) / totalSteps) * 100));
   };
 
   const value = {
     handleNext,
     handleBack,
-    handleReset,
     progress,
     setProgress,
     step,

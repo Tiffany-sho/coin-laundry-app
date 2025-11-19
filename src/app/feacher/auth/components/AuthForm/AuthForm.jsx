@@ -109,7 +109,7 @@ export default function AuthForm({ mode, action }) {
                       textDecoration: "underline",
                     }}
                   >
-                    パスワードを忘れた場合
+                    {isLogin && "パスワードを忘れた場合"}
                   </Text>
                 </Link>
               </Text>

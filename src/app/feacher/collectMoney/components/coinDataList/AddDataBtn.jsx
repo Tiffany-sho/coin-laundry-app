@@ -1,49 +1,21 @@
 import { Button } from "@chakra-ui/react";
 import { useUploadPage } from "../../context/UploadPageContext";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 
 const AddDataBtn = ({ id = "" }) => {
   const supabase = createClient();
   const [isLoading, setIsLoading] = useState(false);
-  const [displayBtn, setDisplayBtn] = useState(true);
-  const [dataCount, setDataCount] = useState(null);
-  const { PAGE_SIZE, page, setPage, orderAmount, upOrder, setDisplayData } =
-    useUploadPage();
-
-  useEffect(() => {
-    const getCount = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        setDataCount(null);
-      }
-
-      const { count, error } = await supabase
-        .from("collect_funds")
-        .select("*", { count: "exact", head: true })
-        .eq("collecter", user.id);
-
-      if (error) {
-        console.error(error);
-        setDataCount(null);
-      } else {
-        setDataCount(count);
-      }
-    };
-    getCount();
-  }, []);
-
-  useEffect(() => {
-    if (!dataCount) return;
-    if (dataCount < page * PAGE_SIZE - 1) {
-      setDisplayBtn(false);
-    } else {
-      setDisplayBtn(true);
-    }
-  }, [dataCount, page, dataCount]);
+  const {
+    PAGE_SIZE,
+    page,
+    setPage,
+    orderAmount,
+    upOrder,
+    setDisplayData,
+    displayBtn,
+    setDisplayBtn,
+  } = useUploadPage();
 
   const addData = async () => {
     const {
@@ -71,6 +43,9 @@ const AddDataBtn = ({ id = "" }) => {
       if (nextError) {
         setDisplayData(null);
       } else {
+        if (nextData.length < PAGE_SIZE) {
+          setDisplayBtn(false);
+        }
         setDisplayData((prev) => [...prev, ...nextData]);
       }
     } else {
@@ -84,6 +59,9 @@ const AddDataBtn = ({ id = "" }) => {
       if (nextError) {
         setDisplayData(null);
       } else {
+        if (nextData.length < PAGE_SIZE) {
+          setDisplayBtn(false);
+        }
         setDisplayData((prev) => [...prev, ...nextData]);
       }
     }

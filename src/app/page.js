@@ -6,14 +6,18 @@ import WelcomeHome from "./feacher/home/components/WelcomeHome/WelcomeHome";
 
 const getData = async () => {
   const supabase = await createClient();
-  const {
-    data: { user },
-    authError,
-  } = await supabase.auth.getUser();
+
   try {
-    if (authError) {
+    const {
+      data: { user },
+      authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
       return {
         error: { msg: "ユーザデータの取得に失敗しました", status: 500 },
+        user: user,
+        data: null,
       };
     }
     const { data, error } = await supabase
@@ -26,6 +30,7 @@ const getData = async () => {
       return {
         error: { msg: "データの取得に失敗しました", status: 500 },
         user: user,
+        data: null,
       };
     }
     return { data: data, user: user };
@@ -33,6 +38,7 @@ const getData = async () => {
     return {
       error: { msg: "予期しないエラー", status: 400 },
       user: user,
+      data: null,
     };
   }
 };
