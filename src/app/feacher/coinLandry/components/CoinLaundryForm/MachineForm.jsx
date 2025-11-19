@@ -2,7 +2,6 @@
 
 import {
   Button,
-  Card,
   Flex,
   Stack,
   Text,

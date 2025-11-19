@@ -10,6 +10,12 @@ import { IoHomeOutline } from "react-icons/io5"; // (io5)
 import { LiaStoreSolid } from "react-icons/lia";
 
 import {
+  LuInfo,
+  LuWallet,
+  LuAtSign,
+  LuUser,
+  LuUserCheck,
+  LuCrown,
   LuCheck,
   LuWrench,
   LuChevronLeft,
@@ -73,4 +79,10 @@ export {
   VscGraphLine,
   LuEyeOff,
   LuEye,
+  LuWallet,
+  LuAtSign,
+  LuUser,
+  LuUserCheck,
+  LuCrown,
+  LuInfo,
 };

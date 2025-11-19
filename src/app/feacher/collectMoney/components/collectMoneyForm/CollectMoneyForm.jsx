@@ -61,9 +61,11 @@ const CollectMoneyForm = ({ coinLaundry }) => {
       }
 
       if (data && data.collectMethod !== null) {
-        const isChecked =
-          data.collectMethod === true || data.collectMethod === "true";
-        setChecked(isChecked);
+        if (data.collectMethod === "total") {
+          setChecked(false);
+        } else {
+          setChecked(true);
+        }
         setFixed(true);
         setLoading(false);
       } else {
@@ -103,6 +105,12 @@ const CollectMoneyForm = ({ coinLaundry }) => {
 
     if (!user) return;
 
+    let collectMethod;
+    if (method === "true") {
+      collectMethod = "mchines";
+    } else {
+      collectMethod = "total";
+    }
     await supabase
       .from("profiles")
       .update({ collectMethod: method })
