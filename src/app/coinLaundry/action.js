@@ -100,12 +100,24 @@ export async function updateStore(formData, id) {
       laundryName: data.store,
       machines: machinesState,
     })
-    .eq("stocker", data.owner);
+    .eq("stocker", data.owner)
+    .eq("laundryId", data.id);
 
   if (stockError) {
     return { error: stockError.message };
   }
 
+  const { error: fundsError } = await supabase
+    .from("collect_funds")
+    .update({
+      laundryName: data.store,
+    })
+    .eq("collecter", data.owner)
+    .eq("laundryId", data.id);
+
+  if (fundsError) {
+    return { error: fundsError.message };
+  }
   return { data: data };
 }
 

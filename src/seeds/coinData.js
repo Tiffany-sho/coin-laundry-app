@@ -1,7 +1,7 @@
 export const coinData = [
   {
     laundryName: "御園橋",
-    laundryId: "a71b4261-7abb-4cc3-8855-be3b8d0dc474",
+    laundryId: "a40a305b-4943-41fd-8424-bfba23b7205d",
     date: 1760838000000,
     fundArray: [
       {
@@ -31,11 +31,11 @@ export const coinData = [
       },
     ],
     totalFunds: 155900,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "千本鞍馬口",
-    laundryId: "46dcfae5-5193-46d6-babd-3c69d528b8c6",
+    laundryId: "723e9c5e-cbec-4b63-8ca1-5d9a0f9bc4bb",
     date: 1760838000000,
     fundArray: [
       {
@@ -65,11 +65,11 @@ export const coinData = [
       },
     ],
     totalFunds: 177400,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "衣笠わら天神",
-    laundryId: "ed757d30-2e3c-447f-8e2c-ee298d3f9387",
+    laundryId: "710722c1-4bd5-4b53-a1b8-8e9b61b5bc53",
     date: 1760838000000,
     fundArray: [
       {
@@ -99,11 +99,11 @@ export const coinData = [
       },
     ],
     totalFunds: 201800,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "丸太町小川",
-    laundryId: "c203b588-d7f8-4622-b2c0-9a70a929f0fd",
+    laundryId: "daa9735f-f6f0-4ec4-9165-28ab65cfa04f",
     date: 1760838000000,
     fundArray: [
       {
@@ -128,11 +128,11 @@ export const coinData = [
       },
     ],
     totalFunds: 236800,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "西大路六角",
-    laundryId: "a9fa7a46-334c-4b76-955b-5f0e8d8c1c54",
+    laundryId: "607a062c-53d8-492a-a1c1-19a05ed49032",
     date: 1760838000000,
     fundArray: [
       {
@@ -157,11 +157,11 @@ export const coinData = [
       },
     ],
     totalFunds: 170700,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "御園橋",
-    laundryId: "a71b4261-7abb-4cc3-8855-be3b8d0dc474",
+    laundryId: "a40a305b-4943-41fd-8424-bfba23b7205d",
     date: 1759628400000,
     fundArray: [
       {
@@ -191,11 +191,11 @@ export const coinData = [
       },
     ],
     totalFunds: 115900,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "千本鞍馬口",
-    laundryId: "46dcfae5-5193-46d6-babd-3c69d528b8c6",
+    laundryId: "723e9c5e-cbec-4b63-8ca1-5d9a0f9bc4bb",
     date: 1759628400000,
     fundArray: [
       {
@@ -225,11 +225,11 @@ export const coinData = [
       },
     ],
     totalFunds: 128900,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "衣笠わら天神",
-    laundryId: "ed757d30-2e3c-447f-8e2c-ee298d3f9387",
+    laundryId: "710722c1-4bd5-4b53-a1b8-8e9b61b5bc53",
     date: 1759628400000,
     fundArray: [
       {
@@ -259,11 +259,11 @@ export const coinData = [
       },
     ],
     totalFunds: 140400,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "丸太町小川",
-    laundryId: "c203b588-d7f8-4622-b2c0-9a70a929f0fd",
+    laundryId: "daa9735f-f6f0-4ec4-9165-28ab65cfa04f",
     date: 1759628400000,
     fundArray: [
       {
@@ -288,11 +288,11 @@ export const coinData = [
       },
     ],
     totalFunds: 180600,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "西大路六角",
-    laundryId: "a9fa7a46-334c-4b76-955b-5f0e8d8c1c54",
+    laundryId: "607a062c-53d8-492a-a1c1-19a05ed49032",
     date: 1759628400000,
     fundArray: [
       {
@@ -317,11 +317,11 @@ export const coinData = [
       },
     ],
     totalFunds: 157800,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "御園橋",
-    laundryId: "a71b4261-7abb-4cc3-8855-be3b8d0dc474",
+    laundryId: "a40a305b-4943-41fd-8424-bfba23b7205d",
     date: 1758418800000,
     fundArray: [
       {
@@ -351,11 +351,11 @@ export const coinData = [
       },
     ],
     totalFunds: 143100,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "千本鞍馬口",
-    laundryId: "46dcfae5-5193-46d6-babd-3c69d528b8c6",
+    laundryId: "723e9c5e-cbec-4b63-8ca1-5d9a0f9bc4bb",
     date: 1758418800000,
     fundArray: [
       {
@@ -385,11 +385,11 @@ export const coinData = [
       },
     ],
     totalFunds: 153900,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "衣笠わら天神",
-    laundryId: "ed757d30-2e3c-447f-8e2c-ee298d3f9387",
+    laundryId: "710722c1-4bd5-4b53-a1b8-8e9b61b5bc53",
     date: 1758418800000,
     fundArray: [
       {
@@ -419,11 +419,11 @@ export const coinData = [
       },
     ],
     totalFunds: 161400,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "丸太町小川",
-    laundryId: "c203b588-d7f8-4622-b2c0-9a70a929f0fd",
+    laundryId: "daa9735f-f6f0-4ec4-9165-28ab65cfa04f",
     date: 1758418800000,
     fundArray: [
       {
@@ -448,11 +448,11 @@ export const coinData = [
       },
     ],
     totalFunds: 195900,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "西大路六角",
-    laundryId: "a9fa7a46-334c-4b76-955b-5f0e8d8c1c54",
+    laundryId: "607a062c-53d8-492a-a1c1-19a05ed49032",
     date: 1758418800000,
     fundArray: [
       {
@@ -477,11 +477,11 @@ export const coinData = [
       },
     ],
     totalFunds: 166800,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "御園橋",
-    laundryId: "a71b4261-7abb-4cc3-8855-be3b8d0dc474",
+    laundryId: "a40a305b-4943-41fd-8424-bfba23b7205d",
     date: 1756940400000,
     fundArray: [
       {
@@ -511,11 +511,11 @@ export const coinData = [
       },
     ],
     totalFunds: 105800,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "千本鞍馬口",
-    laundryId: "46dcfae5-5193-46d6-babd-3c69d528b8c6",
+    laundryId: "723e9c5e-cbec-4b63-8ca1-5d9a0f9bc4bb",
     date: 1756940400000,
     fundArray: [
       {
@@ -545,11 +545,11 @@ export const coinData = [
       },
     ],
     totalFunds: 127000,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "衣笠わら天神",
-    laundryId: "ed757d30-2e3c-447f-8e2c-ee298d3f9387",
+    laundryId: "710722c1-4bd5-4b53-a1b8-8e9b61b5bc53",
     date: 1756940400000,
     fundArray: [
       {
@@ -579,11 +579,11 @@ export const coinData = [
       },
     ],
     totalFunds: 95000,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "丸太町小川",
-    laundryId: "c203b588-d7f8-4622-b2c0-9a70a929f0fd",
+    laundryId: "daa9735f-f6f0-4ec4-9165-28ab65cfa04f",
     date: 1756940400000,
     fundArray: [
       {
@@ -608,11 +608,11 @@ export const coinData = [
       },
     ],
     totalFunds: 138300,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "西大路六角",
-    laundryId: "a9fa7a46-334c-4b76-955b-5f0e8d8c1c54",
+    laundryId: "607a062c-53d8-492a-a1c1-19a05ed49032",
     date: 1756940400000,
     fundArray: [
       {
@@ -637,11 +637,11 @@ export const coinData = [
       },
     ],
     totalFunds: 123600,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "御園橋",
-    laundryId: "a71b4261-7abb-4cc3-8855-be3b8d0dc474",
+    laundryId: "a40a305b-4943-41fd-8424-bfba23b7205d",
     date: 1755730800000,
     fundArray: [
       {
@@ -671,11 +671,11 @@ export const coinData = [
       },
     ],
     totalFunds: 185600,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "千本鞍馬口",
-    laundryId: "46dcfae5-5193-46d6-babd-3c69d528b8c6",
+    laundryId: "723e9c5e-cbec-4b63-8ca1-5d9a0f9bc4bb",
     date: 1755730800000,
     fundArray: [
       {
@@ -705,11 +705,11 @@ export const coinData = [
       },
     ],
     totalFunds: 205100,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "衣笠わら天神",
-    laundryId: "ed757d30-2e3c-447f-8e2c-ee298d3f9387",
+    laundryId: "710722c1-4bd5-4b53-a1b8-8e9b61b5bc53",
     date: 1755730800000,
     fundArray: [
       {
@@ -739,11 +739,11 @@ export const coinData = [
       },
     ],
     totalFunds: 226000,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "丸太町小川",
-    laundryId: "c203b588-d7f8-4622-b2c0-9a70a929f0fd",
+    laundryId: "daa9735f-f6f0-4ec4-9165-28ab65cfa04f",
     date: 1755730800000,
     fundArray: [
       {
@@ -768,11 +768,11 @@ export const coinData = [
       },
     ],
     totalFunds: 246800,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "大江",
-    laundryId: null,
+    laundryId: "7e783590-3d65-44d9-b159-85c43902d4d9",
     date: 1755730800000,
     fundArray: [
       {
@@ -802,11 +802,11 @@ export const coinData = [
       },
     ],
     totalFunds: 0,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "西大路六角",
-    laundryId: "a9fa7a46-334c-4b76-955b-5f0e8d8c1c54",
+    laundryId: "607a062c-53d8-492a-a1c1-19a05ed49032",
     date: 1755730800000,
     fundArray: [
       {
@@ -831,11 +831,11 @@ export const coinData = [
       },
     ],
     totalFunds: 196000,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "御園橋",
-    laundryId: "a71b4261-7abb-4cc3-8855-be3b8d0dc474",
+    laundryId: "a40a305b-4943-41fd-8424-bfba23b7205d",
     date: 1754252400000,
     fundArray: [
       {
@@ -865,11 +865,11 @@ export const coinData = [
       },
     ],
     totalFunds: 186600,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "千本鞍馬口",
-    laundryId: "46dcfae5-5193-46d6-babd-3c69d528b8c6",
+    laundryId: "723e9c5e-cbec-4b63-8ca1-5d9a0f9bc4bb",
     date: 1754252400000,
     fundArray: [
       {
@@ -899,11 +899,11 @@ export const coinData = [
       },
     ],
     totalFunds: 209200,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "衣笠わら天神",
-    laundryId: "ed757d30-2e3c-447f-8e2c-ee298d3f9387",
+    laundryId: "710722c1-4bd5-4b53-a1b8-8e9b61b5bc53",
     date: 1754252400000,
     fundArray: [
       {
@@ -933,11 +933,11 @@ export const coinData = [
       },
     ],
     totalFunds: 166300,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "丸太町小川",
-    laundryId: "c203b588-d7f8-4622-b2c0-9a70a929f0fd",
+    laundryId: "daa9735f-f6f0-4ec4-9165-28ab65cfa04f",
     date: 1754252400000,
     fundArray: [
       {
@@ -962,11 +962,11 @@ export const coinData = [
       },
     ],
     totalFunds: 220900,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "西大路六角",
-    laundryId: "a9fa7a46-334c-4b76-955b-5f0e8d8c1c54",
+    laundryId: "607a062c-53d8-492a-a1c1-19a05ed49032",
     date: 1754252400000,
     fundArray: [
       {
@@ -991,11 +991,11 @@ export const coinData = [
       },
     ],
     totalFunds: 199500,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "御園橋",
-    laundryId: "a71b4261-7abb-4cc3-8855-be3b8d0dc474",
+    laundryId: "a40a305b-4943-41fd-8424-bfba23b7205d",
     date: 1752774000000,
     fundArray: [
       {
@@ -1025,11 +1025,11 @@ export const coinData = [
       },
     ],
     totalFunds: 95800,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "千本鞍馬口",
-    laundryId: "46dcfae5-5193-46d6-babd-3c69d528b8c6",
+    laundryId: "723e9c5e-cbec-4b63-8ca1-5d9a0f9bc4bb",
     date: 1752774000000,
     fundArray: [
       {
@@ -1059,11 +1059,11 @@ export const coinData = [
       },
     ],
     totalFunds: 67500,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "衣笠わら天神",
-    laundryId: "ed757d30-2e3c-447f-8e2c-ee298d3f9387",
+    laundryId: "710722c1-4bd5-4b53-a1b8-8e9b61b5bc53",
     date: 1752774000000,
     fundArray: [
       {
@@ -1093,11 +1093,11 @@ export const coinData = [
       },
     ],
     totalFunds: 131500,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "丸太町小川",
-    laundryId: "c203b588-d7f8-4622-b2c0-9a70a929f0fd",
+    laundryId: "daa9735f-f6f0-4ec4-9165-28ab65cfa04f",
     date: 1752774000000,
     fundArray: [
       {
@@ -1122,11 +1122,11 @@ export const coinData = [
       },
     ],
     totalFunds: 137000,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "西大路六角",
-    laundryId: "a9fa7a46-334c-4b76-955b-5f0e8d8c1c54",
+    laundryId: "607a062c-53d8-492a-a1c1-19a05ed49032",
     date: 1752774000000,
     fundArray: [
       {
@@ -1151,11 +1151,11 @@ export const coinData = [
       },
     ],
     totalFunds: 125800,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "御園橋",
-    laundryId: "a71b4261-7abb-4cc3-8855-be3b8d0dc474",
+    laundryId: "a40a305b-4943-41fd-8424-bfba23b7205d",
     date: 1751823600000,
     fundArray: [
       {
@@ -1185,11 +1185,11 @@ export const coinData = [
       },
     ],
     totalFunds: 197700,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "千本鞍馬口",
-    laundryId: "46dcfae5-5193-46d6-babd-3c69d528b8c6",
+    laundryId: "723e9c5e-cbec-4b63-8ca1-5d9a0f9bc4bb",
     date: 1751823600000,
     fundArray: [
       {
@@ -1219,11 +1219,11 @@ export const coinData = [
       },
     ],
     totalFunds: 285700,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "衣笠わら天神",
-    laundryId: "ed757d30-2e3c-447f-8e2c-ee298d3f9387",
+    laundryId: "710722c1-4bd5-4b53-a1b8-8e9b61b5bc53",
     date: 1751823600000,
     fundArray: [
       {
@@ -1253,11 +1253,11 @@ export const coinData = [
       },
     ],
     totalFunds: 245000,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "丸太町小川",
-    laundryId: "c203b588-d7f8-4622-b2c0-9a70a929f0fd",
+    laundryId: "daa9735f-f6f0-4ec4-9165-28ab65cfa04f",
     date: 1751823600000,
     fundArray: [
       {
@@ -1282,11 +1282,11 @@ export const coinData = [
       },
     ],
     totalFunds: 277900,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "西大路六角",
-    laundryId: "a9fa7a46-334c-4b76-955b-5f0e8d8c1c54",
+    laundryId: "607a062c-53d8-492a-a1c1-19a05ed49032",
     date: 1751823600000,
     fundArray: [
       {
@@ -1311,11 +1311,11 @@ export const coinData = [
       },
     ],
     totalFunds: 212500,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "御園橋",
-    laundryId: "a71b4261-7abb-4cc3-8855-be3b8d0dc474",
+    laundryId: "a40a305b-4943-41fd-8424-bfba23b7205d",
     date: 1750518000000,
     fundArray: [
       {
@@ -1345,11 +1345,11 @@ export const coinData = [
       },
     ],
     totalFunds: 211600,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "千本鞍馬口",
-    laundryId: "46dcfae5-5193-46d6-babd-3c69d528b8c6",
+    laundryId: "723e9c5e-cbec-4b63-8ca1-5d9a0f9bc4bb",
     date: 1750518000000,
     fundArray: [
       {
@@ -1379,11 +1379,11 @@ export const coinData = [
       },
     ],
     totalFunds: 297900,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "衣笠わら天神",
-    laundryId: "ed757d30-2e3c-447f-8e2c-ee298d3f9387",
+    laundryId: "710722c1-4bd5-4b53-a1b8-8e9b61b5bc53",
     date: 1750518000000,
     fundArray: [
       {
@@ -1413,11 +1413,11 @@ export const coinData = [
       },
     ],
     totalFunds: 296000,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "丸太町小川",
-    laundryId: "c203b588-d7f8-4622-b2c0-9a70a929f0fd",
+    laundryId: "daa9735f-f6f0-4ec4-9165-28ab65cfa04f",
     date: 1750518000000,
     fundArray: [
       {
@@ -1442,11 +1442,11 @@ export const coinData = [
       },
     ],
     totalFunds: 257400,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "西大路六角",
-    laundryId: "a9fa7a46-334c-4b76-955b-5f0e8d8c1c54",
+    laundryId: "607a062c-53d8-492a-a1c1-19a05ed49032",
     date: 1750518000000,
     fundArray: [
       {
@@ -1471,11 +1471,11 @@ export const coinData = [
       },
     ],
     totalFunds: 287400,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "御園橋",
-    laundryId: "a71b4261-7abb-4cc3-8855-be3b8d0dc474",
+    laundryId: "a40a305b-4943-41fd-8424-bfba23b7205d",
     date: 1749039600000,
     fundArray: [
       {
@@ -1505,11 +1505,11 @@ export const coinData = [
       },
     ],
     totalFunds: 169700,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "千本鞍馬口",
-    laundryId: "46dcfae5-5193-46d6-babd-3c69d528b8c6",
+    laundryId: "723e9c5e-cbec-4b63-8ca1-5d9a0f9bc4bb",
     date: 1749039600000,
     fundArray: [
       {
@@ -1539,11 +1539,11 @@ export const coinData = [
       },
     ],
     totalFunds: 174500,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "衣笠わら天神",
-    laundryId: "ed757d30-2e3c-447f-8e2c-ee298d3f9387",
+    laundryId: "710722c1-4bd5-4b53-a1b8-8e9b61b5bc53",
     date: 1749039600000,
     fundArray: [
       {
@@ -1573,11 +1573,11 @@ export const coinData = [
       },
     ],
     totalFunds: 193100,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "丸太町小川",
-    laundryId: "c203b588-d7f8-4622-b2c0-9a70a929f0fd",
+    laundryId: "daa9735f-f6f0-4ec4-9165-28ab65cfa04f",
     date: 1749039600000,
     fundArray: [
       {
@@ -1602,11 +1602,11 @@ export const coinData = [
       },
     ],
     totalFunds: 186000,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "西大路六角",
-    laundryId: "a9fa7a46-334c-4b76-955b-5f0e8d8c1c54",
+    laundryId: "607a062c-53d8-492a-a1c1-19a05ed49032",
     date: 1749039600000,
     fundArray: [
       {
@@ -1631,11 +1631,11 @@ export const coinData = [
       },
     ],
     totalFunds: 207400,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "御園橋",
-    laundryId: "a71b4261-7abb-4cc3-8855-be3b8d0dc474",
+    laundryId: "a40a305b-4943-41fd-8424-bfba23b7205d",
     date: 1747734000000,
     fundArray: [
       {
@@ -1665,11 +1665,11 @@ export const coinData = [
       },
     ],
     totalFunds: 190200,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "千本鞍馬口",
-    laundryId: "46dcfae5-5193-46d6-babd-3c69d528b8c6",
+    laundryId: "723e9c5e-cbec-4b63-8ca1-5d9a0f9bc4bb",
     date: 1747734000000,
     fundArray: [
       {
@@ -1699,11 +1699,11 @@ export const coinData = [
       },
     ],
     totalFunds: 232000,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "衣笠わら天神",
-    laundryId: "ed757d30-2e3c-447f-8e2c-ee298d3f9387",
+    laundryId: "710722c1-4bd5-4b53-a1b8-8e9b61b5bc53",
     date: 1747734000000,
     fundArray: [
       {
@@ -1733,11 +1733,11 @@ export const coinData = [
       },
     ],
     totalFunds: 238700,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "丸太町小川",
-    laundryId: "c203b588-d7f8-4622-b2c0-9a70a929f0fd",
+    laundryId: "daa9735f-f6f0-4ec4-9165-28ab65cfa04f",
     date: 1747734000000,
     fundArray: [
       {
@@ -1762,11 +1762,11 @@ export const coinData = [
       },
     ],
     totalFunds: 236500,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "西大路六角",
-    laundryId: "a9fa7a46-334c-4b76-955b-5f0e8d8c1c54",
+    laundryId: "607a062c-53d8-492a-a1c1-19a05ed49032",
     date: 1747734000000,
     fundArray: [
       {
@@ -1791,11 +1791,11 @@ export const coinData = [
       },
     ],
     totalFunds: 248600,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "御園橋",
-    laundryId: "a71b4261-7abb-4cc3-8855-be3b8d0dc474",
+    laundryId: "a40a305b-4943-41fd-8424-bfba23b7205d",
     date: 1746322800000,
     fundArray: [
       {
@@ -1825,11 +1825,11 @@ export const coinData = [
       },
     ],
     totalFunds: 190600,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "千本鞍馬口",
-    laundryId: "46dcfae5-5193-46d6-babd-3c69d528b8c6",
+    laundryId: "723e9c5e-cbec-4b63-8ca1-5d9a0f9bc4bb",
     date: 1746322800000,
     fundArray: [
       {
@@ -1859,11 +1859,11 @@ export const coinData = [
       },
     ],
     totalFunds: 209000,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "衣笠わら天神",
-    laundryId: "ed757d30-2e3c-447f-8e2c-ee298d3f9387",
+    laundryId: "710722c1-4bd5-4b53-a1b8-8e9b61b5bc53",
     date: 1746322800000,
     fundArray: [
       {
@@ -1893,11 +1893,11 @@ export const coinData = [
       },
     ],
     totalFunds: 210500,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "丸太町小川",
-    laundryId: "c203b588-d7f8-4622-b2c0-9a70a929f0fd",
+    laundryId: "daa9735f-f6f0-4ec4-9165-28ab65cfa04f",
     date: 1746322800000,
     fundArray: [
       {
@@ -1922,11 +1922,11 @@ export const coinData = [
       },
     ],
     totalFunds: 207600,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "西大路六角",
-    laundryId: "a9fa7a46-334c-4b76-955b-5f0e8d8c1c54",
+    laundryId: "607a062c-53d8-492a-a1c1-19a05ed49032",
     date: 1746322800000,
     fundArray: [
       {
@@ -1951,11 +1951,11 @@ export const coinData = [
       },
     ],
     totalFunds: 210600,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "御園橋",
-    laundryId: "a71b4261-7abb-4cc3-8855-be3b8d0dc474",
+    laundryId: "a40a305b-4943-41fd-8424-bfba23b7205d",
     date: 1745113200000,
     fundArray: [
       {
@@ -1985,11 +1985,11 @@ export const coinData = [
       },
     ],
     totalFunds: 173800,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "千本鞍馬口",
-    laundryId: "46dcfae5-5193-46d6-babd-3c69d528b8c6",
+    laundryId: "723e9c5e-cbec-4b63-8ca1-5d9a0f9bc4bb",
     date: 1745113200000,
     fundArray: [
       {
@@ -2019,11 +2019,11 @@ export const coinData = [
       },
     ],
     totalFunds: 238500,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "衣笠わら天神",
-    laundryId: "ed757d30-2e3c-447f-8e2c-ee298d3f9387",
+    laundryId: "710722c1-4bd5-4b53-a1b8-8e9b61b5bc53",
     date: 1745113200000,
     fundArray: [
       {
@@ -2053,11 +2053,11 @@ export const coinData = [
       },
     ],
     totalFunds: 231900,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "丸太町小川",
-    laundryId: "c203b588-d7f8-4622-b2c0-9a70a929f0fd",
+    laundryId: "daa9735f-f6f0-4ec4-9165-28ab65cfa04f",
     date: 1745113200000,
     fundArray: [
       {
@@ -2082,11 +2082,11 @@ export const coinData = [
       },
     ],
     totalFunds: 223600,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "西大路六角",
-    laundryId: "a9fa7a46-334c-4b76-955b-5f0e8d8c1c54",
+    laundryId: "607a062c-53d8-492a-a1c1-19a05ed49032",
     date: 1745113200000,
     fundArray: [
       {
@@ -2111,11 +2111,11 @@ export const coinData = [
       },
     ],
     totalFunds: 221900,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "御園橋",
-    laundryId: "a71b4261-7abb-4cc3-8855-be3b8d0dc474",
+    laundryId: "a40a305b-4943-41fd-8424-bfba23b7205d",
     date: 1743932400000,
     fundArray: [
       {
@@ -2145,11 +2145,11 @@ export const coinData = [
       },
     ],
     totalFunds: 209600,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "千本鞍馬口",
-    laundryId: "46dcfae5-5193-46d6-babd-3c69d528b8c6",
+    laundryId: "723e9c5e-cbec-4b63-8ca1-5d9a0f9bc4bb",
     date: 1743932400000,
     fundArray: [
       {
@@ -2179,11 +2179,11 @@ export const coinData = [
       },
     ],
     totalFunds: 226900,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "衣笠わら天神",
-    laundryId: "ed757d30-2e3c-447f-8e2c-ee298d3f9387",
+    laundryId: "710722c1-4bd5-4b53-a1b8-8e9b61b5bc53",
     date: 1743932400000,
     fundArray: [
       {
@@ -2213,11 +2213,11 @@ export const coinData = [
       },
     ],
     totalFunds: 238600,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "丸太町小川",
-    laundryId: "c203b588-d7f8-4622-b2c0-9a70a929f0fd",
+    laundryId: "daa9735f-f6f0-4ec4-9165-28ab65cfa04f",
     date: 1743932400000,
     fundArray: [
       {
@@ -2242,11 +2242,11 @@ export const coinData = [
       },
     ],
     totalFunds: 202300,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
   {
     laundryName: "西大路六角",
-    laundryId: "a9fa7a46-334c-4b76-955b-5f0e8d8c1c54",
+    laundryId: "607a062c-53d8-492a-a1c1-19a05ed49032",
     date: 1743932400000,
     fundArray: [
       {
@@ -2271,6 +2271,6 @@ export const coinData = [
       },
     ],
     totalFunds: 184400,
-    collecter: "c21ed2db-5903-4ad9-99db-c42d72a352a0",
+    collecter: "699f360f-d50e-46a0-bf10-38d96216a752",
   },
 ];

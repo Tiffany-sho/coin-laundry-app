@@ -36,7 +36,7 @@ const uploadData = async () => {
     const { error: deleteError } = await supabase
       .from("collect_funds")
       .delete()
-      .eq("collecter", "c21ed2db-5903-4ad9-99db-c42d72a352a0"); //
+      .eq("collecter", "699f360f-d50e-46a0-bf10-38d96216a752"); //
 
     if (deleteError) {
       console.error("削除エラー:", deleteError.message);

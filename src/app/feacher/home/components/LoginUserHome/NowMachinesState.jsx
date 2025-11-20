@@ -13,6 +13,8 @@ const getData = async (id) => {
     return { error: error.message };
   }
 
+  console.log(data);
+
   const breakMachines = data.filter(
     (item) => item.machines.filter((machine) => machine.break).length !== 0
   );
