@@ -1,48 +1,22 @@
-import { createClient } from "@/utils/supabase/client";
-import { Spinner, Text, VStack } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { createClient } from "@/utils/supabase/server";
+import { Text, VStack } from "@chakra-ui/react";
 
-const MonoDataTotal = ({ id }) => {
-  const [data, setData] = useState(null);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const supabase = createClient();
+const fetchData = async (id) => {
+  const supabase = await createClient();
+  const { data: initialData, error: initialError } = await supabase
+    .from("collect_funds")
+    .select("*")
+    .eq("laundryId", id);
 
-  useEffect(() => {
-    if (!id) {
-      setLoading(false);
-      return;
-    }
+  if (initialError) {
+    return { error: initialError };
+  } else {
+    return { data: initialData };
+  }
+};
 
-    const fetchData = async () => {
-      setLoading(true);
-      const { data: initialData, error: initialError } = await supabase
-        .from("collect_funds")
-        .select("*")
-        .eq("laundryId", id);
-
-      if (initialError) {
-        setError(initialError.message);
-        setData(null);
-      } else {
-        setData(initialData);
-        setError(null);
-      }
-      setLoading(false);
-    };
-
-    fetchData();
-  }, [id]);
-
-  if (loading)
-    return (
-      <VStack>
-        <Spinner size="sm" color="green.500" />
-        <Text fontSize="xs" color="gray.500">
-          読み込み中...
-        </Text>
-      </VStack>
-    );
+const MonoDataTotal = async ({ id }) => {
+  const { data, error } = await fetchData(id);
 
   if (error)
     return (
@@ -65,9 +39,7 @@ const MonoDataTotal = ({ id }) => {
   }
 
   const totalRevenue = data.reduce((accumulator, current) => {
-    const summary = current.fundsArray.reduce((accumulator, currentValue) => {
-      return accumulator + parseInt(currentValue.funds);
-    }, 0);
+    const summary = current.totalFunds;
     return accumulator + summary;
   }, 0);
 

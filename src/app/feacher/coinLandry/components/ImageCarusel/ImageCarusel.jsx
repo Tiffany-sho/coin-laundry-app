@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import Styles from "./ImageCarusel.module.css";
 import * as Icon from "@/app/feacher/Icon";

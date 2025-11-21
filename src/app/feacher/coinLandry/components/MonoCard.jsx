@@ -1,7 +1,3 @@
-"use client";
-
-import { useEffect } from "react";
-import { toaster } from "@/components/ui/toaster";
 import Link from "next/link";
 import * as Icon from "@/app/feacher/Icon";
 import ImageCarousel from "./ImageCarusel/ImageCarusel";
@@ -26,18 +22,6 @@ import MachinesState from "./MachinesState";
 import NowLaundryNum from "./NowLaundryNum";
 
 const MonoCard = ({ coinLaundry }) => {
-  useEffect(() => {
-    setTimeout(() => {
-      const toastInfo = sessionStorage.getItem("toast");
-
-      if (toastInfo) {
-        const toastInfoStr = JSON.parse(toastInfo);
-        toaster.create(toastInfoStr);
-      }
-      sessionStorage.removeItem("toast");
-    }, 0);
-  }, []);
-
   return (
     <Box minH="100vh" py={{ base: 6, md: 10 }} px={{ base: 4, md: 6 }}>
       <Container maxW="900px" px={0}>

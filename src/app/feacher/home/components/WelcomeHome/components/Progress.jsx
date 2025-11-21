@@ -12,7 +12,6 @@ import FinishPage from "./FinishPage";
 
 const Progress = ({ user }) => {
   const { progress, totalSteps, step } = useUploadProfiles();
-  console.log(step);
   return (
     <Box minH="100vh" bg="gray.50" position="relative" zIndex="3000">
       <ProgressNavbar progress={progress} />
@@ -47,7 +46,7 @@ const Progress = ({ user }) => {
               {step > 5 && "初期設定が完了しました！"}
             </Text>
             <Text fontSize="md" color="gray.600">
-              ステップ {step} / {totalSteps}
+              {step === 1 && `ステップ ${step - 1} / ${totalSteps}`}
             </Text>
           </Box>
 
