@@ -13,6 +13,8 @@ import ChartLoading from "@/app/feacher/partials/ChartLoading";
 import { useUploadPage } from "../../context/UploadPageContext";
 import { createClient } from "@/utils/supabase/client";
 import ChartError from "@/app/feacher/partials/ChartError";
+import { getUser } from "@/app/api/supabaseFunctions/supabaseDatabase/user/action";
+import ChartEmpty from "@/app/feacher/partials/ChartEmpty";
 
 const MonoCoinDataChart = ({ id }) => {
   const { data, setData } = useUploadPage();
@@ -71,9 +73,7 @@ const MonoCoinDataChart = ({ id }) => {
       } else {
         orderPeriod = 0;
       }
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      const { user } = await getUser();
 
       if (!user) {
         setLoading(false);
@@ -135,7 +135,7 @@ const MonoCoinDataChart = ({ id }) => {
   if (error) return <ChartError message={error.messaage} />;
 
   if (!data || data.length === 0) {
-    return <ChartError message="データが見つかりませんでした" />;
+    return <ChartEmpty />;
   }
   if (chartData.length === 0) {
     return <ChartLoading />;

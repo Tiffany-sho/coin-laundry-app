@@ -1,13 +1,10 @@
 import { createClient } from "@/utils/supabase/server";
 import Navbar from "./Navbar";
+import { getUser } from "@/app/api/supabaseFunctions/supabaseDatabase/user/action";
 
 const NavbarWrapper = async () => {
+  const { user } = await getUser();
   const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
   if (user) {
     const { data, error } = await supabase
       .from("profiles")

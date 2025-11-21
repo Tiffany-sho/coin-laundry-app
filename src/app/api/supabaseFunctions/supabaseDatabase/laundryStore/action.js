@@ -1,12 +1,11 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
+import { getUser } from "../user/action";
 
 export async function createStore(formData) {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user } = await getUser();
 
   if (!user) {
     return { error: "ユーザーが認証されていません。" };

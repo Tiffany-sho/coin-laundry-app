@@ -7,6 +7,8 @@ import { createClient } from "@/utils/supabase/client";
 import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
 import TableLoading from "@/app/feacher/partials/TableLoading";
 import TableError from "@/app/feacher/partials/TableError";
+import { getUser } from "@/app/api/supabaseFunctions/supabaseDatabase/user/action";
+import TableEmpty from "@/app/feacher/partials/TableEmpty";
 
 const CoinMonoDataTable = ({ id }) => {
   const [error, setError] = useState(null);
@@ -81,12 +83,8 @@ const CoinMonoDataTable = ({ id }) => {
     };
 
     const fetchData = async (id) => {
-      const {
-        data: { user },
-        error: authError,
-      } = await supabase.auth.getUser();
-
-      if (authError || !user) {
+      const { user } = await getUser();
+      if (!user) {
         setLoading(false);
         return;
       }
@@ -130,7 +128,7 @@ const CoinMonoDataTable = ({ id }) => {
   if (error) return <TableError message={error.message} />;
 
   if (!displayData || displayData.length === 0) {
-    return <TableError message="データがありません" />;
+    return <TableEmpty />;
   }
   return (
     <Table.Body>

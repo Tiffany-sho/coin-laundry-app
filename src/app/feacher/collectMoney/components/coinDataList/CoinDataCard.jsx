@@ -16,7 +16,11 @@ import { toaster } from "@/components/ui/toaster";
 import * as Icon from "@/app/feacher/Icon";
 import { useEffect, useState } from "react";
 import AlertDialog from "@/app/feacher/dialog/AlertDialog";
-import { deleteData, updateData, updateDate } from "@/app/collectMoney/action";
+import {
+  deleteData,
+  updateData,
+  updateDate,
+} from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
 import EpochTimeSelector from "../selectDate/SelectDate";
 import { useUploadPage } from "../../context/UploadPageContext";
 

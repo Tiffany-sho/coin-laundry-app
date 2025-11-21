@@ -1,7 +1,7 @@
 import Link from "next/link";
 import * as Icon from "@/app/feacher/Icon";
-import ImageCarousel from "./ImageCarusel/ImageCarusel";
-import ActionMenu from "./ActionMenu/ActionMenu";
+import ImageCarousel from "./ImageCarusel";
+import ActionMenu from "../ActionMenu/ActionMenu";
 import {
   Box,
   Container,
@@ -17,9 +17,9 @@ import {
   Badge,
   Grid,
 } from "@chakra-ui/react";
-import MonoDataTotal from "./CoinLaundryList/MonoDataTotal";
-import MachinesState from "./MachinesState";
-import NowLaundryNum from "./NowLaundryNum";
+import MonoDataTotal from "../MonoDataTotal";
+import MachinesState from "../../MachinesState";
+import NowLaundryNum from "../../NowLaundryNum";
 
 const MonoCard = ({ coinLaundry }) => {
   return (
@@ -198,21 +198,6 @@ const MonoCard = ({ coinLaundry }) => {
                             ))}
                           </VStack>
                         </Drawer.Body>
-                        <Drawer.Footer
-                          borderTop="1px solid"
-                          borderColor="gray.200"
-                        >
-                          <Drawer.Context>
-                            {(store) => (
-                              <Button
-                                variant="outline"
-                                onClick={() => store.setOpen(false)}
-                              >
-                                閉じる
-                              </Button>
-                            )}
-                          </Drawer.Context>
-                        </Drawer.Footer>
                       </Drawer.Content>
                     </Drawer.Positioner>
                   </Portal>

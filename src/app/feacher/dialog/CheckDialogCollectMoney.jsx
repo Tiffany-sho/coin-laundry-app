@@ -15,7 +15,7 @@ import {
 import { useState } from "react";
 import { redirect } from "next/navigation";
 import { createNowData } from "@/date";
-import { createData } from "@/app/collectMoney/action";
+import { createData } from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
 
 import * as Icon from "@/app/feacher/Icon";
 

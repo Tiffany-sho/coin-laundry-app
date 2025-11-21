@@ -2,12 +2,11 @@ import * as CoinLaundry from "@/app/feacher/coinLandry/components/CoinLaundryLis
 import { Heading, Box, Container, Flex, Text, VStack } from "@chakra-ui/react";
 import ErrorPage from "@/app/feacher/jumpPage/ErrorPage/ErrorPage";
 import { createClient } from "@/utils/supabase/server";
+import { getUser } from "../api/supabaseFunctions/supabaseDatabase/user/action";
 
 async function getData() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user } = await getUser();
 
   try {
     if (!user) {

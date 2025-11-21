@@ -3,23 +3,21 @@ import ErrorPage from "./feacher/jumpPage/ErrorPage/ErrorPage";
 import NotLoginUserHome from "./feacher/home/components/NotLoginUserHome/NotLoginUserHome";
 import LoginUserHome from "./feacher/home/components/LoginUserHome/LoginUserHome";
 import WelcomeHome from "./feacher/home/components/WelcomeHome/WelcomeHome";
+import { getUser } from "./api/supabaseFunctions/supabaseDatabase/user/action";
 
 const getData = async () => {
+  const { user } = await getUser();
+
+  if (!user) {
+    return {
+      user: null,
+      data: null,
+    };
+  }
+
   const supabase = await createClient();
 
   try {
-    const {
-      data: { user },
-      authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return {
-        error: { msg: "ユーザデータの取得に失敗しました", status: 500 },
-        user: user,
-        data: null,
-      };
-    }
     const { data, error } = await supabase
       .from("profiles")
       .select("*")
@@ -45,10 +43,9 @@ const getData = async () => {
 
 const Home = async () => {
   const { data, error, user } = await getData();
+  if (error) return <ErrorPage title={error.msg} status={error.status} />;
   if (!data && user) return <WelcomeHome user={user} />;
   if (!user && !data) return <NotLoginUserHome />;
-  if (error || (!user && data))
-    return <ErrorPage title={error.msg} status={error.status} />;
   if (user && data) {
     return <LoginUserHome id={data.id} username={data.username} />;
   }

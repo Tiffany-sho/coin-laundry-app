@@ -1,12 +1,8 @@
-import { createClient } from "@/utils/supabase/server";
+import { getUser } from "@/app/api/supabaseFunctions/supabaseDatabase/user/action";
 import FooterNavbar from "./FooterNavber";
 
 const FooterNavbarWrapper = async () => {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user } = await getUser();
 
   if (!user) {
     return;

@@ -1,5 +1,5 @@
 import SendEmail from "@/app/feacher/auth/components/ForgetPassword/ForgetPassword";
-import { requestPasswordReset } from "@/app/auth/actions";
+import { requestPasswordReset } from "@/app/api/supabaseFunctions/supabaseDatabase/auth/actions";
 import React from "react";
 
 const page = () => {

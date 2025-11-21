@@ -1,20 +1,19 @@
+import { getUser } from "@/app/api/supabaseFunctions/supabaseDatabase/user/action";
 import CoinLaundryForm from "@/app/feacher/coinLandry/components/CoinLaundryForm/CoinLaundryForm";
 import CoinLaundryFormContextProvider from "@/app/feacher/coinLandry/context/CoinlaundryForm/CoinLaundryFormContext";
 import { createClient } from "@/utils/supabase/server";
 
 async function getData(id) {
+  const { user } = await getUser();
+
+  if (!user) {
+    return {
+      error: { msg: "Unauthorized", status: 401 },
+    };
+  }
+
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
   try {
-    if (!user) {
-      return {
-        error: { msg: "Unauthorized", status: 401 },
-      };
-    }
-
     const { data: coinLaundryStore, error } = await supabase
       .from("laundry_store")
       .select("*")

@@ -1,18 +1,19 @@
+import { getUser } from "@/app/api/supabaseFunctions/supabaseDatabase/user/action";
 import MoneyDataList from "@/app/feacher/collectMoney/components/coinDataList/CoinDataList";
 import ErrorPage from "@/app/feacher/jumpPage/ErrorPage/ErrorPage";
 import { createClient } from "@/utils/supabase/server";
 
 async function getData(id) {
+  const { user } = await getUser();
+
+  if (!user) {
+    return {
+      error: { msg: "Unauthorized", status: 401 },
+    };
+  }
+
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
   try {
-    if (!user) {
-      return {
-        error: { msg: "Unauthorized", status: 401 },
-      };
-    }
     const { data, error } = await supabase
       .from("collect_funds")
       .select("laundryName,laundryId")

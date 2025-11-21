@@ -15,18 +15,15 @@ import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import NowLaundryNum from "@/app/feacher/coinLandry/components/NowLaundryNum";
 import MachinesState from "@/app/feacher/coinLandry/components/MachinesState";
+import { getUser } from "@/app/api/supabaseFunctions/supabaseDatabase/user/action";
 
 const getLaundryId = async () => {
-  const supabase = await createClient();
+  const { user } = await getUser();
 
-  const {
-    data: { user },
-    authError,
-  } = await supabase.auth.getUser();
-
-  if (!user || authError) {
+  if (!user) {
     return { error: authError || "ユーザデータの取得に失敗しました" };
   }
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("laundry_store")

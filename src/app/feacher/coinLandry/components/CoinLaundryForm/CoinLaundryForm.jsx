@@ -24,12 +24,15 @@ import {
   getImage,
   uploadImage,
   deleteImage,
-} from "@/app/api/supabaseFunctions/route";
+} from "@/app/api/supabaseFunctions/supabaseStorage/route";
 import CheckDialog from "@/app/feacher/dialog/CheckDialog/CheckDialog";
 import UploadPicture from "@/app/feacher/coinLandry/components/CoinLaundryForm/UploadPicture";
 import DeletePicture from "@/app/feacher/coinLandry/components/CoinLaundryForm/DeletePicture";
 import { useCoinLaundryForm } from "@/app/feacher/coinLandry/context/CoinlaundryForm/CoinLaundryFormContext";
-import { createStore, updateStore } from "@/app/coinLaundry/action";
+import {
+  createStore,
+  updateStore,
+} from "@/app/api/supabaseFunctions/supabaseDatabase/laundryStore/action";
 
 const CoinLaundryForm = ({ storeId, images = [], method }) => {
   const { state, dispatch } = useCoinLaundryForm();

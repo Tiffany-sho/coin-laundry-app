@@ -1,12 +1,8 @@
+import { getUser } from "../api/supabaseFunctions/supabaseDatabase/user/action";
 import AccountForm from "../feacher/account/components/accountForm/AccountForm";
-import { createClient } from "@/utils/supabase/server";
 
 export default async function Account() {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user } = await getUser();
 
   return <AccountForm user={user} />;
 }

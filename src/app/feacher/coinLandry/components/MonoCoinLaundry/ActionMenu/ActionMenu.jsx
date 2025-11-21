@@ -7,7 +7,7 @@ import Styles from "./ActionMenu.module.css";
 import { redirect } from "next/navigation";
 import AlertDialog from "@/app/feacher/dialog/AlertDialog";
 import * as Icon from "@/app/feacher/Icon";
-import { deleteStore } from "@/app/coinLaundry/action";
+import { deleteStore } from "@/app/api/supabaseFunctions/supabaseDatabase/laundryStore/action";
 
 const ActionMenu = ({ id, store }) => {
   const [isOpen, setIsOpen] = useState(false);

@@ -2,6 +2,7 @@ import { Button } from "@chakra-ui/react";
 import { useUploadPage } from "../../context/UploadPageContext";
 import { useState } from "react";
 import { createClient } from "@/utils/supabase/client";
+import { getUser } from "@/app/api/supabaseFunctions/supabaseDatabase/user/action";
 
 const AddDataBtn = ({ id = "" }) => {
   const supabase = createClient();
@@ -18,14 +19,13 @@ const AddDataBtn = ({ id = "" }) => {
   } = useUploadPage();
 
   const addData = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { user } = await getUser();
 
     if (!user) {
       setIsLoading(false);
       return;
     }
+
     const from = page * PAGE_SIZE;
     const to = from + PAGE_SIZE - 1;
 

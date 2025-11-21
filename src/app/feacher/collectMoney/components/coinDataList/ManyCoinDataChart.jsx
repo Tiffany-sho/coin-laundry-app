@@ -16,6 +16,8 @@ import ChartLoading from "@/app/feacher/partials/ChartLoading";
 import { createClient } from "@/utils/supabase/client";
 import { useUploadPage } from "../../context/UploadPageContext";
 import ChartError from "@/app/feacher/partials/ChartError";
+import { getUser } from "@/app/api/supabaseFunctions/supabaseDatabase/user/action";
+import ChartEmpty from "@/app/feacher/partials/ChartEmpty";
 
 const lineColor = [
   "red.solid",
@@ -155,6 +157,13 @@ const ManyCoinDataChart = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      const { user } = await getUser();
+
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
       let orderPeriod;
       if (period === "３ヶ月") {
         orderPeriod = changeEpocFromNowYearMonth(-3);
@@ -162,14 +171,6 @@ const ManyCoinDataChart = () => {
         orderPeriod = changeEpocFromNowYearMonth(-12);
       } else {
         orderPeriod = 0;
-      }
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        setLoading(false);
-        return;
       }
 
       setLoading(true);
@@ -259,7 +260,7 @@ const ManyCoinDataChart = () => {
   if (error) return <ChartError message={error.messaage} />;
 
   if (!data || data.length === 0) {
-    return <ChartError message="データが見つかりませんでした" />;
+    return <ChartEmpty />;
   }
   if (chartData.length === 0 || chartSeries.length === 0) {
     return <ChartLoading />;

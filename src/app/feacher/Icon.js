@@ -33,6 +33,7 @@ import {
   LuRefreshCw,
   LuEyeOff,
   LuEye,
+  LuInbox,
 } from "react-icons/lu";
 
 import { MdOutlineLocalLaundryService } from "react-icons/md";
@@ -85,4 +86,5 @@ export {
   LuUserCheck,
   LuCrown,
   LuInfo,
+  LuInbox,
 };

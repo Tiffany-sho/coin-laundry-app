@@ -24,6 +24,7 @@ import * as Icon from "@/app/feacher/Icon";
 
 import FixSwitch from "./FixSwitch";
 import { createClient } from "@/utils/supabase/client";
+import { getUser } from "@/app/api/supabaseFunctions/supabaseDatabase/user/action";
 
 const CollectMoneyForm = ({ coinLaundry }) => {
   const supabase = createClient();
@@ -46,9 +47,7 @@ const CollectMoneyForm = ({ coinLaundry }) => {
   useEffect(() => {
     const getUserFixed = async () => {
       setLoading(true);
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      const { user } = await getUser();
       if (!user) return;
       const { data, error } = await supabase
         .from("profiles")
@@ -100,12 +99,9 @@ const CollectMoneyForm = ({ coinLaundry }) => {
   };
 
   const uploadProfilesMethod = async (method) => {
-    const supabase = createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
+    const { user } = await getUser();
     if (!user) return;
+    const supabase = createClient();
 
     let collectMethod;
     if (method === null) {
