@@ -11,34 +11,13 @@ import {
   HStack,
 } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
-import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import NowLaundryNum from "@/app/feacher/coinLandry/components/NowLaundryNum";
 import MachinesState from "@/app/feacher/coinLandry/components/MachinesState";
-import { getUser } from "@/app/api/supabaseFunctions/supabaseDatabase/user/action";
-
-const getLaundryId = async () => {
-  const { user } = await getUser();
-
-  if (!user) {
-    return { error: authError || "ユーザデータの取得に失敗しました" };
-  }
-  const supabase = await createClient();
-
-  const { data, error } = await supabase
-    .from("laundry_store")
-    .select("id,store")
-    .eq("owner", user.id);
-
-  if (error) {
-    return { error: error.message };
-  }
-
-  return { data: data };
-};
+import { getStores } from "@/app/api/supabaseFunctions/supabaseDatabase/laundryStore/action";
 
 const QuickActionDialog = async ({ method }) => {
-  const { data, error } = await getLaundryId();
+  const { data, error } = await getStores();
   if (error) return <ErrorPage title={error.msg} status={error.status} />;
 
   const methodArray = [

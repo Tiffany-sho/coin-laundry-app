@@ -1,46 +1,16 @@
 import * as CoinLaundry from "@/app/feacher/coinLandry/components/CoinLaundryList/index";
 import { Heading, Box, Container, Flex, Text, VStack } from "@chakra-ui/react";
 import ErrorPage from "@/app/feacher/jumpPage/ErrorPage/ErrorPage";
-import { createClient } from "@/utils/supabase/server";
-import { getUser } from "../api/supabaseFunctions/supabaseDatabase/user/action";
-
-async function getData() {
-  const supabase = await createClient();
-  const { user } = await getUser();
-
-  try {
-    if (!user) {
-      return {
-        error: { msg: "Unauthorized", status: 401 },
-      };
-    }
-    const { data: coinLaundryStores, error } = await supabase
-      .from("laundry_store")
-      .select("*")
-      .eq("owner", user.id);
-
-    if (error) {
-      return {
-        error: { msg: "データの取得に失敗しました", status: 500 },
-      };
-    }
-
-    return { datas: coinLaundryStores };
-  } catch (err) {
-    return {
-      error: { msg: "予期しないエラー", status: 400 },
-    };
-  }
-}
+import { getStores } from "../api/supabaseFunctions/supabaseDatabase/laundryStore/action";
 
 const Page = async () => {
-  const { datas, error } = await getData();
+  const { data, error } = await getStores();
   if (error) return <ErrorPage title={error.msg} status={error.status} />;
 
-  const selectItems = datas.map((data) => {
+  const selectItems = data.map((item) => {
     const newItem = {
-      label: `${data.store} (${data.location})`,
-      value: data.id,
+      label: `${item.store} (${item.location})`,
+      value: item.id,
     };
     return newItem;
   });
@@ -58,20 +28,20 @@ const Page = async () => {
             >
               <Box>
                 <Text color="gray.600" fontSize={{ base: "sm", md: "md" }}>
-                  {datas.length > 0
-                    ? `全${datas.length}店舗`
+                  {data.length > 0
+                    ? `全${data.length}店舗`
                     : "店舗を追加してください"}
                 </Text>
               </Box>
 
-              {datas.length > 0 && (
+              {data.length > 0 && (
                 <CoinLaundry.SearchBox selectItems={selectItems} />
               )}
             </Flex>
           </VStack>
 
           <Box>
-            {datas.length === 0 ? (
+            {data.length === 0 ? (
               <Box
                 bg="white"
                 p={12}
@@ -96,11 +66,11 @@ const Page = async () => {
                 }}
                 gap={6}
               >
-                {datas.map((data) => {
+                {data.map((item) => {
                   return (
                     <CoinLaundry.CoinLaundryList
-                      coinLaundry={data}
-                      key={data.id}
+                      coinLaundry={item}
+                      key={item.id}
                     />
                   );
                 })}

@@ -1,8 +1,36 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
+import { getUser } from "../user/action";
+
+export const getFundsData = async (id) => {
+  const { user } = await getUser();
+  if (!user) {
+    return {
+      error: { msg: "Unauthorized", status: 401 },
+    };
+  }
+  const supabase = await createClient();
+  const { data: initialData, error: initialError } = await supabase
+    .from("collect_funds")
+    .select("*")
+    .eq("laundryId", id)
+    .eq("collecter", user.id);
+
+  if (initialError) {
+    return { error: initialError };
+  } else {
+    return { data: initialData };
+  }
+};
 
 export async function createData(formData) {
+  const { user } = await getUser();
+  if (!user) {
+    return {
+      error: { msg: "Unauthorized", status: 401 },
+    };
+  }
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -13,6 +41,7 @@ export async function createData(formData) {
       date: formData.date,
       fundsArray: formData.fundsArray,
       totalFunds: formData.totalFunds,
+      collecter: user.id,
     })
     .select("laundryId,laundryName")
     .single();
@@ -24,6 +53,12 @@ export async function createData(formData) {
 }
 
 export async function updateData(fundsArray, totalFunds, id) {
+  const { user } = await getUser();
+  if (!user) {
+    return {
+      error: { msg: "Unauthorized", status: 401 },
+    };
+  }
   const supabase = await createClient();
 
   const { error } = await supabase
@@ -32,12 +67,19 @@ export async function updateData(fundsArray, totalFunds, id) {
       fundsArray,
       totalFunds,
     })
-    .eq("id", id);
+    .eq("id", id)
+    .eq("collecter", user.id);
 
   return { error: error };
 }
 
 export async function updateDate(date, id) {
+  const { user } = await getUser();
+  if (!user) {
+    return {
+      error: { msg: "Unauthorized", status: 401 },
+    };
+  }
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -46,6 +88,7 @@ export async function updateDate(date, id) {
       date,
     })
     .eq("id", id)
+    .eq("collecter", user.id)
     .select("date")
     .single();
 

@@ -10,6 +10,7 @@ const getData = async () => {
 
   if (!user) {
     return {
+      error: null,
       user: null,
       data: null,
     };
@@ -21,8 +22,7 @@ const getData = async () => {
     const { data, error } = await supabase
       .from("profiles")
       .select("*")
-      .eq("id", user.id)
-      .single();
+      .eq("id", user.id);
 
     if (error) {
       return {
@@ -31,7 +31,11 @@ const getData = async () => {
         data: null,
       };
     }
-    return { data: data, user: user };
+
+    if (!data || data.length === 0) {
+      return { data: null, user: user, error: null };
+    }
+    return { data: data[0], user: user };
   } catch (err) {
     return {
       error: { msg: "予期しないエラー", status: 400 },
@@ -44,11 +48,9 @@ const getData = async () => {
 const Home = async () => {
   const { data, error, user } = await getData();
   if (error) return <ErrorPage title={error.msg} status={error.status} />;
-  if (!data && user) return <WelcomeHome user={user} />;
-  if (!user && !data) return <NotLoginUserHome />;
-  if (user && data) {
-    return <LoginUserHome id={data.id} username={data.username} />;
-  }
+  if (!user) return <NotLoginUserHome />;
+  if (!data) return <WelcomeHome user={user} />;
+  return <LoginUserHome id={data.id} username={data.username} />;
 };
 
 export default Home;

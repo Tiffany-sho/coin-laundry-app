@@ -5,12 +5,16 @@ const ProgressNavbar = () => {
   const { progress } = useUploadProfiles();
   return (
     <Box
+      position="fixed"
+      top="0"
+      left="0"
       w="full"
       p={{ base: 4, md: 6 }}
       bg="white"
       borderBottom="1px solid"
       borderColor="gray.200"
       boxShadow="sm"
+      zIndex="5000"
     >
       <VStack align="stretch" gap={3}>
         <Flex justify="space-between" align="center">

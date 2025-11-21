@@ -46,7 +46,7 @@ const Progress = ({ user }) => {
               {step > 5 && "初期設定が完了しました！"}
             </Text>
             <Text fontSize="md" color="gray.600">
-              {step === 1 && `ステップ ${step - 1} / ${totalSteps}`}
+              {step < 6 ? `ステップ ${step - 1} / ${totalSteps}` : "complete!"}
             </Text>
           </Box>
 

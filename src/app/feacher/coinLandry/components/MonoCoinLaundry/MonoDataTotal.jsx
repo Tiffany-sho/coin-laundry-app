@@ -1,22 +1,8 @@
-import { createClient } from "@/utils/supabase/server";
+import { getFundsData } from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
 import { Text, VStack } from "@chakra-ui/react";
 
-const fetchData = async (id) => {
-  const supabase = await createClient();
-  const { data: initialData, error: initialError } = await supabase
-    .from("collect_funds")
-    .select("*")
-    .eq("laundryId", id);
-
-  if (initialError) {
-    return { error: initialError };
-  } else {
-    return { data: initialData };
-  }
-};
-
 const MonoDataTotal = async ({ id }) => {
-  const { data, error } = await fetchData(id);
+  const { data, error } = await getFundsData(id);
 
   if (error)
     return (

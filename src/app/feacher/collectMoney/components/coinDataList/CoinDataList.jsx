@@ -33,7 +33,7 @@ import CoinManyDataTable from "./CoinManyDataTable";
 import AddDataBtn from "./AddDataBtn";
 import SegmentedPeriod from "./SegmentedPeriod";
 
-const MoneyDataList = ({ valiant, laundryInfo }) => {
+const MoneyDataList = ({ valiant, coinLaundry }) => {
   const { selectedItem, open, setOpen, data, period } = useUploadPage();
 
   const [totalRevenue, setTotalRevenue] = useState(null);
@@ -85,13 +85,13 @@ const MoneyDataList = ({ valiant, laundryInfo }) => {
                   color="gray.800"
                   letterSpacing="tight"
                 >
-                  {valiant === "aStore" && `${laundryInfo.laundryName}店`}
+                  {valiant === "aStore" && `${coinLaundry.store}店`}
                   {valiant === "manyStore" && `過去${period}の集計データ`}
                 </Heading>
 
                 {valiant === "aStore" && (
                   <Link
-                    href={`/collectMoney/${laundryInfo.laundryId}/newData`}
+                    href={`/collectMoney/${coinLaundry.id}/newData`}
                     _hover={{ textDecoration: "none" }}
                   >
                     <Button
@@ -165,7 +165,7 @@ const MoneyDataList = ({ valiant, laundryInfo }) => {
                 boxShadow="0 4px 15px rgba(0, 0, 0, 0.05)"
               >
                 {valiant === "aStore" && (
-                  <MonoCoinDataChart id={laundryInfo.laundryId} />
+                  <MonoCoinDataChart id={coinLaundry.id} />
                 )}
                 {valiant === "manyStore" && <ManyCoinDataChart />}
               </Box>
@@ -226,14 +226,12 @@ const MoneyDataList = ({ valiant, laundryInfo }) => {
                     </Table.Row>
                   </Table.Header>
                   {valiant === "aStore" && (
-                    <CoinMonoDataTable id={laundryInfo.laundryId} />
+                    <CoinMonoDataTable id={coinLaundry.id} />
                   )}
                   {valiant === "manyStore" && <CoinManyDataTable />}
                 </Table.Root>
 
-                {valiant === "aStore" && (
-                  <AddDataBtn id={laundryInfo.laundryId} />
-                )}
+                {valiant === "aStore" && <AddDataBtn id={coinLaundry.id} />}
                 {valiant === "manyStore" && <AddDataBtn />}
 
                 <Drawer.Root

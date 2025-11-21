@@ -3,6 +3,65 @@
 import { createClient } from "@/utils/supabase/server";
 import { getUser } from "../user/action";
 
+export async function getStores() {
+  const { user } = await getUser();
+  if (!user) {
+    return {
+      error: { msg: "Unauthorized", status: 401 },
+    };
+  }
+  const supabase = await createClient();
+  try {
+    const { data, error } = await supabase
+      .from("laundry_store")
+      .select("*")
+      .eq("owner", user.id);
+
+    if (error) {
+      return {
+        error: { msg: "データの取得に失敗しました", status: 500 },
+      };
+    }
+
+    return { data: data };
+  } catch (err) {
+    return {
+      error: { msg: "予期しないエラー", status: 400 },
+    };
+  }
+}
+
+export async function getStore(id) {
+  const { user } = await getUser();
+  if (!user) {
+    return {
+      error: { msg: "Unauthorized", status: 401 },
+    };
+  }
+  const supabase = await createClient();
+  try {
+    const { data: coinLaundryStore, error } = await supabase
+      .from("laundry_store")
+      .select("*")
+      .eq("id", id)
+      .eq("owner", user.id)
+      .single();
+
+    if (error) {
+      console.error(error);
+      return {
+        error: { msg: "データの取得に失敗しました", status: 500 },
+      };
+    }
+
+    return { data: coinLaundryStore };
+  } catch (err) {
+    return {
+      error: { msg: "予期しないエラー", status: 400 },
+    };
+  }
+}
+
 export async function createStore(formData) {
   const supabase = await createClient();
   const { user } = await getUser();
