@@ -1,5 +1,5 @@
-import { createNowData } from "@/date";
-import { changeEpocFromNowYearMonth } from "@/date";
+import { createNowData } from "@/functions/makeDate/date";
+import { changeEpocFromNowYearMonth } from "@/functions/makeDate/date";
 import { createClient } from "@/utils/supabase/server";
 import { Text, VStack, Box, HStack, Badge } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
@@ -20,7 +20,7 @@ const getData = async (id) => {
 
   if (error) {
     return {
-      error: error.message,
+      error: "集金データの取得に失敗しました",
     };
   }
 
@@ -33,7 +33,7 @@ const getData = async (id) => {
 
     if (error) {
       return {
-        error: error.message,
+        error: "集金データの取得に失敗しました",
       };
     }
     return { data: data };

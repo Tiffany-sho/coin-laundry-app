@@ -12,7 +12,7 @@ import { useUploadProfiles } from "../context/UploadProfilesContext";
 import * as Icon from "@/app/feacher/Icon";
 import { createClient } from "@/utils/supabase/client";
 import { useState } from "react";
-import { toaster } from "@/components/ui/toaster";
+import { showToast } from "@/functions/makeToast/toast";
 
 const CheckProfiles = ({ user }) => {
   const { handleNext, handleBack, fullname, username, collectMethod, role } =
@@ -34,17 +34,9 @@ const CheckProfiles = ({ user }) => {
       });
       if (error) throw error;
       handleNext();
-      toaster.create({
-        description: "プロフィールを更新しました",
-        type: "success",
-        closable: true,
-      });
+      showToast("success", "ユーザ登録完了しました");
     } catch (error) {
-      toaster.create({
-        description: "プロフィール更新に失敗しました",
-        type: "error",
-        closable: true,
-      });
+      showToast("success", "ユーザ登録に失敗しました");
     } finally {
       setLoading(false);
     }

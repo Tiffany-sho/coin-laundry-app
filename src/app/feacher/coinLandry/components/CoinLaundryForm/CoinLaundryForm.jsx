@@ -33,6 +33,8 @@ import {
   createStore,
   updateStore,
 } from "@/app/api/supabaseFunctions/supabaseDatabase/laundryStore/action";
+import { showToast } from "@/functions/makeToast/toast";
+import { createMessage } from "@/app/api/supabaseFunctions/supabaseDatabase/actionMessage/action";
 
 const CoinLaundryForm = ({ storeId, images = [], method }) => {
   const { state, dispatch } = useCoinLaundryForm();
@@ -114,14 +116,14 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
       if (method === "POST") {
         const { data, error } = await createStore(formData);
         if (error) {
-          throw new Error(error.message || "ストアの作成に失敗しました");
+          throw new Error("ストアの作成に失敗しました");
         }
         responseData = data;
       } else if (method === "PUT") {
         const { data, error } = await updateStore(formData, storeId);
 
         if (error) {
-          throw new Error(error.message || "ストアの編集に失敗しました");
+          throw new Error("ストアの編集に失敗しました");
         }
         responseData = data;
       }
@@ -168,6 +170,15 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
         closable: true,
       })
     );
+    const { error } = await createMessage(
+      `${responseData.store}店の${
+        method === "POST" ? "登録" : "編集"
+      }が完了しました。`
+    );
+
+    if (error) {
+      console.log("メッセージアクションにエラーが発生しました");
+    }
     setTimeout(() => {
       dispatch({ type: "SET_ISLOADING", payload: false });
     }, 10000);

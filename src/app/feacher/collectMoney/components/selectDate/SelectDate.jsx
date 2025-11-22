@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import styles from "./SelectDate.module.css";
-import { getEpochTimeInSeconds } from "@/date";
+import { getEpochTimeInSeconds } from "@/functions/makeDate/date";
 
 export default function EpochTimeSelector({
   epoc,

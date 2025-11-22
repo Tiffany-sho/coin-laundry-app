@@ -16,7 +16,7 @@ import {
 } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
 import { useEffect, useState } from "react";
-import { toaster } from "@/components/ui/toaster";
+import { showToast } from "@/functions/makeToast/toast";
 
 const NowLaundryNum = ({ id }) => {
   const [data, setData] = useState(null);
@@ -65,22 +65,14 @@ const NowLaundryNum = ({ id }) => {
       .eq("laundryId", id);
 
     if (error) {
-      toaster.create({
-        description: "在庫の更新に失敗しました",
-        type: "error",
-        closable: true,
-      });
+      showToast("error", "在庫の更新に失敗しました");
     } else {
       setData((prev) => ({
         ...prev,
         detergent: detergent,
         softener: softener,
       }));
-      toaster.create({
-        description: "在庫を更新しました",
-        type: "success",
-        closable: true,
-      });
+      showToast("success", "在庫を更新しました");
     }
     setIsSaving(false);
   };

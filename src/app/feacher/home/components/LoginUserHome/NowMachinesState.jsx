@@ -10,7 +10,7 @@ const getData = async (id) => {
     .eq("stocker", id);
 
   if (error) {
-    return { error: error.message };
+    return { error: "設備状況の取得に失敗しました" };
   }
 
   const breakMachines = data.filter(

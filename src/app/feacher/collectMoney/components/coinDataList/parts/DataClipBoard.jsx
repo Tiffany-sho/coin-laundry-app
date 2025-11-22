@@ -1,4 +1,4 @@
-import { createNowData } from "@/date";
+import { createNowData } from "@/functions/makeDate/date";
 import { Clipboard, IconButton } from "@chakra-ui/react";
 
 const DataClipBoard = ({ data }) => {

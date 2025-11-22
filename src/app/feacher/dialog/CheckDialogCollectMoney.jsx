@@ -14,10 +14,12 @@ import {
 
 import { useState } from "react";
 import { redirect } from "next/navigation";
-import { createNowData } from "@/date";
+import { createNowData } from "@/functions/makeDate/date";
 import { createData } from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
 
 import * as Icon from "@/app/feacher/Icon";
+import { showToast } from "@/functions/makeToast/toast";
+import { createMessage } from "@/app/api/supabaseFunctions/supabaseDatabase/actionMessage/action";
 
 const coinWeight = 4.8;
 
@@ -90,6 +92,14 @@ const CheckDialog = ({
         closable: true,
       })
     );
+
+    const { error } = await createMessage(
+      `${responseData.laundryName}店の集金データの登録が完了しました`
+    );
+
+    if (error) {
+      console.log("メッセージアクションにエラーが発生しました");
+    }
     setTimeout(() => {
       setIsLoading(false);
     }, 10000);

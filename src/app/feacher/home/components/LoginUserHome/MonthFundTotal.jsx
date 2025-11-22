@@ -1,4 +1,4 @@
-import { changeEpocFromNowYearMonth } from "@/date";
+import { changeEpocFromNowYearMonth } from "@/functions/makeDate/date";
 import { createClient } from "@/utils/supabase/server";
 import { HStack, Text, Box } from "@chakra-ui/react";
 
@@ -16,7 +16,7 @@ const getData = async (id) => {
     .lt("date", epocYearNextMonth);
 
   if (error) {
-    return { error: error.message };
+    return { error: "集金データの取得に失敗しました" };
   }
 
   return { data: data };

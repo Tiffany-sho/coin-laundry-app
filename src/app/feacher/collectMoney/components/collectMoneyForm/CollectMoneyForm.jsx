@@ -17,12 +17,12 @@ import Link from "next/link";
 import EpochTimeSelector from "../selectDate/SelectDate";
 import CheckDialog from "@/app/feacher/dialog/CheckDialogCollectMoney";
 
-import MachineAndMoney from "./MachineAndMoney";
-import MoneyTotal from "./MoneyTotal";
+import MachineAndMoney from "./CardContext/MachineAndMoney";
+import MoneyTotal from "./CardContext/MoneyTotal";
 
 import * as Icon from "@/app/feacher/Icon";
 
-import FixSwitch from "./FixSwitch";
+import FixSwitch from "./parts/FixSwitch";
 import { createClient } from "@/utils/supabase/client";
 import { getUser } from "@/app/api/supabaseFunctions/supabaseDatabase/user/action";
 

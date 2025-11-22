@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { toaster } from "@/components/ui/toaster";
 import Styles from "./ActionMenu.module.css";
 import { redirect } from "next/navigation";
 import AlertDialog from "@/app/feacher/dialog/AlertDialog";
 import * as Icon from "@/app/feacher/Icon";
 import { deleteStore } from "@/app/api/supabaseFunctions/supabaseDatabase/laundryStore/action";
+import { showToast } from "@/functions/makeToast/toast";
 
 const ActionMenu = ({ id, store }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -25,23 +25,14 @@ const ActionMenu = ({ id, store }) => {
 
     try {
       if (error) {
-        throw new Error(error.message || "ストアの削除に失敗しました");
+        throw new Error("ストアの削除に失敗しました");
       }
     } catch (err) {
       console.error("API Error:", error);
-      toaster.create({
-        description: `${responseData.store}店の削除に失敗しました`,
-        type: "error",
-        closable: true,
-      });
+      showToast("error", `${responseData.store}店の削除に失敗しました`);
     }
-    toaster.create({
-      description: `${responseData.store}店を削除しました`,
-      type: "warning",
-      closable: true,
-    });
-
-    redirect(`/coinLaundry/${responseData.id}`);
+    showToast("warning", `${responseData.store}店を削除しました`);
+    redirect("/coinLaundry");
   };
 
   return (

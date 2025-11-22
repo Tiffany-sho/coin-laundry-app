@@ -27,7 +27,6 @@ export const deleteImage = async (filePath) => {
     .remove([`laundry/${filePath}`]);
 
   if (error) {
-    console.error("Error deleting file:", error.message);
     return false;
   }
   if (data.length === 0) {

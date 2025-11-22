@@ -38,7 +38,7 @@ const getData = async () => {
     return { data: data[0], user: user };
   } catch (err) {
     return {
-      error: { msg: "予期しないエラー", status: 400 },
+      error: { msg: "予期しないエラーが発生しました", status: 400 },
       user: user,
       data: null,
     };

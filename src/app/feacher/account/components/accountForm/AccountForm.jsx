@@ -11,7 +11,8 @@ import {
   Heading,
   Separator,
 } from "@chakra-ui/react";
-import { toaster } from "@/components/ui/toaster";
+import { showToast } from "@/functions/makeToast/toast";
+import { createMessage } from "@/app/api/supabaseFunctions/supabaseDatabase/actionMessage/action";
 
 export default function AccountForm({ user }) {
   const supabase = createClient();
@@ -49,29 +50,29 @@ export default function AccountForm({ user }) {
     getProfile();
   }, [user, getProfile]);
 
-  async function updateProfile({ fullname, username, role }) {
+  async function updateProfile({ fullname, username }) {
     try {
       setLoading(true);
+
+      if (fullname === "" || username === "") {
+        throw new Error("空のフォームデータがあります");
+      }
 
       const { error } = await supabase.from("profiles").upsert({
         id: user?.id,
         full_name: fullname,
         username: username,
-        role: role,
         updated_at: new Date().toISOString(),
       });
       if (error) throw error;
-      toaster.create({
-        description: "プロフィールを更新しました",
-        type: "success",
-        closable: true,
-      });
+      const { actionMessageError } = await showToast(
+        "success",
+        "プロフィールを更新しました"
+      );
+
+      if (actionMessageError) throw actionMessageError;
     } catch (error) {
-      toaster.create({
-        description: "プロフィール更新に失敗しました",
-        type: "error",
-        closable: true,
-      });
+      showToast("error", "プロフィールを更新に失敗しました");
     } finally {
       setLoading(false);
     }

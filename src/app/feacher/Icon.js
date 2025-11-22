@@ -5,7 +5,7 @@ import { CiCircleAlert, CiEdit, CiMenuKebab } from "react-icons/ci";
 import { FcGoogle } from "react-icons/fc";
 
 import { IoLogoGithub } from "react-icons/io";
-import { IoHomeOutline } from "react-icons/io5"; // (io5)
+import { IoHomeOutline } from "react-icons/io5";
 
 import { LiaStoreSolid } from "react-icons/lia";
 

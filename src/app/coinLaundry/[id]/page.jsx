@@ -1,5 +1,5 @@
 import { getStore } from "@/app/api/supabaseFunctions/supabaseDatabase/laundryStore/action";
-import MonoCard from "@/app/feacher/coinLandry/components/MonoCoinLaundry/ImageCarusel/MonoCard";
+import MonoCard from "@/app/feacher/coinLandry/components/MonoCoinLaundry/MonoCard";
 import ErrorPage from "@/app/feacher/jumpPage/ErrorPage/ErrorPage";
 
 const CoinLaundry = async ({ params }) => {

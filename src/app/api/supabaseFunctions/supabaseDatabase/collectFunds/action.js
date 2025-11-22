@@ -7,7 +7,7 @@ export const getFundsData = async (id) => {
   const { user } = await getUser();
   if (!user) {
     return {
-      error: { msg: "Unauthorized", status: 401 },
+      error: { msg: "ログインしてください", status: 401 },
     };
   }
   const supabase = await createClient();
@@ -28,7 +28,7 @@ export async function createData(formData) {
   const { user } = await getUser();
   if (!user) {
     return {
-      error: { msg: "Unauthorized", status: 401 },
+      error: { msg: "ログインしてください", status: 401 },
     };
   }
   const supabase = await createClient();
@@ -47,7 +47,7 @@ export async function createData(formData) {
     .single();
 
   if (error) {
-    return { error: error.message };
+    return { error: "集金データの登録に失敗しました" };
   }
   return { data: data };
 }
@@ -56,7 +56,7 @@ export async function updateData(fundsArray, totalFunds, id) {
   const { user } = await getUser();
   if (!user) {
     return {
-      error: { msg: "Unauthorized", status: 401 },
+      error: { msg: "ログインしてください", status: 401 },
     };
   }
   const supabase = await createClient();
@@ -77,7 +77,7 @@ export async function updateDate(date, id) {
   const { user } = await getUser();
   if (!user) {
     return {
-      error: { msg: "Unauthorized", status: 401 },
+      error: { msg: "ログインしてください", status: 401 },
     };
   }
   const supabase = await createClient();

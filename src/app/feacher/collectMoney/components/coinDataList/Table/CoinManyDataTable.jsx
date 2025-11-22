@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Table, Badge, Text } from "@chakra-ui/react";
-import { createNowData } from "@/date";
+import { createNowData } from "@/functions/makeDate/date";
 import { createClient } from "@/utils/supabase/client";
 import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
 import TableLoading from "@/app/feacher/partials/TableLoading";
@@ -10,12 +10,9 @@ import TableError from "@/app/feacher/partials/TableError";
 import { getUser } from "@/app/api/supabaseFunctions/supabaseDatabase/user/action";
 import TableEmpty from "@/app/feacher/partials/TableEmpty";
 
-const CoinMonoDataTable = ({ id }) => {
+const CoinManyDataTable = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const supabase = createClient();
-
-  const channelRef = useRef(null);
 
   const {
     PAGE_SIZE,
@@ -30,60 +27,49 @@ const CoinMonoDataTable = ({ id }) => {
     setDisplayBtn,
   } = useUploadPage();
 
-  useEffect(() => {
-    if (!open) {
-      setSelectedItem(null);
-    }
-  }, [open, setSelectedItem]);
+  const supabase = createClient();
 
-  const toggleHander = (item) => {
-    setOpen(true);
-    setSelectedItem(item);
+  const channelRef = useRef(null);
+
+  const setupChannel = (user) => {
+    const channelName = `collect_funds_changes_${user.id}`;
+    const channel = supabase
+      .channel(channelName)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "collect_funds",
+          filter: `collecter=eq.${user.id}`,
+        },
+        (payload) => {
+          if (payload.eventType === "INSERT") {
+            setDisplayData((currentData) => [...currentData, payload.new]);
+          }
+          if (payload.eventType === "UPDATE") {
+            setDisplayData((currentData) =>
+              currentData.map((item) =>
+                item.id === payload.new.id ? payload.new : item
+              )
+            );
+          }
+          if (payload.eventType === "DELETE") {
+            setDisplayData((currentData) =>
+              currentData.filter((item) => item.id !== payload.old.id)
+            );
+          }
+        }
+      )
+      .subscribe();
+
+    channelRef.current = channel;
   };
 
   useEffect(() => {
-    if (!id) {
-      setLoading(false);
-      return;
-    }
-
-    const setupChannel = (id, user) => {
-      const channelName = `collect_funds_changes_for_${id}_user_${user.id}`;
-      const channel = supabase
-        .channel(channelName)
-        .on(
-          "postgres_changes",
-          {
-            event: "*",
-            schema: "public",
-            table: "collect_funds",
-            filter: `collecter=eq.${user.id}`,
-          },
-          (payload) => {
-            if (payload.eventType === "INSERT") {
-              setDisplayData((currentData) => [...currentData, payload.new]);
-            }
-            if (payload.eventType === "UPDATE") {
-              setDisplayData((currentData) =>
-                currentData.map((item) =>
-                  item.id === payload.new.id ? payload.new : item
-                )
-              );
-            }
-            if (payload.eventType === "DELETE") {
-              setDisplayData((currentData) =>
-                currentData.filter((item) => item.id !== payload.old.id)
-              );
-            }
-          }
-        )
-        .subscribe();
-
-      channelRef.current = channel;
-    };
-
-    const fetchData = async (id) => {
+    const fetchData = async () => {
       const { user } = await getUser();
+
       if (!user) {
         setLoading(false);
         return;
@@ -93,7 +79,6 @@ const CoinMonoDataTable = ({ id }) => {
       const { data: initialData, error: initialError } = await supabase
         .from("collect_funds")
         .select("*")
-        .eq("laundryId", id)
         .eq("collecter", user.id)
         .order(orderAmount, { ascending: upOrder })
         .range(0, PAGE_SIZE - 1);
@@ -110,19 +95,31 @@ const CoinMonoDataTable = ({ id }) => {
       }
       setLoading(false);
 
-      if (id && user) {
-        setupChannel(id, user);
+      if (user) {
+        setupChannel(user);
       }
     };
 
-    fetchData(id);
+    fetchData();
+
     return () => {
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current);
         channelRef.current = null;
       }
     };
-  }, [id, orderAmount, upOrder, setSelectedItem]);
+  }, [supabase, orderAmount, upOrder]);
+
+  useEffect(() => {
+    if (!open) {
+      setSelectedItem(null);
+    }
+  }, [open]);
+
+  const toggleHander = (item) => {
+    setOpen(true);
+    setSelectedItem(item);
+  };
 
   if (loading) return <TableLoading />;
   if (error) return <TableError message={error.message} />;
@@ -133,7 +130,7 @@ const CoinMonoDataTable = ({ id }) => {
   return (
     <Table.Body>
       {displayData.map((item, index) => {
-        const total = item.totalFunds || 0;
+        const total = item.totalFunds;
 
         return (
           <Table.Row
@@ -180,4 +177,4 @@ const CoinMonoDataTable = ({ id }) => {
   );
 };
 
-export default CoinMonoDataTable;
+export default CoinManyDataTable;

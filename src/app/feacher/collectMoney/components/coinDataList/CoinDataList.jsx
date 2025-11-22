@@ -20,18 +20,18 @@ import {
   Stack,
   Skeleton,
 } from "@chakra-ui/react";
-import { toaster } from "@/components/ui/toaster";
-import MoneyDataCard from "@/app/feacher/collectMoney/components/coinDataList/CoinDataCard";
-import CoinMonoDataTable from "@/app/feacher/collectMoney/components/coinDataList/CoinMonoDataTable";
-import OrderSelecter from "./OrderSelecter";
-import MonoCoinDataChart from "./MonoCoinDataChart";
-import ManyCoinDataChart from "./ManyCoinDataChart";
-import DataClipBoard from "./DataClipBoard";
 import { LuPlus } from "@/app/feacher/Icon";
 import { useUploadPage } from "../../context/UploadPageContext";
-import CoinManyDataTable from "./CoinManyDataTable";
-import AddDataBtn from "./AddDataBtn";
-import SegmentedPeriod from "./SegmentedPeriod";
+import { toaster } from "@/components/ui/toaster";
+import MoneyDataCard from "./DrawerContext/CoinDataCard";
+import MonoCoinDataChart from "./Chart/MonoCoinDataChart";
+import ManyCoinDataChart from "./Chart/ManyCoinDataChart";
+import CoinManyDataTable from "./Table/CoinManyDataTable";
+import CoinMonoDataTable from "./Table/CoinMonoDataTable";
+import AddDataBtn from "./parts/AddDataBtn";
+import OrderSelecter from "./parts/OrderSelecter";
+import DataClipBoard from "./parts/DataClipBoard";
+import SegmentedPeriod from "./parts/SegmentedPeriod";
 
 const MoneyDataList = ({ valiant, coinLaundry }) => {
   const { selectedItem, open, setOpen, data, period } = useUploadPage();

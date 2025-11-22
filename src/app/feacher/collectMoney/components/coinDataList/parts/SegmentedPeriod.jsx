@@ -1,5 +1,5 @@
 import { SegmentGroup, Box } from "@chakra-ui/react";
-import { useUploadPage } from "../../context/UploadPageContext";
+import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
 
 const SegmentedPeriod = () => {
   const { period, setPeriod } = useUploadPage();

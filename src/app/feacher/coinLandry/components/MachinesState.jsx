@@ -1,4 +1,5 @@
 "use client";
+
 import { createClient } from "@/utils/supabase/client";
 import {
   VStack,
@@ -18,6 +19,7 @@ import {
 import { useEffect, useState } from "react";
 import { toaster } from "@/components/ui/toaster";
 import * as Icon from "@/app/feacher/Icon";
+import { showToast } from "@/functions/makeToast/toast";
 
 const MachinesState = ({ id }) => {
   const [data, setData] = useState(null);
@@ -27,6 +29,18 @@ const MachinesState = ({ id }) => {
   const [machines, setMachines] = useState([]);
   const [breakMachine, setBreakMachine] = useState([]);
   const supabase = createClient();
+
+  useEffect(() => {
+    setTimeout(() => {
+      const toastInfo = sessionStorage.getItem("toast");
+
+      if (toastInfo) {
+        const toastInfoStr = JSON.parse(toastInfo);
+        toaster.create(toastInfoStr);
+      }
+      sessionStorage.removeItem("toast");
+    }, 0);
+  }, []);
 
   useEffect(() => {
     if (!id) {
@@ -98,21 +112,13 @@ const MachinesState = ({ id }) => {
       .eq("laundryId", id);
 
     if (error) {
-      toaster.create({
-        description: "設備状態の更新に失敗しました",
-        type: "error",
-        closable: true,
-      });
+      showToast("error", "設備状態の更新に失敗しました");
     } else {
       setData((prev) => ({
         ...prev,
         machines: machines,
       }));
-      toaster.create({
-        description: "設備状態を更新しました",
-        type: "success",
-        closable: true,
-      });
+      showToast("success", "設備状態を更新しました");
     }
     setIsSaving(false);
   };

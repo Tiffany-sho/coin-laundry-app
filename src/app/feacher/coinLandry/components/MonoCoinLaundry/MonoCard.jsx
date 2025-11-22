@@ -1,7 +1,7 @@
 import Link from "next/link";
 import * as Icon from "@/app/feacher/Icon";
-import ImageCarousel from "./ImageCarusel";
-import ActionMenu from "../ActionMenu/ActionMenu";
+import ImageCarousel from "./ImageCarusel/ImageCarusel";
+import ActionMenu from "./ActionMenu/ActionMenu";
 import {
   Box,
   Container,
@@ -17,9 +17,9 @@ import {
   Badge,
   Grid,
 } from "@chakra-ui/react";
-import MonoDataTotal from "../MonoDataTotal";
-import MachinesState from "../../MachinesState";
-import NowLaundryNum from "../../NowLaundryNum";
+import MonoDataTotal from "./MonoDataTotal";
+import MachinesState from "../MachinesState";
+import NowLaundryNum from "../NowLaundryNum";
 
 const MonoCard = ({ coinLaundry }) => {
   return (
