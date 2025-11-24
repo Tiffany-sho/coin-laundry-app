@@ -104,6 +104,8 @@ const CoinMonoDataTable = ({ id }) => {
       } else {
         if (initialData.length < PAGE_SIZE) {
           setDisplayBtn(false);
+        } else {
+          setDisplayBtn(true);
         }
         setDisplayData(initialData);
         setError(null);
