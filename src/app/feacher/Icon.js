@@ -34,6 +34,9 @@ import {
   LuEyeOff,
   LuEye,
   LuInbox,
+  LuHistory,
+  LuFileText,
+  LuUsers,
 } from "react-icons/lu";
 
 import { MdOutlineLocalLaundryService } from "react-icons/md";
@@ -87,4 +90,7 @@ export {
   LuCrown,
   LuInfo,
   LuInbox,
+  LuHistory,
+  LuFileText,
+  LuUsers,
 };

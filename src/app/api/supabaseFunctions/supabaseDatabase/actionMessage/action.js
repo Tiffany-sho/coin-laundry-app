@@ -3,12 +3,9 @@
 import { createClient } from "@/utils/supabase/server";
 import { getUser } from "../user/action";
 
-export async function getMessage() {
-  const { user } = await getUser();
-  if (!user) {
-    return {
-      error: { msg: "ログインしてください", status: 401 },
-    };
+export async function getMessage(id) {
+  if (!id) {
+    return;
   }
 
   const supabase = await createClient();
@@ -16,7 +13,8 @@ export async function getMessage() {
     const { data, error } = await supabase
       .from("action_message")
       .select("*")
-      .eq("user", user.id);
+      .eq("user", id)
+      .order("date", { ascending: false });
 
     if (error) {
       return {

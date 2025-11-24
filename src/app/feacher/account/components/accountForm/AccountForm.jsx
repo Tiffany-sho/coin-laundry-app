@@ -10,9 +10,13 @@ import {
   VStack,
   Heading,
   Separator,
+  HStack,
+  Text,
+  Flex,
 } from "@chakra-ui/react";
+import * as Icon from "@/app/feacher/Icon";
 import { showToast } from "@/functions/makeToast/toast";
-import { createMessage } from "@/app/api/supabaseFunctions/supabaseDatabase/actionMessage/action";
+import Link from "next/link";
 
 export default function AccountForm({ user }) {
   const supabase = createClient();
@@ -65,12 +69,7 @@ export default function AccountForm({ user }) {
         updated_at: new Date().toISOString(),
       });
       if (error) throw error;
-      const { actionMessageError } = await showToast(
-        "success",
-        "プロフィールを更新しました"
-      );
-
-      if (actionMessageError) throw actionMessageError;
+      await showToast("success", "プロフィールを更新しました");
     } catch (error) {
       showToast("error", "プロフィールを更新に失敗しました");
     } finally {
@@ -85,16 +84,37 @@ export default function AccountForm({ user }) {
         borderRadius="xl"
         p={{ base: 6, md: 8 }}
         boxShadow="lg"
+        border="1px solid"
+        borderColor="gray.200"
       >
-        <Heading
-          as="h1"
-          fontSize={{ base: "xl", md: "2xl" }}
-          fontWeight="bold"
-          mb={8}
-          color="gray.800"
-        >
-          マイページ
-        </Heading>
+        <Flex justify="space-between" align="center" mb={8}>
+          <Heading
+            as="h1"
+            fontSize={{ base: "xl", md: "2xl" }}
+            fontWeight="bold"
+            color="gray.800"
+          >
+            マイページ
+          </Heading>
+          <Link href="/account/log">
+            <Button
+              size="sm"
+              variant="outline"
+              borderColor="gray.300"
+              color="gray.700"
+              fontWeight="semibold"
+              borderRadius="lg"
+              gap={2}
+              _hover={{
+                bg: "gray.50",
+                borderColor: "gray.400",
+              }}
+            >
+              <Icon.LuHistory size={16} />
+              ログ確認
+            </Button>
+          </Link>
+        </Flex>
 
         <VStack align="stretch" gap={6}>
           <Field.Root>
@@ -189,7 +209,7 @@ export default function AccountForm({ user }) {
 
           <Field.Root>
             <Field.Label
-              htmlFor="website"
+              htmlFor="role"
               fontSize="sm"
               fontWeight="semibold"
               mb={2}
@@ -205,21 +225,20 @@ export default function AccountForm({ user }) {
                   ? "店舗管理者"
                   : role === "collecter"
                   ? "集金担当者"
-                  : "閲覧者" || ""
+                  : "閲覧者"
               }
-              onChange={(e) => setRole(e.target.value)}
+              disabled
+              bg="gray.50"
+              color="gray.500"
+              cursor="not-allowed"
               border="1px solid"
               borderColor="gray.200"
               borderRadius="lg"
-              disabled
               py={3}
               px={4}
               fontSize="md"
-              transition="all 0.2s"
               _focus={{
                 outline: "none",
-                borderColor: "blue.500",
-                boxShadow: "0 0 0 3px rgba(49, 130, 206, 0.1)",
               }}
             />
           </Field.Root>
@@ -236,7 +255,7 @@ export default function AccountForm({ user }) {
             borderRadius="lg"
             cursor="pointer"
             transition="all 0.2s"
-            onClick={() => updateProfile({ fullname, username, role })}
+            onClick={() => updateProfile({ fullname, username })}
             disabled={loading}
             _hover={{
               bg: "blue.600",
@@ -253,6 +272,60 @@ export default function AccountForm({ user }) {
           </Button>
 
           <Separator my={4} />
+
+          {/* アクションセクション */}
+          <VStack align="stretch" gap={3}>
+            <Text fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>
+              その他の操作
+            </Text>
+
+            <Link href="/account/log">
+              <Box
+                p={4}
+                borderRadius="lg"
+                border="1px solid"
+                borderColor="gray.200"
+                cursor="pointer"
+                transition="all 0.2s"
+                _hover={{
+                  bg: "gray.50",
+                  borderColor: "blue.300",
+                  transform: "translateX(2px)",
+                }}
+              >
+                <HStack justify="space-between">
+                  <HStack gap={3}>
+                    <Flex
+                      w="40px"
+                      h="40px"
+                      bg="blue.50"
+                      borderRadius="lg"
+                      align="center"
+                      justify="center"
+                      color="blue.600"
+                    >
+                      <Icon.LuHistory size={20} />
+                    </Flex>
+                    <Box>
+                      <Text
+                        fontSize="sm"
+                        fontWeight="semibold"
+                        color="gray.800"
+                      >
+                        アクションログ
+                      </Text>
+                      <Text fontSize="xs" color="gray.500">
+                        操作履歴を確認できます
+                      </Text>
+                    </Box>
+                  </HStack>
+                  <Icon.LuChevronRight color="#9CA3AF" />
+                </HStack>
+              </Box>
+            </Link>
+          </VStack>
+
+          <Separator my={2} />
 
           <form action="/api/auth/logout" method="post">
             <Button
