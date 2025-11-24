@@ -112,13 +112,13 @@ const MachinesState = ({ id }) => {
       .eq("laundryId", id);
 
     if (error) {
-      showToast("error", "設備状態の更新に失敗しました");
+      showToast("error", `${data.laundryName}店の設備状態の更新に失敗しました`);
     } else {
       setData((prev) => ({
         ...prev,
         machines: machines,
       }));
-      showToast("success", "設備状態を更新しました");
+      showToast("success", `${data.laundryName}店の設備状態を更新しました`);
     }
     setIsSaving(false);
   };

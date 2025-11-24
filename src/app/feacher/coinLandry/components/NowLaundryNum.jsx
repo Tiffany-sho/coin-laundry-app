@@ -65,14 +65,14 @@ const NowLaundryNum = ({ id }) => {
       .eq("laundryId", id);
 
     if (error) {
-      showToast("error", "在庫の更新に失敗しました");
+      showToast("error", `${data.laundryName}店の設在庫の更新に失敗しました`);
     } else {
       setData((prev) => ({
         ...prev,
         detergent: detergent,
         softener: softener,
       }));
-      showToast("success", "在庫を更新しました");
+      showToast("success", `${data.laundryName}店の設在庫を更新しました`);
     }
     setIsSaving(false);
   };
