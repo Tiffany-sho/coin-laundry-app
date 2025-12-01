@@ -1,4 +1,4 @@
-import { Button, Box, Text, VStack, Flex } from "@chakra-ui/react";
+import { Button, Box, Text, VStack } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
 import Link from "next/link";
 

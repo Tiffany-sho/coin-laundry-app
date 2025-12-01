@@ -62,7 +62,7 @@ const CustomTooltip = ({ active, payload, label }) => {
       </Text>
 
       {payload.map((entry, index) => {
-        const monthTotal = entry.value * 100;
+        const monthTotal = entry.value;
         return (
           <Box
             key={`item-${index}`}
@@ -293,7 +293,6 @@ const ManyCoinDataChart = () => {
           cursor={{ stroke: "#ccc", strokeWidth: 1, strokeDasharray: "5 5" }}
           content={<CustomTooltip />}
         />
-        <Legend content={<Chart.Legend interaction="click" />} />
         {chart.series.map((item) => {
           return (
             <Line

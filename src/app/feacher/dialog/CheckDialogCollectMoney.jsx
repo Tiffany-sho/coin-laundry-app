@@ -18,7 +18,6 @@ import { createNowData } from "@/functions/makeDate/date";
 import { createData } from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
 
 import * as Icon from "@/app/feacher/Icon";
-import { showToast } from "@/functions/makeToast/toast";
 import { createMessage } from "@/app/api/supabaseFunctions/supabaseDatabase/actionMessage/action";
 
 const coinWeight = 4.8;
@@ -64,7 +63,7 @@ const CheckDialog = ({
     const formData = {
       store: coinLaundry.store,
       storeId: coinLaundry.id,
-      date: epoc,
+      date: epoc + Math.floor(Math.random() * 1000),
       fundsArray: postArray,
       totalFunds,
     };
