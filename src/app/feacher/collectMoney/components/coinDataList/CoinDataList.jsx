@@ -12,7 +12,6 @@ import {
   Drawer,
   Portal,
   Badge,
-  Container,
   VStack,
   HStack,
   Button,
@@ -252,7 +251,7 @@ const MoneyDataList = ({ valiant, coinLaundry }) => {
                             borderColor="gray.200"
                             p={6}
                           >
-                            <VStack align="stretch" gap={2} pt={8}>
+                            <HStack align="stretch" pt={8}>
                               {valiant === "aStore" && (
                                 <Heading
                                   size="lg"
@@ -279,7 +278,7 @@ const MoneyDataList = ({ valiant, coinLaundry }) => {
                               <Box mt={2}>
                                 <DataClipBoard data={selectedItem} />
                               </Box>
-                            </VStack>
+                            </HStack>
                           </Drawer.Header>
                           <Drawer.Body bg="white" p={6}>
                             <MoneyDataCard key={selectedItem._id} />

@@ -83,8 +83,6 @@ const CoinManyDataTable = () => {
         .order(orderAmount, { ascending: upOrder })
         .range(0, PAGE_SIZE - 1);
 
-      console.log(initialData);
-
       if (initialError) {
         setError(initialError.message);
         setDisplayData(null);
