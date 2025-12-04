@@ -39,6 +39,8 @@
 
 .logoText {
   display: inline;
+  font-family:'Times New Roman', Times, serif;
+  font-size: 1.5em;
 }
 
 .navLinks {

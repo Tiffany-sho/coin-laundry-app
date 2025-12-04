@@ -24,9 +24,10 @@ const getGreeting = () => {
 
 const getCurrentDate = () => {
   const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth() + 1;
-  const date = today.getDate();
+  const option = { timeZone: "Asia/Tokyo" };
+  const year = today.getFullYear("jp-JP", { ...option, year: "numeric" });
+  const month = today.getMonth("jp-JP", { ...option, month: "numeric" }) + 1;
+  const date = today.getDate("jp-JP", { ...option, date: "numeric" });
   const days = ["日", "月", "火", "水", "木", "金", "土"];
   const day = days[today.getDay()];
   return `${year}年${month}月${date}日（${day}）`;

@@ -7,6 +7,7 @@ import {
   LineChart,
   Tooltip,
   XAxis,
+  YAxis,
 } from "recharts";
 import {
   changeEpocFromNowYearMonth,
@@ -157,6 +158,13 @@ const MonoCoinDataChart = ({ id }) => {
           tickFormatter={(value) => value.slice(5, 10)}
           stroke={chart.color("border")}
         />
+        <YAxis
+          width={25}
+          axisLine={false}
+          tickLine={false}
+          tickMargin={10}
+          stroke={chart.color("border")}
+        />
         <Tooltip
           animationDuration={100}
           cursor={{ stroke: chart.color("border") }}
@@ -168,17 +176,7 @@ const MonoCoinDataChart = ({ id }) => {
           fill={chart.color("teal.solid")}
           stroke={chart.color("teal.solid")}
           strokeWidth={2}
-        >
-          <LabelList
-            dataKey={chart.key("uv")}
-            position="top"
-            offset={15}
-            style={{
-              fontWeight: "500",
-              fill: chart.color("fg"),
-            }}
-          />
-        </Line>
+        ></Line>
       </LineChart>
     </Chart.Root>
   );

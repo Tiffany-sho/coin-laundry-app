@@ -39,7 +39,7 @@
 <p>npm run dev</p>
 <p>.envファイルにsupabaseのURLとANON_KEYの入力が必要です</p>
 <p>NEXT_PUBLIC_SUPABASE_URL="https://xxxxxxxxxxxx.supabase.co"</p>
-<p>NEXT_PUBLIC_SUPABASE_ANON_KE="aaabbbcccddddxxxxx....."</p>
+<p>NEXT_PUBLIC_SUPABASE_ANON_KEY="aaabbbcccddddxxxxx....."</p>
 
 <h3>公開URLで利用する場合</h3>
 <p>https://www.collecie.com/</p>

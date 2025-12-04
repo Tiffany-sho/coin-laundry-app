@@ -20,6 +20,7 @@ import {
 import MonoDataTotal from "./MonoDataTotal";
 import MachinesState from "../MachinesState";
 import NowLaundryNum from "../NowLaundryNum";
+import { SearchBox } from "../CoinLaundryList";
 
 const MonoCard = ({ coinLaundry }) => {
   return (

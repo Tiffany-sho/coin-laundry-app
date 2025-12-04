@@ -1,13 +1,56 @@
-import { getStore } from "@/app/api/supabaseFunctions/supabaseDatabase/laundryStore/action";
+import {
+  getStore,
+  getStores,
+} from "@/app/api/supabaseFunctions/supabaseDatabase/laundryStore/action";
+import { SearchBox } from "@/app/feacher/coinLandry/components/CoinLaundryList";
 import MonoCard from "@/app/feacher/coinLandry/components/MonoCoinLaundry/MonoCard";
 import ErrorPage from "@/app/feacher/jumpPage/ErrorPage/ErrorPage";
+import { Box, Container, Flex, Text, VStack } from "@chakra-ui/react";
 
 const CoinLaundry = async ({ params }) => {
   const { id } = await params;
-  const { data, error } = await getStore(id);
-  if (error) return <ErrorPage title={error.msg} status={error.status} />;
+  const { data: store, error: storeError } = await getStore(id);
+  const { data: stores, error: storesError } = await getStores();
+  if (storeError || storesError)
+    return <ErrorPage title={error.msg} status={error.status} />;
 
-  return <MonoCard coinLaundry={data} />;
+  const selectItems = stores.map((item) => {
+    const newItem = {
+      label: `${item.store} (${item.location})`,
+      value: item.id,
+    };
+    return newItem;
+  });
+
+  return (
+    <Container maxW="1400px" p={{ base: 4, md: 6 }}>
+      <VStack gap={6} align="stretch">
+        <Flex
+          direction={{ base: "column", md: "row" }}
+          justify="space-between"
+          align={{ base: "stretch", md: "center" }}
+          gap={4}
+        >
+          <Box>
+            <Text
+              color="gray.600"
+              fontSize={{ base: "sm", md: "md" }}
+              border="solid 1px"
+              p={2}
+              borderRadius="5px"
+              bg="blue.50"
+              fontWeight="bold"
+            >
+              {store.store}店
+            </Text>
+          </Box>
+          {stores.length > 0 && <SearchBox selectItems={selectItems} />}
+        </Flex>
+      </VStack>
+
+      <MonoCard coinLaundry={store} />
+    </Container>
+  );
 };
 
 export default CoinLaundry;
