@@ -10,7 +10,7 @@ const SegmentedPeriod = () => {
         onValueChange={(e) => setPeriod(e.value)}
       >
         <SegmentGroup.Indicator />
-        <SegmentGroup.Items items={["３ヶ月", "１年間", "全期間"]} />
+        <SegmentGroup.Items items={["６ヶ月", "１年間", "全期間"]} />
       </SegmentGroup.Root>
     </Box>
   );

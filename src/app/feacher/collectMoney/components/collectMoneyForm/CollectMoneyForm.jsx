@@ -25,6 +25,7 @@ import * as Icon from "@/app/feacher/Icon";
 import FixSwitch from "./parts/FixSwitch";
 import { createClient } from "@/utils/supabase/client";
 import { getUser } from "@/app/api/supabaseFunctions/supabaseDatabase/user/action";
+import ChangeStores from "./parts/ChangeStores";
 
 const CollectMoneyForm = ({ coinLaundry }) => {
   const supabase = createClient();
@@ -136,9 +137,13 @@ const CollectMoneyForm = ({ coinLaundry }) => {
       >
         <Card.Header bg="gray.500" color="white" py={6} px={8}>
           <Flex justify="space-between" align="center">
-            <Card.Title fontSize="2xl" fontWeight="bold">
-              {coinLaundry.store}店
-            </Card.Title>
+            <HStack>
+              <Card.Title fontSize="2xl" fontWeight="bold">
+                {coinLaundry.store}店
+              </Card.Title>
+              <ChangeStores />
+            </HStack>
+
             <Badge
               bg="teal.400"
               color="white"

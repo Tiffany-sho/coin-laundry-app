@@ -13,6 +13,12 @@ export default function EpochTimeSelector({
   const [day, setDay] = useState(date.getDate());
   const [isEditing, setIsEditing] = useState(false);
 
+  useEffect(() => {
+    const epocTime = getEpochTimeInSeconds(year, month, day);
+    setEpoc(epocTime);
+    submitFunc(epocTime);
+  }, [year, month, day]);
+
   const years = Array.from(
     { length: 61 },
     (_, i) => date.getFullYear() - 50 + i

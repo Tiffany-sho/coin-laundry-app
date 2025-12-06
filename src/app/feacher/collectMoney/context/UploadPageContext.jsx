@@ -11,7 +11,7 @@ export const UploadPageProvider = ({ children }) => {
   const [orderAmount, setOrderAmount] = useState("date");
   const [upOrder, setUpOrder] = useState(false);
   const [page, setPage] = useState(1);
-  const [period, setPeriod] = useState("３ヶ月");
+  const [period, setPeriod] = useState("６ヶ月");
   const [data, setData] = useState(null);
 
   const [displayData, setDisplayData] = useState([]);

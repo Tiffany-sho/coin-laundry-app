@@ -1,4 +1,4 @@
-import { HStack, Checkbox, Text } from "@chakra-ui/react";
+import { Checkbox } from "@chakra-ui/react";
 
 const FixSwitch = ({ toggleChangeFixed, fixed }) => {
   return (

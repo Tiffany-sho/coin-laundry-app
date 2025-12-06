@@ -23,7 +23,7 @@ const coinDataToUpload = coinData.map((item) => ({
   laundryName: item.laundryName,
   laundryId: item.laundryId,
   date: item.date,
-  fundsArray: item.fundArray,
+  fundsArray: item.fundsArray,
   totalFunds: item.totalFunds,
   collecter: item.collecter,
 }));
@@ -32,16 +32,16 @@ const uploadData = async () => {
   console.log("アップロードを開始します...");
 
   try {
-    console.log("既存のデモデータを削除中...");
-    const { error: deleteError } = await supabase
-      .from("collect_funds")
-      .delete()
-      .eq("collecter", "699f360f-d50e-46a0-bf10-38d96216a752"); //
+    // console.log("既存のデモデータを削除中...");
+    // const { error: deleteError } = await supabase
+    //   .from("collect_funds")
+    //   .delete()
+    //   .eq("collecter", "699f360f-d50e-46a0-bf10-38d96216a752"); //
 
-    if (deleteError) {
-      console.error("削除エラー:", deleteError.message);
-      throw deleteError;
-    }
+    // if (deleteError) {
+    //   console.error("削除エラー:", deleteError.message);
+    //   throw deleteError;
+    // }
 
     console.log("新しいデータを挿入中...");
     const { data, error: insertError } = await supabase

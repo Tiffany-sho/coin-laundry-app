@@ -12,6 +12,7 @@ import {
 import {
   changeEpocFromNowYearMonth,
   createNowData,
+  getYearMonth,
 } from "@/functions/makeDate/date";
 import ChartLoading from "@/app/feacher/partials/ChartLoading";
 import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
@@ -70,8 +71,8 @@ const MonoCoinDataChart = ({ id }) => {
   useEffect(() => {
     const fetchData = async (id) => {
       let orderPeriod;
-      if (period === "３ヶ月") {
-        orderPeriod = changeEpocFromNowYearMonth(-3);
+      if (period === "６ヶ月") {
+        orderPeriod = changeEpocFromNowYearMonth(-6);
       } else if (period === "１年間") {
         orderPeriod = changeEpocFromNowYearMonth(-12);
       } else {
@@ -119,14 +120,21 @@ const MonoCoinDataChart = ({ id }) => {
   useEffect(() => {
     if (!data) return;
     const newDataList = [...data].sort((a, b) => a.date - b.date);
-    const dataList = newDataList.map((item) => {
-      const total = item.totalFunds;
-      const newObj = {
-        name: createNowData(item.date),
-        uv: total,
-      };
-      return newObj;
-    });
+    const dataList = newDataList.reduce((acc, num) => {
+      const month = getYearMonth(num.date);
+      const alreadryMonth = acc.find((item) => item.name === month);
+
+      if (alreadryMonth) {
+        alreadryMonth.uv += num.totalFunds;
+      } else {
+        const newObj = {
+          name: getYearMonth(num.date),
+          uv: num.totalFunds,
+        };
+        acc.push(newObj);
+      }
+      return acc;
+    }, []);
     setChartData(dataList);
   }, [data]);
 
@@ -155,7 +163,7 @@ const MonoCoinDataChart = ({ id }) => {
         />
         <XAxis
           dataKey={chart.key("name")}
-          tickFormatter={(value) => value.slice(5, 10)}
+          tickFormatter={(value) => `${value.slice(5, 10)}月`}
           stroke={chart.color("border")}
         />
         <YAxis
@@ -172,6 +180,8 @@ const MonoCoinDataChart = ({ id }) => {
         />
         <Line
           isAnimationActive={false}
+          dot={{ r: 1 }}
+          activeDot={{ r: 4 }}
           dataKey={chart.key("uv")}
           fill={chart.color("teal.solid")}
           stroke={chart.color("teal.solid")}

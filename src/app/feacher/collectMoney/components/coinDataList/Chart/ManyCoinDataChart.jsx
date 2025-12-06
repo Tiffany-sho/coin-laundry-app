@@ -168,8 +168,8 @@ const ManyCoinDataChart = () => {
       }
 
       let orderPeriod;
-      if (period === "３ヶ月") {
-        orderPeriod = changeEpocFromNowYearMonth(-3);
+      if (period === "６ヶ月") {
+        orderPeriod = changeEpocFromNowYearMonth(-6);
       } else if (period === "１年間") {
         orderPeriod = changeEpocFromNowYearMonth(-12);
       } else {
@@ -302,8 +302,8 @@ const ManyCoinDataChart = () => {
               fill={chart.color(item.color)}
               stroke={chart.color(item.color)}
               strokeWidth={2}
-              dot={{ r: 4 }}
-              activeDot={{ r: 6 }}
+              dot={{ r: 1 }}
+              activeDot={{ r: 4 }}
               opacity={chart.getSeriesOpacity(item.name)}
             />
           );
