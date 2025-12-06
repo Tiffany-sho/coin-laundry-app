@@ -16,7 +16,6 @@ export default function EpochTimeSelector({
   useEffect(() => {
     const epocTime = getEpochTimeInSeconds(year, month, day);
     setEpoc(epocTime);
-    submitFunc(epocTime);
   }, [year, month, day]);
 
   const years = Array.from(
