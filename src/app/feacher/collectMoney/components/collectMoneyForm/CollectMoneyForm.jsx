@@ -160,7 +160,6 @@ const CollectMoneyForm = ({ coinLaundry }) => {
 
         <Card.Body py={8} px={8}>
           <Stack gap={8} w="full">
-            {/* 日付選択 */}
             <Box
               p={5}
               bg="gray.50"

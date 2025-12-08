@@ -114,6 +114,12 @@ const LoginUserHome = ({ id, username = "集金担当者" }) => {
               </Text>
             </VStack>
           </Box>
+          <Box>
+            <Heading size={{ base: "md", md: "lg" }} color="gray.800" mb={3}>
+              クイックアクション
+            </Heading>
+            <QuickAction />
+          </Box>
 
           <Box>
             <Heading size={{ base: "md", md: "lg" }} color="gray.800" mb={3}>
@@ -133,7 +139,6 @@ const LoginUserHome = ({ id, username = "集金担当者" }) => {
               </GridItem>
             </Grid>
           </Box>
-          <QuickAction />
         </VStack>
       </Container>
     </Box>

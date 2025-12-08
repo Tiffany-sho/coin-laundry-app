@@ -34,9 +34,9 @@ const ChangeStores = () => {
 
   const methodArray = {
     btnTitle: "店舗切り替え",
-    dialogTitle: "集金したい店舗を選択してください",
+    dialogTitle: "集金データを見たい店舗を選択してください",
     getURL: function (id) {
-      return `/collectMoney/${id}/newData`;
+      return `/coinLaundry/${id}/coinDataList`;
     },
   };
 
@@ -51,7 +51,6 @@ const ChangeStores = () => {
             w="full"
             border="1px solid"
             borderRadius="full"
-            bg="blue.500"
             boxShadow="sm"
           >
             <Text fontSize={{ base: "xs", md: "sm" }} fontWeight="semibold">
@@ -110,6 +109,35 @@ const ChangeStores = () => {
                 </Text>
               ) : (
                 <VStack align="stretch" gap={3}>
+                  <Link
+                    key={"total"}
+                    href={"/collectMoney"}
+                    style={{ width: "100%" }}
+                  >
+                    <Box
+                      p={4}
+                      borderRadius="lg"
+                      border="1px solid"
+                      borderColor="gray.200"
+                      bg="white"
+                      cursor="pointer"
+                      transition="all 0.2s"
+                      _hover={{
+                        bg: "blue.50",
+                        borderColor: "blue.300",
+                        transform: "translateX(4px)",
+                        boxShadow: "md",
+                      }}
+                    >
+                      <Text
+                        fontSize={{ base: "sm", md: "md" }}
+                        fontWeight="semibold"
+                        color="gray.800"
+                      >
+                        全{data.length}店舗
+                      </Text>
+                    </Box>
+                  </Link>
                   {data.map((item) => {
                     return (
                       <Link

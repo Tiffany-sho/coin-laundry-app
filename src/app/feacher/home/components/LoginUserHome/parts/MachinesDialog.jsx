@@ -21,7 +21,7 @@ import { toaster } from "@/components/ui/toaster";
 import * as Icon from "@/app/feacher/Icon";
 import { showToast } from "@/functions/makeToast/toast";
 
-const MachinesState = ({ id }) => {
+const MachinesDialog = ({ id }) => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -166,89 +166,55 @@ const MachinesState = ({ id }) => {
     >
       <Dialog.Trigger asChild>
         <Box
-          bg={breakMachine.length === 0 ? "green.50" : "red.50"}
+          bg="white"
           p={3}
-          borderRadius="lg"
-          borderLeft="4px solid"
-          borderColor={breakMachine.length === 0 ? "green.500" : "red.500"}
+          borderRadius="md"
+          border="1px solid"
+          borderColor="red.200"
           cursor="pointer"
           transition="all 0.2s"
           _hover={{
-            bg: breakMachine.length === 0 ? "green.100" : "red.100",
+            bg: "red.50",
             transform: "translateY(-2px)",
             boxShadow: "md",
+            borderColor: "red.300",
           }}
         >
           <VStack align="stretch" gap={2}>
             <HStack justify="space-between">
-              <Text
+              <HStack gap={2}>
+                <Icon.LiaStoreSolid color="#E53E3E" size={18} />
+                <Text fontSize="sm" fontWeight="bold" color="gray.800">
+                  {data.laundryName}
+                </Text>
+              </HStack>
+              <Badge
+                bg="red.100"
+                color="red.700"
                 fontSize="xs"
-                color={breakMachine.length === 0 ? "green.500" : "red.500"}
-                fontWeight="semibold"
-              >
-                設備状況
-              </Text>
-              <Box
-                bg={breakMachine.length === 0 ? "green.500" : "red.500"}
-                color="white"
+                px={2}
+                py={0.5}
                 borderRadius="full"
-                p={1}
               >
-                {breakMachine.length === 0 ? (
-                  <Icon.LuCheck size={14} />
-                ) : (
-                  <Icon.CiCircleAlert size={14} />
-                )}
-              </Box>
+                {breakMachine.length}台故障
+              </Badge>
             </HStack>
 
-            {breakMachine.length === 0 ? (
-              <VStack align="stretch" gap={1}>
-                <Text fontSize="md" fontWeight="bold" color="green.700">
-                  フル稼働中
-                </Text>
-                <Text fontSize="xs" color="green.600">
-                  すべての設備が正常です
-                </Text>
-              </VStack>
-            ) : (
-              <VStack align="stretch" gap={2}>
-                <HStack>
-                  <Badge
-                    bg="red.300"
-                    fontSize="xs"
-                    px={2}
-                    py={1}
-                    fontWeight="bold"
-                  >
-                    故障 {breakMachine.length}台
-                  </Badge>
+            <VStack align="stretch" gap={1} pl={2}>
+              {breakMachine.slice(0, 3).map((machine, index) => (
+                <HStack key={index} gap={2}>
+                  <Box w="4px" h="4px" bg="red.500" borderRadius="full" />
+                  <Text fontSize="xs" color="red.700" fontWeight="medium">
+                    {machine.name}
+                  </Text>
                 </HStack>
-                {breakMachine.slice(0, 2).map((machine, index) => (
-                  <Text
-                    key={index}
-                    fontSize="xs"
-                    color="red.700"
-                    fontWeight="medium"
-                  >
-                    • {machine.name}
-                  </Text>
-                ))}
-                {breakMachine.length > 2 && (
-                  <Text fontSize="xs" color="red.600">
-                    他 {breakMachine.length - 2}台
-                  </Text>
-                )}
-              </VStack>
-            )}
-
-            <Text
-              fontSize="2xs"
-              color={breakMachine.length === 0 ? "green.500" : "red.500"}
-              mt={1}
-            >
-              タップして詳細を確認
-            </Text>
+              ))}
+              {breakMachine.length > 3 && (
+                <Text fontSize="xs" color="red.600" pl={4}>
+                  他 {breakMachine.length - 3}台
+                </Text>
+              )}
+            </VStack>
           </VStack>
         </Box>
       </Dialog.Trigger>
@@ -415,4 +381,4 @@ const MachinesState = ({ id }) => {
   );
 };
 
-export default MachinesState;
+export default MachinesDialog;

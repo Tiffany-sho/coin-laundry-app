@@ -1,7 +1,6 @@
 import { Chart, useChart } from "@chakra-ui/charts";
 import {
   CartesianGrid,
-  Legend,
   Line,
   LineChart,
   Tooltip,
@@ -22,100 +21,11 @@ import ChartError from "@/app/feacher/partials/ChartError";
 import { getUser } from "@/app/api/supabaseFunctions/supabaseDatabase/user/action";
 import ChartEmpty from "@/app/feacher/partials/ChartEmpty";
 
-const lineColor = [
-  "red.solid",
-  "purple.solid",
-  "blue.solid",
-  "green.solid",
-  "pink.solid",
-  "teal.solid",
-  "cyan.solid",
-  "gray.solid",
-  "indigo.solid",
-  "lime.solid",
-  "emerald.solid",
-  "sky.solid",
-  "violet.solid",
-  "fuchsia.solid",
-  "rose.solid",
-  "brown.solid",
-];
-
-const CustomTooltip = ({ active, payload, label }) => {
-  if (!active || !payload || payload.length === 0) {
-    return null;
-  }
-
-  const total = payload.reduce((sum, entry) => sum + (entry.value || 0), 0);
-  return (
-    <Box
-      bg="white"
-      p={3}
-      border="1px solid"
-      borderColor="gray.200"
-      borderRadius="md"
-      boxShadow="lg"
-      minW="250px"
-    >
-      <Text fontWeight="bold" mb={2} fontSize="sm" color="gray.700">
-        {label}
-      </Text>
-
-      {payload.map((entry, index) => {
-        const monthTotal = entry.value;
-        return (
-          <Box
-            key={`item-${index}`}
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-            py={1}
-            borderBottom={index < payload.length - 1 ? "1px solid" : "none"}
-            borderColor="gray.100"
-          >
-            <Box display="flex" alignItems="center" gap={2}>
-              <Box w="10px" h="10px" borderRadius="full" bg={entry.color} />
-              <Text fontSize="xs" color="gray.600">
-                {entry.name}:
-              </Text>
-            </Box>
-            <Text fontSize="xs" fontWeight="semibold" color="gray.800">
-              ¥{monthTotal.toLocaleString()}
-            </Text>
-          </Box>
-        );
-      })}
-
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        mt={2}
-        pt={2}
-        borderTop="2px solid"
-        borderColor="gray.300"
-      >
-        <Text fontSize="sm" fontWeight="bold" color="gray.700">
-          合計:
-        </Text>
-        <Text fontSize="sm" fontWeight="bold" color="blue.600">
-          ¥{total.toLocaleString()}
-        </Text>
-      </Box>
-    </Box>
-  );
-};
-
 const ManyCoinDataChart = () => {
   const { data, setData } = useUploadPage();
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [chartData, setChartData] = useState([]);
-  const [chartSeries, setChartSeries] = useState([]);
-  const chart = useChart({
-    data: chartData,
-    series: chartSeries,
-  });
 
   const { period } = useUploadPage();
 
@@ -210,54 +120,28 @@ const ManyCoinDataChart = () => {
   useEffect(() => {
     if (!data) return;
     const newDataList = [...data].sort((a, b) => a.date - b.date);
-    const arrayDate = newDataList.reduce((acc, num) => {
+    const dataList = newDataList.reduce((acc, num) => {
       const month = getYearMonth(num.date);
-      const existsObj = acc.find((item) => item.month === month);
+      const alreadryMonth = acc.find((item) => item.name === month);
 
-      if (!existsObj) {
-        const obj = {
-          month,
-        };
-        obj[num.laundryName] = num.totalFunds;
-        acc.push(obj);
+      if (alreadryMonth) {
+        alreadryMonth.uv += num.totalFunds;
       } else {
-        if (existsObj[num.laundryName]) {
-          existsObj[num.laundryName] =
-            existsObj[num.laundryName] + num.totalFunds;
-        } else {
-          existsObj[num.laundryName] = num.totalFunds;
-        }
-      }
-      return acc;
-    }, []);
-    setChartData(arrayDate);
-
-    let i = 0;
-
-    const arraySeries = newDataList.reduce((acc, num) => {
-      const store = num.laundryName;
-      const storeId = num.laundryId;
-      const alreadyObj = acc.some((item) => item.nameId === storeId);
-      if (!alreadyObj) {
-        const obj = {
-          name: store,
-          nameId: storeId,
-          color: lineColor[i],
+        const newObj = {
+          name: getYearMonth(num.date),
+          uv: num.totalFunds,
         };
-        acc.push(obj);
-        i = i + 1;
+        acc.push(newObj);
       }
       return acc;
     }, []);
-    const series = arraySeries.map((item) => {
-      const obj = {
-        name: item.name,
-        color: item.color,
-      };
-      return obj;
-    });
-    setChartSeries(series);
+    setChartData(dataList);
   }, [data]);
+
+  const chart = useChart({
+    data: chartData,
+    dataKey: "coinData",
+  });
 
   if (loading) return <ChartLoading />;
   if (error) return <ChartError message={error.messaage} />;
@@ -265,18 +149,20 @@ const ManyCoinDataChart = () => {
   if (!data || data.length === 0) {
     return <ChartEmpty />;
   }
-  if (chartData.length === 0 || chartSeries.length === 0) {
+  if (chartData.length === 0) {
     return <ChartLoading />;
   }
 
   return (
-    <Chart.Root maxH="lg" chart={chart}>
-      <LineChart data={chart.data}>
-        <CartesianGrid stroke={chart.color("border")} vertical={false} />
+    <Chart.Root minWidth="0" chart={chart}>
+      <LineChart data={chart.data} margin={{ left: 40, right: 40, top: 40 }}>
+        <CartesianGrid
+          stroke={chart.color("border")}
+          strokeDasharray="3 3"
+          vertical={false}
+        />
         <XAxis
-          height={15}
-          axisLine={false}
-          dataKey={chart.key("month")}
+          dataKey={chart.key("name")}
           tickFormatter={(value) => `${value.slice(5, 10)}月`}
           stroke={chart.color("border")}
         />
@@ -286,28 +172,21 @@ const ManyCoinDataChart = () => {
           tickLine={false}
           tickMargin={10}
           stroke={chart.color("border")}
-          domain={["dataMin-10000", "dataMax+10000"]}
         />
         <Tooltip
           animationDuration={100}
-          cursor={{ stroke: "#ccc", strokeWidth: 1, strokeDasharray: "5 5" }}
-          content={<CustomTooltip />}
+          cursor={{ stroke: chart.color("border") }}
+          content={<Chart.Tooltip hideLabel />}
         />
-        {chart.series.map((item) => {
-          return (
-            <Line
-              key={item.name}
-              isAnimationActive={false}
-              dataKey={chart.key(item.name)}
-              fill={chart.color(item.color)}
-              stroke={chart.color(item.color)}
-              strokeWidth={2}
-              dot={{ r: 1 }}
-              activeDot={{ r: 4 }}
-              opacity={chart.getSeriesOpacity(item.name)}
-            />
-          );
-        })}
+        <Line
+          isAnimationActive={false}
+          dot={{ r: 1 }}
+          activeDot={{ r: 4 }}
+          dataKey={chart.key("uv")}
+          fill={chart.color("teal.solid")}
+          stroke={chart.color("teal.solid")}
+          strokeWidth={2}
+        ></Line>
       </LineChart>
     </Chart.Root>
   );

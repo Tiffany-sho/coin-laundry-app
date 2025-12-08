@@ -18,7 +18,7 @@ import * as Icon from "@/app/feacher/Icon";
 import { useEffect, useState } from "react";
 import { showToast } from "@/functions/makeToast/toast";
 
-const NowLaundryNum = ({ id }) => {
+const StockDialog = ({ id }) => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -109,7 +109,6 @@ const NowLaundryNum = ({ id }) => {
         </Text>
       </Box>
     );
-
   return (
     <Dialog.Root
       onOpenChange={(e) => {
@@ -121,101 +120,132 @@ const NowLaundryNum = ({ id }) => {
     >
       <Dialog.Trigger asChild>
         <Box
-          bg={data.detergent > 1 && data.softener > 1 ? "green.50" : "red.50"}
+          bg="white"
           p={3}
-          borderRadius="lg"
-          borderLeft="4px solid"
+          borderRadius="md"
+          border="1px solid"
           borderColor={
-            data.detergent > 1 && data.softener > 1 ? "green.500" : "red.500"
+            data.detergent < 1 || data.softener < 1 ? "red.200" : "orange.200"
           }
           cursor="pointer"
           transition="all 0.2s"
           _hover={{
             bg:
-              data.detergent > 1 && data.softener > 1 ? "green.100" : "red.100",
+              data.detergent < 1 || data.softener < 1 ? "red.50" : "orange.50",
             transform: "translateY(-2px)",
             boxShadow: "md",
+            borderColor:
+              data.detergent < 1 || data.softener < 1
+                ? "red.300"
+                : "orange.300",
           }}
         >
           <VStack align="stretch" gap={2}>
             <HStack justify="space-between">
-              <Text
-                fontSize="xs"
-                color={
-                  data.detergent > 1 && data.softener > 1
-                    ? "green.500"
-                    : "red.500"
-                }
-                fontWeight="semibold"
-              >
-                在庫状況
-              </Text>
-              <Box
-                bg={
-                  data.detergent > 1 && data.softener > 1
-                    ? "green.500"
-                    : "red.500"
-                }
-                color="white"
-                borderRadius="full"
-                p={1}
-              >
-                {data.detergent > 1 && data.softener > 1 ? (
-                  <Icon.LuCheck size={14} />
-                ) : (
-                  <Icon.CiCircleAlert size={14} />
-                )}
-              </Box>
+              <HStack gap={2}>
+                <Icon.CiCircleAlert
+                  color={
+                    data.detergent < 1 || data.softener < 1
+                      ? "#E53E3E"
+                      : "#DD6B20"
+                  }
+                  size={18}
+                />
+                <Text fontSize="sm" fontWeight="bold" color="gray.800">
+                  {data.laundryName}
+                </Text>
+              </HStack>
+              {data.detergent < 1 ||
+                (data.softener < 1 && (
+                  <Badge
+                    bg="red.500"
+                    color="white"
+                    fontSize="xs"
+                    px={2}
+                    py={0.5}
+                    borderRadius="full"
+                    fontWeight="bold"
+                  >
+                    緊急
+                  </Badge>
+                ))}
             </HStack>
 
             <HStack gap={2} flexWrap="wrap">
               <Badge
-                bg={data.detergent > 1 ? "green.200" : "red.300"}
-                color={data.detergent > 1 ? "green.800" : "red.800"}
+                bg={
+                  data.detergent < 2
+                    ? data.detergent < 1
+                      ? "red.500"
+                      : "orange.200"
+                    : "green.200"
+                }
+                color={
+                  data.detergent < 2
+                    ? data.detergent < 1
+                      ? "white"
+                      : "orange.800"
+                    : "green.800"
+                }
                 fontSize="xs"
-                px={2}
+                px={3}
                 py={1}
                 borderRadius="md"
                 fontWeight="semibold"
+                display="flex"
+                alignItems="center"
+                gap={1}
               >
-                洗剤: {data.detergent}
+                <Icon.LuPackage size={12} />
+                洗剤: {data.detergent}個
               </Badge>
               <Badge
-                bg={data.softener > 1 ? "green.200" : "red.300"}
-                color={data.softener > 1 ? "green.800" : "red.800"}
+                bg={
+                  data.softener < 2
+                    ? data.softener < 1
+                      ? "red.500"
+                      : "orange.200"
+                    : "green.200"
+                }
+                color={
+                  data.softener < 2
+                    ? data.softener < 1
+                      ? "white"
+                      : "orange.800"
+                    : "green.800"
+                }
                 fontSize="xs"
-                px={2}
+                px={3}
                 py={1}
                 borderRadius="md"
                 fontWeight="semibold"
+                display="flex"
+                alignItems="center"
+                gap={1}
               >
-                柔軟剤: {data.softener}
+                <Icon.LuPackage size={12} />
+                柔軟剤: {data.softener}個
               </Badge>
             </HStack>
+
             <Text
               fontSize="xs"
               color={
-                data.detergent < 2 || data.softener < 2
-                  ? "red.600"
-                  : "green.600"
+                data.detergent < 1 || data.softener < 1
+                  ? "red.700"
+                  : "orange.700"
               }
               fontWeight="medium"
-              mt={1}
-            >
-              {data.detergent < 2 || data.softener < 2
-                ? " 在庫不足"
-                : " 在庫良好"}
-            </Text>
-            <Text
-              fontSize="2xs"
-              color={
-                data.detergent > 1 && data.softener > 1
-                  ? "green.500"
-                  : "red.500"
+              bg={
+                data.detergent < 1 || data.softener < 1 ? "red.50" : "orange.50"
               }
-              mt={1}
+              px={2}
+              py={1}
+              borderRadius="md"
             >
-              タップして在庫編集
+              {data.detergent < 1 || data.softener < 1
+                ? "至急補充してください"
+                : " 補充をおすすめします"}
             </Text>
           </VStack>
         </Box>
@@ -377,4 +407,4 @@ const NowLaundryNum = ({ id }) => {
   );
 };
 
-export default NowLaundryNum;
+export default StockDialog;

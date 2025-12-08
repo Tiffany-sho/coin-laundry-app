@@ -31,6 +31,7 @@ import AddDataBtn from "./parts/AddDataBtn";
 import OrderSelecter from "./parts/OrderSelecter";
 import DataClipBoard from "./parts/DataClipBoard";
 import SegmentedPeriod from "./parts/SegmentedPeriod";
+import ChangeStores from "./parts/ChangeStore";
 
 const MoneyDataList = ({ valiant, coinLaundry }) => {
   const { selectedItem, open, setOpen, data, period } = useUploadPage();
@@ -77,15 +78,18 @@ const MoneyDataList = ({ valiant, coinLaundry }) => {
               align={{ base: "stretch", md: "center" }}
               gap={4}
             >
-              <Heading
-                size={{ base: "xl", md: "2xl" }}
-                fontWeight="bold"
-                color="gray.800"
-                letterSpacing="tight"
-              >
-                {valiant === "aStore" && `${coinLaundry.store}店`}
-                {valiant === "manyStore" && `過去${period}の集計データ`}
-              </Heading>
+              <HStack>
+                <Heading
+                  size={{ base: "xl", md: "2xl" }}
+                  fontWeight="bold"
+                  color="gray.800"
+                  letterSpacing="tight"
+                >
+                  {valiant === "aStore" && `${coinLaundry.store}店`}
+                  {valiant === "manyStore" && `過去${period}の集計データ`}
+                </Heading>
+                <ChangeStores />
+              </HStack>
 
               {valiant === "aStore" && (
                 <Link

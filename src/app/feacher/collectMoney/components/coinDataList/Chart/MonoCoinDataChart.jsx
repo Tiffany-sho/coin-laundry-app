@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { Chart, useChart } from "@chakra-ui/charts";
 import {
   CartesianGrid,
-  LabelList,
   Line,
   LineChart,
   Tooltip,
@@ -11,7 +10,6 @@ import {
 } from "recharts";
 import {
   changeEpocFromNowYearMonth,
-  createNowData,
   getYearMonth,
 } from "@/functions/makeDate/date";
 import ChartLoading from "@/app/feacher/partials/ChartLoading";
