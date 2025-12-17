@@ -56,21 +56,10 @@ const CoinLaundryList = ({ coinLaundry }) => {
           {coinLaundry.location}
         </Card.Description>
 
-        <Grid templateRow="1fr 1fr" gap={3} mt={2}>
-          <Box
-            bg="blue.50"
-            p={3}
-            borderRadius="lg"
-            borderLeft="4px solid"
-            borderColor="blue.500"
-          >
-            <DisplayMonthBenifit id={coinLaundry.id} />
-          </Box>
-
-          <Flex gap={3} alignContent="space-around" flexDirection="row">
-            <NowLaundryNum id={coinLaundry.id} />
-            <MachinesState id={coinLaundry.id} />
-          </Flex>
+        <DisplayMonthBenifit id={coinLaundry.id} />
+        <Grid templateColumns="repeat(2,1fr)" gap={3} mt={2}>
+          <NowLaundryNum id={coinLaundry.id} />
+          <MachinesState id={coinLaundry.id} />
         </Grid>
       </Card.Body>
 
@@ -79,9 +68,8 @@ const CoinLaundryList = ({ coinLaundry }) => {
           <Link href={`/coinLaundry/${coinLaundry.id}`} style={{ flex: 1 }}>
             <Button
               w="100%"
-              bg="blue.500"
+              variant="outline"
               size={{ base: "sm", md: "md" }}
-              color="white"
               fontWeight="semibold"
               transition="all 0.2s"
               _hover={{ bg: "gray.800" }}
@@ -96,7 +84,7 @@ const CoinLaundryList = ({ coinLaundry }) => {
           >
             <Button
               w="100%"
-              bg="green.500"
+              bg="blue.500"
               size={{ base: "sm", md: "md" }}
               borderColor="green.300"
               color="white"
@@ -104,7 +92,7 @@ const CoinLaundryList = ({ coinLaundry }) => {
               transition="all 0.2s"
               _hover={{ bg: "gray.50" }}
             >
-              <Icon.TbCoinYenFilled /> 集金
+              <Icon.TbCoinYenFilled /> 集金へ
             </Button>
           </Link>
         </Flex>

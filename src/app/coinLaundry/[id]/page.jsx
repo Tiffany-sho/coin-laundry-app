@@ -31,19 +31,6 @@ const CoinLaundry = async ({ params }) => {
           align={{ base: "stretch", md: "center" }}
           gap={4}
         >
-          <Box>
-            <Text
-              color="gray.600"
-              fontSize={{ base: "sm", md: "md" }}
-              border="solid 1px"
-              p={2}
-              borderRadius="5px"
-              bg="blue.50"
-              fontWeight="bold"
-            >
-              {store.store}店
-            </Text>
-          </Box>
           {stores.length > 0 && <SearchBox selectItems={selectItems} />}
         </Flex>
       </VStack>

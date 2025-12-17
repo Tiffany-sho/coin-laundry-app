@@ -15,6 +15,7 @@ import {
   Switch,
   Badge,
   Textarea,
+  Stack,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { toaster } from "@/components/ui/toaster";
@@ -169,8 +170,8 @@ const MachinesState = ({ id }) => {
           bg={breakMachine.length === 0 ? "green.50" : "red.50"}
           p={3}
           borderRadius="lg"
-          borderLeft="4px solid"
-          borderColor={breakMachine.length === 0 ? "green.500" : "red.500"}
+          borderColor={breakMachine.length === 0 ? "green.200" : "red.200"}
+          borderWidth="0.5px"
           cursor="pointer"
           transition="all 0.2s"
           _hover={{
@@ -180,14 +181,7 @@ const MachinesState = ({ id }) => {
           }}
         >
           <VStack align="stretch" gap={2}>
-            <HStack justify="space-between">
-              <Text
-                fontSize="xs"
-                color={breakMachine.length === 0 ? "green.500" : "red.500"}
-                fontWeight="semibold"
-              >
-                設備状況
-              </Text>
+            <HStack>
               <Box
                 bg={breakMachine.length === 0 ? "green.500" : "red.500"}
                 color="white"
@@ -200,55 +194,42 @@ const MachinesState = ({ id }) => {
                   <Icon.CiCircleAlert size={14} />
                 )}
               </Box>
-            </HStack>
 
-            {breakMachine.length === 0 ? (
-              <VStack align="stretch" gap={1}>
-                <Text fontSize="md" fontWeight="bold" color="green.700">
-                  フル稼働中
-                </Text>
-                <Text fontSize="xs" color="green.600">
-                  すべての設備が正常です
-                </Text>
-              </VStack>
-            ) : (
-              <VStack align="stretch" gap={2}>
-                <HStack>
-                  <Badge
-                    bg="red.300"
-                    fontSize="xs"
-                    px={2}
-                    py={1}
-                    fontWeight="bold"
-                  >
-                    故障 {breakMachine.length}台
-                  </Badge>
-                </HStack>
-                {breakMachine.slice(0, 2).map((machine, index) => (
-                  <Text
-                    key={index}
-                    fontSize="xs"
-                    color="red.700"
-                    fontWeight="medium"
-                  >
-                    • {machine.name}
+              <Stack>
+                {breakMachine.length === 0 ? (
+                  <Text fontSize="xs" fontWeight="semibold" color="green.700">
+                    フル稼働中
                   </Text>
-                ))}
-                {breakMachine.length > 2 && (
-                  <Text fontSize="xs" color="red.600">
-                    他 {breakMachine.length - 2}台
+                ) : (
+                  <Text fontSize="xs" color="red.700" fontWeight="semibold">
+                    故障 {breakMachine.length}台
                   </Text>
                 )}
-              </VStack>
-            )}
-
-            <Text
-              fontSize="2xs"
-              color={breakMachine.length === 0 ? "green.500" : "red.500"}
-              mt={1}
-            >
-              タップして詳細を確認
-            </Text>
+                {breakMachine.length === 0 ? (
+                  <Text fontSize="xs" color="green.700" fontWeight="medium">
+                    異常なし
+                  </Text>
+                ) : (
+                  <HStack align="stretch">
+                    {breakMachine.slice(0, 1).map((machine, index) => (
+                      <Text
+                        key={index}
+                        fontSize="xs"
+                        color="red.700"
+                        fontWeight="medium"
+                      >
+                        {machine.name.slice(0, 5)}
+                      </Text>
+                    ))}
+                    {breakMachine.length > 2 && (
+                      <Text fontSize="xs" color="red.700" fontWeight="medium">
+                        他 {breakMachine.length - 1}台
+                      </Text>
+                    )}
+                  </HStack>
+                )}
+              </Stack>
+            </HStack>
           </VStack>
         </Box>
       </Dialog.Trigger>

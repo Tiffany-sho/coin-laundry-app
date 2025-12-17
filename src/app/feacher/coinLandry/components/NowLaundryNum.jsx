@@ -124,10 +124,10 @@ const NowLaundryNum = ({ id }) => {
           bg={data.detergent > 1 && data.softener > 1 ? "green.50" : "red.50"}
           p={3}
           borderRadius="lg"
-          borderLeft="4px solid"
           borderColor={
-            data.detergent > 1 && data.softener > 1 ? "green.500" : "red.500"
+            data.detergent > 1 && data.softener > 1 ? "green.200" : "red.200"
           }
+          borderWidth="0.5px"
           cursor="pointer"
           transition="all 0.2s"
           _hover={{
@@ -138,18 +138,7 @@ const NowLaundryNum = ({ id }) => {
           }}
         >
           <VStack align="stretch" gap={2}>
-            <HStack justify="space-between">
-              <Text
-                fontSize="xs"
-                color={
-                  data.detergent > 1 && data.softener > 1
-                    ? "green.500"
-                    : "red.500"
-                }
-                fontWeight="semibold"
-              >
-                在庫状況
-              </Text>
+            <HStack>
               <Box
                 bg={
                   data.detergent > 1 && data.softener > 1
@@ -166,57 +155,55 @@ const NowLaundryNum = ({ id }) => {
                   <Icon.CiCircleAlert size={14} />
                 )}
               </Box>
+              <Box>
+                <Text
+                  fontSize="xs"
+                  color={
+                    data.detergent > 1 && data.softener > 1
+                      ? "green.700"
+                      : "red.700"
+                  }
+                  fontWeight="medium"
+                >
+                  {data.detergent > 1 && data.softener > 1
+                    ? "在庫良好"
+                    : "在庫不足"}
+                </Text>
+                <HStack gap={2} flexWrap="wrap">
+                  <Text
+                    color={data.detergent > 1 ? "green.700" : "red.700"}
+                    fontSize="xs"
+                    py={1}
+                    borderRadius="md"
+                    fontWeight="medium"
+                  >
+                    洗剤: {data.detergent}
+                  </Text>
+                  <Text
+                    color={
+                      data.detergent > 1 && data.softener > 1
+                        ? "green.700"
+                        : "red.700"
+                    }
+                    fontSize="xs"
+                    py={1}
+                    borderRadius="md"
+                    fontWeight="medium"
+                  >
+                    /
+                  </Text>
+                  <Text
+                    color={data.softener > 1 ? "green.700" : "red.700"}
+                    fontSize="xs"
+                    py={1}
+                    borderRadius="md"
+                    fontWeight="medium"
+                  >
+                    柔軟剤: {data.softener}
+                  </Text>
+                </HStack>
+              </Box>
             </HStack>
-
-            <HStack gap={2} flexWrap="wrap">
-              <Badge
-                bg={data.detergent > 1 ? "green.200" : "red.300"}
-                color={data.detergent > 1 ? "green.800" : "red.800"}
-                fontSize="xs"
-                px={2}
-                py={1}
-                borderRadius="md"
-                fontWeight="semibold"
-              >
-                洗剤: {data.detergent}
-              </Badge>
-              <Badge
-                bg={data.softener > 1 ? "green.200" : "red.300"}
-                color={data.softener > 1 ? "green.800" : "red.800"}
-                fontSize="xs"
-                px={2}
-                py={1}
-                borderRadius="md"
-                fontWeight="semibold"
-              >
-                柔軟剤: {data.softener}
-              </Badge>
-            </HStack>
-            <Text
-              fontSize="xs"
-              color={
-                data.detergent < 2 || data.softener < 2
-                  ? "red.600"
-                  : "green.600"
-              }
-              fontWeight="medium"
-              mt={1}
-            >
-              {data.detergent < 2 || data.softener < 2
-                ? " 在庫不足"
-                : " 在庫良好"}
-            </Text>
-            <Text
-              fontSize="2xs"
-              color={
-                data.detergent > 1 && data.softener > 1
-                  ? "green.500"
-                  : "red.500"
-              }
-              mt={1}
-            >
-              タップして在庫編集
-            </Text>
           </VStack>
         </Box>
       </Dialog.Trigger>

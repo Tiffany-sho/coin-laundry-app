@@ -8,7 +8,7 @@ import {
   Text,
   VStack,
   Heading,
-  HStack,
+  Grid,
 } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
 import Link from "next/link";
@@ -150,10 +150,10 @@ const QuickActionDialog = async ({ method }) => {
                         >
                           {item.store}店
                         </Text>
-                        <HStack justifyContent="space-around">
+                        <Grid templateColumns="repeat(2,1fr)" gap={3} mt={2}>
                           <NowLaundryNum id={item.id} />
                           <MachinesState id={item.id} />
-                        </HStack>
+                        </Grid>
                       </Box>
                     ) : (
                       <Link
