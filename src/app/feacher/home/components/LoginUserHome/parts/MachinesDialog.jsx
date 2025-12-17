@@ -126,7 +126,7 @@ const MachinesDialog = ({ id }) => {
   if (loading)
     return (
       <Box
-        bg="orange.50"
+        bg="red.50"
         p={3}
         borderRadius="lg"
         borderLeft="4px solid"
@@ -155,7 +155,6 @@ const MachinesDialog = ({ id }) => {
         </Text>
       </Box>
     );
-
   return (
     <Dialog.Root
       onOpenChange={(e) => {
@@ -201,11 +200,22 @@ const MachinesDialog = ({ id }) => {
             </HStack>
 
             <VStack align="stretch" gap={1} pl={2}>
-              {breakMachine.slice(0, 3).map((machine, index) => (
-                <HStack key={index} gap={2}>
+              {breakMachine.slice(0, 3).map((machine) => (
+                <HStack key={machine.id} gap={2}>
                   <Box w="4px" h="4px" bg="red.500" borderRadius="full" />
                   <Text fontSize="xs" color="red.700" fontWeight="medium">
                     {machine.name}
+                  </Text>
+                  <Text
+                    fontSize="xs"
+                    color="red.700"
+                    fontWeight="medium"
+                    bg="red.50"
+                    px={2}
+                    py={1}
+                    borderRadius="md"
+                  >
+                    {machine.comment}
                   </Text>
                 </HStack>
               ))}

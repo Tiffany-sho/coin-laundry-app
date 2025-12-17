@@ -13,7 +13,6 @@ import {
   getYearMonth,
 } from "@/functions/makeDate/date";
 import { useEffect, useRef, useState } from "react";
-import { Box, Text } from "@chakra-ui/react";
 import ChartLoading from "@/app/feacher/partials/ChartLoading";
 import { createClient } from "@/utils/supabase/client";
 import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
@@ -91,6 +90,7 @@ const ManyCoinDataChart = () => {
         .from("collect_funds")
         .select("*")
         .eq("collecter", user.id)
+        .order("date", { ascending: true })
         .gt("date", orderPeriod);
 
       if (initialError) {
@@ -169,7 +169,7 @@ const ManyCoinDataChart = () => {
         <YAxis
           width={25}
           axisLine={false}
-          tickLine={false}
+          tickFormatter={(value) => `${value / Math.pow(10, 6)}M`}
           tickMargin={10}
           stroke={chart.color("border")}
         />

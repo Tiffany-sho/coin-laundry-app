@@ -59,7 +59,6 @@ const MonthFundTotal = async ({ id }) => {
     return accumulator + summary;
   }, 0);
 
-  // 集金回数
   const collectCount = data.length;
 
   return (

@@ -98,7 +98,9 @@ const NowMachinesState = async ({ id }) => {
     <VStack align="stretch" gap={3} w="full">
       <Box
         bg="red.50"
-        p={4}
+        px={4}
+        py={8}
+        border="2px solid"
         borderRadius="lg"
         borderLeft="4px solid"
         borderColor="red.500"

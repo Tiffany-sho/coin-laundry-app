@@ -89,6 +89,7 @@ const MonoCoinDataChart = ({ id }) => {
         .select("*")
         .eq("laundryId", id)
         .eq("collecter", user.id)
+        .order("date", { ascending: true })
         .gt("date", orderPeriod);
 
       if (initialError) {
@@ -169,6 +170,7 @@ const MonoCoinDataChart = ({ id }) => {
           axisLine={false}
           tickLine={false}
           tickMargin={10}
+          tickFormatter={(value) => `${value / Math.pow(10, 6)}M`}
           stroke={chart.color("border")}
         />
         <Tooltip

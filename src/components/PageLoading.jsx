@@ -16,7 +16,6 @@ const LoadingScreen = () => {
       zIndex="9999"
     >
       <VStack spacing={6}>
-        {/* 洗濯機アイコン */}
         <Box
           width="120px"
           height="120px"
@@ -28,7 +27,6 @@ const LoadingScreen = () => {
           justifyContent="center"
           boxShadow="lg"
         >
-          {/* 洗濯機の窓 */}
           <Box
             width="85px"
             height="85px"
@@ -41,7 +39,6 @@ const LoadingScreen = () => {
             position="relative"
             overflow="hidden"
           >
-            {/* 回転するSpinner */}
             <Spinner
               thickness="4px"
               speed="0.8s"
@@ -51,7 +48,6 @@ const LoadingScreen = () => {
             />
           </Box>
 
-          {/* 洗濯機のボタン */}
           <Box
             position="absolute"
             top="10px"

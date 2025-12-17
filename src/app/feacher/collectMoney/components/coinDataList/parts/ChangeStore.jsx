@@ -33,7 +33,7 @@ const ChangeStores = () => {
   }, []);
 
   const methodArray = {
-    btnTitle: "店舗切り替え",
+    btnTitle: "店舗切替",
     dialogTitle: "集金データを見たい店舗を選択してください",
     getURL: function (id) {
       return `/coinLaundry/${id}/coinDataList`;

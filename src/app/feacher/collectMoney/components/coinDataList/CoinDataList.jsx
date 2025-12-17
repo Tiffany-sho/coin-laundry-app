@@ -32,9 +32,10 @@ import OrderSelecter from "./parts/OrderSelecter";
 import DataClipBoard from "./parts/DataClipBoard";
 import SegmentedPeriod from "./parts/SegmentedPeriod";
 import ChangeStores from "./parts/ChangeStore";
+import { createNowData } from "@/functions/makeDate/date";
 
 const MoneyDataList = ({ valiant, coinLaundry }) => {
-  const { selectedItem, open, setOpen, data, period } = useUploadPage();
+  const { selectedItem, open, setOpen, data } = useUploadPage();
 
   const [totalRevenue, setTotalRevenue] = useState(null);
   useEffect(() => {
@@ -58,68 +59,61 @@ const MoneyDataList = ({ valiant, coinLaundry }) => {
   }, [data]);
 
   return (
-    <Box minH="100vh" py={{ base: 6, md: 12 }} px={{ base: 3, md: 4 }}>
-      <Card.Root
-        size="lg"
-        borderRadius="24px"
-        overflow="hidden"
-        boxShadow="0 10px 40px rgba(0, 0, 0, 0.08)"
-        bg="white"
-      >
-        <Card.Header
-          p={{ base: 6, md: 8 }}
-          borderBottom="1px solid"
-          borderColor="gray.200"
-        >
-          <VStack align="stretch" gap={6}>
-            <Flex
-              direction={{ base: "column", md: "row" }}
-              justify="space-between"
-              align={{ base: "stretch", md: "center" }}
-              gap={4}
-            >
+    <Box
+      size="lg"
+      overflow="hidden"
+      boxShadow="0 10px 40px rgba(0, 0, 0, 0.08)"
+      bg="white"
+    >
+      <Box p={{ base: 6, md: 8 }} borderColor="gray.200">
+        <VStack align="stretch" gap={6}>
+          <Flex
+            direction={{ base: "column", md: "row" }}
+            justify="space-between"
+            align={{ base: "stretch", md: "center" }}
+            gap={4}
+          >
+            <HStack justify="space-between">
+              <Heading
+                size={{ base: "xl", md: "2xl" }}
+                fontWeight="bold"
+                color="gray.800"
+                letterSpacing="tight"
+              >
+                {valiant === "aStore" && `${coinLaundry.store}店`}
+                {valiant === "manyStore" && `収益レポート`}
+              </Heading>
+              <ChangeStores />
+            </HStack>
+
+            {valiant === "aStore" && (
+              <Link
+                href={`/collectMoney/${coinLaundry.id}/newData`}
+                _hover={{ textDecoration: "none" }}
+              >
+                <Button
+                  size={{ base: "md", md: "lg" }}
+                  color="white"
+                  borderRadius="full"
+                  px={6}
+                  fontWeight="semibold"
+                >
+                  <LuPlus /> 新規集金を記録
+                </Button>
+              </Link>
+            )}
+          </Flex>
+
+          <Box
+            bg="white"
+            p={{ base: 5, md: 6 }}
+            borderRadius="16px"
+            border="2px solid"
+            borderColor="gray.200"
+            boxShadow="0 4px 15px rgba(0, 0, 0, 0.05)"
+          >
+            <VStack align="stretch" gap={3}>
               <HStack>
-                <Heading
-                  size={{ base: "xl", md: "2xl" }}
-                  fontWeight="bold"
-                  color="gray.800"
-                  letterSpacing="tight"
-                >
-                  {valiant === "aStore" && `${coinLaundry.store}店`}
-                  {valiant === "manyStore" && `過去${period}の集計データ`}
-                </Heading>
-                <ChangeStores />
-              </HStack>
-
-              {valiant === "aStore" && (
-                <Link
-                  href={`/collectMoney/${coinLaundry.id}/newData`}
-                  _hover={{ textDecoration: "none" }}
-                >
-                  <Button
-                    size={{ base: "md", md: "lg" }}
-                    bg="gray.700"
-                    color="white"
-                    _hover={{ bg: "gray.800" }}
-                    borderRadius="full"
-                    px={6}
-                    fontWeight="semibold"
-                  >
-                    <LuPlus /> 新規集金を記録
-                  </Button>
-                </Link>
-              )}
-            </Flex>
-
-            <Box
-              bg="white"
-              p={{ base: 5, md: 6 }}
-              borderRadius="16px"
-              border="2px solid"
-              borderColor="gray.200"
-              boxShadow="0 4px 15px rgba(0, 0, 0, 0.05)"
-            >
-              <VStack align="stretch" gap={3}>
                 <Text
                   fontSize="sm"
                   fontWeight="semibold"
@@ -127,64 +121,82 @@ const MoneyDataList = ({ valiant, coinLaundry }) => {
                   textTransform="uppercase"
                   letterSpacing="wider"
                 >
-                  総額
+                  集金総額
                 </Text>
-
-                <HStack align="baseline" flexWrap="wrap" gap={2}>
-                  <Text fontSize="2xl" fontWeight="bold" color="gray.700">
-                    ¥
-                  </Text>
-                  {totalRevenue ? (
-                    <Text
-                      fontSize={{ base: "3xl", md: "5xl" }}
-                      fontWeight="extrabold"
-                      color="gray.800"
-                      lineHeight="1"
-                    >
-                      {totalRevenue.toLocaleString()}
-                    </Text>
-                  ) : (
-                    <Skeleton height="10" width="20%" />
-                  )}
-
-                  <Badge
-                    bg="gray.200"
-                    fontSize="md"
-                    px={3}
-                    py={1}
-                    borderRadius="full"
+                {data && (
+                  <Text
+                    fontSize=""
+                    fontWeight="semibold"
+                    color="gray.600"
+                    textTransform="uppercase"
+                    letterSpacing="wider"
                   >
-                    円
-                  </Badge>
-                </HStack>
-              </VStack>
-            </Box>
+                    ({createNowData(data[0].date)}~
+                    {createNowData(data[data.length - 1].date)})
+                  </Text>
+                )}
+              </HStack>
 
-            <Box
-              bg="white"
-              px={{ base: 3, md: 6 }}
-              borderRadius="16px"
-              boxShadow="0 4px 15px rgba(0, 0, 0, 0.05)"
-            >
-              {valiant === "aStore" && (
-                <MonoCoinDataChart id={coinLaundry.id} />
-              )}
-              {valiant === "manyStore" && <ManyCoinDataChart />}
-            </Box>
-            <SegmentedPeriod />
-          </VStack>
-        </Card.Header>
-        <Card.Body p={{ base: 4, md: 6 }}>
+              <HStack align="baseline" flexWrap="wrap" gap={2}>
+                <Text fontSize="2xl" fontWeight="bold" color="gray.700">
+                  ¥
+                </Text>
+                {totalRevenue ? (
+                  <Text
+                    fontSize={{ base: "3xl", md: "5xl" }}
+                    fontWeight="extrabold"
+                    color="gray.800"
+                    lineHeight="1"
+                  >
+                    {totalRevenue.toLocaleString()}
+                  </Text>
+                ) : (
+                  <Skeleton height="10" width="20%" />
+                )}
+
+                <Badge
+                  bg="gray.200"
+                  fontSize="md"
+                  px={3}
+                  py={1}
+                  borderRadius="full"
+                >
+                  円
+                </Badge>
+                {data && (
+                  <Text
+                    fontSize="sm"
+                    fontWeight="semibold"
+                    color="gray.600"
+                    textTransform="uppercase"
+                    letterSpacing="wider"
+                  >
+                    累計{data.length}回の集金
+                  </Text>
+                )}
+                <SegmentedPeriod />
+              </HStack>
+            </VStack>
+
+            {valiant === "aStore" && <MonoCoinDataChart id={coinLaundry.id} />}
+            {valiant === "manyStore" && <ManyCoinDataChart />}
+          </Box>
+        </VStack>
+      </Box>
+      <Box p={{ base: 6, md: 8 }} borderColor="gray.200">
+        <Box
+          bg="white"
+          p={{ base: 5, md: 6 }}
+          borderRadius="16px"
+          border="2px solid"
+          borderColor="gray.200"
+          boxShadow="0 4px 15px rgba(0, 0, 0, 0.05)"
+        >
           <VStack align="stretch" gap={4}>
-            <Box
-              p={4}
-              bg="gray.50"
-              borderRadius="12px"
-              border="1px solid"
-              borderColor="gray.200"
-            >
+            <HStack>
+              <Heading>売上履歴</Heading>
               <OrderSelecter />
-            </Box>
+            </HStack>
 
             <Stack
               borderRadius="16px"
@@ -198,40 +210,10 @@ const MoneyDataList = ({ valiant, coinLaundry }) => {
                 boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)",
               }}
             >
-              <Table.Root size="md" interactive variant="line">
-                <Table.Header bg="gray.50">
-                  <Table.Row>
-                    <Table.ColumnHeader
-                      fontWeight="bold"
-                      fontSize="md"
-                      color="gray.700"
-                      py={4}
-                    >
-                      店舗
-                    </Table.ColumnHeader>
-                    <Table.ColumnHeader
-                      fontWeight="bold"
-                      fontSize="md"
-                      color="gray.700"
-                      textAlign="right"
-                    >
-                      合計売上
-                    </Table.ColumnHeader>
-                    <Table.ColumnHeader
-                      fontWeight="bold"
-                      fontSize="md"
-                      color="gray.700"
-                      textAlign="right"
-                    >
-                      記録日
-                    </Table.ColumnHeader>
-                  </Table.Row>
-                </Table.Header>
-                {valiant === "aStore" && (
-                  <CoinMonoDataTable id={coinLaundry.id} />
-                )}
-                {valiant === "manyStore" && <CoinManyDataTable />}
-              </Table.Root>
+              {valiant === "aStore" && (
+                <CoinMonoDataTable id={coinLaundry.id} />
+              )}
+              {valiant === "manyStore" && <CoinManyDataTable />}
 
               {valiant === "aStore" && <AddDataBtn id={coinLaundry.id} />}
               {valiant === "manyStore" && <AddDataBtn />}
@@ -312,8 +294,8 @@ const MoneyDataList = ({ valiant, coinLaundry }) => {
               </Drawer.Root>
             </Stack>
           </VStack>
-        </Card.Body>
-      </Card.Root>
+        </Box>
+      </Box>
     </Box>
   );
 };
