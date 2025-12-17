@@ -72,7 +72,6 @@ const CoinLaundryList = ({ coinLaundry }) => {
               size={{ base: "sm", md: "md" }}
               fontWeight="semibold"
               transition="all 0.2s"
-              _hover={{ bg: "gray.800" }}
             >
               <Icon.BiMessageSquareDetail /> 詳細
             </Button>
@@ -90,7 +89,7 @@ const CoinLaundryList = ({ coinLaundry }) => {
               color="white"
               fontWeight="semibold"
               transition="all 0.2s"
-              _hover={{ bg: "gray.50" }}
+              _hover={{ bg: "blue.50", color: "black" }}
             >
               <Icon.TbCoinYenFilled /> 集金へ
             </Button>

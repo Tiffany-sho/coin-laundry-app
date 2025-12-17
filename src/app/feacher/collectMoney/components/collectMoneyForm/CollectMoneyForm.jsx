@@ -9,10 +9,12 @@ import {
   Switch,
   Text,
   Flex,
-  Badge,
   HStack,
   Spinner,
+  VStack,
+  Heading,
 } from "@chakra-ui/react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import EpochTimeSelector from "../selectDate/SelectDate";
 import CheckDialog from "@/app/feacher/dialog/CheckDialogCollectMoney";
@@ -44,6 +46,8 @@ const CollectMoneyForm = ({ coinLaundry }) => {
     }));
     return initialValue;
   });
+
+  const router = useRouter();
 
   useEffect(() => {
     const getUserFixed = async () => {
@@ -119,87 +123,89 @@ const CollectMoneyForm = ({ coinLaundry }) => {
   };
 
   return (
-    <Box
-      minH="100vh"
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      py={8}
-      px={4}
-    >
-      <Card.Root
-        maxW="3xl"
+    <VStack spacing={0} minH="100vh" bg="gray.50">
+      <Box
+        py={{ base: 4, md: 6 }}
+        px={{ base: 4, md: 8 }}
         w="full"
-        boxShadow="2xl"
-        borderRadius="2xl"
-        overflow="hidden"
         bg="white"
+        position="fixed"
+        top="0"
+        zIndex="1400"
+        borderBottomWidth="1px"
+        borderBottomColor="gray.200"
+        shadow="sm"
       >
-        <Card.Header bg="gray.500" color="white" py={6} px={8}>
-          <Flex justify="space-between" align="center">
-            <HStack>
-              <Card.Title fontSize="2xl" fontWeight="bold">
-                {coinLaundry.store}店
-              </Card.Title>
-              <ChangeStores />
-            </HStack>
+        <HStack justify="space-between" maxW="1200px" mx="auto">
+          <Heading
+            fontSize={{ base: "xl", md: "2xl" }}
+            fontWeight="bold"
+            color="gray.800"
+          >
+            {coinLaundry.store}店
+          </Heading>
+          <ChangeStores />
+        </HStack>
+      </Box>
 
-            <Badge
-              bg="teal.400"
-              color="white"
-              px={3}
-              py={1}
-              borderRadius="full"
-              fontWeight="semibold"
-              fontSize="sm"
-            >
-              集金登録
-            </Badge>
-          </Flex>
-        </Card.Header>
-
-        <Card.Body py={8} px={8}>
-          <Stack gap={8} w="full">
-            <Box
-              p={5}
-              bg="gray.50"
-              borderRadius="xl"
-              borderWidth="1px"
-              borderColor="gray.200"
-              shadow="sm"
-              transition="all 0.2s"
-              _hover={{ borderColor: "teal.400", shadow: "md" }}
-            >
-              <HStack mb={3} color="gray.600">
-                <Icon.LuCalendar size={20} />
-                <Text fontSize="sm" fontWeight="semibold">
+      <Box
+        w="full"
+        pt={{ base: 20, md: 24 }}
+        pb={{ base: 32, md: 36 }}
+        px={{ base: 4, md: 8 }}
+      >
+        <Stack gap={{ base: 4, md: 6 }} maxW="1200px" mx="auto">
+          <Card.Root
+            bg="white"
+            shadow="md"
+            borderRadius="2xl"
+            overflow="hidden"
+            transition="all 0.3s"
+            _hover={{
+              shadow: "lg",
+              transform: "translateY(-2px)",
+            }}
+          >
+            <Card.Body p={{ base: 5, md: 6 }}>
+              <HStack mb={4} color="teal.600">
+                <Icon.LuCalendar size={22} />
+                <Text fontSize="md" fontWeight="semibold">
                   集金日
                 </Text>
               </HStack>
               <EpochTimeSelector epoc={epoc} setEpoc={setEpoc} />
-            </Box>
+            </Card.Body>
+          </Card.Root>
 
-            <Box
-              p={5}
-              bg="gray.50"
-              borderRadius="xl"
-              borderWidth="1px"
-              borderColor="gray.200"
-              shadow="sm"
-            >
-              <Flex align="center" justify="space-between" mb={4}>
-                <Box flex="1">
-                  <Text fontSize="md" fontWeight="semibold" color="gray.800">
-                    {checked ? "機種別集金" : "まとめて集金"}
-                  </Text>
-                  <Text fontSize="sm" color="gray.500" mt={1}>
+          <Card.Root
+            bg="white"
+            shadow="md"
+            borderRadius="2xl"
+            overflow="hidden"
+          >
+            <Card.Body p={{ base: 5, md: 6 }}>
+              <Flex
+                align="center"
+                justify="space-between"
+                mb={5}
+                gap={4}
+                flexWrap={{ base: "wrap", md: "nowrap" }}
+              >
+                <Box flex="1" minW="200px">
+                  <HStack mb={2}>
+                    <Icon.RiMoneyCnyCircleLine size={22} color="teal.600" />
+                    <Text fontSize="lg" fontWeight="bold" color="gray.800">
+                      {checked ? "機種別集金" : "まとめて集金"}
+                    </Text>
+                  </HStack>
+                  <Text fontSize="sm" color="gray.600">
                     {checked
                       ? "各機種ごとに金額を入力します"
                       : "合計金額のみを入力します"}
                   </Text>
                 </Box>
                 {loading ? (
-                  <Spinner />
+                  <Spinner size="lg" color="blue.500" thickness="3px" />
                 ) : (
                   <Switch.Root
                     checked={checked}
@@ -207,39 +213,45 @@ const CollectMoneyForm = ({ coinLaundry }) => {
                     size="lg"
                   >
                     <Switch.HiddenInput />
-                    <Switch.Control bg={checked ? "blue.500" : "gray.300"}>
-                      <Switch.Thumb />
+                    <Switch.Control
+                      bg={checked ? "blue.500" : "gray.300"}
+                      _hover={{
+                        bg: checked ? "blue.600" : "gray.400",
+                      }}
+                      transition="all 0.2s"
+                    >
+                      <Switch.Thumb bg="white" shadow="md" />
                     </Switch.Control>
                   </Switch.Root>
                 )}
               </Flex>
 
-              <Box pt={4} borderTop="1px" borderColor="gray.200">
+              <Box pt={5} mt={5} borderTop="1px" borderColor="gray.200">
                 <FixSwitch
                   toggleChangeFixed={toggleChangeFixed}
                   fixed={fixed}
                 />
               </Box>
-            </Box>
+            </Card.Body>
+          </Card.Root>
 
-            <Box>
-              {checked ? (
-                <MachineAndMoney
-                  machinesAndFunds={machinesAndFunds}
-                  setMachinesAndFunds={setMachinesAndFunds}
-                />
-              ) : (
-                <Box
-                  p={6}
-                  bg="gray.50"
-                  borderRadius="xl"
-                  borderWidth="1px"
-                  borderColor="gray.200"
-                  shadow="sm"
-                >
-                  <HStack mb={4} color="gray.600">
-                    <Icon.RiMoneyCnyCircleLine size={20} />
-                    <Text fontSize="sm" fontWeight="semibold">
+          <Box>
+            {checked ? (
+              <MachineAndMoney
+                machinesAndFunds={machinesAndFunds}
+                setMachinesAndFunds={setMachinesAndFunds}
+              />
+            ) : (
+              <Card.Root
+                bg="white"
+                shadow="md"
+                borderRadius="2xl"
+                overflow="hidden"
+              >
+                <Card.Body p={{ base: 5, md: 6 }}>
+                  <HStack mb={4} color="teal.600">
+                    <Icon.RiMoneyCnyCircleLine size={22} />
+                    <Text fontSize="md" fontWeight="semibold">
                       合計金額
                     </Text>
                   </HStack>
@@ -247,71 +259,107 @@ const CollectMoneyForm = ({ coinLaundry }) => {
                     moneyTotal={moneyTotal}
                     setMoneyTotal={setMoneyTotal}
                   />
-                </Box>
-              )}
-            </Box>
-          </Stack>
-        </Card.Body>
-
-        <Card.Footer
-          justifyContent="flex-end"
-          gap={3}
-          px={8}
-          pb={8}
-          pt={6}
-          borderTop="1px"
-          borderColor="gray.200"
-          bg="white"
-        >
-          <Link href={`/coinLaundry/${coinLaundry.id}`}>
-            <Button
-              variant="outline"
-              size="lg"
-              bg="white"
-              color="gray.700"
-              fontWeight="semibold"
-              px={8}
-              borderWidth="2px"
-              borderColor="gray.300"
-              _hover={{
-                bg: "gray.50",
-                borderColor: "gray.400",
-              }}
-            >
-              キャンセル
-            </Button>
-          </Link>
-
-          <CheckDialog
-            coinLaundry={coinLaundry}
-            checked={checked}
-            machinesAndFunds={machinesAndFunds}
-            moneyTotal={moneyTotal}
-            epoc={epoc}
-            setMsg={setMsg}
-          />
-        </Card.Footer>
-
-        {msg && (
-          <Box px={8} pb={8}>
-            <Flex
-              align="center"
-              gap={3}
-              p={4}
-              bg="red.50"
-              borderRadius="lg"
-              borderWidth="1px"
-              borderColor="red.200"
-            >
-              <Icon.LiaStoreSolid />
-              <Text color="red.700" fontSize="sm" fontWeight="medium">
-                {msg}
-              </Text>
-            </Flex>
+                </Card.Body>
+              </Card.Root>
+            )}
           </Box>
-        )}
-      </Card.Root>
-    </Box>
+
+          {/* エラーメッセージ */}
+          {msg && (
+            <Card.Root
+              bg="red.50"
+              borderColor="red.300"
+              borderWidth="1px"
+              shadow="sm"
+              borderRadius="xl"
+            >
+              <Card.Body p={4}>
+                <HStack>
+                  <Icon.LiaStoreSolid size={20} color="red.600" />
+                  <Text color="red.700" fontSize="sm" fontWeight="medium">
+                    {msg}
+                  </Text>
+                </HStack>
+              </Card.Body>
+            </Card.Root>
+          )}
+        </Stack>
+      </Box>
+
+      {/* フッター（固定） */}
+      <HStack
+        py={{ base: 4, md: 6 }}
+        px={{ base: 4, md: 8 }}
+        w="full"
+        bg="white"
+        position="fixed"
+        bottom="0"
+        zIndex="1400"
+        borderTopWidth="1px"
+        borderTopColor="gray.200"
+        shadow="lg"
+        gap={{ base: 3, md: 4 }}
+        justify="space-between"
+        flexWrap={{ base: "wrap", sm: "nowrap" }}
+      >
+        <Box minW={{ base: "full", sm: "150px" }}>
+          <Text fontSize="xs" fontWeight="medium" color="gray.600" mb={1}>
+            合計収益額
+          </Text>
+          <Text
+            fontSize={{ base: "xl", md: "2xl" }}
+            fontWeight="bold"
+            color="blue.500"
+          >
+            ¥
+            {(
+              machinesAndFunds.reduce(
+                (acc, item) => acc + (item.funds || 0),
+                0
+              ) * 100
+            ).toLocaleString()}
+          </Text>
+        </Box>
+
+        <HStack gap={3} w={{ base: "full", sm: "auto" }}>
+          <Button
+            onClick={() => router.back()}
+            variant="outline"
+            size="lg"
+            bg="white"
+            color="gray.700"
+            fontWeight="semibold"
+            px={{ base: 6, md: 8 }}
+            borderWidth="2px"
+            borderColor="gray.300"
+            borderRadius="xl"
+            flex={{ base: 1, sm: "unset" }}
+            _hover={{
+              bg: "gray.50",
+              borderColor: "gray.400",
+              transform: "translateY(-1px)",
+            }}
+            _active={{
+              transform: "translateY(0)",
+            }}
+            transition="all 0.2s"
+          >
+            キャンセル
+          </Button>
+
+          <Box flex={{ base: 1, sm: "unset" }}>
+            <CheckDialog
+              coinLaundry={coinLaundry}
+              checked={checked}
+              machinesAndFunds={machinesAndFunds}
+              moneyTotal={moneyTotal}
+              epoc={epoc}
+              setMsg={setMsg}
+            />
+          </Box>
+        </HStack>
+      </HStack>
+    </VStack>
   );
 };
 

@@ -85,11 +85,6 @@ const MachineAndMoney = ({ machinesAndFunds, setMachinesAndFunds }) => {
             borderRadius="xl"
             shadow="sm"
             transition="all 0.2s"
-            _hover={{
-              borderColor: "blue.300",
-              shadow: "md",
-              transform: "translateY(-2px)",
-            }}
           >
             <Flex justify="space-between" align="center" mb={4}>
               <Box>

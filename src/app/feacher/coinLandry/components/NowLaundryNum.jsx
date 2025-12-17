@@ -138,24 +138,24 @@ const NowLaundryNum = ({ id }) => {
           }}
         >
           <VStack align="stretch" gap={2}>
-            <HStack>
-              <Box
-                bg={
-                  data.detergent > 1 && data.softener > 1
-                    ? "green.500"
-                    : "red.500"
-                }
-                color="white"
-                borderRadius="full"
-                p={1}
-              >
-                {data.detergent > 1 && data.softener > 1 ? (
-                  <Icon.LuCheck size={14} />
-                ) : (
-                  <Icon.CiCircleAlert size={14} />
-                )}
-              </Box>
-              <Box>
+            <Box>
+              <HStack>
+                <Box
+                  bg={
+                    data.detergent > 1 && data.softener > 1
+                      ? "green.500"
+                      : "red.500"
+                  }
+                  color="white"
+                  borderRadius="full"
+                  p={1}
+                >
+                  {data.detergent > 1 && data.softener > 1 ? (
+                    <Icon.LuCheck size={14} />
+                  ) : (
+                    <Icon.CiCircleAlert size={14} />
+                  )}
+                </Box>
                 <Text
                   fontSize="xs"
                   color={
@@ -163,47 +163,48 @@ const NowLaundryNum = ({ id }) => {
                       ? "green.700"
                       : "red.700"
                   }
-                  fontWeight="medium"
+                  fontWeight="semibold"
                 >
                   {data.detergent > 1 && data.softener > 1
                     ? "在庫良好"
                     : "在庫不足"}
                 </Text>
-                <HStack gap={2} flexWrap="wrap">
-                  <Text
-                    color={data.detergent > 1 ? "green.700" : "red.700"}
-                    fontSize="xs"
-                    py={1}
-                    borderRadius="md"
-                    fontWeight="medium"
-                  >
-                    洗剤: {data.detergent}
-                  </Text>
-                  <Text
-                    color={
-                      data.detergent > 1 && data.softener > 1
-                        ? "green.700"
-                        : "red.700"
-                    }
-                    fontSize="xs"
-                    py={1}
-                    borderRadius="md"
-                    fontWeight="medium"
-                  >
-                    /
-                  </Text>
-                  <Text
-                    color={data.softener > 1 ? "green.700" : "red.700"}
-                    fontSize="xs"
-                    py={1}
-                    borderRadius="md"
-                    fontWeight="medium"
-                  >
-                    柔軟剤: {data.softener}
-                  </Text>
-                </HStack>
-              </Box>
-            </HStack>
+              </HStack>
+
+              <HStack gap={2} flexWrap="wrap">
+                <Text
+                  color={data.detergent > 1 ? "green.700" : "red.700"}
+                  fontSize="xs"
+                  py={1}
+                  borderRadius="md"
+                  fontWeight="medium"
+                >
+                  洗剤: {data.detergent}
+                </Text>
+                <Text
+                  color={
+                    data.detergent > 1 && data.softener > 1
+                      ? "green.700"
+                      : "red.700"
+                  }
+                  fontSize="xs"
+                  py={1}
+                  borderRadius="md"
+                  fontWeight="medium"
+                >
+                  /
+                </Text>
+                <Text
+                  color={data.softener > 1 ? "green.700" : "red.700"}
+                  fontSize="xs"
+                  py={1}
+                  borderRadius="md"
+                  fontWeight="medium"
+                >
+                  柔軟剤: {data.softener}
+                </Text>
+              </HStack>
+            </Box>
           </VStack>
         </Box>
       </Dialog.Trigger>

@@ -194,42 +194,39 @@ const MachinesState = ({ id }) => {
                   <Icon.CiCircleAlert size={14} />
                 )}
               </Box>
-
-              <Stack>
-                {breakMachine.length === 0 ? (
-                  <Text fontSize="xs" fontWeight="semibold" color="green.700">
-                    フル稼働中
-                  </Text>
-                ) : (
-                  <Text fontSize="xs" color="red.700" fontWeight="semibold">
-                    故障 {breakMachine.length}台
-                  </Text>
-                )}
-                {breakMachine.length === 0 ? (
-                  <Text fontSize="xs" color="green.700" fontWeight="medium">
-                    異常なし
-                  </Text>
-                ) : (
-                  <HStack align="stretch">
-                    {breakMachine.slice(0, 1).map((machine, index) => (
-                      <Text
-                        key={index}
-                        fontSize="xs"
-                        color="red.700"
-                        fontWeight="medium"
-                      >
-                        {machine.name.slice(0, 5)}
-                      </Text>
-                    ))}
-                    {breakMachine.length > 2 && (
-                      <Text fontSize="xs" color="red.700" fontWeight="medium">
-                        他 {breakMachine.length - 1}台
-                      </Text>
-                    )}
-                  </HStack>
-                )}
-              </Stack>
+              {breakMachine.length === 0 ? (
+                <Text fontSize="xs" fontWeight="semibold" color="green.700">
+                  フル稼働中
+                </Text>
+              ) : (
+                <Text fontSize="xs" color="red.700" fontWeight="semibold">
+                  故障 {breakMachine.length}台
+                </Text>
+              )}
             </HStack>
+            {breakMachine.length === 0 ? (
+              <Text fontSize="xs" color="green.700" fontWeight="medium">
+                異常なし
+              </Text>
+            ) : (
+              <HStack align="stretch">
+                {breakMachine.slice(0, 1).map((machine, index) => (
+                  <Text
+                    key={index}
+                    fontSize="xs"
+                    color="red.700"
+                    fontWeight="medium"
+                  >
+                    {machine.name.slice(0, 5)}
+                  </Text>
+                ))}
+                {breakMachine.length > 1 && (
+                  <Text fontSize="xs" color="red.700" fontWeight="medium">
+                    他 {breakMachine.length - 1}台
+                  </Text>
+                )}
+              </HStack>
+            )}
           </VStack>
         </Box>
       </Dialog.Trigger>

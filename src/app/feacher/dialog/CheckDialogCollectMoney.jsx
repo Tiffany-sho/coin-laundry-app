@@ -114,8 +114,10 @@ const CheckDialog = ({
     >
       <Dialog.Trigger asChild>
         <Button
+          px={{ base: 14, md: 20 }}
+          borderWidth="2px"
+          borderRadius="xl"
           color="white"
-          px={8}
           size="lg"
           fontWeight="semibold"
           _hover={{
