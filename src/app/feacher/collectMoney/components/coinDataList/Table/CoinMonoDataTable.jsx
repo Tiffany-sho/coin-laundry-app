@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Table, Badge, Text } from "@chakra-ui/react";
+import { Table, Badge, Text, Box, HStack, VStack } from "@chakra-ui/react";
 import { createNowData } from "@/functions/makeDate/date";
 import { createClient } from "@/utils/supabase/client";
 import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
@@ -132,55 +132,83 @@ const CoinMonoDataTable = ({ id }) => {
   if (!displayData || displayData.length === 0) {
     return <TableEmpty />;
   }
-  return (
-    <Table.Root size="md" interactive variant="line">
-      <Table.Body>
-        {displayData.map((item, index) => {
-          const total = item.totalFunds || 0;
 
-          return (
-            <Table.Row
-              key={item.id}
-              onClick={() => toggleHander(item)}
-              bgColor={selectedItemId === item.id ? "blue.50" : "transparent"}
-              cursor="pointer"
-              _hover={{
-                bgColor: selectedItemId === item.id ? "blue.100" : "gray.50",
-                transform: "scale(1.01)",
-              }}
-              transition="all 0.2s"
-              borderBottom={
-                index === displayData.length - 1 ? "none" : "1px solid"
-              }
-              borderColor="gray.100"
-            >
-              <Table.Cell py={4}>
-                <Text fontWeight="semibold" color="gray.800">
-                  {item.laundryName}店
-                </Text>
-              </Table.Cell>
-              <Table.Cell textAlign="right">
-                <Badge
-                  color={total > 200000 ? "green.600" : "gray.600"}
-                  fontSize="md"
-                  px={3}
-                  py={1}
-                  borderRadius="full"
-                  fontWeight="bold"
-                >
-                  ¥{total.toLocaleString()}
-                </Badge>
-              </Table.Cell>
-              <Table.Cell textAlign="right">
-                <Text fontSize="sm" color="gray.600">
-                  {createNowData(item.date)}
-                </Text>
-              </Table.Cell>
-            </Table.Row>
-          );
-        })}
-      </Table.Body>
-    </Table.Root>
+  return (
+    <Box bg="white" borderRadius="2xl" shadow="md" overflow="hidden">
+      <Table.Root size="lg" variant="plain">
+        <Table.Body>
+          {displayData.map((item, index) => {
+            const total = item.totalFunds || 0;
+            const isSelected = selectedItemId === item.id;
+            const isHighValue = total > 200000;
+
+            return (
+              <Table.Row
+                key={item.id}
+                onClick={() => toggleHander(item)}
+                bg={isSelected ? "blue.50" : "white"}
+                cursor="pointer"
+                position="relative"
+                transition="all 0.2s ease"
+                _hover={{
+                  bg: isSelected ? "blue.100" : "gray.50",
+                  transform: "translateX(4px)",
+                }}
+                _active={{
+                  transform: "translateX(2px)",
+                }}
+                borderBottom={
+                  index === displayData.length - 1 ? "none" : "1px solid"
+                }
+                borderColor="gray.100"
+              >
+                {isSelected && (
+                  <Box
+                    position="absolute"
+                    left="0"
+                    top="0"
+                    bottom="0"
+                    width="4px"
+                    bg="blue.500"
+                    borderRadius="0 4px 4px 0"
+                  />
+                )}
+
+                <Table.Cell py={4} px={{ base: 4, md: 6 }}>
+                  <HStack justify="space-between" align="center" gap={4}>
+                    <Text
+                      fontSize={{ base: "2xl", md: "3xl" }}
+                      fontWeight="bold"
+                      color={isHighValue ? "green.600" : "gray.800"}
+                      lineHeight="1.2"
+                    >
+                      ¥{total.toLocaleString()}
+                    </Text>
+
+                    <VStack align="flex-end" gap={1}>
+                      <Text
+                        fontSize={{ base: "sm", md: "md" }}
+                        color="gray.600"
+                        fontWeight="medium"
+                      >
+                        {createNowData(item.date)}
+                      </Text>
+                      <Text
+                        fontSize="xs"
+                        color="gray.400"
+                        display={{ base: "none", sm: "block" }}
+                      >
+                        タップして詳細
+                      </Text>
+                    </VStack>
+                  </HStack>
+                </Table.Cell>
+              </Table.Row>
+            );
+          })}
+        </Table.Body>
+      </Table.Root>
+    </Box>
   );
 };
 

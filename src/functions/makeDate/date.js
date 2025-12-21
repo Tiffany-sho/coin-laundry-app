@@ -1,7 +1,7 @@
 const EPOCH_ERROR = 32400000;
 
 export const createNowData = (data) => {
-  const nowData = new Date(data);
+  const nowData = new Date(data + EPOCH_ERROR);
 
   const year = nowData.getFullYear();
   const month = nowData.getMonth() + 1;
@@ -11,7 +11,7 @@ export const createNowData = (data) => {
 };
 
 export const getYearMonth = (data) => {
-  const nowData = new Date(data);
+  const nowData = new Date(data + EPOCH_ERROR);
   const year = nowData.getFullYear();
   const month = nowData.getMonth() + 1;
 

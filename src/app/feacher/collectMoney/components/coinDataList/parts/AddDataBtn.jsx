@@ -27,7 +27,6 @@ const AddDataBtn = ({ id = "" }) => {
       if (!user) {
         return;
       }
-
       const from = page * PAGE_SIZE;
       const to = from + PAGE_SIZE - 1;
 

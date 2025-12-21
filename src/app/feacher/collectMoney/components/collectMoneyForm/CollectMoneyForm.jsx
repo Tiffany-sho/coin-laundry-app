@@ -15,7 +15,6 @@ import {
   Heading,
 } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import EpochTimeSelector from "../selectDate/SelectDate";
 import CheckDialog from "@/app/feacher/dialog/CheckDialogCollectMoney";
 
@@ -264,7 +263,6 @@ const CollectMoneyForm = ({ coinLaundry }) => {
             )}
           </Box>
 
-          {/* エラーメッセージ */}
           {msg && (
             <Card.Root
               bg="red.50"
@@ -286,7 +284,6 @@ const CollectMoneyForm = ({ coinLaundry }) => {
         </Stack>
       </Box>
 
-      {/* フッター（固定） */}
       <HStack
         py={{ base: 4, md: 6 }}
         px={{ base: 4, md: 8 }}

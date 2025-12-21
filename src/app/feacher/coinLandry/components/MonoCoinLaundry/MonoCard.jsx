@@ -20,8 +20,8 @@ import HaveMachines from "./HaveMachines";
 
 const MonoCard = ({ coinLaundry }) => {
   return (
-    <Box minH="100vh" py={{ base: 6, md: 10 }} px={{ base: 4, md: 6 }}>
-      <Container maxW="900px" px={0}>
+    <Box minH="100vh" py={{ base: 6, md: 10 }}>
+      <Container px={0}>
         <Box
           bg="white"
           borderRadius="16px"
