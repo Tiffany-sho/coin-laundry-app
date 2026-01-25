@@ -10,6 +10,7 @@ const CoinLaundryList = ({ coinLaundry }) => {
   return (
     <Card.Root
       maxW="sm"
+      w="100%"
       overflow="hidden"
       mb={4}
       mx="auto"
@@ -18,21 +19,32 @@ const CoinLaundryList = ({ coinLaundry }) => {
       transition="all 0.3s"
       _hover={{ boxShadow: "xl", transform: "translateY(-2px)" }}
     >
-      <Image
-        objectFit="cover"
+      <Box
+        position="relative"
         w="100%"
-        h="200px"
-        src={
-          !coinLaundry.images || coinLaundry.images.length === 0
-            ? "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/public/Laundry-Images/public/no-image.png"
-            : coinLaundry.images[0].url
-        }
-        alt={
-          !coinLaundry.images || coinLaundry.images.length === 0
-            ? "画像なし"
-            : `${coinLaundry.store}店`
-        }
-      />
+        paddingBottom="56.25%"
+        overflow="hidden"
+        bg="gray.100"
+      >
+        <Image
+          position="absolute"
+          top="0"
+          left="0"
+          w="100%"
+          h="100%"
+          objectFit="cover"
+          src={
+            !coinLaundry.images || coinLaundry.images.length === 0
+              ? "https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/public/Laundry-Images/public/no-image.png"
+              : coinLaundry.images[0].url
+          }
+          alt={
+            !coinLaundry.images || coinLaundry.images.length === 0
+              ? "画像なし"
+              : `${coinLaundry.store}店`
+          }
+        />
+      </Box>
 
       <Card.Body gap="3" p={5}>
         <Card.Title
@@ -40,6 +52,7 @@ const CoinLaundryList = ({ coinLaundry }) => {
           fontWeight="bold"
           color="gray.700"
           letterSpacing="tight"
+          noOfLines={1}
         >
           {coinLaundry.store}店
         </Card.Title>
@@ -51,6 +64,7 @@ const CoinLaundryList = ({ coinLaundry }) => {
           fontSize={{ base: "sm", md: "md" }}
           color="gray.600"
           lineHeight="1.7"
+          noOfLines={1}
         >
           <Icon.PiMapPin />
           {coinLaundry.location}

@@ -101,6 +101,28 @@ export async function createStore(formData) {
       return newObj;
     });
 
+    const addStates = [
+      {
+        id: crypto.randomUUID(),
+        name: "両替機",
+        break: false,
+        comment: "",
+      },
+      {
+        id: crypto.randomUUID(),
+        name: "店内状況",
+        break: false,
+        comment: "",
+      },
+      {
+        id: crypto.randomUUID(),
+        name: "備品",
+        break: false,
+        comment: "",
+      },
+    ];
+
+    machinesState.push(...addStates);
     const { error: stockError } = await supabase.from("laundry_state").insert({
       laundryId: data.id,
       laundryName: data.store,
@@ -154,14 +176,31 @@ export async function updateStore(formData, id) {
       return { error: "店舗情報の更新に失敗しました" };
     }
 
-    const machinesState = data.machines.map((machine) => {
-      const newObj = {
-        id: machine.id,
-        name: machine.name,
-        break: machine.break || false,
-        comment: "",
-      };
-      return newObj;
+    const { data: getMachines, error: machinesError } = await supabase
+      .from("laundry_state")
+      .select("machines")
+      .eq("stocker", data.owner)
+      .eq("laundryId", data.id)
+      .single();
+
+    if (machinesError) {
+      return { error: "設備状況取得に失敗しました" };
+    }
+    const machinesState = machinesData.map((machine) => {
+      const alreadyMachine = getMachines.machines.filter((originalMachine) => {
+        return originalMachine.name === machine.name;
+      });
+      if (alreadyMachine.length !== 0) {
+        return alreadyMachine[0];
+      } else {
+        const newObj = {
+          id: machine.id,
+          name: machine.name,
+          break: machine.break || false,
+          comment: "",
+        };
+        return newObj;
+      }
     });
 
     const { error: stockError } = await supabase

@@ -57,10 +57,20 @@ const formReducer = (state, action) => {
         }),
       };
     case "ADD_MACHINES":
-      return {
-        ...state,
-        machines: [...state.machines, action.payload.newMachine],
-      };
+      const alreadyMachine = state.machines.filter(
+        (machine) => machine.name === action.payload.newMachine,
+      );
+      if (alreadyMachine.length === 0) {
+        return {
+          ...state,
+        };
+      } else {
+        return {
+          ...state,
+          machines: [...state.machines, action.payload.newMachine],
+        };
+      }
+
     case "ADD_MACHINES_COMMENT":
       return {
         ...state,
@@ -83,14 +93,14 @@ const formReducer = (state, action) => {
       return {
         ...state,
         newPictures: state.newPictures.filter(
-          (item) => item.id !== action.payload.removeFileItem.id
+          (item) => item.id !== action.payload.removeFileItem.id,
         ),
       };
     case "REMOVE_EXISTING_PICTURE":
       return {
         ...state,
         existingPictures: state.existingPictures.filter(
-          (item) => item.url !== action.payload.url
+          (item) => item.url !== action.payload.url,
         ),
       };
     case "SET_MSG":
@@ -131,7 +141,7 @@ export function useCoinLaundryForm() {
   const context = useContext(CoinLaundryFormContext);
   if (context === null) {
     throw new Error(
-      "useCoinLaundryForm must be used within a CoinLaundryFormProvider"
+      "useCoinLaundryForm must be used within a CoinLaundryFormProvider",
     );
   }
   return context;

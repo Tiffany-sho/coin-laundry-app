@@ -15,7 +15,6 @@ import {
   Switch,
   Badge,
   Textarea,
-  Stack,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { toaster } from "@/components/ui/toaster";
@@ -73,7 +72,7 @@ const MachinesState = ({ id }) => {
     if (!data) return;
 
     const alreadryBreakMachine = data.machines.filter(
-      (machine) => machine.break
+      (machine) => machine.break,
     );
     setBreakMachine(alreadryBreakMachine);
   }, [data]);
@@ -99,7 +98,7 @@ const MachinesState = ({ id }) => {
         } else {
           return machine;
         }
-      })
+      }),
     );
   };
 
@@ -332,6 +331,7 @@ const MachinesState = ({ id }) => {
                                 故障内容
                               </Text>
                               <Textarea
+                                fontSize="15px"
                                 placeholder="故障の詳細を入力してください..."
                                 value={machine.comment || ""}
                                 onChange={(e) =>
