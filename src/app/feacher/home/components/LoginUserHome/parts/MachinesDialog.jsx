@@ -72,7 +72,7 @@ const MachinesDialog = ({ id }) => {
     if (!data) return;
 
     const alreadryBreakMachine = data.machines.filter(
-      (machine) => machine.break
+      (machine) => machine.break,
     );
     setBreakMachine(alreadryBreakMachine);
   }, [data]);
@@ -98,7 +98,7 @@ const MachinesDialog = ({ id }) => {
         } else {
           return machine;
         }
-      })
+      }),
     );
   };
 
@@ -206,17 +206,19 @@ const MachinesDialog = ({ id }) => {
                   <Text fontSize="xs" color="red.700" fontWeight="medium">
                     {machine.name}
                   </Text>
-                  <Text
-                    fontSize="xs"
-                    color="red.700"
-                    fontWeight="medium"
-                    bg="red.50"
-                    px={2}
-                    py={1}
-                    borderRadius="md"
-                  >
-                    {machine.comment}
-                  </Text>
+                  {machine.comment && (
+                    <Text
+                      fontSize="xs"
+                      color="red.700"
+                      fontWeight="medium"
+                      bg="red.50"
+                      px={2}
+                      py={1}
+                      borderRadius="md"
+                    >
+                      {machine.comment}
+                    </Text>
+                  )}
                 </HStack>
               ))}
               {breakMachine.length > 3 && (

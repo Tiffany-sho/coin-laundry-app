@@ -5,16 +5,7 @@ import styles from "./PageLoading.module.css";
 const LoadingScreen = () => {
   return (
     <div className={styles.loadingContainer}>
-      <div className={styles.washer}>
-        <div className={styles.ripple}></div>
-        <div className={styles.ripple}></div>
-        <div className={styles.ripple}></div>
-        <div className={styles.ring}></div>
-        <div className={styles.ring}></div>
-        <div className={styles.drum}>
-          <div className={styles.drumInner}></div>
-        </div>
-      </div>
+      <div className={styles.spinner}></div>
 
       <div className={styles.textContainer}>
         <div className={styles.loadingText}>

@@ -1,7 +1,7 @@
 import { createNowData } from "@/functions/makeDate/date";
 import { changeEpocFromNowYearMonth } from "@/functions/makeDate/date";
 import { createClient } from "@/utils/supabase/server";
-import { Text, HStack, Badge, Stack } from "@chakra-ui/react";
+import { Text, HStack, Badge, Stack, Box } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
 import ErrorPage from "@/app/feacher/jumpPage/ErrorPage/ErrorPage";
 
@@ -52,7 +52,7 @@ const DisplayMonthBenifit = async ({ id }) => {
 
   const thisMonthBenefit = data
     .filter(
-      (item) => item.date >= epocYearMonth && item.date < epocYearAfterMonth
+      (item) => item.date >= epocYearMonth && item.date < epocYearAfterMonth,
     )
     .reduce((accumulator, currentValue) => {
       return accumulator + currentValue.totalFunds;
@@ -60,7 +60,7 @@ const DisplayMonthBenifit = async ({ id }) => {
 
   const lastMonthBenefit = data
     .filter(
-      (item) => item.date < epocYearMonth && item.date >= epocYearBeforeMonth
+      (item) => item.date < epocYearMonth && item.date >= epocYearBeforeMonth,
     )
     .reduce((accumulator, currentValue) => {
       return accumulator + currentValue.totalFunds;
@@ -79,58 +79,93 @@ const DisplayMonthBenifit = async ({ id }) => {
   const isEqual = difference === 0;
 
   return (
-    <Stack>
-      <HStack align="baseline" gap={2} justify="space-between">
-        <Text
-          fontSize={{ base: "xl", md: "2xl" }}
-          fontWeight="bold"
-          color="gray.700"
-        >
-          ¥{thisMonthBenefit.toLocaleString()}
-        </Text>
-        {!isEqual && (
-          <Badge
-            bg={isIncrease ? "green.100" : "red.100"}
-            color={isIncrease ? "green.600" : "red.600"}
-            borderColor={isIncrease ? "green.200" : "red.200"}
-            borderWidth="0.5px"
-            fontSize="xs"
-            px={2}
-            py={1}
-            borderRadius="full"
-            display="flex"
-            alignItems="center"
-            gap={1}
-          >
-            {isIncrease ? (
-              <Icon.LuTrendingUp size={12} />
-            ) : (
-              <Icon.LuTrendingDown size={12} />
+    <Box
+      p={5}
+      bg="white"
+      borderRadius="lg"
+      borderWidth="1px"
+      borderColor="gray.200"
+      boxShadow="sm"
+    >
+      <Stack spacing={4}>
+        <HStack align="flex-start" justify="space-between" spacing={4}>
+          <Stack spacing={2} flex={1}>
+            <Text fontSize="xs" color="gray.600" fontWeight="medium">
+              今月売上
+            </Text>
+            <Text
+              fontSize={{ base: "xl", md: "2xl" }}
+              fontWeight="bold"
+              color="gray.800"
+              lineHeight="1.2"
+            >
+              ¥{thisMonthBenefit.toLocaleString()}
+            </Text>
+          </Stack>
+
+          <Stack spacing={2} align="flex-end">
+            {!isEqual && (
+              <Badge
+                bg={isIncrease ? "green.50" : "red.50"}
+                color={isIncrease ? "green.700" : "red.700"}
+                borderColor={isIncrease ? "green.200" : "red.200"}
+                borderWidth="1px"
+                fontSize="sm"
+                fontWeight="semibold"
+                px={3}
+                py={1.5}
+                borderRadius="full"
+                display="flex"
+                alignItems="center"
+                gap={1.5}
+              >
+                {isIncrease ? (
+                  <Icon.LuTrendingUp size={14} />
+                ) : (
+                  <Icon.LuTrendingDown size={14} />
+                )}
+                {isIncrease ? "+" : ""}
+                {percentageChange}%
+              </Badge>
             )}
-            {isIncrease ? "+" : ""}
-            {percentageChange}%
-          </Badge>
-        )}
-        {isEqual && (
-          <Badge
-            bg="gray.200"
+            {isEqual && (
+              <Badge
+                bg="gray.100"
+                color="gray.600"
+                borderColor="gray.200"
+                borderWidth="1px"
+                fontSize="sm"
+                fontWeight="semibold"
+                px={3}
+                py={1.5}
+                borderRadius="full"
+                display="flex"
+                alignItems="center"
+                gap={1.5}
+              >
+                <Icon.LuMinus size={14} />
+                変動なし
+              </Badge>
+            )}
+            <Text fontSize="xs" color="gray.500">
+              前月比
+            </Text>
+          </Stack>
+        </HStack>
+
+        {lastestDate !== 0 && (
+          <Text
             fontSize="xs"
-            px={2}
-            py={1}
-            borderRadius="full"
-            display="flex"
-            alignItems="center"
-            gap={1}
+            color="gray.500"
+            pt={2}
+            borderTopWidth="1px"
+            borderColor="gray.100"
           >
-            <Icon.LuMinus size={12} />
-            変動なし
-          </Badge>
+            最終回収日: {createNowData(lastestDate)}
+          </Text>
         )}
-      </HStack>
-      <Text fontSize="xs" color="gray.500" mt={1}>
-        {lastestDate !== 0 && `最終回収日: ${createNowData(lastestDate)}`}
-      </Text>
-    </Stack>
+      </Stack>
+    </Box>
   );
 };
 

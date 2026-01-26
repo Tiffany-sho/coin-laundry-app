@@ -122,7 +122,7 @@ export async function createStore(formData) {
       },
     ];
 
-    machinesState.push(...addStates);
+    machinesState.unshift(...addStates);
     const { error: stockError } = await supabase.from("laundry_state").insert({
       laundryId: data.id,
       laundryName: data.store,
