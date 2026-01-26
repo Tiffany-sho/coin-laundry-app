@@ -155,8 +155,21 @@ export async function updateStore(formData, id) {
   const machinesString = formData.get("machines");
   const imagesString = formData.get("images");
 
-  const machinesData = machinesString ? JSON.parse(machinesString) : [];
+  const afterMachine = machinesString ? JSON.parse(machinesString) : [];
   const imagesData = imagesString ? JSON.parse(imagesString) : [];
+
+  const { data: beforeData } = await getStore(id);
+
+  const beforeMachineArray = beforeData.machines.map((machine) => machine.name);
+  const afterMachineArray = afterMachine.map((machine) => machine.name);
+
+  const addMachine = afterMachineArray.filter(
+    (machine) => !beforeMachineArray.includes(machine),
+  );
+  const deleteMachine = beforeMachineArray.filter(
+    (machine) => !afterMachineArray.includes(machine),
+  );
+
   try {
     const { data, error } = await supabase
       .from("laundry_store")
@@ -164,7 +177,7 @@ export async function updateStore(formData, id) {
         store: formData.get("store"),
         location: formData.get("location"),
         description: formData.get("description"),
-        machines: machinesData,
+        machines: afterMachine,
         images: imagesData,
       })
       .eq("owner", user.id)
@@ -176,7 +189,7 @@ export async function updateStore(formData, id) {
       return { error: "店舗情報の更新に失敗しました" };
     }
 
-    const { data: getMachines, error: machinesError } = await supabase
+    const { data: machinesState, error: machinesError } = await supabase
       .from("laundry_state")
       .select("machines")
       .eq("stocker", data.owner)
@@ -186,28 +199,30 @@ export async function updateStore(formData, id) {
     if (machinesError) {
       return { error: "設備状況取得に失敗しました" };
     }
-    const machinesState = machinesData.map((machine) => {
-      const alreadyMachine = getMachines.machines.filter((originalMachine) => {
-        return originalMachine.name === machine.name;
-      });
-      if (alreadyMachine.length !== 0) {
-        return alreadyMachine[0];
-      } else {
-        const newObj = {
-          id: machine.id,
-          name: machine.name,
-          break: machine.break || false,
-          comment: "",
-        };
-        return newObj;
-      }
+
+    let newMachinesState = [...machinesState.machines];
+
+    const addMachineObj = addMachine.map((machine) => {
+      const newObj = {
+        id: crypto.randomUUID(),
+        name: machine,
+        break: false,
+        comment: "",
+      };
+      return newObj;
     });
+
+    newMachinesState = [...newMachinesState, ...addMachineObj];
+
+    newMachinesState = [...newMachinesState].filter(
+      (machine) => !deleteMachine.includes(machine.name),
+    );
 
     const { error: stockError } = await supabase
       .from("laundry_state")
       .update({
         laundryName: data.store,
-        machines: machinesState,
+        machines: newMachinesState,
       })
       .eq("stocker", data.owner)
       .eq("laundryId", data.id);

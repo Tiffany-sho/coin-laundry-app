@@ -58,11 +58,12 @@ const formReducer = (state, action) => {
       };
     case "ADD_MACHINES":
       const alreadyMachine = state.machines.filter(
-        (machine) => machine.name === action.payload.newMachine,
+        (machine) => machine.name === action.payload.newMachine.name,
       );
-      if (alreadyMachine.length === 0) {
+      if (alreadyMachine.length !== 0) {
         return {
           ...state,
+          msg: "同じ機器名が含まれています",
         };
       } else {
         return {

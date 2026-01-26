@@ -30,7 +30,6 @@ const MachineForm = ({ setOpen }) => {
       payload: { name: machineName, comment },
     });
   };
-
   return (
     <>
       <Box bg="gray.700" color="white" px={6} py={4} borderRadius="12px" mb={5}>
