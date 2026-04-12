@@ -8,10 +8,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import {
-  changeEpocFromNowYearMonth,
-  getYearMonth,
-} from "@/functions/makeDate/date";
+import { getYearMonth } from "@/functions/makeDate/date";
 import ChartLoading from "@/app/feacher/partials/ChartLoading";
 import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
 import { createClient } from "@/utils/supabase/client";
@@ -25,7 +22,7 @@ const MonoCoinDataChart = ({ id }) => {
   const [loading, setLoading] = useState(true);
   const [chartData, setChartData] = useState([]);
 
-  const { period } = useUploadPage();
+  const { startEpoch, endEpoch } = useUploadPage();
 
   const supabase = createClient();
 
@@ -68,14 +65,6 @@ const MonoCoinDataChart = ({ id }) => {
 
   useEffect(() => {
     const fetchData = async (id) => {
-      let orderPeriod;
-      if (period === "６ヶ月") {
-        orderPeriod = changeEpocFromNowYearMonth(-6);
-      } else if (period === "１年間") {
-        orderPeriod = changeEpocFromNowYearMonth(-12);
-      } else {
-        orderPeriod = 0;
-      }
       const { user } = await getUser();
 
       if (!user) {
@@ -84,13 +73,19 @@ const MonoCoinDataChart = ({ id }) => {
       }
 
       setLoading(true);
-      const { data: initialData, error: initialError } = await supabase
+      let query = supabase
         .from("collect_funds")
         .select("*")
         .eq("laundryId", id)
         .eq("collecter", user.id)
         .order("date", { ascending: true })
-        .gt("date", orderPeriod);
+        .gt("date", startEpoch);
+
+      if (endEpoch !== null) {
+        query = query.lt("date", endEpoch);
+      }
+
+      const { data: initialData, error: initialError } = await query;
 
       if (initialError) {
         setError(initialError.message);
@@ -114,7 +109,7 @@ const MonoCoinDataChart = ({ id }) => {
         channelRef.current = null;
       }
     };
-  }, [supabase, period]);
+  }, [supabase, startEpoch, endEpoch]);
 
   useEffect(() => {
     if (!data) return;

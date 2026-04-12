@@ -8,10 +8,7 @@ import {
   YAxis,
 } from "recharts";
 
-import {
-  changeEpocFromNowYearMonth,
-  getYearMonth,
-} from "@/functions/makeDate/date";
+import { getYearMonth } from "@/functions/makeDate/date";
 import { useEffect, useRef, useState } from "react";
 import ChartLoading from "@/app/feacher/partials/ChartLoading";
 import { createClient } from "@/utils/supabase/client";
@@ -26,7 +23,7 @@ const ManyCoinDataChart = () => {
   const [loading, setLoading] = useState(true);
   const [chartData, setChartData] = useState([]);
 
-  const { period } = useUploadPage();
+  const { startEpoch, endEpoch } = useUploadPage();
 
   const supabase = createClient();
 
@@ -76,22 +73,19 @@ const ManyCoinDataChart = () => {
         return;
       }
 
-      let orderPeriod;
-      if (period === "６ヶ月") {
-        orderPeriod = changeEpocFromNowYearMonth(-6);
-      } else if (period === "１年間") {
-        orderPeriod = changeEpocFromNowYearMonth(-12);
-      } else {
-        orderPeriod = 0;
-      }
-
       setLoading(true);
-      const { data: initialData, error: initialError } = await supabase
+      let query = supabase
         .from("collect_funds")
         .select("*")
         .eq("collecter", user.id)
         .order("date", { ascending: true })
-        .gt("date", orderPeriod);
+        .gt("date", startEpoch);
+
+      if (endEpoch !== null) {
+        query = query.lt("date", endEpoch);
+      }
+
+      const { data: initialData, error: initialError } = await query;
 
       if (initialError) {
         setError(initialError.message);
@@ -115,7 +109,7 @@ const ManyCoinDataChart = () => {
         channelRef.current = null;
       }
     };
-  }, [supabase, period]);
+  }, [supabase, startEpoch, endEpoch]);
 
   useEffect(() => {
     if (!data) return;

@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState } from "react";
+import { changeEpocFromNowYearMonth } from "@/functions/makeDate/date";
 
 const UploadPageContext = createContext();
 
@@ -11,7 +12,8 @@ export const UploadPageProvider = ({ children }) => {
   const [orderAmount, setOrderAmount] = useState("date");
   const [upOrder, setUpOrder] = useState(false);
   const [page, setPage] = useState(1);
-  const [period, setPeriod] = useState("６ヶ月");
+  const [startEpoch, setStartEpoch] = useState(changeEpocFromNowYearMonth(-6));
+  const [endEpoch, setEndEpoch] = useState(null);
   const [data, setData] = useState(null);
 
   const [displayData, setDisplayData] = useState([]);
@@ -34,8 +36,10 @@ export const UploadPageProvider = ({ children }) => {
     setData,
     displayData,
     setDisplayData,
-    period,
-    setPeriod,
+    startEpoch,
+    setStartEpoch,
+    endEpoch,
+    setEndEpoch,
     displayBtn,
     setDisplayBtn,
   };
