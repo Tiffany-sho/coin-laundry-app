@@ -16,6 +16,10 @@ const CollectMoneyFooter = ({
   const total =
     machinesAndFunds.reduce((acc, item) => acc + (item.funds || 0), 0) * 100;
 
+  const hasData = checked
+    ? machinesAndFunds.some((item) => item.funds !== null || item.weight !== null)
+    : moneyTotal != null && moneyTotal !== "";
+
   return (
     <HStack
       py={{ base: 4, md: 6 }}
@@ -46,10 +50,35 @@ const CollectMoneyFooter = ({
       </Box>
 
       <HStack gap={3} w={{ base: "full", sm: "auto" }}>
-        <CancelConfirmDialog
-          onSaveAndLeave={() => { onSaveDraft(); onCancel(); }}
-          onLeave={onCancel}
-        />
+        {hasData ? (
+          <CancelConfirmDialog
+            onSaveAndLeave={() => { onSaveDraft(); onCancel(); }}
+            onLeave={onCancel}
+          />
+        ) : (
+          <Button
+            onClick={onCancel}
+            variant="outline"
+            size="lg"
+            bg="white"
+            color="gray.700"
+            fontWeight="semibold"
+            px={{ base: 6, md: 8 }}
+            borderWidth="2px"
+            borderColor="gray.300"
+            borderRadius="xl"
+            flex={{ base: 1, sm: "unset" }}
+            _hover={{
+              bg: "gray.50",
+              borderColor: "gray.400",
+              transform: "translateY(-1px)",
+            }}
+            _active={{ transform: "translateY(0)" }}
+            transition="all 0.2s"
+          >
+            キャンセル
+          </Button>
+        )}
 
         <Button
           onClick={onSaveDraft}
