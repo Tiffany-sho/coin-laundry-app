@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Box, HStack, Slider, Text, VStack } from "@chakra-ui/react";
+import { Box, Button, HStack, Slider, Text, VStack } from "@chakra-ui/react";
+import { LuChevronLeft, LuChevronRight } from "@/app/feacher/Icon";
 import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
 import {
   changeEpocFromNowYearMonth,
@@ -74,6 +75,25 @@ const PeriodRangeSlider = () => {
     setEndEpoch(sliderToEnd(newEnd));
   };
 
+  // 選択期間のサイズ（月数）分だけ前後にシフト
+  const shift = (direction) => {
+    const duration = localVal[1] - localVal[0];
+    let newStart, newEnd;
+    if (direction === "prev") {
+      newStart = Math.max(0, localVal[0] - duration);
+      newEnd = newStart + duration;
+    } else {
+      newEnd = Math.min(MAX_MONTHS, localVal[1] + duration);
+      newStart = newEnd - duration;
+    }
+    const newVal = [newStart, newEnd];
+    setLocalVal(newVal);
+    handleChangeEnd(newVal);
+  };
+
+  const canGoPrev = localVal[0] > 0;
+  const canGoNext = localVal[1] < MAX_MONTHS;
+
   return (
     <Box w="100%" pt={1}>
       <VStack gap={4} align="stretch">
@@ -116,6 +136,28 @@ const PeriodRangeSlider = () => {
             <Slider.Thumb index={1} />
           </Slider.Control>
         </Slider.Root>
+
+        {/* 期間ナビゲーション */}
+        <HStack justify="space-between">
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => shift("prev")}
+            disabled={!canGoPrev}
+          >
+            <LuChevronLeft />
+            前の期間
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => shift("next")}
+            disabled={!canGoNext}
+          >
+            次の期間
+            <LuChevronRight />
+          </Button>
+        </HStack>
       </VStack>
     </Box>
   );
