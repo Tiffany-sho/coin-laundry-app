@@ -1,6 +1,33 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
+import { getUser } from "../user/action";
+
+export async function getAllLaundryStates() {
+  const { user } = await getUser();
+  if (!user) return { error: "ログインしてください" };
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("laundry_state")
+    .select("*")
+    .eq("stocker", user.id);
+
+  if (error) return { error: "店舗状態の取得に失敗しました" };
+  return { data };
+}
+
+export async function getLaundryState(laundryId) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("laundry_state")
+    .select("*")
+    .eq("laundryId", laundryId)
+    .single();
+
+  if (error) return { error: "店舗状態の取得に失敗しました" };
+  return { data };
+}
 
 export async function getMachinesStates(id) {
   const supabase = await createClient();

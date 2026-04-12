@@ -5,7 +5,6 @@ import {
   VStack,
   Text,
   HStack,
-  Spinner,
   Button,
   CloseButton,
   Dialog,
@@ -21,19 +20,18 @@ import { toaster } from "@/components/ui/toaster";
 import * as Icon from "@/app/feacher/Icon";
 import { showToast } from "@/functions/makeToast/toast";
 
-const MachinesState = ({ id }) => {
-  const [data, setData] = useState(null);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
+const MachinesState = ({ id, initialData }) => {
+  const [data, setData] = useState(initialData);
   const [isSaving, setIsSaving] = useState(false);
-  const [machines, setMachines] = useState([]);
-  const [breakMachine, setBreakMachine] = useState([]);
+  const [machines, setMachines] = useState(initialData?.machines ?? []);
+  const [breakMachine, setBreakMachine] = useState(
+    initialData?.machines?.filter((m) => m.break) ?? [],
+  );
   const supabase = createClient();
 
   useEffect(() => {
     setTimeout(() => {
       const toastInfo = sessionStorage.getItem("toast");
-
       if (toastInfo) {
         const toastInfoStr = JSON.parse(toastInfo);
         toaster.create(toastInfoStr);
@@ -43,45 +41,30 @@ const MachinesState = ({ id }) => {
   }, []);
 
   useEffect(() => {
-    if (!id) {
-      setLoading(false);
-      return;
-    }
-    const fetchData = async () => {
-      setLoading(true);
-      const { data: initialData, error: initialError } = await supabase
-        .from("laundry_state")
-        .select("*")
-        .eq("laundryId", id)
-        .single();
-
-      if (initialError) {
-        setError(initialError.message);
-        setData(null);
-      } else {
-        setData(initialData);
-        setMachines(initialData.machines);
-        setError(null);
-      }
-      setLoading(false);
-    };
-    fetchData();
-  }, [id]);
-
-  useEffect(() => {
     if (!data) return;
-
-    const alreadryBreakMachine = data.machines.filter(
-      (machine) => machine.break,
-    );
-    setBreakMachine(alreadryBreakMachine);
+    setBreakMachine(data.machines.filter((machine) => machine.break));
   }, [data]);
 
-  const changeMachineState = (e, id, action) => {
+  if (!initialData)
+    return (
+      <Box
+        bg="red.50"
+        p={3}
+        borderRadius="lg"
+        borderLeft="4px solid"
+        borderColor="red.500"
+      >
+        <Text fontSize="sm" color="red.600" fontWeight="medium">
+          データを入手できませんでした
+        </Text>
+      </Box>
+    );
+
+  const changeMachineState = (e, machineId, action) => {
     setMachines((prev) =>
       prev.map((machine) => {
         if (action === "switch") {
-          if (machine.id === id) {
+          if (machine.id === machineId) {
             if (!e.checked && machine.comment) {
               return { ...machine, break: e.checked, comment: "" };
             }
@@ -90,7 +73,7 @@ const MachinesState = ({ id }) => {
             return machine;
           }
         } else if (action === "input") {
-          if (machine.id === id) {
+          if (machine.id === machineId) {
             return { ...machine, comment: e.target.value };
           } else {
             return machine;
@@ -122,39 +105,6 @@ const MachinesState = ({ id }) => {
     }
     setIsSaving(false);
   };
-
-  if (loading)
-    return (
-      <Box
-        bg="orange.50"
-        p={3}
-        borderRadius="lg"
-        borderLeft="4px solid"
-        borderColor="orange.400"
-      >
-        <VStack>
-          <Spinner size="sm" color="orange.500" />
-          <Text fontSize="xs" color="gray.600">
-            読み込み中...
-          </Text>
-        </VStack>
-      </Box>
-    );
-
-  if (error)
-    return (
-      <Box
-        bg="red.50"
-        p={3}
-        borderRadius="lg"
-        borderLeft="4px solid"
-        borderColor="red.500"
-      >
-        <Text fontSize="sm" color="red.600" fontWeight="medium">
-          データを入手できませんでした
-        </Text>
-      </Box>
-    );
 
   return (
     <Dialog.Root

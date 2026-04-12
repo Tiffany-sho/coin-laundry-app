@@ -5,8 +5,6 @@ import {
   Text,
   HStack,
   IconButton,
-  Badge,
-  Spinner,
   Button,
   CloseButton,
   Dialog,
@@ -15,87 +13,17 @@ import {
   Heading,
 } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { showToast } from "@/functions/makeToast/toast";
 
-const NowLaundryNum = ({ id }) => {
-  const [data, setData] = useState(null);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [detergent, setDetergent] = useState(0);
-  const [softener, setSoftener] = useState(0);
+const NowLaundryNum = ({ id, initialData }) => {
+  const [data, setData] = useState(initialData);
+  const [detergent, setDetergent] = useState(initialData?.detergent ?? 0);
+  const [softener, setSoftener] = useState(initialData?.softener ?? 0);
   const [isSaving, setIsSaving] = useState(false);
   const supabase = createClient();
 
-  useEffect(() => {
-    if (!id) {
-      setLoading(false);
-      return;
-    }
-    const fetchData = async () => {
-      setLoading(true);
-      const { data: initialData, error: initialError } = await supabase
-        .from("laundry_state")
-        .select("*")
-        .eq("laundryId", id)
-        .single();
-
-      if (initialError) {
-        setError(initialError.message);
-        setData(null);
-      } else {
-        setData(initialData);
-        setDetergent(initialData.detergent);
-        setSoftener(initialData.softener);
-        setError(null);
-      }
-      setLoading(false);
-    };
-    fetchData();
-  }, [id]);
-
-  const handleSave = async () => {
-    setIsSaving(true);
-    const { error } = await supabase
-      .from("laundry_state")
-      .update({
-        detergent: detergent,
-        softener: softener,
-      })
-      .eq("laundryId", id);
-
-    if (error) {
-      showToast("error", `${data.laundryName}店の設在庫の更新に失敗しました`);
-    } else {
-      setData((prev) => ({
-        ...prev,
-        detergent: detergent,
-        softener: softener,
-      }));
-      showToast("success", `${data.laundryName}店の設在庫を更新しました`);
-    }
-    setIsSaving(false);
-  };
-
-  if (loading)
-    return (
-      <Box
-        bg="green.50"
-        p={3}
-        borderRadius="lg"
-        borderLeft="4px solid"
-        borderColor="green.500"
-      >
-        <VStack>
-          <Spinner size="sm" color="green.500" />
-          <Text fontSize="xs" color="green.500">
-            読み込み中...
-          </Text>
-        </VStack>
-      </Box>
-    );
-
-  if (error)
+  if (!initialData)
     return (
       <Box
         bg="red.50"
@@ -109,6 +37,29 @@ const NowLaundryNum = ({ id }) => {
         </Text>
       </Box>
     );
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    const { error } = await supabase
+      .from("laundry_state")
+      .update({
+        detergent: detergent,
+        softener: softener,
+      })
+      .eq("laundryId", id);
+
+    if (error) {
+      showToast("error", `${data.laundryName}店の在庫の更新に失敗しました`);
+    } else {
+      setData((prev) => ({
+        ...prev,
+        detergent: detergent,
+        softener: softener,
+      }));
+      showToast("success", `${data.laundryName}店の在庫を更新しました`);
+    }
+    setIsSaving(false);
+  };
 
   return (
     <Dialog.Root
