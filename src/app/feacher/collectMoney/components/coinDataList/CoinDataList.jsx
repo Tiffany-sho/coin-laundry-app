@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import {
   Box,
+  Card,
   Text,
   Link,
   Heading,
@@ -94,8 +95,9 @@ const MoneyDataList = ({ valiant, coinLaundry }) => {
           )}
         </Flex>
 
-        <VStack align="stretch" gap={4}>
-          <Box bg="bg.subtle" borderRadius="2xl" p={{ base: 4, md: 6 }}>
+        {/* 集金総額カード */}
+        <Card.Root borderRadius="2xl" variant="elevated">
+          <Card.Body p={{ base: 4, md: 6 }}>
             <VStack align="stretch" gap={3}>
               {/* ラベル・日付範囲 */}
               <HStack justify="space-between" align="center">
@@ -159,12 +161,19 @@ const MoneyDataList = ({ valiant, coinLaundry }) => {
                 </Text>
               )}
             </VStack>
-          </Box>
-          <SegmentedPeriod />
+          </Card.Body>
+        </Card.Root>
 
-          {valiant === "aStore" && <MonoCoinDataChart id={coinLaundry.id} />}
-          {valiant === "manyStore" && <ManyCoinDataChart />}
-        </VStack>
+        {/* 期間スライダー＋チャートカード */}
+        <Card.Root borderRadius="2xl" variant="elevated">
+          <Card.Body p={{ base: 4, md: 6 }}>
+            <VStack align="stretch" gap={4}>
+              <SegmentedPeriod />
+              {valiant === "aStore" && <MonoCoinDataChart id={coinLaundry.id} />}
+              {valiant === "manyStore" && <ManyCoinDataChart />}
+            </VStack>
+          </Card.Body>
+        </Card.Root>
 
         <VStack align="stretch" gap={4}>
           <HStack>
