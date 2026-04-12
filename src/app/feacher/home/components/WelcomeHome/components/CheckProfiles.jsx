@@ -10,28 +10,19 @@ import {
 } from "@chakra-ui/react";
 import { useUploadProfiles } from "../context/UploadProfilesContext";
 import * as Icon from "@/app/feacher/Icon";
-import { createClient } from "@/utils/supabase/client";
 import { useState } from "react";
 import { showToast } from "@/functions/makeToast/toast";
+import { registerProfile } from "@/app/api/supabaseFunctions/supabaseDatabase/profiles/action";
 
-const CheckProfiles = ({ user }) => {
+const CheckProfiles = () => {
   const { handleNext, handleBack, fullname, username, collectMethod, role } =
     useUploadProfiles();
   const [loading, setLoading] = useState(false);
-  const supabase = createClient();
 
   const UploadProfiles = async () => {
     try {
       setLoading(true);
-
-      const { error } = await supabase.from("profiles").upsert({
-        id: user?.id,
-        full_name: fullname,
-        username: username,
-        collectMethod: collectMethod,
-        role: role,
-        updated_at: new Date().toISOString(),
-      });
+      const { error } = await registerProfile({ fullname, username, collectMethod, role });
       if (error) throw error;
       handleNext();
       showToast("success", "ユーザ登録完了しました");

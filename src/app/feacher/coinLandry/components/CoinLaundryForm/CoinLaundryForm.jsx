@@ -19,21 +19,11 @@ import { useState, useRef } from "react";
 import Link from "next/link";
 
 import MachineForm from "@/app/feacher/coinLandry/components/CoinLaundryForm/MachineForm";
-import { redirect } from "next/navigation";
-import {
-  getImage,
-  uploadImage,
-  deleteImage,
-} from "@/app/api/supabaseFunctions/supabaseStorage/route";
 import CheckDialog from "@/app/feacher/dialog/CheckDialog";
 import UploadPicture from "@/app/feacher/coinLandry/components/CoinLaundryForm/UploadPicture";
 import DeletePicture from "@/app/feacher/coinLandry/components/CoinLaundryForm/DeletePicture";
 import { useCoinLaundryForm } from "@/app/feacher/coinLandry/context/CoinlaundryForm/CoinLaundryFormContext";
-import {
-  createStore,
-  updateStore,
-} from "@/app/api/supabaseFunctions/supabaseDatabase/laundryStore/action";
-import { createMessage } from "@/app/api/supabaseFunctions/supabaseDatabase/actionMessage/action";
+import { useStoreSubmit } from "./useStoreSubmit";
 
 const CoinLaundryForm = ({ storeId, images = [], method }) => {
   const { state, dispatch } = useCoinLaundryForm();
@@ -41,150 +31,7 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
   const formRef = useRef(null);
   const dialogRef = useRef(null);
 
-  const postHander = async () => {
-    dispatch({ type: "SET_ISLOADING", payload: true });
-    dispatch({ type: "SET_MSG", payload: "" });
-
-    const formData = new FormData(formRef.current);
-
-    const newMachine = state.machines
-      .filter((machine) => machine.num > 0)
-      .map((machine) => {
-        const newObj = { ...machine };
-        newObj.id = crypto.randomUUID();
-        return newObj;
-      });
-
-    const filesToUpload = state.newPictures.filter((item) => item.file);
-
-    if (filesToUpload.length > 0) {
-      const invalidFiles = filesToUpload.some(
-        (item) =>
-          item.file.type !== "image/jpeg" && item.file.type !== "image/png",
-      );
-      if (invalidFiles) {
-        dispatch({
-          type: "SET_MSG",
-          payload: "jpeg/pngファイルを選択してください",
-        });
-
-        dispatch({ type: "SET_ISLOADING", payload: false });
-        return;
-      }
-    }
-
-    let newImageObjects = [];
-
-    if (filesToUpload.length > 0) {
-      try {
-        const uploadPromises = filesToUpload.map((item) => {
-          const fileName = `${Date.now()}_${item.file.name}`;
-          return (async () => {
-            await uploadImage(fileName, item.file);
-            const data = getImage(fileName);
-            return { path: fileName, url: data.publicUrl };
-          })();
-        });
-
-        newImageObjects = await Promise.all(uploadPromises);
-      } catch (error) {
-        console.error("Upload failed:", error);
-        dispatch({
-          type: "SET_MSG",
-          payload: "画像のアップロード中にエラーが発生しました",
-        });
-        dispatch({ type: "SET_ISLOADING", payload: false });
-        return;
-      }
-    }
-
-    const finalImageUrlList = [...state.existingPictures, ...newImageObjects];
-
-    formData.append("machines", JSON.stringify(newMachine));
-    formData.append("images", JSON.stringify(finalImageUrlList));
-
-    let responseData;
-
-    try {
-      if (
-        state.store === "" ||
-        state.location === "" ||
-        state.description === ""
-      ) {
-        throw new Error("空のフォームデータがあります。");
-      }
-      if (method === "POST") {
-        const { data, error } = await createStore(formData);
-        if (error) {
-          throw new Error("ストアの作成に失敗しました");
-        }
-        responseData = data;
-      } else if (method === "PUT") {
-        const { data, error } = await updateStore(formData, storeId);
-
-        if (error) {
-          console.log(error);
-          throw new Error("ストアの編集に失敗しました");
-        }
-        responseData = data;
-      }
-    } catch (error) {
-      console.error("API Error:", error);
-      dispatch({
-        type: "SET_MSG",
-        payload: error.message || "データの送信に失敗しました。",
-      });
-      dispatch({ type: "SET_ISLOADING", payload: false });
-      if (dialogRef.current) {
-        dialogRef.current.click();
-      }
-
-      if (newImageObjects.length > 0) {
-        console.warn("Rollback: Deleting newly uploaded images...");
-        const deletePromises = newImageObjects.map((img) =>
-          deleteImage(img.path),
-        );
-        Promise.all(deletePromises).catch((err) =>
-          console.error("Rollback delete failed:", err),
-        );
-      }
-      return;
-    }
-    const finalImagePaths = new Set(finalImageUrlList.map((img) => img.path));
-    const pathsToDelete = images
-      .map((img) => img.path)
-      .filter((path) => !finalImagePaths.has(path));
-
-    if (pathsToDelete.length > 0) {
-      Promise.all(pathsToDelete.map((path) => deleteImage(path)))
-        .then(() => console.log("Old images cleaned up."))
-        .catch((err) => console.error("Cleanup deletion failed:", err));
-    }
-
-    sessionStorage.setItem(
-      "toast",
-      JSON.stringify({
-        description: `${responseData.store}店の${
-          method === "POST" ? "登録" : "編集"
-        }が完了しました。`,
-        type: "success",
-        closable: true,
-      }),
-    );
-    const { error } = await createMessage(
-      `${responseData.store}店の${
-        method === "POST" ? "登録" : "編集"
-      }が完了しました。`,
-    );
-
-    if (error) {
-      console.log("メッセージアクションにエラーが発生しました");
-    }
-    setTimeout(() => {
-      dispatch({ type: "SET_ISLOADING", payload: false });
-    }, 10000);
-    redirect(`/coinLaundry/${responseData.id}`);
-  };
+  const { postHander } = useStoreSubmit({ storeId, images, method, formRef, dialogRef });
 
   return (
     <Flex
@@ -258,9 +105,7 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
                       boxShadow: "0 0 0 1px rgba(66, 153, 225, 0.6)",
                       outline: "none",
                     }}
-                    _placeholder={{
-                      color: "gray.400",
-                    }}
+                    _placeholder={{ color: "gray.400" }}
                     onChange={(e) =>
                       dispatch({
                         type: "SET_FORM_DATA",
@@ -298,9 +143,7 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
                     boxShadow: "0 0 0 1px rgba(66, 153, 225, 0.6)",
                     outline: "none",
                   }}
-                  _placeholder={{
-                    color: "gray.400",
-                  }}
+                  _placeholder={{ color: "gray.400" }}
                   onChange={(e) =>
                     dispatch({
                       type: "SET_FORM_DATA",
@@ -338,16 +181,11 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
                     boxShadow: "0 0 0 1px rgba(66, 153, 225, 0.6)",
                     outline: "none",
                   }}
-                  _placeholder={{
-                    color: "gray.400",
-                  }}
+                  _placeholder={{ color: "gray.400" }}
                   onChange={(e) =>
                     dispatch({
                       type: "SET_FORM_DATA",
-                      payload: {
-                        field: "description",
-                        value: e.target.value,
-                      },
+                      payload: { field: "description", value: e.target.value },
                     })
                   }
                 />
@@ -369,9 +207,7 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
                     border="1px solid"
                     borderColor="gray.300"
                     transition="all 0.2s"
-                    _hover={{
-                      bg: "gray.200",
-                    }}
+                    _hover={{ bg: "gray.200" }}
                     onClick={() => setOpen((prev) => !prev)}
                   >
                     {open ? "選択中..." : "機械選択"}
@@ -394,10 +230,7 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
                               bg="white"
                               borderRadius="full"
                               boxShadow="sm"
-                              _hover={{
-                                bg: "gray.100",
-                                transform: "scale(1.1)",
-                              }}
+                              _hover={{ bg: "gray.100", transform: "scale(1.1)" }}
                               transition="all 0.2s"
                             />
                           </Drawer.CloseTrigger>
@@ -435,9 +268,7 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
                   bg="white"
                   color="gray.700"
                   transition="all 0.2s"
-                  _hover={{
-                    bg: "gray.50",
-                  }}
+                  _hover={{ bg: "gray.50" }}
                 >
                   キャンセル
                 </Button>

@@ -35,6 +35,24 @@ export const updateProfile = async ({ fullname, username }) => {
   return { error };
 };
 
+export const registerProfile = async ({ fullname, username, collectMethod, role }) => {
+  const { user } = await getUser();
+  if (!user) return { error: "ログインしてください" };
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("profiles").upsert({
+    id: user.id,
+    full_name: fullname,
+    username,
+    collectMethod,
+    role,
+    updated_at: new Date().toISOString(),
+  });
+
+  if (error) return { error };
+  return {};
+};
+
 export const getCollectMethod = async () => {
   const { user } = await getUser();
   if (!user) return { error: "ログインしてください" };
