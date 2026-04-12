@@ -149,7 +149,7 @@ const ActiveCard = ({ monthOffset, data, error, isPending, navigate }) => {
           )}
         </Box>
 
-        <HStack justify="space-between" mt={1}>
+        <HStack justify="space-between" mt={1} display={{ base: "none", md: "flex" }}>
           <Button
             size="xs" variant="ghost" color="white"
             _hover={{ bg: "whiteAlpha.200" }}
