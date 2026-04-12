@@ -11,6 +11,17 @@ const getMonthLabel = (offset) => {
   return `${target.getFullYear()}年${target.getMonth() + 1}月`;
 };
 
+// 月から季節に対応したChakraカラーパレットを返す
+// 春(3-5): pink  夏(6-8): teal  秋(9-11): orange  冬(12-2): blue
+const getSeasonColorPalette = (monthOffset) => {
+  const now = new Date();
+  const month = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1).getMonth() + 1;
+  if (month >= 3 && month <= 5) return "pink";
+  if (month >= 6 && month <= 8) return "teal";
+  if (month >= 9 && month <= 11) return "orange";
+  return "blue";
+};
+
 const FundsDisplay = ({ data, error }) => {
   if (error) {
     return (
@@ -93,11 +104,13 @@ const SalesCardClient = ({ id, initialData, initialError }) => {
 
   const isCurrentMonth = monthOffset === 0;
   const monthLabel = getMonthLabel(monthOffset);
+  const colorPalette = getSeasonColorPalette(monthOffset);
 
   return (
     <Box
-      colorPalette="blue"
+      colorPalette={colorPalette}
       bg="colorPalette.600"
+      transition="background 0.4s"
       p={{ base: 4, md: 6 }}
       borderRadius="xl"
       boxShadow="lg"
