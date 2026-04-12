@@ -1,86 +1,142 @@
 "use client";
 
-import { Box, Slider, Text, VStack } from "@chakra-ui/react";
+import { Box, HStack, Input, Slider, Text, VStack } from "@chakra-ui/react";
 import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
-import { changeEpocFromNowYearMonth } from "@/functions/makeDate/date";
+import {
+  changeEpocFromNowYearMonth,
+  getEpochTimeInSeconds,
+} from "@/functions/makeDate/date";
 
-const STEPS = [
-  { label: "1ヶ月", months: 1 },
-  { label: "3ヶ月", months: 3 },
-  { label: "6ヶ月", months: 6 },
-  { label: "1年", months: 12 },
-  { label: "2年", months: 24 },
-  { label: "3年", months: 36 },
-  { label: "5年", months: 60 },
-  { label: "全期間", months: null },
-];
+const EPOCH_OFFSET = 32400000;
+// スライダーの全体範囲：60ヶ月（5年）
+const MAX_MONTHS = 60;
 
-const DEFAULT_INDEX = 2; // 6ヶ月
+/* ── epoch ↔ 日付文字列 ────────────────────── */
+const epochToDateStr = (epoch) => {
+  const d = new Date(epoch + EPOCH_OFFSET);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+};
 
-const PeriodSlider = () => {
-  const { startEpoch, setStartEpoch, setEndEpoch } = useUploadPage();
+const dateStrToEpoch = (str) => {
+  const [y, m, d] = str.split("-").map(Number);
+  return getEpochTimeInSeconds(y, m, d);
+};
 
-  // 現在の startEpoch からスライダーのインデックスを逆引き
-  const currentIndex = (() => {
-    if (startEpoch === 0) return STEPS.length - 1; // 全期間
-    for (let i = 0; i < STEPS.length - 1; i++) {
-      const epoch = changeEpocFromNowYearMonth(-STEPS[i].months);
-      if (Math.abs(startEpoch - epoch) < 1000 * 60 * 60 * 24) return i;
-    }
-    return DEFAULT_INDEX;
-  })();
+/* ── epoch ↔ スライダー値（0 = 5年前、60 = 今月）── */
+const epochToSliderVal = (epoch) => {
+  if (!epoch) return 0;
+  const d = new Date(epoch + EPOCH_OFFSET);
+  const now = new Date();
+  const months =
+    (now.getFullYear() - d.getFullYear()) * 12 +
+    (now.getMonth() - d.getMonth());
+  return Math.max(0, Math.min(MAX_MONTHS, MAX_MONTHS - months));
+};
 
-  const handleChange = (index) => {
-    const { months } = STEPS[index];
-    if (months === null) {
-      setStartEpoch(0);
-    } else {
-      setStartEpoch(changeEpocFromNowYearMonth(-months));
-    }
-    setEndEpoch(null);
+// スライダー値 → startEpoch（月初）
+const sliderToStart = (val) => changeEpocFromNowYearMonth(val - MAX_MONTHS);
+
+// スライダー値 → endEpoch（翌月初を上限として使用、MAX_MONTHS のときは null = 上限なし）
+const sliderToEnd = (val) =>
+  val >= MAX_MONTHS ? null : changeEpocFromNowYearMonth(val - MAX_MONTHS + 1);
+
+/* ── 今日の epoch ── */
+const todayEpoch = () => {
+  const t = new Date();
+  return getEpochTimeInSeconds(t.getFullYear(), t.getMonth() + 1, t.getDate());
+};
+
+const PeriodRangeSlider = () => {
+  const { startEpoch, setStartEpoch, endEpoch, setEndEpoch } = useUploadPage();
+
+  const startVal = epochToSliderVal(startEpoch > 0 ? startEpoch : 0);
+  const endVal = endEpoch === null ? MAX_MONTHS : epochToSliderVal(endEpoch);
+
+  const startDateStr = startEpoch > 0 ? epochToDateStr(startEpoch) : "";
+  const endDateStr =
+    endEpoch !== null ? epochToDateStr(endEpoch) : epochToDateStr(todayEpoch());
+
+  const handleSliderChange = ([newStart, newEnd]) => {
+    setStartEpoch(sliderToStart(newStart));
+    setEndEpoch(sliderToEnd(newEnd));
   };
 
-  const selectedLabel = STEPS[currentIndex]?.label ?? STEPS[DEFAULT_INDEX].label;
-
   return (
-    <Box ml="auto" w={{ base: "100%", md: "320px" }}>
-      <VStack gap={1} align="stretch">
-        <Text fontSize="xs" color="fg.muted" textAlign="right">
-          表示期間：<Text as="span" fontWeight="bold" color="fg">{selectedLabel}</Text>
-        </Text>
+    <Box w="100%" pt={1}>
+      <VStack gap={4} align="stretch">
+        {/* 日付インプット */}
+        <HStack gap={2} align="center">
+          <VStack gap={0} flex={1}>
+            <Text fontSize="2xs" color="fg.muted" alignSelf="flex-start">
+              開始日
+            </Text>
+            <Input
+              type="date"
+              size="sm"
+              value={startDateStr}
+              onChange={(e) => {
+                if (e.target.value) {
+                  setStartEpoch(dateStrToEpoch(e.target.value));
+                } else {
+                  setStartEpoch(0);
+                }
+              }}
+            />
+          </VStack>
+          <Text color="fg.muted" pt={4}>
+            〜
+          </Text>
+          <VStack gap={0} flex={1}>
+            <Text fontSize="2xs" color="fg.muted" alignSelf="flex-start">
+              終了日
+            </Text>
+            <Input
+              type="date"
+              size="sm"
+              value={endDateStr}
+              onChange={(e) => {
+                if (e.target.value) {
+                  // 選択日の翌日0時を上限（その日を含む）
+                  setEndEpoch(dateStrToEpoch(e.target.value) + 86400000);
+                } else {
+                  setEndEpoch(null);
+                }
+              }}
+            />
+          </VStack>
+        </HStack>
+
+        {/* 範囲スライダー */}
         <Slider.Root
           min={0}
-          max={STEPS.length - 1}
+          max={MAX_MONTHS}
           step={1}
-          value={[currentIndex]}
-          onValueChange={(e) => handleChange(e.value[0])}
+          value={[startVal, endVal]}
+          onValueChange={(e) => handleSliderChange(e.value)}
           colorPalette="blue"
         >
+          <HStack justify="space-between" mb={1}>
+            <Text fontSize="2xs" color="fg.muted">
+              5年前
+            </Text>
+            <Text fontSize="2xs" color="fg.muted">
+              今月
+            </Text>
+          </HStack>
           <Slider.Control>
             <Slider.Track>
               <Slider.Range />
             </Slider.Track>
             <Slider.Thumb index={0} />
+            <Slider.Thumb index={1} />
           </Slider.Control>
-          <Slider.MarkerGroup>
-            {STEPS.map((step, i) => (
-              <Slider.Marker key={i} value={i}>
-                <Slider.MarkerIndicator />
-                <Text
-                  fontSize="2xs"
-                  color={i === currentIndex ? "blue.500" : "fg.muted"}
-                  fontWeight={i === currentIndex ? "bold" : "normal"}
-                  whiteSpace="nowrap"
-                >
-                  {step.label}
-                </Text>
-              </Slider.Marker>
-            ))}
-          </Slider.MarkerGroup>
         </Slider.Root>
       </VStack>
     </Box>
   );
 };
 
-export default PeriodSlider;
+export default PeriodRangeSlider;
