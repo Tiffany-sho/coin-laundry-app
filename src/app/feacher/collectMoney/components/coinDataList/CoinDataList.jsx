@@ -10,7 +10,6 @@ import {
   CloseButton,
   Drawer,
   Portal,
-  Badge,
   VStack,
   HStack,
   Button,
@@ -95,62 +94,72 @@ const MoneyDataList = ({ valiant, coinLaundry }) => {
           )}
         </Flex>
 
-        <VStack align="stretch" gap={3}>
-          <HStack>
-            <Text
-              fontSize="sm"
-              fontWeight="semibold"
-              color="fg.muted"
-              textTransform="uppercase"
-              letterSpacing="wider"
-            >
-              集金総額
-            </Text>
-            {data && (
-              <Text
-                fontSize="sm"
-                fontWeight="semibold"
-                color="fg.muted"
-                textTransform="uppercase"
-                letterSpacing="wider"
-              >
-                ({createNowData(data[0].date)}~
-                {createNowData(data[data.length - 1].date)})
-              </Text>
-            )}
-          </HStack>
+        <VStack align="stretch" gap={4}>
+          <Box bg="bg.subtle" borderRadius="2xl" p={{ base: 4, md: 6 }}>
+            <VStack align="stretch" gap={3}>
+              {/* ラベル・日付範囲 */}
+              <HStack justify="space-between" align="center">
+                <Text
+                  fontSize="xs"
+                  fontWeight="semibold"
+                  color="fg.muted"
+                  textTransform="uppercase"
+                  letterSpacing="widest"
+                >
+                  集金総額
+                </Text>
+                {data && (
+                  <Text fontSize="xs" color="fg.muted">
+                    {createNowData(data[0].date)} 〜{" "}
+                    {createNowData(data[data.length - 1].date)}
+                  </Text>
+                )}
+              </HStack>
 
-          <HStack align="baseline" flexWrap="wrap" gap={2}>
-            <Text fontSize="2xl" fontWeight="bold">
-              ¥
-            </Text>
-            {totalRevenue ? (
-              <Text
-                fontSize={{ base: "3xl", md: "5xl" }}
-                fontWeight="extrabold"
-                lineHeight="1"
-              >
-                {totalRevenue.toLocaleString()}
-              </Text>
-            ) : (
-              <Skeleton height="10" width="20%" />
-            )}
+              {/* メイン金額 */}
+              <HStack align="baseline" gap={1}>
+                <Text
+                  fontSize={{ base: "xl", md: "2xl" }}
+                  fontWeight="semibold"
+                  color="fg.muted"
+                >
+                  ¥
+                </Text>
+                {totalRevenue !== null ? (
+                  <Text
+                    fontSize={{ base: "5xl", md: "7xl" }}
+                    fontWeight="black"
+                    lineHeight="1"
+                    letterSpacing="tight"
+                  >
+                    {totalRevenue.toLocaleString()}
+                  </Text>
+                ) : (
+                  <Skeleton height="14" width="40%" borderRadius="lg" />
+                )}
+                <Text
+                  fontSize={{ base: "lg", md: "xl" }}
+                  fontWeight="medium"
+                  color="fg.muted"
+                  alignSelf="flex-end"
+                  pb={1}
+                >
+                  円
+                </Text>
+              </HStack>
 
-            <Badge fontSize="md" px={3} py={1} borderRadius="full">
-              円
-            </Badge>
-            {data && (
-              <Text
-                fontSize="sm"
-                fontWeight="semibold"
-                color="fg.muted"
-                textTransform="uppercase"
-                letterSpacing="wider"
-              >
-                累計{data.length}回の集金
-              </Text>
-            )}
-          </HStack>
+              {/* サブ情報 */}
+              {data && (
+                <Text fontSize="sm" color="fg.muted">
+                  累計{" "}
+                  <Text as="span" fontWeight="bold" color="fg">
+                    {data.length}
+                  </Text>{" "}
+                  回の集金
+                </Text>
+              )}
+            </VStack>
+          </Box>
           <SegmentedPeriod />
 
           {valiant === "aStore" && <MonoCoinDataChart id={coinLaundry.id} />}
