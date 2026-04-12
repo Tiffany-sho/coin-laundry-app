@@ -5,10 +5,10 @@
   left: 0;
   right: 0;
   z-index: 1300;
-  background-color: white;
+  background-color: var(--chakra-colors-bg);
   box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
   padding: 0.5rem 0;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--chakra-colors-gray-200);
   transition: transform 0.3s ease-in-out;
 }
 
@@ -31,7 +31,7 @@
   gap: 0.25rem;
   padding: 0.5rem 1rem;
   text-decoration: none;
-  color: #2d3748;
+  color: var(--chakra-colors-gray-700);
   background: transparent;
   border: none;
   cursor: pointer;
@@ -42,8 +42,8 @@
 
 .navItem:hover,
 .navItem:active {
-  background-color: #f7fafc;
-  color: #4299e1;
+  background-color: var(--chakra-colors-gray-50);
+  color: var(--chakra-colors-blue-400);
 }
 
 .icon {
@@ -65,13 +65,13 @@
 }
 
 .logoutForm .navItem {
-  color: #e53e3e;
+  color: var(--chakra-colors-red-500);
   width: 100%;
 }
 
 .logoutForm .navItem:hover {
-  color: #c53030;
-  background-color: #fff5f5;
+  color: var(--chakra-colors-red-600);
+  background-color: var(--chakra-colors-red-50);
 }
 
 @media (max-width: 639px) {

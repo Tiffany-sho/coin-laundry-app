@@ -6,7 +6,8 @@ import MonthBadge from "./MonthBadge";
 const SalesCard = ({ id }) => {
   return (
     <Box
-      bg="#007BBB"
+      colorPalette="blue"
+      bg="colorPalette.600"
       p={{ base: 4, md: 6 }}
       borderRadius="xl"
       boxShadow="lg"

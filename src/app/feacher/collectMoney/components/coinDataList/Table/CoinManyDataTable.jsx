@@ -231,11 +231,13 @@ const CoinManyDataTable = () => {
   if (orderAmount !== "date") {
     return (
       <Box bg="white" borderRadius="2xl" shadow="md" overflow="hidden">
-        <Table.Root size="lg" variant="plain">
-          <Table.Body>
-            {displayData.map((item, index) => renderRow(item, index, displayData))}
-          </Table.Body>
-        </Table.Root>
+        <Box overflowX="auto">
+          <Table.Root size="lg" variant="plain">
+            <Table.Body>
+              {displayData.map((item, index) => renderRow(item, index, displayData))}
+            </Table.Body>
+          </Table.Root>
+        </Box>
       </Box>
     );
   }
@@ -300,19 +302,21 @@ const CoinManyDataTable = () => {
                       ¥{totalForDate.toLocaleString()}
                     </Text>
                   </VStack>
-                  <Text fontSize="xl" color="gray.400">
-                    {isCollapsed ? "▼" : "▲"}
-                  </Text>
+                  <Box color="gray.400" fontSize="xl">
+                    {isCollapsed ? <Icon.LuChevronDown /> : <Icon.LuChevronUp />}
+                  </Box>
                 </HStack>
               </HStack>
             </Box>
 
             {!isCollapsed && (
-              <Table.Root size="lg" variant="plain">
-                <Table.Body>
-                  {items.map((item, index) => renderRow(item, index, items))}
-                </Table.Body>
-              </Table.Root>
+              <Box overflowX="auto">
+                <Table.Root size="lg" variant="plain">
+                  <Table.Body>
+                    {items.map((item, index) => renderRow(item, index, items))}
+                  </Table.Body>
+                </Table.Root>
+              </Box>
             )}
           </Box>
         );

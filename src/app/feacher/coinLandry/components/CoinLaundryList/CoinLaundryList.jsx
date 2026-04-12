@@ -79,35 +79,33 @@ const CoinLaundryList = ({ coinLaundry, benefitRecords }) => {
 
       <Card.Footer gap="2" p={5} pt={0}>
         <Flex gap={2} w="100%">
-          <Link href={`/coinLaundry/${coinLaundry.id}`} style={{ flex: 1 }}>
-            <Button
-              w="100%"
-              variant="outline"
-              size={{ base: "sm", md: "md" }}
-              fontWeight="semibold"
-              transition="all 0.2s"
-            >
-              <Icon.BiMessageSquareDetail /> 詳細
-            </Button>
-          </Link>
-
-          <Link
-            href={`/collectMoney/${coinLaundry.id}/newData`}
+          <Button
+            asChild
+            w="100%"
+            variant="outline"
+            size={{ base: "sm", md: "md" }}
+            fontWeight="semibold"
+            transition="all 0.2s"
             style={{ flex: 1 }}
           >
-            <Button
-              w="100%"
-              bg="blue.500"
-              size={{ base: "sm", md: "md" }}
-              borderColor="green.300"
-              color="white"
-              fontWeight="semibold"
-              transition="all 0.2s"
-              _hover={{ bg: "blue.50", color: "black" }}
-            >
+            <Link href={`/coinLaundry/${coinLaundry.id}`}>
+              <Icon.BiMessageSquareDetail /> 詳細
+            </Link>
+          </Button>
+
+          <Button
+            asChild
+            w="100%"
+            colorPalette="blue"
+            size={{ base: "sm", md: "md" }}
+            fontWeight="semibold"
+            transition="all 0.2s"
+            style={{ flex: 1 }}
+          >
+            <Link href={`/collectMoney/${coinLaundry.id}/newData`}>
               <Icon.TbCoinYenFilled /> 集金へ
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </Flex>
       </Card.Footer>
     </Card.Root>

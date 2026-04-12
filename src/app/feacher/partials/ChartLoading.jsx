@@ -68,7 +68,7 @@ const ChartLoading = () => {
                     x2="100%"
                     y2="0%"
                   >
-                    <stop offset="0%" stopColor="#14b8a6" stopOpacity="0.6">
+                    <stop offset="0%" stopColor="var(--chakra-colors-teal-500)" stopOpacity="0.6">
                       <animate
                         attributeName="stop-opacity"
                         values="0.3;0.8;0.3"
@@ -76,7 +76,7 @@ const ChartLoading = () => {
                         repeatCount="indefinite"
                       />
                     </stop>
-                    <stop offset="50%" stopColor="#14b8a6" stopOpacity="0.8">
+                    <stop offset="50%" stopColor="var(--chakra-colors-teal-500)" stopOpacity="0.8">
                       <animate
                         attributeName="stop-opacity"
                         values="0.5;1;0.5"
@@ -84,7 +84,7 @@ const ChartLoading = () => {
                         repeatCount="indefinite"
                       />
                     </stop>
-                    <stop offset="100%" stopColor="#14b8a6" stopOpacity="0.6">
+                    <stop offset="100%" stopColor="var(--chakra-colors-teal-500)" stopOpacity="0.6">
                       <animate
                         attributeName="stop-opacity"
                         values="0.3;0.8;0.3"
@@ -106,7 +106,7 @@ const ChartLoading = () => {
                         cx={`${x}%`}
                         cy={`${y}%`}
                         r="8"
-                        fill="#14b8a6"
+                        fill="var(--chakra-colors-teal-500)"
                         opacity="0.3"
                       >
                         <animate
@@ -125,7 +125,7 @@ const ChartLoading = () => {
                         />
                       </circle>
                       {/* 内側の円 */}
-                      <circle cx={`${x}%`} cy={`${y}%`} r="4" fill="#14b8a6">
+                      <circle cx={`${x}%`} cy={`${y}%`} r="4" fill="var(--chakra-colors-teal-500)">
                         <animate
                           attributeName="opacity"
                           values="0.6;1;0.6"

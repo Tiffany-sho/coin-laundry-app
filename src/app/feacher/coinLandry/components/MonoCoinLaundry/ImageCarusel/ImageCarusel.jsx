@@ -59,12 +59,14 @@ const ImageCarousel = ({ images }) => {
           <button
             className={`${Styles.navigationButton} ${Styles.prev}`}
             onClick={goToPrevious}
+            aria-label="前の画像"
           >
             <Icon.LuChevronLeft size={24} />
           </button>
           <button
             className={`${Styles.navigationButton} ${Styles.next}`}
             onClick={goToNext}
+            aria-label="次の画像"
           >
             <Icon.LuChevronRight size={24} />
           </button>

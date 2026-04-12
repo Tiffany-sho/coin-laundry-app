@@ -2,11 +2,11 @@
   position: sticky;
   top: 0;
   z-index: 1300;
-  background-color: white;
-  color: #2d3748;
+  background-color: var(--chakra-colors-bg);
+  color: var(--chakra-colors-gray-700);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   padding: 1rem 2rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--chakra-colors-gray-200);
 }
 
 .container {
@@ -25,12 +25,12 @@
   font-weight: bold;
   letter-spacing: -0.025em;
   text-decoration: none;
-  color: #2d3748;
+  color: var(--chakra-colors-gray-700);
   transition: color 0.2s;
 }
 
 .logo:hover {
-  color: #4299e1;
+  color: var(--chakra-colors-blue-400);
 }
 
 .logoIcon {
@@ -63,7 +63,7 @@
   font-weight: 600;
   font-size: 0.875rem;
   text-decoration: none;
-  color: #2d3748;
+  color: var(--chakra-colors-gray-700);
   background: transparent;
   border: none;
   cursor: pointer;
@@ -71,27 +71,27 @@
 }
 
 .navItem:hover {
-  background-color: #f7fafc;
-  color: #4299e1;
+  background-color: var(--chakra-colors-gray-50);
+  color: var(--chakra-colors-blue-400);
 }
 
 .signupBtn {
-  border: 1px solid #2d3748;
-  color: #2d3748;
+  border: 1px solid var(--chakra-colors-gray-700);
+  color: var(--chakra-colors-gray-700);
 }
 
 .signupBtn:hover {
-  background-color: #2d3748;
+  background-color: var(--chakra-colors-gray-700);
   color: white;
 }
 
 .logoutBtn {
-  background-color: #e53e3e;
+  background-color: var(--chakra-colors-red-500);
   color: white;
 }
 
 .logoutBtn:hover {
-  background-color: #c53030;
+  background-color: var(--chakra-colors-red-600);
 }
 
 .icon {

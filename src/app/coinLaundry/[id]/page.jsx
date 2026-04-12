@@ -11,8 +11,8 @@ const CoinLaundry = async ({ params }) => {
   const { id } = await params;
   const { data: store, error: storeError } = await getStore(id);
   const { data: stores, error: storesError } = await getStores();
-  if (storeError || storesError)
-    return <ErrorPage title={error.msg} status={error.status} />;
+  const error = storeError ?? storesError;
+  if (error) return <ErrorPage title={error.msg} status={error.status} />;
 
   const selectItems = stores.map((item) => {
     const newItem = {
