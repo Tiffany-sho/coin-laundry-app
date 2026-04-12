@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, HStack, Input, Slider, Text, VStack } from "@chakra-ui/react";
+import { Box, HStack, Slider, Text, VStack } from "@chakra-ui/react";
 import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
 import {
   changeEpocFromNowYearMonth,
@@ -17,12 +17,7 @@ const epochToDateStr = (epoch) => {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-};
-
-const dateStrToEpoch = (str) => {
-  const [y, m, d] = str.split("-").map(Number);
-  return getEpochTimeInSeconds(y, m, d);
+  return `${y}/${m}/${day}`;
 };
 
 /* ── epoch ↔ スライダー値（0 = 5年前、60 = 今月）── */
@@ -55,7 +50,7 @@ const PeriodRangeSlider = () => {
   const startVal = epochToSliderVal(startEpoch > 0 ? startEpoch : 0);
   const endVal = endEpoch === null ? MAX_MONTHS : epochToSliderVal(endEpoch);
 
-  const startDateStr = startEpoch > 0 ? epochToDateStr(startEpoch) : "";
+  const startDateStr = startEpoch > 0 ? epochToDateStr(startEpoch) : "全期間";
   const endDateStr =
     endEpoch !== null ? epochToDateStr(endEpoch) : epochToDateStr(todayEpoch());
 
@@ -67,45 +62,16 @@ const PeriodRangeSlider = () => {
   return (
     <Box w="100%" pt={1}>
       <VStack gap={4} align="stretch">
-        {/* 日付インプット */}
-        <HStack gap={2} align="center">
-          <VStack gap={0} flex={1}>
-            <Text fontSize="2xs" color="fg.muted" alignSelf="flex-start">
-              開始日
-            </Text>
-            <Input
-              type="date"
-              size="sm"
-              value={startDateStr}
-              onChange={(e) => {
-                if (e.target.value) {
-                  setStartEpoch(dateStrToEpoch(e.target.value));
-                } else {
-                  setStartEpoch(0);
-                }
-              }}
-            />
+        {/* 選択中の期間表示 */}
+        <HStack justify="space-between">
+          <VStack gap={0} align="flex-start">
+            <Text fontSize="2xs" color="fg.muted">開始日</Text>
+            <Text fontSize="sm" fontWeight="semibold">{startDateStr}</Text>
           </VStack>
-          <Text color="fg.muted" pt={4}>
-            〜
-          </Text>
-          <VStack gap={0} flex={1}>
-            <Text fontSize="2xs" color="fg.muted" alignSelf="flex-start">
-              終了日
-            </Text>
-            <Input
-              type="date"
-              size="sm"
-              value={endDateStr}
-              onChange={(e) => {
-                if (e.target.value) {
-                  // 選択日の翌日0時を上限（その日を含む）
-                  setEndEpoch(dateStrToEpoch(e.target.value) + 86400000);
-                } else {
-                  setEndEpoch(null);
-                }
-              }}
-            />
+          <Text color="fg.muted">〜</Text>
+          <VStack gap={0} align="flex-end">
+            <Text fontSize="2xs" color="fg.muted">終了日</Text>
+            <Text fontSize="sm" fontWeight="semibold">{endDateStr}</Text>
           </VStack>
         </HStack>
 
