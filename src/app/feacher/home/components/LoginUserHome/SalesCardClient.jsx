@@ -8,18 +8,18 @@ import { getMonthFundsByOffset } from "@/app/api/supabaseFunctions/supabaseDatab
 // ──────── helpers ────────
 
 const MONTH_BG = {
-  1:  "blue.800",    // 1月: 冬の深夜空
-  2:  "purple.600",  // 2月: バレンタイン・梅
-  3:  "pink.400",    // 3月: 桃の花・ひな祭り
-  4:  "red.400",     // 4月: 桜
-  5:  "green.600",   // 5月: 新緑
-  6:  "teal.500",    // 6月: 梅雨・紫陽花
-  7:  "cyan.600",    // 7月: 夏の海
-  8:  "orange.500",  // 8月: ひまわり・夏祭り
-  9:  "yellow.600",  // 9月: 稲穂・十五夜
-  10: "orange.700",  // 10月: 紅葉
-  11: "red.700",     // 11月: 深紅の紅葉
-  12: "blue.600",    // 12月: 冬の空
+  1:  "blue.800",
+  2:  "purple.600",
+  3:  "pink.400",
+  4:  "red.400",
+  5:  "green.600",
+  6:  "teal.500",
+  7:  "cyan.600",
+  8:  "orange.500",
+  9:  "yellow.600",
+  10: "orange.700",
+  11: "red.700",
+  12: "blue.600",
 };
 
 const getMonthBg = (monthOffset) => {
@@ -44,33 +44,21 @@ const FundsDisplay = ({ data, error }) => {
       </Box>
     );
   }
-
   if (!data || data.length === 0) {
     return (
       <Box py={4}>
-        <Text fontSize={{ base: "3xl", md: "5xl" }} fontWeight="extrabold" color="white">
-          ¥0
-        </Text>
-        <Text fontSize="xs" color="whiteAlpha.700" mt={2}>
-          この月の集金記録はありません
-        </Text>
+        <Text fontSize={{ base: "3xl", md: "5xl" }} fontWeight="extrabold" color="white">¥0</Text>
+        <Text fontSize="xs" color="whiteAlpha.700" mt={2}>この月の集金記録はありません</Text>
       </Box>
     );
   }
-
   const totalRevenue = data.reduce((acc, cur) => acc + cur.totalFunds, 0);
   const collectCount = data.length;
-
   return (
     <Box py={2}>
       <HStack align="baseline" gap={2} flexWrap="wrap">
         <Text fontSize={{ base: "xl", md: "2xl" }} fontWeight="bold" color="white">¥</Text>
-        <Text
-          fontSize={{ base: "4xl", md: "6xl" }}
-          fontWeight="extrabold"
-          color="white"
-          lineHeight="1"
-        >
+        <Text fontSize={{ base: "4xl", md: "6xl" }} fontWeight="extrabold" color="white" lineHeight="1">
           {totalRevenue.toLocaleString()}
         </Text>
       </HStack>
@@ -90,13 +78,11 @@ const FundsDisplay = ({ data, error }) => {
   );
 };
 
-// ──────── AdjacentCard（カルーセルの隣接カード） ────────
+// ──────── AdjacentCard ────────
 
 const AdjacentCard = ({ monthOffset }) => {
   const now = new Date();
-  const target = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
-  const month = target.getMonth() + 1;
-
+  const month = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1).getMonth() + 1;
   return (
     <Box
       bg={getMonthBg(monthOffset)}
@@ -108,30 +94,18 @@ const AdjacentCard = ({ monthOffset }) => {
       alignItems="center"
       justifyContent="center"
     >
-      <Text
-        color="white"
-        fontWeight="bold"
-        fontSize="sm"
-        style={{ writingMode: "vertical-rl" }}
-      >
+      <Text color="white" fontWeight="bold" fontSize="sm" style={{ writingMode: "vertical-rl" }}>
         {month}月
       </Text>
     </Box>
   );
 };
 
-// 現在月より先はデータなし：右端のプレースホルダー
 const FuturePlaceholder = () => (
-  <Box
-    bg="gray.300"
-    borderRadius="xl"
-    h="100%"
-    minH="180px"
-    opacity={0.3}
-  />
+  <Box bg="gray.300" borderRadius="xl" h="100%" minH="180px" opacity={0.3} />
 );
 
-// ──────── ActiveCard（アクティブなカードの中身） ────────
+// ──────── ActiveCard ────────
 
 const ActiveCard = ({ monthOffset, data, error, isPending, navigate }) => {
   const isCurrentMonth = monthOffset === 0;
@@ -148,14 +122,8 @@ const ActiveCard = ({ monthOffset, data, error, isPending, navigate }) => {
       position="relative"
       overflow="hidden"
     >
-      <Box
-        position="absolute" top="-20%" right="-10%"
-        w="200px" h="200px" bg="white" opacity={0.05} borderRadius="full"
-      />
-      <Box
-        position="absolute" bottom="-30%" left="-5%"
-        w="150px" h="150px" bg="white" opacity={0.05} borderRadius="full"
-      />
+      <Box position="absolute" top="-20%" right="-10%" w="200px" h="200px" bg="white" opacity={0.05} borderRadius="full" />
+      <Box position="absolute" bottom="-30%" left="-5%" w="150px" h="150px" bg="white" opacity={0.05} borderRadius="full" />
 
       <VStack align="stretch" gap={3} position="relative">
         <HStack justify="space-between">
@@ -210,71 +178,164 @@ const ActiveCard = ({ monthOffset, data, error, isPending, navigate }) => {
 
 // ──────── SalesCardClient ────────
 
+// トラックの初期 transform（カード幅 = 100%-48px、peek=24px、gap=8px のとき中央カードを表示）
+// translateX = peek - (cardW + gap) = 24 - (W-48+8) = 64 - W = calc(64px - 100%)
+const BASE_TRANSFORM = "translateX(calc(64px - 100%))";
+
 const SalesCardClient = ({ id, initialData, initialError }) => {
   const [monthOffset, setMonthOffset] = useState(0);
   const [fundsData, setFundsData] = useState(initialData);
   const [fundsError, setFundsError] = useState(initialError);
   const [isPending, startTransition] = useTransition();
-  const touchStartX = useRef(null);
 
-  const navigate = (newOffset) => {
-    if (newOffset > 0) return;
+  // トラックのスタイルを state で管理（transform + transition をまとめて更新）
+  const [trackStyle, setTrackStyle] = useState({
+    transform: BASE_TRANSFORM,
+    transition: "none",
+  });
+
+  const touchStartX = useRef(null);
+  const containerRef = useRef(null);
+  const animatingRef = useRef(false); // 多重発火防止
+
+  const getSlideAmount = () => {
+    const W = containerRef.current?.offsetWidth ?? 375;
+    return W - 48 + 8; // cardWidth(W-48) + gap(8)
+  };
+
+  const updateTrack = (xOffset, withTransition) => {
+    setTrackStyle({
+      transform: `translateX(calc(64px - 100% + ${xOffset}px))`,
+      transition: withTransition ? "transform 0.32s cubic-bezier(0.25, 0.46, 0.45, 0.94)" : "none",
+    });
+  };
+
+  const fetchAndUpdate = (newOffset) => {
+    setMonthOffset(newOffset);
     startTransition(async () => {
       const { data, error } = await getMonthFundsByOffset(id, newOffset);
       setFundsData(data ?? null);
       setFundsError(error ?? null);
-      setMonthOffset(newOffset);
     });
   };
 
+  // スライドアニメーション → テレポートリセット → 月更新
+  const slideAndNavigate = (newOffset) => {
+    if (animatingRef.current || isPending) return;
+    if (newOffset > 0) return;
+
+    animatingRef.current = true;
+
+    // 先月へ → トラックを右へ(+)、翌月へ → トラックを左へ(-)
+    const slideX = newOffset < monthOffset ? getSlideAmount() : -getSlideAmount();
+
+    // 1) スライドアニメーション開始
+    updateTrack(slideX, true);
+
+    setTimeout(() => {
+      // 2) トランジションなしで中央にリセット（テレポート）
+      setTrackStyle({ transform: BASE_TRANSFORM, transition: "none" });
+
+      // 3) 月データ更新
+      fetchAndUpdate(newOffset);
+
+      // 4) 次フレームでトランジションを再有効化
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          animatingRef.current = false;
+        });
+      });
+    }, 340);
+  };
+
+  // ── タッチハンドラー ──
+
   const handleTouchStart = (e) => {
+    if (animatingRef.current || isPending) return;
     touchStartX.current = e.touches[0].clientX;
   };
 
+  const handleTouchMove = (e) => {
+    if (touchStartX.current === null || animatingRef.current) return;
+    const delta = e.touches[0].clientX - touchStartX.current;
+    const slideAmount = getSlideAmount();
+    // 端に近づくほど動きを重くする（ゴム感）
+    const resistance = 0.35;
+    const clamped =
+      delta > 0
+        ? Math.min(slideAmount, delta * (isAtStart ? resistance : 1))
+        : Math.max(-slideAmount, delta * (monthOffset < 0 ? 1 : resistance));
+    updateTrack(clamped, false);
+  };
+
+  const isAtStart = monthOffset === 0; // 現在月（左スワイプに抵抗）
+
   const handleTouchEnd = (e) => {
-    if (touchStartX.current === null || isPending) return;
+    if (touchStartX.current === null) return;
     const deltaX = e.changedTouches[0].clientX - touchStartX.current;
     touchStartX.current = null;
-    if (deltaX > 50) navigate(monthOffset - 1);
-    else if (deltaX < -50 && monthOffset < 0) navigate(monthOffset + 1);
+
+    if (deltaX > 50) {
+      // 右スワイプ → 先月
+      slideAndNavigate(monthOffset - 1);
+    } else if (deltaX < -50 && monthOffset < 0) {
+      // 左スワイプ → 翌月
+      slideAndNavigate(monthOffset + 1);
+    } else {
+      // 閾値未満 → 中央に戻す
+      updateTrack(0, true);
+    }
+  };
+
+  const handleTouchCancel = () => {
+    touchStartX.current = null;
+    if (!animatingRef.current) updateTrack(0, true);
   };
 
   const isCurrentMonth = monthOffset === 0;
 
-  const activeCardProps = {
-    monthOffset,
-    data: fundsData,
-    error: fundsError,
-    isPending,
-    navigate,
-  };
-
   return (
     <>
-      {/* ── モバイル: ピークカルーセル ── */}
-      {/* カード幅 = calc(100% - 48px)、peek = 24px、gap = 8px
-          translateX = peek - (cardW + gap) = 24 - (W-48+8) = 64-W = calc(64px - 100%) */}
+      {/* ── モバイル: スライドカルーセル ── */}
       <Box
+        ref={containerRef}
         display={{ base: "block", md: "none" }}
         overflow="hidden"
         onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
+        onTouchCancel={handleTouchCancel}
       >
         <Box
           display="grid"
           gridTemplateColumns="repeat(3, calc(100% - 48px))"
           gap="8px"
-          style={{ transform: "translateX(calc(64px - 100%))" }}
+          style={trackStyle}
         >
           <AdjacentCard monthOffset={monthOffset - 1} />
-          <ActiveCard {...activeCardProps} />
-          {isCurrentMonth ? <FuturePlaceholder /> : <AdjacentCard monthOffset={monthOffset + 1} />}
+          <ActiveCard
+            monthOffset={monthOffset}
+            data={fundsData}
+            error={fundsError}
+            isPending={isPending}
+            navigate={slideAndNavigate}
+          />
+          {isCurrentMonth
+            ? <FuturePlaceholder />
+            : <AdjacentCard monthOffset={monthOffset + 1} />
+          }
         </Box>
       </Box>
 
       {/* ── デスクトップ: 通常表示 ── */}
       <Box display={{ base: "none", md: "block" }}>
-        <ActiveCard {...activeCardProps} />
+        <ActiveCard
+          monthOffset={monthOffset}
+          data={fundsData}
+          error={fundsError}
+          isPending={isPending}
+          navigate={slideAndNavigate}
+        />
       </Box>
     </>
   );
