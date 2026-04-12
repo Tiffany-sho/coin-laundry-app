@@ -96,18 +96,41 @@ const PeriodRangeSlider = () => {
 
   return (
     <Box w="100%" pt={1}>
-      <VStack gap={4} align="stretch">
-        {/* 選択中の期間表示 */}
-        <HStack gap={1} align="flex-end">
-          <VStack gap={0} align="flex-start">
-            <Text fontSize="2xs" color="fg.muted">開始日</Text>
-            <Text fontSize="sm" fontWeight="semibold">{startDateStr}</Text>
-          </VStack>
-          <Text color="fg.muted" pb="1px" lineHeight="1">〜</Text>
-          <VStack gap={0} align="flex-start">
-            <Text fontSize="2xs" color="fg.muted">終了日</Text>
-            <Text fontSize="sm" fontWeight="semibold">{endDateStr}</Text>
-          </VStack>
+      <VStack gap={3} align="stretch">
+        {/* ナビゲーション＋期間表示 */}
+        <HStack justify="space-between" align="center">
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => shift("prev")}
+            disabled={!canGoPrev}
+          >
+            <LuChevronLeft />
+            前の期間
+          </Button>
+
+          {/* 中央：開始日〜終了日 */}
+          <HStack gap={1} align="flex-end">
+            <VStack gap={0} align="flex-start">
+              <Text fontSize="2xs" color="fg.muted">開始日</Text>
+              <Text fontSize="sm" fontWeight="semibold">{startDateStr}</Text>
+            </VStack>
+            <Text color="fg.muted" pb="1px" lineHeight="1">〜</Text>
+            <VStack gap={0} align="flex-start">
+              <Text fontSize="2xs" color="fg.muted">終了日</Text>
+              <Text fontSize="sm" fontWeight="semibold">{endDateStr}</Text>
+            </VStack>
+          </HStack>
+
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => shift("next")}
+            disabled={!canGoNext}
+          >
+            次の期間
+            <LuChevronRight />
+          </Button>
         </HStack>
 
         {/* 範囲スライダー */}
@@ -121,12 +144,8 @@ const PeriodRangeSlider = () => {
           colorPalette="blue"
         >
           <HStack justify="space-between" mb={1}>
-            <Text fontSize="2xs" color="fg.muted">
-              5年前
-            </Text>
-            <Text fontSize="2xs" color="fg.muted">
-              今月
-            </Text>
+            <Text fontSize="2xs" color="fg.muted">5年前</Text>
+            <Text fontSize="2xs" color="fg.muted">今月</Text>
           </HStack>
           <Slider.Control>
             <Slider.Track>
@@ -136,28 +155,6 @@ const PeriodRangeSlider = () => {
             <Slider.Thumb index={1} />
           </Slider.Control>
         </Slider.Root>
-
-        {/* 期間ナビゲーション */}
-        <HStack justify="space-between">
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => shift("prev")}
-            disabled={!canGoPrev}
-          >
-            <LuChevronLeft />
-            前の期間
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => shift("next")}
-            disabled={!canGoNext}
-          >
-            次の期間
-            <LuChevronRight />
-          </Button>
-        </HStack>
       </VStack>
     </Box>
   );
