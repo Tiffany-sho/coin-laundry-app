@@ -150,8 +150,8 @@ const MoneyDataList = ({ valiant, coinLaundry }) => {
                 累計{data.length}回の集金
               </Text>
             )}
-            <SegmentedPeriod />
           </HStack>
+          <SegmentedPeriod />
 
           {valiant === "aStore" && <MonoCoinDataChart id={coinLaundry.id} />}
           {valiant === "manyStore" && <ManyCoinDataChart />}

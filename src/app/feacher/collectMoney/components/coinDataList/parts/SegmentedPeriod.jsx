@@ -1,38 +1,37 @@
 "use client";
 
-import { HStack, VStack, Button, Text, Input, Box } from "@chakra-ui/react";
+import { Box, Slider, Text, VStack } from "@chakra-ui/react";
 import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
-import {
-  changeEpocFromNowYearMonth,
-  getEpochTimeInSeconds,
-} from "@/functions/makeDate/date";
+import { changeEpocFromNowYearMonth } from "@/functions/makeDate/date";
 
-const EPOCH_OFFSET = 32400000;
-
-const epochToInputDate = (epoch) => {
-  const date = new Date(epoch + EPOCH_OFFSET);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-};
-
-const inputDateToEpoch = (dateStr) => {
-  const [year, month, day] = dateStr.split("-").map(Number);
-  return getEpochTimeInSeconds(year, month, day);
-};
-
-const QUICK_PERIODS = [
+const STEPS = [
+  { label: "1ヶ月", months: 1 },
   { label: "3ヶ月", months: 3 },
   { label: "6ヶ月", months: 6 },
   { label: "1年", months: 12 },
+  { label: "2年", months: 24 },
+  { label: "3年", months: 36 },
+  { label: "5年", months: 60 },
   { label: "全期間", months: null },
 ];
 
-const PeriodPicker = () => {
-  const { startEpoch, setStartEpoch, endEpoch, setEndEpoch } = useUploadPage();
+const DEFAULT_INDEX = 2; // 6ヶ月
 
-  const handleQuickSelect = (months) => {
+const PeriodSlider = () => {
+  const { startEpoch, setStartEpoch, setEndEpoch } = useUploadPage();
+
+  // 現在の startEpoch からスライダーのインデックスを逆引き
+  const currentIndex = (() => {
+    if (startEpoch === 0) return STEPS.length - 1; // 全期間
+    for (let i = 0; i < STEPS.length - 1; i++) {
+      const epoch = changeEpocFromNowYearMonth(-STEPS[i].months);
+      if (Math.abs(startEpoch - epoch) < 1000 * 60 * 60 * 24) return i;
+    }
+    return DEFAULT_INDEX;
+  })();
+
+  const handleChange = (index) => {
+    const { months } = STEPS[index];
     if (months === null) {
       setStartEpoch(0);
     } else {
@@ -41,60 +40,47 @@ const PeriodPicker = () => {
     setEndEpoch(null);
   };
 
-  const startDateValue = startEpoch > 0 ? epochToInputDate(startEpoch) : "";
-  const endDateValue = endEpoch !== null ? epochToInputDate(endEpoch) : "";
+  const selectedLabel = STEPS[currentIndex]?.label ?? STEPS[DEFAULT_INDEX].label;
 
   return (
-    <Box ml="auto">
-      <VStack align="flex-end" gap={2}>
-        <HStack gap={1}>
-          {QUICK_PERIODS.map(({ label, months }) => (
-            <Button
-              key={label}
-              size="xs"
-              variant="outline"
-              colorPalette="blue"
-              onClick={() => handleQuickSelect(months)}
-            >
-              {label}
-            </Button>
-          ))}
-        </HStack>
-        <HStack gap={2} align="center">
-          <Input
-            type="date"
-            size="xs"
-            w="130px"
-            value={startDateValue}
-            onChange={(e) => {
-              if (e.target.value) {
-                setStartEpoch(inputDateToEpoch(e.target.value));
-              } else {
-                setStartEpoch(0);
-              }
-            }}
-          />
-          <Text fontSize="sm" color="fg.muted">
-            〜
-          </Text>
-          <Input
-            type="date"
-            size="xs"
-            w="130px"
-            value={endDateValue}
-            onChange={(e) => {
-              if (e.target.value) {
-                // 終了日は選択日の終わり（翌日0時の直前）まで含める
-                setEndEpoch(inputDateToEpoch(e.target.value) + 86400000 - 1);
-              } else {
-                setEndEpoch(null);
-              }
-            }}
-          />
-        </HStack>
+    <Box ml="auto" w={{ base: "100%", md: "320px" }}>
+      <VStack gap={1} align="stretch">
+        <Text fontSize="xs" color="fg.muted" textAlign="right">
+          表示期間：<Text as="span" fontWeight="bold" color="fg">{selectedLabel}</Text>
+        </Text>
+        <Slider.Root
+          min={0}
+          max={STEPS.length - 1}
+          step={1}
+          value={[currentIndex]}
+          onValueChange={(e) => handleChange(e.value[0])}
+          colorPalette="blue"
+        >
+          <Slider.Control>
+            <Slider.Track>
+              <Slider.Range />
+            </Slider.Track>
+            <Slider.Thumb index={0} />
+          </Slider.Control>
+          <Slider.MarkerGroup>
+            {STEPS.map((step, i) => (
+              <Slider.Marker key={i} value={i}>
+                <Slider.MarkerIndicator />
+                <Text
+                  fontSize="2xs"
+                  color={i === currentIndex ? "blue.500" : "fg.muted"}
+                  fontWeight={i === currentIndex ? "bold" : "normal"}
+                  whiteSpace="nowrap"
+                >
+                  {step.label}
+                </Text>
+              </Slider.Marker>
+            ))}
+          </Slider.MarkerGroup>
+        </Slider.Root>
       </VStack>
     </Box>
   );
 };
 
-export default PeriodPicker;
+export default PeriodSlider;
