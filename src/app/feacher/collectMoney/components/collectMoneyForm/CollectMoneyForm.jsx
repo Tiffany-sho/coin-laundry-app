@@ -1,11 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Box, Card, HStack, Stack, Text, VStack } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
-
-import { createClient } from "@/utils/supabase/client";
-import { getUser } from "@/app/api/supabaseFunctions/supabaseDatabase/user/action";
 
 import EpochTimeSelector from "../selectDate/SelectDate";
 import MachineAndMoney from "./CardContext/MachineAndMoney";
@@ -14,19 +11,15 @@ import CollectMoneyHeader from "./CollectMoneyHeader";
 import CollectMoneyFooter from "./CollectMoneyFooter";
 import CollectMethodCard from "./CollectMethodCard";
 import DraftBanner from "./parts/DraftBanner";
+import useDraft from "../../hooks/useDraft";
+import useCollectMethod from "../../hooks/useCollectMethod";
 import * as Icon from "@/app/feacher/Icon";
 
-const draftKey = (storeId) => `draft_collect_${storeId}`;
-
 const CollectMoneyForm = ({ coinLaundry }) => {
-  const supabase = createClient();
   const router = useRouter();
 
   const [epoc, setEpoc] = useState(Date.now());
   const [msg, setMsg] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [checked, setChecked] = useState(false);
-  const [fixed, setFixed] = useState(null);
   const [moneyTotal, setMoneyTotal] = useState();
   const [machinesAndFunds, setMachinesAndFunds] = useState(() =>
     coinLaundry.machines.map((machine) => ({
@@ -36,99 +29,24 @@ const CollectMoneyForm = ({ coinLaundry }) => {
       toggle: false,
     }))
   );
-  const [draft, setDraft] = useState(null); // { epoc, checked, machinesAndFunds, moneyTotal, savedAt }
 
-  // プロフィールから集金方式を読み込む
-  useEffect(() => {
-    const loadUserMethod = async () => {
-      setLoading(true);
-      const { user } = await getUser();
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("collectMethod")
-        .eq("id", user.id)
-        .single();
+  const { checked, fixed, loading, handleMethodChange, handleFixedChange } =
+    useCollectMethod();
 
-      if (!error && data && data.collectMethod !== null) {
-        setChecked(data.collectMethod === "machines");
-        setFixed(true);
-      } else {
-        setChecked(false);
-        setFixed(false);
-      }
-      setLoading(false);
-    };
+  const { draft, saveDraft, discardDraft, clearDraft } = useDraft(
+    coinLaundry.id
+  );
 
-    loadUserMethod();
-  }, []);
-
-  // 一時保存データの確認（マウント時のみ）
-  useEffect(() => {
-    const saved = localStorage.getItem(draftKey(coinLaundry.id));
-    if (saved) {
-      try {
-        setDraft(JSON.parse(saved));
-      } catch {
-        localStorage.removeItem(draftKey(coinLaundry.id));
-      }
-    }
-  }, [coinLaundry.id]);
-
-  const saveDraft = () => {
-    const data = {
-      epoc,
-      checked,
-      machinesAndFunds,
-      moneyTotal,
-      savedAt: Date.now(),
-    };
-    localStorage.setItem(draftKey(coinLaundry.id), JSON.stringify(data));
-    setDraft(data);
+  const handleSaveDraft = () => {
+    saveDraft({ epoc, checked, machinesAndFunds, moneyTotal });
   };
 
-  const restoreDraft = () => {
+  const handleRestoreDraft = () => {
     if (!draft) return;
     setEpoc(draft.epoc);
-    setChecked(draft.checked);
     setMachinesAndFunds(draft.machinesAndFunds);
     setMoneyTotal(draft.moneyTotal);
-    setDraft(null);
-  };
-
-  const discardDraft = () => {
-    localStorage.removeItem(draftKey(coinLaundry.id));
-    setDraft(null);
-  };
-
-  const clearDraft = () => {
-    localStorage.removeItem(draftKey(coinLaundry.id));
-  };
-
-  const toggleChangeMethod = (e) => {
-    const value = e.checked;
-    setChecked(value);
-    if (fixed) uploadProfilesMethod(value);
-  };
-
-  const toggleChangeFixed = (e) => {
-    const isFixed = e.checked;
-    setFixed(isFixed);
-    uploadProfilesMethod(isFixed ? checked : null);
-  };
-
-  const uploadProfilesMethod = async (method) => {
-    const { user } = await getUser();
-    if (!user) return;
-    const collectMethod =
-      method === null ? null : method ? "machines" : "total";
-    await supabase
-      .from("profiles")
-      .update({ collectMethod })
-      .eq("id", user.id);
+    discardDraft();
   };
 
   return (
@@ -145,7 +63,7 @@ const CollectMoneyForm = ({ coinLaundry }) => {
           {draft && (
             <DraftBanner
               savedAt={draft.savedAt}
-              onRestore={restoreDraft}
+              onRestore={handleRestoreDraft}
               onDiscard={discardDraft}
             />
           )}
@@ -175,8 +93,8 @@ const CollectMoneyForm = ({ coinLaundry }) => {
             checked={checked}
             fixed={fixed}
             loading={loading}
-            onMethodChange={toggleChangeMethod}
-            onFixedChange={toggleChangeFixed}
+            onMethodChange={handleMethodChange}
+            onFixedChange={handleFixedChange}
           />
 
           {/* 金額入力 */}
@@ -187,7 +105,12 @@ const CollectMoneyForm = ({ coinLaundry }) => {
                 setMachinesAndFunds={setMachinesAndFunds}
               />
             ) : (
-              <Card.Root bg="white" shadow="md" borderRadius="2xl" overflow="hidden">
+              <Card.Root
+                bg="white"
+                shadow="md"
+                borderRadius="2xl"
+                overflow="hidden"
+              >
                 <Card.Body p={{ base: 5, md: 6 }}>
                   <HStack mb={4} color="teal.600">
                     <Icon.RiMoneyCnyCircleLine size={22} />
@@ -233,7 +156,7 @@ const CollectMoneyForm = ({ coinLaundry }) => {
         epoc={epoc}
         setMsg={setMsg}
         onCancel={() => router.back()}
-        onSaveDraft={saveDraft}
+        onSaveDraft={handleSaveDraft}
         clearDraft={clearDraft}
       />
     </VStack>
