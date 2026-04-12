@@ -153,7 +153,18 @@ const SalesCardClient = ({ id, initialData, initialError }) => {
           <FundsDisplay data={fundsData} error={fundsError} />
         )}
 
-        <HStack gap={2} mt={1} flexWrap="wrap">
+        <HStack justify="space-between" mt={1}>
+          <Button
+            size="xs"
+            variant="ghost"
+            color="white"
+            _hover={{ bg: "whiteAlpha.200" }}
+            onClick={() => navigate(monthOffset - 1)}
+            disabled={isPending}
+          >
+            <Icon.LuChevronLeft size={14} />
+            先月を見る
+          </Button>
           {!isCurrentMonth && (
             <Button
               size="xs"
@@ -163,22 +174,10 @@ const SalesCardClient = ({ id, initialData, initialError }) => {
               onClick={() => navigate(monthOffset + 1)}
               disabled={isPending}
             >
-              <Icon.LuChevronLeft size={14} />
               次の月
+              <Icon.LuChevronRight size={14} />
             </Button>
           )}
-          <Button
-            size="xs"
-            variant="ghost"
-            color="white"
-            _hover={{ bg: "whiteAlpha.200" }}
-            onClick={() => navigate(monthOffset - 1)}
-            disabled={isPending}
-            ml={isCurrentMonth ? "auto" : undefined}
-          >
-            先月を見る
-            <Icon.LuChevronRight size={14} />
-          </Button>
         </HStack>
       </VStack>
     </Box>
