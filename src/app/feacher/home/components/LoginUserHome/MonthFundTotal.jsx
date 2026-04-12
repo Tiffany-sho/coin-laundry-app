@@ -1,29 +1,8 @@
-import { changeEpocFromNowYearMonth } from "@/functions/makeDate/date";
-import { createClient } from "@/utils/supabase/server";
+import { getMonthFunds } from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
 import { HStack, Text, Box } from "@chakra-ui/react";
 
-const getData = async (id) => {
-  const supabase = await createClient();
-
-  const epocYearMonth = changeEpocFromNowYearMonth(0);
-  const epocYearNextMonth = changeEpocFromNowYearMonth(1);
-
-  const { data, error } = await supabase
-    .from("collect_funds")
-    .select("*")
-    .eq("collecter", id)
-    .gt("date", epocYearMonth)
-    .lt("date", epocYearNextMonth);
-
-  if (error) {
-    return { error: "集金データの取得に失敗しました" };
-  }
-
-  return { data: data };
-};
-
 const MonthFundTotal = async ({ id }) => {
-  const { data, error } = await getData(id);
+  const { data, error } = await getMonthFunds(id);
 
   if (error) {
     return (
@@ -38,15 +17,13 @@ const MonthFundTotal = async ({ id }) => {
   if (!data || data.length === 0) {
     return (
       <Box py={4}>
-        <HStack align="baseline" gap={2}>
-          <Text
-            fontSize={{ base: "3xl", md: "5xl" }}
-            fontWeight="extrabold"
-            color="white"
-          >
-            ¥0
-          </Text>
-        </HStack>
+        <Text
+          fontSize={{ base: "3xl", md: "5xl" }}
+          fontWeight="extrabold"
+          color="white"
+        >
+          ¥0
+        </Text>
         <Text fontSize="xs" color="whiteAlpha.700" mt={2}>
           今月の集金記録はまだありません
         </Text>
@@ -54,24 +31,15 @@ const MonthFundTotal = async ({ id }) => {
     );
   }
 
-  const totalRevenue = data.reduce((accumulator, current) => {
-    const summary = current.totalFunds;
-    return accumulator + summary;
-  }, 0);
-
+  const totalRevenue = data.reduce((acc, cur) => acc + cur.totalFunds, 0);
   const collectCount = data.length;
 
   return (
     <Box py={2}>
       <HStack align="baseline" gap={2} flexWrap="wrap">
-        <Text
-          fontSize={{ base: "xl", md: "2xl" }}
-          fontWeight="bold"
-          color="white"
-        >
+        <Text fontSize={{ base: "xl", md: "2xl" }} fontWeight="bold" color="white">
           ¥
         </Text>
-
         <Text
           fontSize={{ base: "4xl", md: "6xl" }}
           fontWeight="extrabold"
@@ -91,7 +59,6 @@ const MonthFundTotal = async ({ id }) => {
             {collectCount}回
           </Text>
         </Box>
-
         <Box bg="whiteAlpha.200" px={3} py={1.5} borderRadius="md">
           <Text fontSize="2xs" color="whiteAlpha.800" mb={0.5}>
             平均単価

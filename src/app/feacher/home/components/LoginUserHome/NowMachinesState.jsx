@@ -1,28 +1,10 @@
-import { createClient } from "@/utils/supabase/server";
+import { getMachinesStates } from "@/app/api/supabaseFunctions/supabaseDatabase/laundryState/action";
 import { Badge, Box, HStack, Text, VStack } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
 import MachinesDialog from "./parts/MachinesDialog";
 
-const getData = async (id) => {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("laundry_state")
-    .select("machines,laundryId,laundryName")
-    .eq("stocker", id);
-
-  if (error) {
-    return { error: "設備状況の取得に失敗しました" };
-  }
-
-  const breakMachines = data.filter(
-    (item) => item.machines.filter((machine) => machine.break).length !== 0
-  );
-
-  return { data: data, breakMachines: breakMachines };
-};
-
 const NowMachinesState = async ({ id }) => {
-  const { data, breakMachines, error } = await getData(id);
+  const { data, breakMachines, error } = await getMachinesStates(id);
 
   if (error) {
     return (
@@ -80,7 +62,6 @@ const NowMachinesState = async ({ id }) => {
               <Icon.LuCheck size={16} />
             </Box>
           </HStack>
-
           <VStack align="stretch" gap={1}>
             <Text fontSize="lg" fontWeight="bold" color="green.700">
               フル稼働中
@@ -113,7 +94,6 @@ const NowMachinesState = async ({ id }) => {
             <Icon.CiCircleAlert size={16} />
           </Box>
         </HStack>
-
         <HStack gap={2} mb={1}>
           <Badge
             bg="red.500"
@@ -130,16 +110,15 @@ const NowMachinesState = async ({ id }) => {
             {breakMachines.length}店舗
           </Text>
         </HStack>
-
         <Text fontSize="xs" color="red.600">
           至急対応が必要な店舗があります
         </Text>
       </Box>
 
       <VStack align="stretch" gap={2} w="full">
-        {breakMachines.map((item) => {
-          return <MachinesDialog id={item.laundryId} key={item.laundryId} />;
-        })}
+        {breakMachines.map((item) => (
+          <MachinesDialog initialData={item} key={item.laundryId} />
+        ))}
       </VStack>
     </VStack>
   );

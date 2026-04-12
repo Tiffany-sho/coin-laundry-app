@@ -2,6 +2,7 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { getUser } from "../user/action";
+import { changeEpocFromNowYearMonth } from "@/functions/makeDate/date";
 
 export const getFundsData = async (id) => {
   const { user } = await getUser();
@@ -104,4 +105,20 @@ export async function deleteData(id) {
   const { error } = await supabase.from("collect_funds").delete().eq("id", id);
 
   return { error: error };
+}
+
+export async function getMonthFunds(id) {
+  const supabase = await createClient();
+  const epocYearMonth = changeEpocFromNowYearMonth(0);
+  const epocYearNextMonth = changeEpocFromNowYearMonth(1);
+
+  const { data, error } = await supabase
+    .from("collect_funds")
+    .select("totalFunds")
+    .eq("collecter", id)
+    .gt("date", epocYearMonth)
+    .lt("date", epocYearNextMonth);
+
+  if (error) return { error: "集金データの取得に失敗しました" };
+  return { data };
 }

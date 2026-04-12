@@ -1,28 +1,10 @@
-import { createClient } from "@/utils/supabase/server";
+import { getStockStates } from "@/app/api/supabaseFunctions/supabaseDatabase/laundryState/action";
 import { Badge, Box, HStack, Text, VStack } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
 import StockDialog from "./parts/StockDialog";
 
-const getData = async (id) => {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("laundry_state")
-    .select("detergent,softener,laundryId,laundryName")
-    .eq("stocker", id);
-
-  if (error) {
-    return { error: error.message };
-  }
-
-  const lowStockItems = data.filter(
-    (item) => item.detergent < 2 || item.softener < 2
-  );
-
-  return { data: data, lowStockItems: lowStockItems };
-};
-
 const NowStockState = async ({ id }) => {
-  const { data, lowStockItems, error } = await getData(id);
+  const { data, lowStockItems, error } = await getStockStates(id);
 
   if (error) {
     return (
@@ -80,7 +62,6 @@ const NowStockState = async ({ id }) => {
               <Icon.LuCheck size={16} />
             </Box>
           </HStack>
-
           <VStack align="stretch" gap={1}>
             <Text fontSize="lg" fontWeight="bold" color="green.700">
               在庫十分
@@ -113,7 +94,6 @@ const NowStockState = async ({ id }) => {
             <Icon.CiCircleAlert size={16} />
           </Box>
         </HStack>
-
         <HStack gap={2} mb={1}>
           <Badge
             bg="orange.500"
@@ -130,16 +110,15 @@ const NowStockState = async ({ id }) => {
             {lowStockItems.length}店舗
           </Text>
         </HStack>
-
         <Text fontSize="xs" color="orange.600">
           補充が必要な店舗があります
         </Text>
       </Box>
 
       <VStack align="stretch" gap={2} w="full">
-        {lowStockItems.map((item) => {
-          return <StockDialog id={item.laundryId} key={item.laundryId} />;
-        })}
+        {lowStockItems.map((item) => (
+          <StockDialog initialData={item} key={item.laundryId} />
+        ))}
       </VStack>
     </VStack>
   );

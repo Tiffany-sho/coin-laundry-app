@@ -15,51 +15,44 @@ import Link from "next/link";
 import NowLaundryNum from "@/app/feacher/coinLandry/components/NowLaundryNum";
 import MachinesState from "@/app/feacher/coinLandry/components/MachinesState";
 import { getStores } from "@/app/api/supabaseFunctions/supabaseDatabase/laundryStore/action";
+import ErrorPage from "@/app/feacher/jumpPage/ErrorPage/ErrorPage";
+
+const METHOD_LIST = [
+  {
+    key: "collect",
+    btnTitle: "集金",
+    dialogTitle: "集金したい店舗を選択してください",
+    getURL: (id) => `/collectMoney/${id}/newData`,
+    icon: <Icon.PiHandCoinsLight />,
+  },
+  {
+    key: "stock",
+    btnTitle: "在庫・設備管理",
+    dialogTitle: "店舗を選択すると在庫・設備編集できます",
+    getURL: (id) => `/collectMoney/${id}/newData`,
+    icon: <Icon.LuPackage />,
+  },
+  {
+    key: "store",
+    btnTitle: "店舗一覧",
+    dialogTitle: "店舗を選択すると詳細ページに行きます",
+    getURL: (id) => `/coinLaundry/${id}`,
+    icon: <Icon.LiaStoreSolid />,
+  },
+  {
+    key: "report",
+    btnTitle: "レポート",
+    dialogTitle: "店舗を選択すると集金データを見れます",
+    getURL: (id) => `/coinLaundry/${id}/coinDataList`,
+    icon: <Icon.VscGraphLine />,
+  },
+];
 
 const QuickActionDialog = async ({ method }) => {
   const { data, error } = await getStores();
   if (error) return <ErrorPage title={error.msg} status={error.status} />;
 
-  const methodArray = [
-    {
-      key: "collect",
-      btnTitle: "集金",
-      dialogTitle: "集金したい店舗を選択してください",
-      getURL: function (id) {
-        return `/collectMoney/${id}/newData`;
-      },
-      icon: <Icon.PiHandCoinsLight />,
-    },
-    {
-      key: "stock",
-      btnTitle: "在庫・設備管理",
-      dialogTitle: "店舗を選択すると在庫・設備編集できます",
-      getURL: function (id) {
-        return `/collectMoney/${id}/newData`;
-      },
-      icon: <Icon.LuPackage />,
-    },
-    {
-      key: "store",
-      btnTitle: "店舗一覧",
-      dialogTitle: "店舗を選択すると詳細ページに行きます",
-      getURL: function (id) {
-        return `/coinLaundry/${id}`;
-      },
-      icon: <Icon.LiaStoreSolid />,
-    },
-    {
-      key: "report",
-      btnTitle: "レポート",
-      dialogTitle: "店舗を選択すると集金データを見れます",
-      getURL: function (id) {
-        return `/coinLaundry/${id}/coinDataList`;
-      },
-      icon: <Icon.VscGraphLine />,
-    },
-  ];
-
-  const methodItem = methodArray.find((item) => item.key === method);
+  const methodItem = METHOD_LIST.find((item) => item.key === method);
 
   return (
     <Dialog.Root placement="center">
@@ -88,6 +81,7 @@ const QuickActionDialog = async ({ method }) => {
           </Button>
         </GridItem>
       </Dialog.Trigger>
+
       <Portal>
         <Dialog.Backdrop bg="blackAlpha.600" />
         <Dialog.Positioner>
@@ -138,8 +132,8 @@ const QuickActionDialog = async ({ method }) => {
                 </Text>
               ) : (
                 <VStack align="stretch" gap={3}>
-                  {data.map((item) => {
-                    return methodItem.key === "stock" ? (
+                  {data.map((item) =>
+                    methodItem.key === "stock" ? (
                       <Box key={item.id}>
                         <Text
                           fontSize="lg"
@@ -158,7 +152,7 @@ const QuickActionDialog = async ({ method }) => {
                     ) : (
                       <Link
                         key={item.id}
-                        href={`${methodItem.getURL(item.id)}`}
+                        href={methodItem.getURL(item.id)}
                         style={{ width: "100%" }}
                       >
                         <Box
@@ -185,8 +179,8 @@ const QuickActionDialog = async ({ method }) => {
                           </Text>
                         </Box>
                       </Link>
-                    );
-                  })}
+                    )
+                  )}
                 </VStack>
               )}
             </Dialog.Body>
@@ -203,9 +197,7 @@ const QuickActionDialog = async ({ method }) => {
                   size={{ base: "md", md: "lg" }}
                   borderRadius="lg"
                   px={6}
-                  _hover={{
-                    bg: "gray.100",
-                  }}
+                  _hover={{ bg: "gray.100" }}
                 >
                   キャンセル
                 </Button>
