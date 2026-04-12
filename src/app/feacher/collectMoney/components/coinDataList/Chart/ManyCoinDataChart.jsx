@@ -9,7 +9,7 @@ import {
 } from "recharts";
 
 import { getYearMonth } from "@/functions/makeDate/date";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import ChartLoading from "@/app/feacher/partials/ChartLoading";
 import { createClient } from "@/utils/supabase/client";
 import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
@@ -24,19 +24,19 @@ const formatYAxis = (value) => {
   return `${value}`;
 };
 
-const CustomXTick = ({ x, y, payload }) => {
+const CustomXTick = ({ x, y, payload, firstMonthsOfYear }) => {
   if (!payload?.value) return null;
   const month = parseInt(payload.value.slice(5, 7), 10);
   const year = payload.value.slice(0, 4);
-  const isJan = month === 1;
+  const showYear = firstMonthsOfYear?.has(payload.value);
   return (
     <g transform={`translate(${x},${y})`}>
-      {isJan && (
+      {showYear && (
         <text x={0} y={4} textAnchor="middle" fontSize={10} fill="#94a3b8">
           {year}年
         </text>
       )}
-      <text x={0} y={isJan ? 18 : 14} textAnchor="middle" fontSize={11} fill="#64748b">
+      <text x={0} y={showYear ? 18 : 14} textAnchor="middle" fontSize={11} fill="#64748b">
         {month}月
       </text>
     </g>
@@ -181,6 +181,15 @@ const ManyCoinDataChart = () => {
     setChartData(dataList);
   }, [data]);
 
+  const firstMonthsOfYear = useMemo(() => {
+    const yearFirst = {};
+    chartData.forEach(({ name }) => {
+      const year = name.slice(0, 4);
+      if (!yearFirst[year]) yearFirst[year] = name;
+    });
+    return new Set(Object.values(yearFirst));
+  }, [chartData]);
+
   const chart = useChart({
     data: chartData,
     dataKey: "coinData",
@@ -206,7 +215,7 @@ const ManyCoinDataChart = () => {
         <XAxis
           dataKey={chart.key("name")}
           stroke={chart.color("border")}
-          tick={<CustomXTick />}
+          tick={<CustomXTick firstMonthsOfYear={firstMonthsOfYear} />}
           tickLine={false}
           height={40}
         />

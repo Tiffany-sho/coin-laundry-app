@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Chart, useChart } from "@chakra-ui/charts";
 import {
   CartesianGrid,
@@ -24,20 +24,20 @@ const formatYAxis = (value) => {
   return `${value}`;
 };
 
-// X軸カスタムTick：1月のみ西暦を上段に表示
-const CustomXTick = ({ x, y, payload }) => {
+// X軸カスタムTick：各年で最初に登場する月に西暦を上段に表示
+const CustomXTick = ({ x, y, payload, firstMonthsOfYear }) => {
   if (!payload?.value) return null;
   const month = parseInt(payload.value.slice(5, 7), 10);
   const year = payload.value.slice(0, 4);
-  const isJan = month === 1;
+  const showYear = firstMonthsOfYear?.has(payload.value);
   return (
     <g transform={`translate(${x},${y})`}>
-      {isJan && (
+      {showYear && (
         <text x={0} y={4} textAnchor="middle" fontSize={10} fill="#94a3b8">
           {year}年
         </text>
       )}
-      <text x={0} y={isJan ? 18 : 14} textAnchor="middle" fontSize={11} fill="#64748b">
+      <text x={0} y={showYear ? 18 : 14} textAnchor="middle" fontSize={11} fill="#64748b">
         {month}月
       </text>
     </g>
@@ -184,6 +184,16 @@ const MonoCoinDataChart = ({ id }) => {
     setChartData(dataList);
   }, [data]);
 
+  // 各年で最初に登場する月の "YYYY-MM" を収集
+  const firstMonthsOfYear = useMemo(() => {
+    const yearFirst = {};
+    chartData.forEach(({ name }) => {
+      const year = name.slice(0, 4);
+      if (!yearFirst[year]) yearFirst[year] = name;
+    });
+    return new Set(Object.values(yearFirst));
+  }, [chartData]);
+
   const chart = useChart({
     data: chartData,
     dataKey: "coinData",
@@ -209,7 +219,7 @@ const MonoCoinDataChart = ({ id }) => {
         <XAxis
           dataKey={chart.key("name")}
           stroke={chart.color("border")}
-          tick={<CustomXTick />}
+          tick={<CustomXTick firstMonthsOfYear={firstMonthsOfYear} />}
           tickLine={false}
           height={40}
         />
