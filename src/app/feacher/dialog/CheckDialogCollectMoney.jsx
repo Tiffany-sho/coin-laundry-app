@@ -29,6 +29,7 @@ const CheckDialog = ({
   machinesAndFunds,
   epoc,
   setMsg,
+  onSuccess,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -99,6 +100,9 @@ const CheckDialog = ({
     if (error) {
       console.log("メッセージアクションにエラーが発生しました");
     }
+
+    onSuccess?.();
+
     setTimeout(() => {
       setIsLoading(false);
     }, 10000);
