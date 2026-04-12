@@ -1,5 +1,5 @@
 "use client";
-import { createClient } from "@/utils/supabase/client";
+
 import {
   VStack,
   Text,
@@ -13,34 +13,20 @@ import {
   Heading,
 } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
-import { useEffect, useState } from "react";
-import { showToast } from "@/functions/makeToast/toast";
+import { useNowLaundryNum } from "./useNowLaundryNum";
 
 const NowLaundryNum = ({ id }) => {
-  const [data, setData] = useState(null);
-  const [detergent, setDetergent] = useState(0);
-  const [softener, setSoftener] = useState(0);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const supabase = createClient();
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const { data: result, error } = await supabase
-        .from("laundry_state")
-        .select("*")
-        .eq("laundryId", id)
-        .single();
-
-      if (!error && result) {
-        setData(result);
-        setDetergent(result.detergent ?? 0);
-        setSoftener(result.softener ?? 0);
-      }
-      setIsLoading(false);
-    };
-    fetchData();
-  }, [id]);
+  const {
+    data,
+    detergent,
+    softener,
+    setDetergent,
+    setSoftener,
+    isSaving,
+    isLoading,
+    handleSave,
+    resetStock,
+  } = useNowLaundryNum(id);
 
   if (isLoading) return null;
 
@@ -59,36 +45,10 @@ const NowLaundryNum = ({ id }) => {
       </Box>
     );
 
-  const handleSave = async () => {
-    setIsSaving(true);
-    const { error } = await supabase
-      .from("laundry_state")
-      .update({
-        detergent: detergent,
-        softener: softener,
-      })
-      .eq("laundryId", id);
-
-    if (error) {
-      showToast("error", `${data.laundryName}店の在庫の更新に失敗しました`);
-    } else {
-      setData((prev) => ({
-        ...prev,
-        detergent: detergent,
-        softener: softener,
-      }));
-      showToast("success", `${data.laundryName}店の在庫を更新しました`);
-    }
-    setIsSaving(false);
-  };
-
   return (
     <Dialog.Root
       onOpenChange={(e) => {
-        if (e.open) {
-          setDetergent(data.detergent);
-          setSoftener(data.softener);
-        }
+        if (e.open) resetStock();
       }}
     >
       <Dialog.Trigger asChild>
@@ -103,8 +63,7 @@ const NowLaundryNum = ({ id }) => {
           cursor="pointer"
           transition="all 0.2s"
           _hover={{
-            bg:
-              data.detergent > 1 && data.softener > 1 ? "green.100" : "red.100",
+            bg: data.detergent > 1 && data.softener > 1 ? "green.100" : "red.100",
             transform: "translateY(-2px)",
             boxShadow: "md",
           }}
@@ -137,9 +96,7 @@ const NowLaundryNum = ({ id }) => {
                   }
                   fontWeight="semibold"
                 >
-                  {data.detergent > 1 && data.softener > 1
-                    ? "在庫良好"
-                    : "在庫不足"}
+                  {data.detergent > 1 && data.softener > 1 ? "在庫良好" : "在庫不足"}
                 </Text>
               </HStack>
 
@@ -223,9 +180,7 @@ const NowLaundryNum = ({ id }) => {
                         variant="solid"
                         size="lg"
                         bg="gray.600"
-                        onClick={() =>
-                          setDetergent((prev) => Math.max(0, prev - 1))
-                        }
+                        onClick={() => setDetergent((prev) => Math.max(0, prev - 1))}
                         disabled={detergent <= 0}
                         borderRadius="full"
                       >
@@ -240,11 +195,7 @@ const NowLaundryNum = ({ id }) => {
                         minW="100px"
                         textAlign="center"
                       >
-                        <Text
-                          fontSize="3xl"
-                          fontWeight="bold"
-                          color="green.900"
-                        >
+                        <Text fontSize="3xl" fontWeight="bold" color="green.900">
                           {detergent}
                         </Text>
                       </Box>
@@ -271,9 +222,7 @@ const NowLaundryNum = ({ id }) => {
                         variant="solid"
                         size="lg"
                         bg="gray.600"
-                        onClick={() =>
-                          setSoftener((prev) => Math.max(0, prev - 1))
-                        }
+                        onClick={() => setSoftener((prev) => Math.max(0, prev - 1))}
                         disabled={softener <= 0}
                         borderRadius="full"
                       >

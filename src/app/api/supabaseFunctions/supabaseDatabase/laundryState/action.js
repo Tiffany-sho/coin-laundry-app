@@ -56,6 +56,17 @@ export async function updateMachinesState(laundryId, machines) {
   return {};
 }
 
+export async function updateStockState(laundryId, { detergent, softener }) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("laundry_state")
+    .update({ detergent, softener })
+    .eq("laundryId", laundryId);
+
+  if (error) return { error };
+  return {};
+}
+
 export async function getStockStates(id) {
   const supabase = await createClient();
   const { data, error } = await supabase

@@ -1,6 +1,5 @@
 "use client";
 
-import { createClient } from "@/utils/supabase/client";
 import {
   VStack,
   Text,
@@ -15,67 +14,24 @@ import {
   Badge,
   Textarea,
 } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
-import { toaster } from "@/components/ui/toaster";
 import * as Icon from "@/app/feacher/Icon";
-import { showToast } from "@/functions/makeToast/toast";
+import { useMachinesEdit } from "./useMachinesEdit";
 
 const MachinesDialog = ({ initialData }) => {
-  const [data, setData] = useState(initialData);
-  const [isSaving, setIsSaving] = useState(false);
-  const [machines, setMachines] = useState(initialData.machines);
-  const supabase = createClient();
-
-  const breakMachine = data.machines.filter((m) => m.break);
-
-  useEffect(() => {
-    setTimeout(() => {
-      const toastInfo = sessionStorage.getItem("toast");
-      if (toastInfo) {
-        toaster.create(JSON.parse(toastInfo));
-      }
-      sessionStorage.removeItem("toast");
-    }, 0);
-  }, []);
-
-  const changeMachineState = (e, id, action) => {
-    setMachines((prev) =>
-      prev.map((machine) => {
-        if (action === "switch") {
-          if (machine.id !== id) return machine;
-          if (!e.checked && machine.comment) {
-            return { ...machine, break: e.checked, comment: "" };
-          }
-          return { ...machine, break: e.checked };
-        } else if (action === "input") {
-          if (machine.id !== id) return machine;
-          return { ...machine, comment: e.target.value };
-        }
-        return machine;
-      })
-    );
-  };
-
-  const handleSave = async () => {
-    setIsSaving(true);
-    const { error } = await supabase
-      .from("laundry_state")
-      .update({ machines })
-      .eq("laundryId", initialData.laundryId);
-
-    if (error) {
-      showToast("error", `${data.laundryName}店の設備状態の更新に失敗しました`);
-    } else {
-      setData((prev) => ({ ...prev, machines }));
-      showToast("success", `${data.laundryName}店の設備状態を更新しました`);
-    }
-    setIsSaving(false);
-  };
+  const {
+    data,
+    machines,
+    isSaving,
+    breakMachine,
+    changeMachineState,
+    handleSave,
+    resetMachines,
+  } = useMachinesEdit(initialData);
 
   return (
     <Dialog.Root
       onOpenChange={(e) => {
-        if (e.open) setMachines(data.machines);
+        if (e.open) resetMachines();
       }}
     >
       <Dialog.Trigger asChild>
@@ -244,8 +200,7 @@ const MachinesDialog = ({ initialData }) => {
                               borderColor="red.200"
                               _focus={{
                                 borderColor: "red.400",
-                                boxShadow:
-                                  "0 0 0 1px var(--chakra-colors-red-400)",
+                                boxShadow: "0 0 0 1px var(--chakra-colors-red-400)",
                               }}
                             />
                           </VStack>
@@ -269,7 +224,7 @@ const MachinesDialog = ({ initialData }) => {
                   size="lg"
                   borderRadius="full"
                   px={6}
-                  onClick={() => setMachines(data.machines)}
+                  onClick={resetMachines}
                 >
                   キャンセル
                 </Button>

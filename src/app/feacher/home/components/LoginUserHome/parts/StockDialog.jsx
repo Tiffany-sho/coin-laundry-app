@@ -1,6 +1,5 @@
 "use client";
 
-import { createClient } from "@/utils/supabase/client";
 import {
   VStack,
   Text,
@@ -13,9 +12,8 @@ import {
   Box,
 } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
-import { useState } from "react";
-import { showToast } from "@/functions/makeToast/toast";
 import StockCounter from "./StockCounter";
+import { useStockEdit } from "./useStockEdit";
 
 const getStockBadgeStyle = (count) => ({
   bg: count < 1 ? "red.500" : count < 2 ? "orange.200" : "green.200",
@@ -23,11 +21,16 @@ const getStockBadgeStyle = (count) => ({
 });
 
 const StockDialog = ({ initialData }) => {
-  const [currentData, setCurrentData] = useState(initialData);
-  const [detergent, setDetergent] = useState(initialData.detergent);
-  const [softener, setSoftener] = useState(initialData.softener);
-  const [isSaving, setIsSaving] = useState(false);
-  const supabase = createClient();
+  const {
+    currentData,
+    detergent,
+    softener,
+    setDetergent,
+    setSoftener,
+    isSaving,
+    handleSave,
+    resetStock,
+  } = useStockEdit(initialData);
 
   const isCritical = currentData.detergent < 1 || currentData.softener < 1;
   const borderColor = isCritical ? "red.200" : "orange.200";
@@ -37,29 +40,10 @@ const StockDialog = ({ initialData }) => {
     ? "var(--chakra-colors-red-500)"
     : "var(--chakra-colors-orange-500)";
 
-  const handleSave = async () => {
-    setIsSaving(true);
-    const { error } = await supabase
-      .from("laundry_state")
-      .update({ detergent, softener })
-      .eq("laundryId", initialData.laundryId);
-
-    if (error) {
-      showToast("error", `${currentData.laundryName}店の在庫の更新に失敗しました`);
-    } else {
-      setCurrentData((prev) => ({ ...prev, detergent, softener }));
-      showToast("success", `${currentData.laundryName}店の在庫を更新しました`);
-    }
-    setIsSaving(false);
-  };
-
   return (
     <Dialog.Root
       onOpenChange={(e) => {
-        if (e.open) {
-          setDetergent(currentData.detergent);
-          setSoftener(currentData.softener);
-        }
+        if (e.open) resetStock();
       }}
     >
       <Dialog.Trigger asChild>
