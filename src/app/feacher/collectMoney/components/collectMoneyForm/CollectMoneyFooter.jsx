@@ -1,5 +1,6 @@
-import { Box, Button, HStack, Text } from "@chakra-ui/react";
+import { Box, HStack, Text } from "@chakra-ui/react";
 import CheckDialog from "@/app/feacher/dialog/CheckDialogCollectMoney";
+import CancelConfirmDialog from "./parts/CancelConfirmDialog";
 
 const CollectMoneyFooter = ({
   machinesAndFunds,
@@ -45,28 +46,10 @@ const CollectMoneyFooter = ({
       </Box>
 
       <HStack gap={3} w={{ base: "full", sm: "auto" }}>
-        <Button
-          onClick={onCancel}
-          variant="outline"
-          size="lg"
-          bg="white"
-          color="gray.700"
-          fontWeight="semibold"
-          px={{ base: 6, md: 8 }}
-          borderWidth="2px"
-          borderColor="gray.300"
-          borderRadius="xl"
-          flex={{ base: 1, sm: "unset" }}
-          _hover={{
-            bg: "gray.50",
-            borderColor: "gray.400",
-            transform: "translateY(-1px)",
-          }}
-          _active={{ transform: "translateY(0)" }}
-          transition="all 0.2s"
-        >
-          キャンセル
-        </Button>
+        <CancelConfirmDialog
+          onSaveAndLeave={() => { onSaveDraft(); onCancel(); }}
+          onLeave={onCancel}
+        />
 
         <Button
           onClick={onSaveDraft}
