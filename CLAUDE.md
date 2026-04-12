@@ -12,14 +12,14 @@
 
 ## 技術スタック
 
-| 役割 | 技術 |
-|------|------|
-| フレームワーク | Next.js 16 (App Router) |
-| UIライブラリ | Chakra UI v3 |
-| バックエンド/DB/認証 | Supabase (RLS有効) |
-| チャート | Recharts |
-| デプロイ | Vercel |
-| スタイリング | Chakra UI優先（`module.css`は最小限） |
+| 役割                 | 技術                                  |
+| -------------------- | ------------------------------------- |
+| フレームワーク       | Next.js 16 (App Router)               |
+| UIライブラリ         | Chakra UI v3                          |
+| バックエンド/DB/認証 | Supabase (RLS有効)                    |
+| チャート             | Recharts                              |
+| デプロイ             | Vercel                                |
+| スタイリング         | Chakra UI優先（`module.css`は最小限） |
 
 ---
 
@@ -50,17 +50,81 @@ src/
 
 ---
 
+## DB_SQL
+
+- CREATE TABLE public.action_message (
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  message text,
+  date bigint,
+  user uuid DEFAULT auth.uid(),
+  CONSTRAINT action_message_pkey PRIMARY KEY (id),
+  CONSTRAINT action_message_user_fkey FOREIGN KEY (user) REFERENCES public.profiles(id)
+  );
+- CREATE TABLE public.collect_funds (
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  laundryId uuid DEFAULT gen_random_uuid(),
+  laundryName text,
+  date bigint,
+  fundsArray jsonb,
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  collecter uuid DEFAULT auth.uid(),
+  totalFunds bigint,
+  CONSTRAINT collect_funds_pkey PRIMARY KEY (id),
+  CONSTRAINT collect_funds_laundryId_fkey FOREIGN KEY (laundryId) REFERENCES public.laundry_store(id),
+  CONSTRAINT collect_funds_collecter_fkey FOREIGN KEY (collecter) REFERENCES public.profiles(id)
+  );
+- CREATE TABLE public.laundry_state (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  laundryId uuid DEFAULT gen_random_uuid(),
+  detergent bigint,
+  softener bigint,
+  machines jsonb,
+  stocker uuid DEFAULT auth.uid(),
+  laundryName text,
+  CONSTRAINT laundry_state_pkey PRIMARY KEY (id),
+  CONSTRAINT laundry_stock_laundryId_fkey FOREIGN KEY (laundryId) REFERENCES public.laundry_store(id),
+  CONSTRAINT laundry_state_stocker_fkey FOREIGN KEY (stocker) REFERENCES public.profiles(id)
+  );
+- CREATE TABLE public.laundry_store (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  store text NOT NULL,
+  location text NOT NULL,
+  description text NOT NULL,
+  machines jsonb DEFAULT '[]'::jsonb,
+  images jsonb DEFAULT '[]'::jsonb,
+  owner uuid NOT NULL DEFAULT auth.uid(),
+  CONSTRAINT laundry_store_pkey PRIMARY KEY (id),
+  CONSTRAINT laundry_store_owner_fkey FOREIGN KEY (owner) REFERENCES public.profiles(id)
+  );
+- CREATE TABLE public.profiles (
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  username text,
+  full_name text,
+  website text,
+  updated_at timestamp with time zone,
+  id uuid NOT NULL,
+  role text,
+  collectMethod text,
+  CONSTRAINT profiles_pkey PRIMARY KEY (id)
+  );
+
 ## 開発ルール
 
 ### DB操作
+
 - Supabase の CRUD は必ず `src/app/api/supabaseFunctions/` 配下に書く。ページや components 内に直書きしない。
 - RLS が有効なので、ポリシーを意識してクエリを書く。
 
 ### スタイリング
+
 - **Chakra UI を優先**。`module.css` は Chakra で対応できないレイアウト調整のみ使用。
 - ダークモード対応を将来的に行うため、ハードコードの色（`#ffffff` など）は使わず、Chakra のトークン（`colorPalette`、`bg`、`color` props）を使う。
 
 ### コンポーネント設計
+
 - コンポーネントは積極的に分割する（1ファイル1責務を意識）。
 - 共通UIは `src/components/ui/` に、機能固有UIは `src/app/feacher/<機能名>/` に配置。
 - ファイル形式は `.jsx` で統一。TypeScript移行予定なし。
@@ -69,11 +133,13 @@ src/
   - インタラクティブな部分だけを切り出して Client Component にする（ページ全体を `"use client"` にしない）。
 
 ### パフォーマンス
+
 - ページ遷移速度を最優先にする。
 - `next/link` による prefetch を活用。重いデータフェッチは Server Component 側で行う。
 - 不要な `useEffect` や再レンダリングを避ける。
 
 ### コーディングスタイル
+
 - 変数名・関数名に特定の言語規則なし（英語推奨）。
 - コメントは日本語でも英語でも可。
 - 状態管理はグローバル管理なし（Context API / Zustand は使わない）。各ページのローカル state で管理。
