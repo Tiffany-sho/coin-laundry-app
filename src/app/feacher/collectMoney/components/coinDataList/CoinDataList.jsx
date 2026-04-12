@@ -57,7 +57,7 @@ const MoneyDataList = ({ valiant, coinLaundry }) => {
   }, [data]);
 
   return (
-    <Box py={{ base: 6, md: 8 }}>
+    <Box py={{ base: 6, md: 8 }} px={{ base: 4, md: 6 }}>
       <VStack align="stretch" gap={6}>
         <Flex
           direction={{ base: "column", md: "row" }}
