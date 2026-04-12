@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Box, Button, HStack, Slider, Text } from "@chakra-ui/react";
+import { Box, Button, HStack, Slider, Text, VStack } from "@chakra-ui/react";
 import { LuChevronLeft, LuChevronRight } from "@/app/feacher/Icon";
 import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
 import {
