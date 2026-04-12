@@ -107,6 +107,25 @@ export async function deleteData(id) {
   return { error: error };
 }
 
+export async function getAllMonthBenefits() {
+  const { user } = await getUser();
+  if (!user) return { error: "ログインしてください" };
+
+  const supabase = await createClient();
+  const epocYearBeforeMonth = changeEpocFromNowYearMonth(-1);
+  const epocYearAfterMonth = changeEpocFromNowYearMonth(1);
+
+  const { data, error } = await supabase
+    .from("collect_funds")
+    .select("date,totalFunds,laundryId")
+    .eq("collecter", user.id)
+    .gt("date", epocYearBeforeMonth)
+    .lt("date", epocYearAfterMonth);
+
+  if (error) return { error: "集金データの取得に失敗しました" };
+  return { data };
+}
+
 export async function getMonthFunds(id) {
   const supabase = await createClient();
   const epocYearMonth = changeEpocFromNowYearMonth(0);

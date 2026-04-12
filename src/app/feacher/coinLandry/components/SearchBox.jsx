@@ -1,85 +1,24 @@
 "use client";
 
-import {
-  Combobox,
-  Portal,
-  useFilter,
-  useListCollection,
-  Box,
-} from "@chakra-ui/react";
-import { useRouter } from "next/navigation";
+import { Input, InputGroup, Box } from "@chakra-ui/react";
+import { LuSearch } from "@/app/feacher/Icon";
 
-const SearchBox = ({ selectItems }) => {
-  const router = useRouter();
-  const { contains } = useFilter({ sensitivity: "base" });
-  const { collection, filter } = useListCollection({
-    initialItems: selectItems,
-    filter: contains,
-  });
-
+const SearchBox = ({ value, onChange }) => {
   return (
     <Box maxW="600px" w="100%">
-      <Combobox.Root
-        collection={collection}
-        onInputValueChange={(e) => filter(e.inputValue)}
-        width="100%"
-      >
-        <Combobox.Control
+      <InputGroup startElement={<LuSearch color="gray" />} w="100%">
+        <Input
+          placeholder="店舗名または住所で検索..."
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          fontSize="md"
           bg="white"
           borderRadius="lg"
           boxShadow="md"
-          _focusWithin={{
-            boxShadow: "lg",
-            borderColor: "blue.400",
-          }}
-        >
-          <Combobox.Input
-            placeholder="店舗名または住所で検索..."
-            px={4}
-            py={3}
-            fontSize="md"
-            _placeholder={{ color: "gray.400" }}
-          />
-          <Combobox.IndicatorGroup>
-            <Combobox.ClearTrigger />
-            <Combobox.Trigger />
-          </Combobox.IndicatorGroup>
-        </Combobox.Control>
-        <Portal>
-          <Combobox.Positioner>
-            <Combobox.Content
-              bg="white"
-              borderRadius="lg"
-              boxShadow="xl"
-              maxH="300px"
-              overflowY="auto"
-            >
-              <Combobox.Empty p={4} color="gray.500" textAlign="center">
-                該当店舗が見つかりませんでした
-              </Combobox.Empty>
-              {collection.items.map((item) => (
-                <Combobox.Item
-                  item={item}
-                  key={item.value}
-                  cursor="pointer"
-                  _hover={{
-                    bg: "blue.50",
-                  }}
-                  _selected={{
-                    bg: "blue.100",
-                  }}
-                  onClick={() => {
-                    router.push(`/coinLaundry/${item.value}`);
-                  }}
-                >
-                  {item.label}
-                  <Combobox.ItemIndicator />
-                </Combobox.Item>
-              ))}
-            </Combobox.Content>
-          </Combobox.Positioner>
-        </Portal>
-      </Combobox.Root>
+          _placeholder={{ color: "gray.400" }}
+          _focusVisible={{ boxShadow: "lg", borderColor: "blue.400" }}
+        />
+      </InputGroup>
     </Box>
   );
 };

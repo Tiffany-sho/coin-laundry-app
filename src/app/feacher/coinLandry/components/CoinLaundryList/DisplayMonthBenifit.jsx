@@ -1,79 +1,26 @@
-import { createNowData } from "@/functions/makeDate/date";
-import { changeEpocFromNowYearMonth } from "@/functions/makeDate/date";
-import { createClient } from "@/utils/supabase/server";
+import { createNowData, changeEpocFromNowYearMonth } from "@/functions/makeDate/date";
 import { Text, HStack, Badge, Stack, Box } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
-import ErrorPage from "@/app/feacher/jumpPage/ErrorPage/ErrorPage";
 
-const getData = async (id) => {
-  const supabase = await createClient();
-
-  const epocYearBeforeMonth = changeEpocFromNowYearMonth(-1);
-  const epocYearAfterMonth = changeEpocFromNowYearMonth(1);
-
-  const { data, error } = await supabase
-    .from("collect_funds")
-    .select("date,totalFunds")
-    .eq("laundryId", id)
-    .gt("date", epocYearBeforeMonth)
-    .lt("date", epocYearAfterMonth);
-
-  if (error) {
-    return {
-      error: "集金データの取得に失敗しました",
-    };
-  }
-
-  if (data.length === 0) {
-    const { data, error } = await supabase
-      .from("collect_funds")
-      .select("date,fundsArray")
-      .eq("laundryId", id)
-      .lt("date", epocYearBeforeMonth);
-
-    if (error) {
-      return {
-        error: "集金データの取得に失敗しました",
-      };
-    }
-    return { data: data };
-  }
-
-  return { data: data };
-};
-
-const DisplayMonthBenifit = async ({ id }) => {
-  const { data, error } = await getData(id);
-  if (error) return <ErrorPage title={error.msg} status={error.status} />;
-
+const DisplayMonthBenifit = ({ records = [] }) => {
   const epocYearMonth = changeEpocFromNowYearMonth(0);
   const epocYearBeforeMonth = changeEpocFromNowYearMonth(-1);
   const epocYearAfterMonth = changeEpocFromNowYearMonth(1);
 
-  const thisMonthBenefit = data
-    .filter(
-      (item) => item.date >= epocYearMonth && item.date < epocYearAfterMonth,
-    )
-    .reduce((accumulator, currentValue) => {
-      return accumulator + currentValue.totalFunds;
-    }, 0);
+  const thisMonthBenefit = records
+    .filter((item) => item.date >= epocYearMonth && item.date < epocYearAfterMonth)
+    .reduce((acc, cur) => acc + (cur.totalFunds ?? 0), 0);
 
-  const lastMonthBenefit = data
-    .filter(
-      (item) => item.date < epocYearMonth && item.date >= epocYearBeforeMonth,
-    )
-    .reduce((accumulator, currentValue) => {
-      return accumulator + currentValue.totalFunds;
-    }, 0);
+  const lastMonthBenefit = records
+    .filter((item) => item.date < epocYearMonth && item.date >= epocYearBeforeMonth)
+    .reduce((acc, cur) => acc + (cur.totalFunds ?? 0), 0);
 
   const difference = thisMonthBenefit - lastMonthBenefit;
   const percentageChange =
     lastMonthBenefit > 0
       ? ((difference / lastMonthBenefit) * 100).toFixed(1)
       : 0;
-  const lastestDate = data.reduce((max, current) => {
-    return current.date > max ? current.date : max;
-  }, 0);
+  const lastestDate = records.reduce((max, cur) => (cur.date > max ? cur.date : max), 0);
 
   const isIncrease = difference > 0;
   const isEqual = difference === 0;

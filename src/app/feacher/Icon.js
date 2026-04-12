@@ -37,6 +37,7 @@ import {
   LuHistory,
   LuFileText,
   LuUsers,
+  LuSearch,
 } from "react-icons/lu";
 
 import { MdOutlineLocalLaundryService } from "react-icons/md";
@@ -93,4 +94,5 @@ export {
   LuHistory,
   LuFileText,
   LuUsers,
+  LuSearch,
 };
