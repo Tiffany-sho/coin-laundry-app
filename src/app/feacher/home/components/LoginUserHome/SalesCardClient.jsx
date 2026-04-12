@@ -5,13 +5,8 @@ import { Box, HStack, VStack, Text, Badge, Button, Spinner } from "@chakra-ui/re
 import * as Icon from "@/app/feacher/Icon";
 import { getMonthFundsByOffset } from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
 
-const getMonthLabel = (offset) => {
-  const now = new Date();
-  const target = new Date(now.getFullYear(), now.getMonth() + offset, 1);
-  return `${target.getFullYear()}年${target.getMonth() + 1}月`;
-};
+// ──────── helpers ────────
 
-// 月ごとの背景色トークン（Chakra UIカラートークン直接指定）
 const MONTH_BG = {
   1:  "blue.800",    // 1月: 冬の深夜空
   2:  "purple.600",  // 2月: バレンタイン・梅
@@ -33,13 +28,19 @@ const getMonthBg = (monthOffset) => {
   return MONTH_BG[month];
 };
 
+const getMonthLabel = (offset) => {
+  const now = new Date();
+  const target = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+  return `${target.getFullYear()}年${target.getMonth() + 1}月`;
+};
+
+// ──────── FundsDisplay ────────
+
 const FundsDisplay = ({ data, error }) => {
   if (error) {
     return (
       <Box py={4}>
-        <Text color="white" fontSize="sm">
-          データ取得失敗
-        </Text>
+        <Text color="white" fontSize="sm">データ取得失敗</Text>
       </Box>
     );
   }
@@ -63,9 +64,7 @@ const FundsDisplay = ({ data, error }) => {
   return (
     <Box py={2}>
       <HStack align="baseline" gap={2} flexWrap="wrap">
-        <Text fontSize={{ base: "xl", md: "2xl" }} fontWeight="bold" color="white">
-          ¥
-        </Text>
+        <Text fontSize={{ base: "xl", md: "2xl" }} fontWeight="bold" color="white">¥</Text>
         <Text
           fontSize={{ base: "4xl", md: "6xl" }}
           fontWeight="extrabold"
@@ -75,20 +74,13 @@ const FundsDisplay = ({ data, error }) => {
           {totalRevenue.toLocaleString()}
         </Text>
       </HStack>
-
       <HStack gap={4} mt={3} flexWrap="wrap">
         <Box bg="whiteAlpha.200" px={3} py={1.5} borderRadius="md">
-          <Text fontSize="2xs" color="whiteAlpha.800" mb={0.5}>
-            集金回数
-          </Text>
-          <Text fontSize="lg" fontWeight="bold" color="white">
-            {collectCount}回
-          </Text>
+          <Text fontSize="2xs" color="whiteAlpha.800" mb={0.5}>集金回数</Text>
+          <Text fontSize="lg" fontWeight="bold" color="white">{collectCount}回</Text>
         </Box>
         <Box bg="whiteAlpha.200" px={3} py={1.5} borderRadius="md">
-          <Text fontSize="2xs" color="whiteAlpha.800" mb={0.5}>
-            平均単価
-          </Text>
+          <Text fontSize="2xs" color="whiteAlpha.800" mb={0.5}>平均単価</Text>
           <Text fontSize="lg" fontWeight="bold" color="white">
             ¥{Math.round(totalRevenue / collectCount).toLocaleString()}
           </Text>
@@ -98,6 +90,126 @@ const FundsDisplay = ({ data, error }) => {
   );
 };
 
+// ──────── AdjacentCard（カルーセルの隣接カード） ────────
+
+const AdjacentCard = ({ monthOffset }) => {
+  const now = new Date();
+  const target = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
+  const month = target.getMonth() + 1;
+
+  return (
+    <Box
+      bg={getMonthBg(monthOffset)}
+      borderRadius="xl"
+      h="100%"
+      minH="180px"
+      opacity={0.5}
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+    >
+      <Text
+        color="white"
+        fontWeight="bold"
+        fontSize="sm"
+        style={{ writingMode: "vertical-rl" }}
+      >
+        {month}月
+      </Text>
+    </Box>
+  );
+};
+
+// 現在月より先はデータなし：右端のプレースホルダー
+const FuturePlaceholder = () => (
+  <Box
+    bg="gray.300"
+    borderRadius="xl"
+    h="100%"
+    minH="180px"
+    opacity={0.3}
+  />
+);
+
+// ──────── ActiveCard（アクティブなカードの中身） ────────
+
+const ActiveCard = ({ monthOffset, data, error, isPending, navigate }) => {
+  const isCurrentMonth = monthOffset === 0;
+  const monthLabel = getMonthLabel(monthOffset);
+  const monthBg = getMonthBg(monthOffset);
+
+  return (
+    <Box
+      bg={monthBg}
+      transition="background 0.4s"
+      p={{ base: 4, md: 6 }}
+      borderRadius="xl"
+      boxShadow="lg"
+      position="relative"
+      overflow="hidden"
+    >
+      <Box
+        position="absolute" top="-20%" right="-10%"
+        w="200px" h="200px" bg="white" opacity={0.05} borderRadius="full"
+      />
+      <Box
+        position="absolute" bottom="-30%" left="-5%"
+        w="150px" h="150px" bg="white" opacity={0.05} borderRadius="full"
+      />
+
+      <VStack align="stretch" gap={3} position="relative">
+        <HStack justify="space-between">
+          <HStack gap={2}>
+            <Icon.LuTrendingUp color="white" size={24} />
+            <Text fontSize={{ base: "sm", md: "md" }} color="white" fontWeight="semibold">
+              {isCurrentMonth ? "今月の売上" : "売上"}
+            </Text>
+          </HStack>
+          <Badge bg="whiteAlpha.300" color="white" fontSize="xs" px={2} py={1} borderRadius="full">
+            {monthLabel}
+          </Badge>
+        </HStack>
+
+        <Box position="relative">
+          <Box opacity={isPending ? 0.3 : 1} transition="opacity 0.15s">
+            <FundsDisplay data={data} error={error} />
+          </Box>
+          {isPending && (
+            <Box position="absolute" inset={0} display="flex" alignItems="center" justifyContent="center">
+              <Spinner color="white" size="lg" />
+            </Box>
+          )}
+        </Box>
+
+        <HStack justify="space-between" mt={1}>
+          <Button
+            size="xs" variant="ghost" color="white"
+            _hover={{ bg: "whiteAlpha.200" }}
+            onClick={() => navigate(monthOffset - 1)}
+            disabled={isPending}
+          >
+            <Icon.LuChevronLeft size={14} />
+            先月を見る
+          </Button>
+          {!isCurrentMonth && (
+            <Button
+              size="xs" variant="ghost" color="white"
+              _hover={{ bg: "whiteAlpha.200" }}
+              onClick={() => navigate(monthOffset + 1)}
+              disabled={isPending}
+            >
+              次の月
+              <Icon.LuChevronRight size={14} />
+            </Button>
+          )}
+        </HStack>
+      </VStack>
+    </Box>
+  );
+};
+
+// ──────── SalesCardClient ────────
+
 const SalesCardClient = ({ id, initialData, initialError }) => {
   const [monthOffset, setMonthOffset] = useState(0);
   const [fundsData, setFundsData] = useState(initialData);
@@ -106,6 +218,7 @@ const SalesCardClient = ({ id, initialData, initialError }) => {
   const touchStartX = useRef(null);
 
   const navigate = (newOffset) => {
+    if (newOffset > 0) return;
     startTransition(async () => {
       const { data, error } = await getMonthFundsByOffset(id, newOffset);
       setFundsData(data ?? null);
@@ -122,119 +235,48 @@ const SalesCardClient = ({ id, initialData, initialError }) => {
     if (touchStartX.current === null || isPending) return;
     const deltaX = e.changedTouches[0].clientX - touchStartX.current;
     touchStartX.current = null;
-    const THRESHOLD = 50;
-    if (deltaX > THRESHOLD) {
-      // 右スワイプ → 先月
-      navigate(monthOffset - 1);
-    } else if (deltaX < -THRESHOLD && !isCurrentMonth) {
-      // 左スワイプ → 翌月（現在月より未来には進まない）
-      navigate(monthOffset + 1);
-    }
+    if (deltaX > 50) navigate(monthOffset - 1);
+    else if (deltaX < -50 && monthOffset < 0) navigate(monthOffset + 1);
   };
 
   const isCurrentMonth = monthOffset === 0;
-  const monthLabel = getMonthLabel(monthOffset);
-  const monthBg = getMonthBg(monthOffset);
+
+  const activeCardProps = {
+    monthOffset,
+    data: fundsData,
+    error: fundsError,
+    isPending,
+    navigate,
+  };
 
   return (
-    <Box
-      bg={monthBg}
-      transition="background 0.4s"
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-      cursor={{ base: "grab", md: "default" }}
-      p={{ base: 4, md: 6 }}
-      borderRadius="xl"
-      boxShadow="lg"
-      position="relative"
-      overflow="hidden"
-    >
+    <>
+      {/* ── モバイル: ピークカルーセル ── */}
+      {/* カード幅 = calc(100% - 48px)、peek = 24px、gap = 8px
+          translateX = peek - (cardW + gap) = 24 - (W-48+8) = 64-W = calc(64px - 100%) */}
       <Box
-        position="absolute"
-        top="-20%"
-        right="-10%"
-        w="200px"
-        h="200px"
-        bg="white"
-        opacity={0.05}
-        borderRadius="full"
-      />
-      <Box
-        position="absolute"
-        bottom="-30%"
-        left="-5%"
-        w="150px"
-        h="150px"
-        bg="white"
-        opacity={0.05}
-        borderRadius="full"
-      />
-
-      <VStack align="stretch" gap={3} position="relative">
-        <HStack justify="space-between">
-          <HStack gap={2}>
-            <Icon.LuTrendingUp color="white" size={24} />
-            <Text fontSize={{ base: "sm", md: "md" }} color="white" fontWeight="semibold">
-              {isCurrentMonth ? "今月の売上" : "売上"}
-            </Text>
-          </HStack>
-          <Badge
-            bg="whiteAlpha.300"
-            color="white"
-            fontSize="xs"
-            px={2}
-            py={1}
-            borderRadius="full"
-          >
-            {monthLabel}
-          </Badge>
-        </HStack>
-
-        <Box position="relative">
-          <Box opacity={isPending ? 0.3 : 1} transition="opacity 0.15s">
-            <FundsDisplay data={fundsData} error={fundsError} />
-          </Box>
-          {isPending && (
-            <Box
-              position="absolute"
-              inset={0}
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-            >
-              <Spinner color="white" size="lg" />
-            </Box>
-          )}
+        display={{ base: "block", md: "none" }}
+        overflow="hidden"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        <Box
+          display="grid"
+          gridTemplateColumns="repeat(3, calc(100% - 48px))"
+          gap="8px"
+          style={{ transform: "translateX(calc(64px - 100%))" }}
+        >
+          <AdjacentCard monthOffset={monthOffset - 1} />
+          <ActiveCard {...activeCardProps} />
+          {isCurrentMonth ? <FuturePlaceholder /> : <AdjacentCard monthOffset={monthOffset + 1} />}
         </Box>
+      </Box>
 
-        <HStack justify="space-between" mt={1}>
-          <Button
-            size="xs"
-            variant="ghost"
-            color="white"
-            _hover={{ bg: "whiteAlpha.200" }}
-            onClick={() => navigate(monthOffset - 1)}
-            disabled={isPending}
-          >
-            <Icon.LuChevronLeft size={14} />
-            先月を見る
-          </Button>
-          {!isCurrentMonth && (
-            <Button
-              size="xs"
-              variant="ghost"
-              color="white"
-              _hover={{ bg: "whiteAlpha.200" }}
-              onClick={() => navigate(monthOffset + 1)}
-              disabled={isPending}
-            >
-              次の月
-              <Icon.LuChevronRight size={14} />
-            </Button>
-          )}
-        </HStack>
-      </VStack>
-    </Box>
+      {/* ── デスクトップ: 通常表示 ── */}
+      <Box display={{ base: "none", md: "block" }}>
+        <ActiveCard {...activeCardProps} />
+      </Box>
+    </>
   );
 };
 
