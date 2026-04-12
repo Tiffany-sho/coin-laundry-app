@@ -103,7 +103,7 @@ const CollectMoneyFooter = ({
           一時保存
         </Button>
 
-        <Box flex={{ base: 1, sm: "unset" }}>
+        <Box flex={{ base: 1, sm: "unset" }} display="flex">
           <CheckDialog
             coinLaundry={coinLaundry}
             checked={checked}

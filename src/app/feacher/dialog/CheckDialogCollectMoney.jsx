@@ -118,7 +118,8 @@ const CheckDialog = ({
     >
       <Dialog.Trigger asChild>
         <Button
-          px={{ base: 14, md: 20 }}
+          w={{ base: "full", sm: "auto" }}
+          px={{ base: 4, md: 20 }}
           borderWidth="2px"
           borderRadius="xl"
           color="white"
