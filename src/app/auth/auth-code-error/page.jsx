@@ -26,8 +26,8 @@ export default function AuthCodeError() {
         </Card.Body>
 
         <Card.Footer px={6} pb={6}>
-          <Button as={Link} href="/auth/login" bg="blue" w="full" size="lg">
-            ログインページに戻る
+          <Button asChild bg="blue" w="full" size="lg">
+            <Link href="/auth/login">ログインページに戻る</Link>
           </Button>
         </Card.Footer>
       </Card.Root>
