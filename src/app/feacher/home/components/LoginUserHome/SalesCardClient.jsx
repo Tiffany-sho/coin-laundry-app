@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef } from "react";
 import { Box, HStack, VStack, Text, Badge, Button, Spinner } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
 import { getMonthFundsByOffset } from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
@@ -103,6 +103,7 @@ const SalesCardClient = ({ id, initialData, initialError }) => {
   const [fundsData, setFundsData] = useState(initialData);
   const [fundsError, setFundsError] = useState(initialError);
   const [isPending, startTransition] = useTransition();
+  const touchStartX = useRef(null);
 
   const navigate = (newOffset) => {
     startTransition(async () => {
@@ -113,6 +114,24 @@ const SalesCardClient = ({ id, initialData, initialError }) => {
     });
   };
 
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e) => {
+    if (touchStartX.current === null || isPending) return;
+    const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+    touchStartX.current = null;
+    const THRESHOLD = 50;
+    if (deltaX > THRESHOLD) {
+      // 右スワイプ → 先月
+      navigate(monthOffset - 1);
+    } else if (deltaX < -THRESHOLD && !isCurrentMonth) {
+      // 左スワイプ → 翌月（現在月より未来には進まない）
+      navigate(monthOffset + 1);
+    }
+  };
+
   const isCurrentMonth = monthOffset === 0;
   const monthLabel = getMonthLabel(monthOffset);
   const monthBg = getMonthBg(monthOffset);
@@ -121,6 +140,9 @@ const SalesCardClient = ({ id, initialData, initialError }) => {
     <Box
       bg={monthBg}
       transition="background 0.4s"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      cursor={{ base: "grab", md: "default" }}
       p={{ base: 4, md: 6 }}
       borderRadius="xl"
       boxShadow="lg"
