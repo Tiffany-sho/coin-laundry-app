@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Box, HStack, Slider, Text, VStack } from "@chakra-ui/react";
 import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
 import {
@@ -47,14 +48,21 @@ const todayEpoch = () => {
 const PeriodRangeSlider = () => {
   const { startEpoch, setStartEpoch, endEpoch, setEndEpoch } = useUploadPage();
 
-  const startVal = epochToSliderVal(startEpoch > 0 ? startEpoch : 0);
-  const endVal = endEpoch === null ? MAX_MONTHS : epochToSliderVal(endEpoch);
+  const contextStartVal = epochToSliderVal(startEpoch > 0 ? startEpoch : 0);
+  const contextEndVal = endEpoch === null ? MAX_MONTHS : epochToSliderVal(endEpoch);
 
-  const startDateStr = startEpoch > 0 ? epochToDateStr(startEpoch) : "全期間";
+  // ドラッグ中はローカル state で表示のみ更新（フェッチは走らせない）
+  const [localVal, setLocalVal] = useState([contextStartVal, contextEndVal]);
+
+  const startDateStr =
+    localVal[0] > 0 ? epochToDateStr(sliderToStart(localVal[0])) : "全期間";
   const endDateStr =
-    endEpoch !== null ? epochToDateStr(endEpoch) : epochToDateStr(todayEpoch());
+    localVal[1] < MAX_MONTHS
+      ? epochToDateStr(sliderToStart(localVal[1]))
+      : epochToDateStr(todayEpoch());
 
-  const handleSliderChange = ([newStart, newEnd]) => {
+  // ドラッグ終了時だけコンテキストを更新 → チャートのフェッチが走る
+  const handleChangeEnd = ([newStart, newEnd]) => {
     setStartEpoch(sliderToStart(newStart));
     setEndEpoch(sliderToEnd(newEnd));
   };
@@ -80,8 +88,9 @@ const PeriodRangeSlider = () => {
           min={0}
           max={MAX_MONTHS}
           step={1}
-          value={[startVal, endVal]}
-          onValueChange={(e) => handleSliderChange(e.value)}
+          value={localVal}
+          onValueChange={(e) => setLocalVal(e.value)}
+          onValueChangeEnd={(e) => handleChangeEnd(e.value)}
           colorPalette="blue"
         >
           <HStack justify="space-between" mb={1}>
