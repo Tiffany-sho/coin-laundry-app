@@ -1,6 +1,4 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
-import { createClient } from "@/utils/supabase/client";
 import {
   Box,
   Button,
@@ -15,67 +13,12 @@ import {
   Flex,
 } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
-import { showToast } from "@/functions/makeToast/toast";
 import Link from "next/link";
+import { useUserProfile } from "./useUserProfile";
 
 export default function AccountForm({ user }) {
-  const supabase = createClient();
-  const [loading, setLoading] = useState(true);
-  const [fullname, setFullname] = useState(null);
-  const [username, setUsername] = useState(null);
-  const [role, setRole] = useState(null);
-
-  const getProfile = useCallback(async () => {
-    try {
-      setLoading(true);
-      const { data, error, status } = await supabase
-        .from("profiles")
-        .select(`full_name, username, role`)
-        .eq("id", user.id)
-        .single();
-
-      if (error && status !== 406) {
-        throw error;
-      }
-
-      if (data) {
-        setFullname(data.full_name);
-        setUsername(data.username);
-        setRole(data.role);
-      }
-    } catch (error) {
-      alert("ユーザデータの取得に失敗しました");
-    } finally {
-      setLoading(false);
-    }
-  }, [user, supabase]);
-
-  useEffect(() => {
-    getProfile();
-  }, [user, getProfile]);
-
-  async function updateProfile({ fullname, username }) {
-    try {
-      setLoading(true);
-
-      if (fullname === "" || username === "") {
-        throw new Error("空のフォームデータがあります");
-      }
-
-      const { error } = await supabase.from("profiles").upsert({
-        id: user?.id,
-        full_name: fullname,
-        username: username,
-        updated_at: new Date().toISOString(),
-      });
-      if (error) throw error;
-      await showToast("success", "プロフィールを更新しました");
-    } catch (error) {
-      showToast("error", "プロフィールを更新に失敗しました");
-    } finally {
-      setLoading(false);
-    }
-  }
+  const { loading, fullname, username, role, setFullname, setUsername, handleUpdate } =
+    useUserProfile();
 
   return (
     <Box maxW="600px" mx="auto" p={{ base: 4, md: 8 }}>
@@ -141,9 +84,7 @@ export default function AccountForm({ user }) {
               py={3}
               px={4}
               fontSize="md"
-              _focus={{
-                outline: "none",
-              }}
+              _focus={{ outline: "none" }}
             />
           </Field.Root>
 
@@ -237,9 +178,7 @@ export default function AccountForm({ user }) {
               py={3}
               px={4}
               fontSize="md"
-              _focus={{
-                outline: "none",
-              }}
+              _focus={{ outline: "none" }}
             />
           </Field.Root>
 
@@ -255,25 +194,17 @@ export default function AccountForm({ user }) {
             borderRadius="lg"
             cursor="pointer"
             transition="all 0.2s"
-            onClick={() => updateProfile({ fullname, username })}
+            onClick={handleUpdate}
             disabled={loading}
-            _hover={{
-              bg: "blue.600",
-            }}
-            _active={{
-              bg: "blue.700",
-            }}
-            _disabled={{
-              opacity: 0.6,
-              cursor: "not-allowed",
-            }}
+            _hover={{ bg: "blue.600" }}
+            _active={{ bg: "blue.700" }}
+            _disabled={{ opacity: 0.6, cursor: "not-allowed" }}
           >
             {loading ? "更新中..." : "更新"}
           </Button>
 
           <Separator my={4} />
 
-          {/* アクションセクション */}
           <VStack align="stretch" gap={3}>
             <Text fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>
               その他の操作
@@ -307,11 +238,7 @@ export default function AccountForm({ user }) {
                       <Icon.LuHistory size={20} />
                     </Flex>
                     <Box>
-                      <Text
-                        fontSize="sm"
-                        fontWeight="semibold"
-                        color="gray.800"
-                      >
+                      <Text fontSize="sm" fontWeight="semibold" color="gray.800">
                         アクションログ
                       </Text>
                       <Text fontSize="xs" color="gray.500">
@@ -342,12 +269,8 @@ export default function AccountForm({ user }) {
               borderRadius="lg"
               cursor="pointer"
               transition="all 0.2s"
-              _hover={{
-                bg: "red.50",
-              }}
-              _active={{
-                bg: "red.100",
-              }}
+              _hover={{ bg: "red.50" }}
+              _active={{ bg: "red.100" }}
             >
               サインアウト
             </Button>
