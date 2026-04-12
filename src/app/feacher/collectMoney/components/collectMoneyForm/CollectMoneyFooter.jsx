@@ -1,4 +1,4 @@
-import { Box, HStack, Text } from "@chakra-ui/react";
+import { Box, Button, HStack, Text } from "@chakra-ui/react";
 import CheckDialog from "@/app/feacher/dialog/CheckDialogCollectMoney";
 import CancelConfirmDialog from "./parts/CancelConfirmDialog";
 
