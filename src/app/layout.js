@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Provider } from "@/components/ui/provider";
 import Footer from "@/app/feacher/partials/Footer";
 import { Toaster } from "@/components/ui/toaster";
@@ -11,10 +12,14 @@ export default function RootLayout({ children }) {
       <body>
         <Provider>
           <div className={styles.layoutContainer}>
-            <NavbarWrapper />
+            <Suspense fallback={null}>
+              <NavbarWrapper />
+            </Suspense>
             <main className={styles.mainContent}>{children}</main>
             <Toaster />
-            <FooterNavbarWrapper />
+            <Suspense fallback={null}>
+              <FooterNavbarWrapper />
+            </Suspense>
             <Footer />
           </div>
         </Provider>
