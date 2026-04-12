@@ -145,13 +145,22 @@ const SalesCardClient = ({ id, initialData, initialError }) => {
           </Badge>
         </HStack>
 
-        {isPending ? (
-          <Box py={6} display="flex" justifyContent="center">
-            <Spinner color="white" size="lg" />
+        <Box position="relative">
+          <Box opacity={isPending ? 0.3 : 1} transition="opacity 0.15s">
+            <FundsDisplay data={fundsData} error={fundsError} />
           </Box>
-        ) : (
-          <FundsDisplay data={fundsData} error={fundsError} />
-        )}
+          {isPending && (
+            <Box
+              position="absolute"
+              inset={0}
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+            >
+              <Spinner color="white" size="lg" />
+            </Box>
+          )}
+        </Box>
 
         <HStack justify="space-between" mt={1}>
           <Button
