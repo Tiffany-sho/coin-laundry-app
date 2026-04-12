@@ -33,7 +33,7 @@ import ChangeStores from "./parts/ChangeStore";
 import { createNowData } from "@/functions/makeDate/date";
 
 const MoneyDataList = ({ valiant, coinLaundry }) => {
-  const { selectedItem, open, setOpen, data } = useUploadPage();
+  const { selectedItem, open, setOpen, data, startEpoch, endEpoch } = useUploadPage();
 
   const [totalRevenue, setTotalRevenue] = useState(null);
   useEffect(() => {
@@ -170,7 +170,35 @@ const MoneyDataList = ({ valiant, coinLaundry }) => {
 
         {/* チャートカード */}
         <Card.Root borderRadius="2xl" variant="elevated">
-          <Card.Body p={{ base: 4, md: 6 }}>
+          <Card.Header p={{ base: 4, md: 6 }} pb={2}>
+            <HStack justify="space-between" align="center">
+              <Text
+                fontSize="xs"
+                fontWeight="semibold"
+                color="fg.muted"
+                textTransform="uppercase"
+                letterSpacing="widest"
+              >
+                収益推移
+              </Text>
+              <HStack gap={1} align="flex-end">
+                <VStack gap={0} align="flex-start">
+                  <Text fontSize="2xs" color="fg.muted">開始日</Text>
+                  <Text fontSize="sm" fontWeight="semibold">
+                    {startEpoch > 0 ? createNowData(startEpoch) : "全期間"}
+                  </Text>
+                </VStack>
+                <Text color="fg.muted" pb="1px" lineHeight="1">〜</Text>
+                <VStack gap={0} align="flex-start">
+                  <Text fontSize="2xs" color="fg.muted">終了日</Text>
+                  <Text fontSize="sm" fontWeight="semibold">
+                    {endEpoch !== null ? createNowData(endEpoch - 1) : createNowData(Date.now())}
+                  </Text>
+                </VStack>
+              </HStack>
+            </HStack>
+          </Card.Header>
+          <Card.Body p={{ base: 4, md: 6 }} pt={2}>
             {valiant === "aStore" && <MonoCoinDataChart id={coinLaundry.id} />}
             {valiant === "manyStore" && <ManyCoinDataChart />}
           </Card.Body>

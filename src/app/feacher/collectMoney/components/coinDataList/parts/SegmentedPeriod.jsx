@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Box, Button, HStack, Slider, Text, VStack } from "@chakra-ui/react";
+import { Box, Button, HStack, Slider, Text } from "@chakra-ui/react";
 import { LuChevronLeft, LuChevronRight } from "@/app/feacher/Icon";
 import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
 import {
@@ -62,13 +62,6 @@ const PeriodRangeSlider = () => {
   // ドラッグ中はローカル state で表示のみ更新（フェッチは走らせない）
   const [localVal, setLocalVal] = useState([contextStartVal, contextEndVal]);
 
-  const startDateStr =
-    localVal[0] > 0 ? epochToDateStr(sliderToStart(localVal[0])) : "全期間";
-  const endDateStr =
-    localVal[1] < MAX_MONTHS
-      ? epochToDateStr(sliderToEndDisplay(localVal[1]))
-      : epochToDateStr(todayEpoch());
-
   // ドラッグ終了時だけコンテキストを更新 → チャートのフェッチが走る
   const handleChangeEnd = ([newStart, newEnd]) => {
     setStartEpoch(sliderToStart(newStart));
@@ -97,7 +90,7 @@ const PeriodRangeSlider = () => {
   return (
     <Box w="100%" pt={1}>
       <VStack gap={3} align="stretch">
-        {/* ナビゲーション＋期間表示 */}
+        {/* ナビゲーションボタン */}
         <HStack justify="space-between" align="center">
           <Button
             size="sm"
@@ -108,19 +101,6 @@ const PeriodRangeSlider = () => {
             <LuChevronLeft />
             前の期間
           </Button>
-
-          {/* 中央：開始日〜終了日 */}
-          <HStack gap={1} align="flex-end">
-            <VStack gap={0} align="flex-start">
-              <Text fontSize="2xs" color="fg.muted">開始日</Text>
-              <Text fontSize="sm" fontWeight="semibold">{startDateStr}</Text>
-            </VStack>
-            <Text color="fg.muted" pb="1px" lineHeight="1">〜</Text>
-            <VStack gap={0} align="flex-start">
-              <Text fontSize="2xs" color="fg.muted">終了日</Text>
-              <Text fontSize="sm" fontWeight="semibold">{endDateStr}</Text>
-            </VStack>
-          </HStack>
 
           <Button
             size="sm"
