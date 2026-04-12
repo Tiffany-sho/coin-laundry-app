@@ -141,3 +141,19 @@ export async function getMonthFunds(id) {
   if (error) return { error: "集金データの取得に失敗しました" };
   return { data };
 }
+
+export async function getMonthFundsByOffset(userId, monthOffset) {
+  const supabase = await createClient();
+  const epocStart = changeEpocFromNowYearMonth(monthOffset);
+  const epocEnd = changeEpocFromNowYearMonth(monthOffset + 1);
+
+  const { data, error } = await supabase
+    .from("collect_funds")
+    .select("totalFunds")
+    .eq("collecter", userId)
+    .gt("date", epocStart)
+    .lt("date", epocEnd);
+
+  if (error) return { error: "集金データの取得に失敗しました" };
+  return { data };
+}
