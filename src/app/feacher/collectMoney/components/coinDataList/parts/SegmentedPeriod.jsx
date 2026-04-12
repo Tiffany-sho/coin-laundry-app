@@ -78,13 +78,13 @@ const PeriodRangeSlider = () => {
     <Box w="100%" pt={1}>
       <VStack gap={4} align="stretch">
         {/* 選択中の期間表示 */}
-        <HStack justify="space-between">
+        <HStack gap={1} align="flex-end">
           <VStack gap={0} align="flex-start">
             <Text fontSize="2xs" color="fg.muted">開始日</Text>
             <Text fontSize="sm" fontWeight="semibold">{startDateStr}</Text>
           </VStack>
-          <Text color="fg.muted">〜</Text>
-          <VStack gap={0} align="flex-end">
+          <Text color="fg.muted" pb="1px" lineHeight="1">〜</Text>
+          <VStack gap={0} align="flex-start">
             <Text fontSize="2xs" color="fg.muted">終了日</Text>
             <Text fontSize="sm" fontWeight="semibold">{endDateStr}</Text>
           </VStack>
