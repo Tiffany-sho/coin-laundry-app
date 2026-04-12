@@ -13,17 +13,38 @@ import {
   Heading,
 } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { showToast } from "@/functions/makeToast/toast";
 
-const NowLaundryNum = ({ id, initialData }) => {
-  const [data, setData] = useState(initialData);
-  const [detergent, setDetergent] = useState(initialData?.detergent ?? 0);
-  const [softener, setSoftener] = useState(initialData?.softener ?? 0);
+const NowLaundryNum = ({ id }) => {
+  const [data, setData] = useState(null);
+  const [detergent, setDetergent] = useState(0);
+  const [softener, setSoftener] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const supabase = createClient();
 
-  if (!initialData)
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data: result, error } = await supabase
+        .from("laundry_state")
+        .select("*")
+        .eq("laundryId", id)
+        .single();
+
+      if (!error && result) {
+        setData(result);
+        setDetergent(result.detergent ?? 0);
+        setSoftener(result.softener ?? 0);
+      }
+      setIsLoading(false);
+    };
+    fetchData();
+  }, [id]);
+
+  if (isLoading) return null;
+
+  if (!data)
     return (
       <Box
         bg="red.50"

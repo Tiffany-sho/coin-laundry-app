@@ -28,16 +28,8 @@ const NoResultsState = ({ query }) => (
   </Box>
 );
 
-const CoinLaundryClientPage = ({ stores, allStates, allBenefits }) => {
+const CoinLaundryClientPage = ({ stores, allBenefits }) => {
   const [searchQuery, setSearchQuery] = useState("");
-
-  const stateMap = useMemo(() => {
-    const map = {};
-    allStates?.forEach((state) => {
-      map[state.laundryId] = state;
-    });
-    return map;
-  }, [allStates]);
 
   const benefitMap = useMemo(() => {
     const map = {};
@@ -107,7 +99,6 @@ const CoinLaundryClientPage = ({ stores, allStates, allBenefits }) => {
                   <CoinLaundryList
                     coinLaundry={item}
                     key={item.id}
-                    stateData={stateMap[item.id] ?? null}
                     benefitRecords={benefitMap[item.id] ?? []}
                   />
                 ))}

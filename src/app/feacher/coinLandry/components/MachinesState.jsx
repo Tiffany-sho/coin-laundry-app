@@ -20,13 +20,12 @@ import { toaster } from "@/components/ui/toaster";
 import * as Icon from "@/app/feacher/Icon";
 import { showToast } from "@/functions/makeToast/toast";
 
-const MachinesState = ({ id, initialData }) => {
-  const [data, setData] = useState(initialData);
+const MachinesState = ({ id }) => {
+  const [data, setData] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [machines, setMachines] = useState(initialData?.machines ?? []);
-  const [breakMachine, setBreakMachine] = useState(
-    initialData?.machines?.filter((m) => m.break) ?? [],
-  );
+  const [isLoading, setIsLoading] = useState(true);
+  const [machines, setMachines] = useState([]);
+  const [breakMachine, setBreakMachine] = useState([]);
   const supabase = createClient();
 
   useEffect(() => {
@@ -41,11 +40,31 @@ const MachinesState = ({ id, initialData }) => {
   }, []);
 
   useEffect(() => {
+    const fetchData = async () => {
+      const { data: result, error } = await supabase
+        .from("laundry_state")
+        .select("*")
+        .eq("laundryId", id)
+        .single();
+
+      if (!error && result) {
+        setData(result);
+        setMachines(result.machines ?? []);
+        setBreakMachine(result.machines?.filter((m) => m.break) ?? []);
+      }
+      setIsLoading(false);
+    };
+    fetchData();
+  }, [id]);
+
+  useEffect(() => {
     if (!data) return;
     setBreakMachine(data.machines.filter((machine) => machine.break));
   }, [data]);
 
-  if (!initialData)
+  if (isLoading) return null;
+
+  if (!data)
     return (
       <Box
         bg="red.50"

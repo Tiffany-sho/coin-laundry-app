@@ -6,7 +6,7 @@ import NowLaundryNum from "../NowLaundryNum";
 import * as Icon from "@/app/feacher/Icon";
 import MachinesState from "../MachinesState";
 
-const CoinLaundryList = ({ coinLaundry, stateData, benefitRecords }) => {
+const CoinLaundryList = ({ coinLaundry, benefitRecords }) => {
   return (
     <Card.Root
       maxW="sm"
@@ -72,8 +72,8 @@ const CoinLaundryList = ({ coinLaundry, stateData, benefitRecords }) => {
 
         <DisplayMonthBenifit records={benefitRecords} />
         <Grid templateColumns="repeat(2,1fr)" gap={3} mt={2}>
-          <NowLaundryNum id={coinLaundry.id} initialData={stateData} />
-          <MachinesState id={coinLaundry.id} initialData={stateData} />
+          <NowLaundryNum id={coinLaundry.id} />
+          <MachinesState id={coinLaundry.id} />
         </Grid>
       </Card.Body>
 

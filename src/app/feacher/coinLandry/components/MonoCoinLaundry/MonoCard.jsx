@@ -17,10 +17,8 @@ import MonoDataTotal from "./MonoDataTotal";
 import MachinesState from "../MachinesState";
 import NowLaundryNum from "../NowLaundryNum";
 import HaveMachines from "./HaveMachines";
-import { getLaundryState } from "@/app/api/supabaseFunctions/supabaseDatabase/laundryState/action";
 
-const MonoCard = async ({ coinLaundry }) => {
-  const { data: laundryState } = await getLaundryState(coinLaundry.id);
+const MonoCard = ({ coinLaundry }) => {
   return (
     <Box py={{ base: 6, md: 10 }}>
       <Container px={0}>
@@ -62,8 +60,8 @@ const MonoCard = async ({ coinLaundry }) => {
             >
               <MonoDataTotal coinLaundry={coinLaundry} />
               <HaveMachines coinLaundry={coinLaundry} />
-              <NowLaundryNum id={coinLaundry.id} initialData={laundryState} />
-              <MachinesState id={coinLaundry.id} initialData={laundryState} />
+              <NowLaundryNum id={coinLaundry.id} />
+              <MachinesState id={coinLaundry.id} />
             </Grid>
 
             <Flex justifyContent="center" pt={2}>
