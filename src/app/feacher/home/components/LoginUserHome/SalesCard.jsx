@@ -1,17 +1,9 @@
-"use client";
-
-import { Box, HStack, Text, VStack, Badge } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { Box, HStack, Text, VStack } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
 import MonthFundTotal from "./MonthFundTotal";
+import MonthBadge from "./MonthBadge";
 
 const SalesCard = ({ id }) => {
-  const [month, setMonth] = useState("");
-
-  useEffect(() => {
-    setMonth(`${new Date().getMonth() + 1}月`);
-  }, []);
-
   return (
     <Box
       bg="#007BBB"
@@ -54,16 +46,7 @@ const SalesCard = ({ id }) => {
               今月の売上
             </Text>
           </HStack>
-          <Badge
-            bg="whiteAlpha.300"
-            color="white"
-            fontSize="xs"
-            px={2}
-            py={1}
-            borderRadius="full"
-          >
-            {month}
-          </Badge>
+          <MonthBadge />
         </HStack>
 
         <MonthFundTotal id={id} />
