@@ -8,12 +8,10 @@ import {
   Text,
   VStack,
   Heading,
-  Grid,
 } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
 import Link from "next/link";
-import NowLaundryNum from "@/app/feacher/coinLandry/components/NowLaundryNum";
-import MachinesState from "@/app/feacher/coinLandry/components/MachinesState";
+import StockDialogBody from "./StockDialogBody";
 import { getStores } from "@/app/api/supabaseFunctions/supabaseDatabase/laundryStore/action";
 import ErrorPage from "@/app/feacher/jumpPage/ErrorPage/ErrorPage";
 
@@ -130,57 +128,41 @@ const QuickActionDialog = async ({ method }) => {
                 >
                   店舗がありません
                 </Text>
+              ) : methodItem.key === "stock" ? (
+                <StockDialogBody data={data} />
               ) : (
                 <VStack align="stretch" gap={3}>
-                  {data.map((item) =>
-                    methodItem.key === "stock" ? (
-                      <Box key={item.id}>
+                  {data.map((item) => (
+                    <Link
+                      key={item.id}
+                      href={methodItem.getURL(item.id)}
+                      style={{ width: "100%" }}
+                    >
+                      <Box
+                        p={4}
+                        borderRadius="lg"
+                        border="1px solid"
+                        borderColor="gray.200"
+                        bg="white"
+                        cursor="pointer"
+                        transition="all 0.2s"
+                        _hover={{
+                          bg: "blue.50",
+                          borderColor: "blue.300",
+                          transform: "translateX(4px)",
+                          boxShadow: "md",
+                        }}
+                      >
                         <Text
-                          fontSize="lg"
+                          fontSize={{ base: "sm", md: "md" }}
                           fontWeight="semibold"
-                          color="gray.700"
-                          textAlign="center"
-                          my={3}
+                          color="gray.800"
                         >
                           {item.store}店
                         </Text>
-                        <Grid templateColumns="repeat(2,1fr)" gap={3} mt={2}>
-                          <NowLaundryNum id={item.id} />
-                          <MachinesState id={item.id} />
-                        </Grid>
                       </Box>
-                    ) : (
-                      <Link
-                        key={item.id}
-                        href={methodItem.getURL(item.id)}
-                        style={{ width: "100%" }}
-                      >
-                        <Box
-                          p={4}
-                          borderRadius="lg"
-                          border="1px solid"
-                          borderColor="gray.200"
-                          bg="white"
-                          cursor="pointer"
-                          transition="all 0.2s"
-                          _hover={{
-                            bg: "blue.50",
-                            borderColor: "blue.300",
-                            transform: "translateX(4px)",
-                            boxShadow: "md",
-                          }}
-                        >
-                          <Text
-                            fontSize={{ base: "sm", md: "md" }}
-                            fontWeight="semibold"
-                            color="gray.800"
-                          >
-                            {item.store}店
-                          </Text>
-                        </Box>
-                      </Link>
-                    )
-                  )}
+                    </Link>
+                  ))}
                 </VStack>
               )}
             </Dialog.Body>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import {
   VStack,
   Text,
@@ -15,7 +16,7 @@ import {
 import * as Icon from "@/app/feacher/Icon";
 import { useNowLaundryNum } from "./useNowLaundryNum";
 
-const NowLaundryNum = ({ id }) => {
+const NowLaundryNum = ({ id, onLoad }) => {
   const {
     data,
     detergent,
@@ -27,6 +28,10 @@ const NowLaundryNum = ({ id }) => {
     handleSave,
     resetStock,
   } = useNowLaundryNum(id);
+
+  useEffect(() => {
+    if (!isLoading) onLoad?.();
+  }, [isLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (isLoading) return null;
 

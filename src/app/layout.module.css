@@ -18,7 +18,7 @@
 /* スマホ・タブレット用: フッターナビゲーション分の余白 */
 @media (max-width: 768px) {
   .mainContent {
-    padding-bottom: 70px;
+    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
   }
 }
 

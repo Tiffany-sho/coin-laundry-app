@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import {
   VStack,
   Text,
@@ -17,7 +18,7 @@ import {
 import * as Icon from "@/app/feacher/Icon";
 import { useMachinesState } from "./useMachinesState";
 
-const MachinesState = ({ id }) => {
+const MachinesState = ({ id, onLoad }) => {
   const {
     data,
     isSaving,
@@ -28,6 +29,10 @@ const MachinesState = ({ id }) => {
     handleSave,
     resetMachines,
   } = useMachinesState(id);
+
+  useEffect(() => {
+    if (!isLoading) onLoad?.();
+  }, [isLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (isLoading) return null;
 

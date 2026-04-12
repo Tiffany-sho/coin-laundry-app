@@ -69,6 +69,7 @@
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
+  -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
   z-index: 10;
 }
@@ -91,6 +92,7 @@
   border-radius: 20px;
   font-size: 14px;
   font-weight: 600;
+  -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
   z-index: 10;
 }
