@@ -35,6 +35,13 @@ const epochToSliderVal = (epoch) => {
 // スライダー値 → startEpoch（月初）
 const sliderToStart = (val) => changeEpocFromNowYearMonth(val - MAX_MONTHS);
 
+// スライダー値 → 表示用終了日（月末）
+const sliderToEndDisplay = (val) => {
+  const monthStart = new Date(sliderToStart(val) + EPOCH_OFFSET);
+  const lastDay = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0);
+  return getEpochTimeInSeconds(lastDay.getFullYear(), lastDay.getMonth() + 1, lastDay.getDate());
+};
+
 // スライダー値 → endEpoch（翌月初を上限として使用、MAX_MONTHS のときは null = 上限なし）
 const sliderToEnd = (val) =>
   val >= MAX_MONTHS ? null : changeEpocFromNowYearMonth(val - MAX_MONTHS + 1);
@@ -58,7 +65,7 @@ const PeriodRangeSlider = () => {
     localVal[0] > 0 ? epochToDateStr(sliderToStart(localVal[0])) : "全期間";
   const endDateStr =
     localVal[1] < MAX_MONTHS
-      ? epochToDateStr(sliderToStart(localVal[1]))
+      ? epochToDateStr(sliderToEndDisplay(localVal[1]))
       : epochToDateStr(todayEpoch());
 
   // ドラッグ終了時だけコンテキストを更新 → チャートのフェッチが走る
