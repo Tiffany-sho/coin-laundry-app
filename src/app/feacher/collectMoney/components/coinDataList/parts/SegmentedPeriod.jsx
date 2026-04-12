@@ -106,7 +106,7 @@ const PeriodRangeSlider = () => {
             disabled={!canGoPrev}
           >
             <LuChevronLeft />
-            前の期間
+            <Text hideBelow="sm">前の期間</Text>
           </Button>
 
           {/* 中央：開始日〜終了日 */}
@@ -128,7 +128,7 @@ const PeriodRangeSlider = () => {
             onClick={() => shift("next")}
             disabled={!canGoNext}
           >
-            次の期間
+            <Text hideBelow="sm">次の期間</Text>
             <LuChevronRight />
           </Button>
         </HStack>
