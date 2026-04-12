@@ -1,3 +1,5 @@
+"use client";
+
 import { Chart, useChart } from "@chakra-ui/charts";
 import {
   CartesianGrid,
