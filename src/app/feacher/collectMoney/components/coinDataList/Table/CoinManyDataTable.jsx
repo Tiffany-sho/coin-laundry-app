@@ -138,17 +138,86 @@ const CoinManyDataTable = () => {
 
   const groupByDate = (data) => {
     if (!data) return {};
-
     const grouped = {};
     data.forEach((item) => {
       const dateKey = createNowData(item.date);
-      if (!grouped[dateKey]) {
-        grouped[dateKey] = [];
-      }
+      if (!grouped[dateKey]) grouped[dateKey] = [];
       grouped[dateKey].push(item);
     });
-
     return grouped;
+  };
+
+  const renderRow = (item, index, items) => {
+    const total = item.totalFunds || 0;
+    const isSelected = selectedItemId === item.id;
+    const isHighValue = total > 200000;
+
+    return (
+      <Table.Row
+        key={item.id}
+        onClick={() => toggleHander(item)}
+        bg={isSelected ? "blue.50" : "white"}
+        cursor="pointer"
+        position="relative"
+        transition="all 0.2s ease"
+        _hover={{
+          bg: isSelected ? "blue.100" : "gray.50",
+          transform: "translateX(4px)",
+        }}
+        _active={{ transform: "translateX(2px)" }}
+        borderBottom={index === items.length - 1 ? "none" : "1px solid"}
+        borderColor="gray.100"
+      >
+        {isSelected && (
+          <Box
+            position="absolute"
+            left="0"
+            top="0"
+            bottom="0"
+            width="4px"
+            bg="blue.500"
+            borderRadius="0 4px 4px 0"
+          />
+        )}
+        <Table.Cell py={4} px={{ base: 4, md: 6 }}>
+          <HStack justify="space-between" align="center" gap={4}>
+            <VStack align="flex-start" gap={1} flex="1">
+              <Text
+                fontSize={{ base: "md", md: "lg" }}
+                fontWeight="semibold"
+                color="gray.700"
+              >
+                {item.laundryName}店
+              </Text>
+              <Text
+                fontSize={{ base: "xl", md: "2xl" }}
+                fontWeight="bold"
+                color={isHighValue ? "green.600" : "gray.800"}
+                lineHeight="1.2"
+              >
+                ¥{total.toLocaleString()}
+              </Text>
+            </VStack>
+            <VStack align="flex-end" gap={1}>
+              <Text
+                fontSize={{ base: "sm", md: "md" }}
+                color="gray.600"
+                fontWeight="medium"
+              >
+                {createNowData(item.date)}
+              </Text>
+              <Text
+                fontSize="xs"
+                color="gray.400"
+                display={{ base: "none", sm: "block" }}
+              >
+                タップして詳細
+              </Text>
+            </VStack>
+          </HStack>
+        </Table.Cell>
+      </Table.Row>
+    );
   };
 
   if (loading) return <TableLoading />;
@@ -158,6 +227,20 @@ const CoinManyDataTable = () => {
     return <TableEmpty />;
   }
 
+  // 日付順以外はグループなしのフラットリスト
+  if (orderAmount !== "date") {
+    return (
+      <Box bg="white" borderRadius="2xl" shadow="md" overflow="hidden">
+        <Table.Root size="lg" variant="plain">
+          <Table.Body>
+            {displayData.map((item, index) => renderRow(item, index, displayData))}
+          </Table.Body>
+        </Table.Root>
+      </Box>
+    );
+  }
+
+  // 日付順のときは日付ごとにグループ化
   const groupedData = groupByDate(displayData);
   const dates = Object.keys(groupedData);
 
@@ -169,7 +252,6 @@ const CoinManyDataTable = () => {
           (sum, item) => sum + (item.totalFunds || 0),
           0
         );
-        const storeCount = items.length;
         const isCollapsed = collapsedDates.has(date);
 
         return (
@@ -204,7 +286,7 @@ const CoinManyDataTable = () => {
                       {date}
                     </Text>
                     <Text fontSize="sm" color="gray.600">
-                      {storeCount}店舗
+                      {items.length}店舗
                     </Text>
                   </VStack>
                 </HStack>
@@ -228,81 +310,7 @@ const CoinManyDataTable = () => {
             {!isCollapsed && (
               <Table.Root size="lg" variant="plain">
                 <Table.Body>
-                  {items.map((item, index) => {
-                    const total = item.totalFunds || 0;
-                    const isSelected = selectedItemId === item.id;
-                    const isHighValue = total > 200000;
-
-                    return (
-                      <Table.Row
-                        key={item.id}
-                        onClick={() => toggleHander(item)}
-                        bg={isSelected ? "blue.50" : "white"}
-                        cursor="pointer"
-                        position="relative"
-                        transition="all 0.2s ease"
-                        _hover={{
-                          bg: isSelected ? "blue.100" : "gray.50",
-                          transform: "translateX(4px)",
-                        }}
-                        _active={{
-                          transform: "translateX(2px)",
-                        }}
-                        borderBottom={
-                          index === items.length - 1 ? "none" : "1px solid"
-                        }
-                        borderColor="gray.100"
-                      >
-                        {isSelected && (
-                          <Box
-                            position="absolute"
-                            left="0"
-                            top="0"
-                            bottom="0"
-                            width="4px"
-                            bg="blue.500"
-                            borderRadius="0 4px 4px 0"
-                          />
-                        )}
-
-                        <Table.Cell py={4} px={{ base: 4, md: 6 }}>
-                          <HStack
-                            justify="space-between"
-                            align="center"
-                            gap={4}
-                          >
-                            <VStack align="flex-start" gap={1} flex="1">
-                              <Text
-                                fontSize={{ base: "md", md: "lg" }}
-                                fontWeight="semibold"
-                                color="gray.700"
-                              >
-                                {item.laundryName}店
-                              </Text>
-                              <Text
-                                fontSize={{ base: "xl", md: "2xl" }}
-                                fontWeight="bold"
-                                color={isHighValue ? "green.600" : "gray.800"}
-                                lineHeight="1.2"
-                              >
-                                ¥{total.toLocaleString()}
-                              </Text>
-                            </VStack>
-
-                            <VStack align="flex-end" gap={1}>
-                              <Text
-                                fontSize="xs"
-                                color="gray.400"
-                                display={{ base: "none", sm: "block" }}
-                              >
-                                タップして詳細
-                              </Text>
-                            </VStack>
-                          </HStack>
-                        </Table.Cell>
-                      </Table.Row>
-                    );
-                  })}
+                  {items.map((item, index) => renderRow(item, index, items))}
                 </Table.Body>
               </Table.Root>
             )}
