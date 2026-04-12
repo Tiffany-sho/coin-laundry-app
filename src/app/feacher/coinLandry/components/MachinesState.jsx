@@ -1,6 +1,5 @@
 "use client";
 
-import { createClient } from "@/utils/supabase/client";
 import {
   VStack,
   Text,
@@ -15,52 +14,20 @@ import {
   Badge,
   Textarea,
 } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
-import { toaster } from "@/components/ui/toaster";
 import * as Icon from "@/app/feacher/Icon";
-import { showToast } from "@/functions/makeToast/toast";
+import { useMachinesState } from "./useMachinesState";
 
 const MachinesState = ({ id }) => {
-  const [data, setData] = useState(null);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [machines, setMachines] = useState([]);
-  const [breakMachine, setBreakMachine] = useState([]);
-  const supabase = createClient();
-
-  useEffect(() => {
-    setTimeout(() => {
-      const toastInfo = sessionStorage.getItem("toast");
-      if (toastInfo) {
-        const toastInfoStr = JSON.parse(toastInfo);
-        toaster.create(toastInfoStr);
-      }
-      sessionStorage.removeItem("toast");
-    }, 0);
-  }, []);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const { data: result, error } = await supabase
-        .from("laundry_state")
-        .select("*")
-        .eq("laundryId", id)
-        .single();
-
-      if (!error && result) {
-        setData(result);
-        setMachines(result.machines ?? []);
-        setBreakMachine(result.machines?.filter((m) => m.break) ?? []);
-      }
-      setIsLoading(false);
-    };
-    fetchData();
-  }, [id]);
-
-  useEffect(() => {
-    if (!data) return;
-    setBreakMachine(data.machines.filter((machine) => machine.break));
-  }, [data]);
+  const {
+    data,
+    isSaving,
+    isLoading,
+    machines,
+    breakMachine,
+    changeMachineState,
+    handleSave,
+    resetMachines,
+  } = useMachinesState(id);
 
   if (isLoading) return null;
 
@@ -79,58 +46,10 @@ const MachinesState = ({ id }) => {
       </Box>
     );
 
-  const changeMachineState = (e, machineId, action) => {
-    setMachines((prev) =>
-      prev.map((machine) => {
-        if (action === "switch") {
-          if (machine.id === machineId) {
-            if (!e.checked && machine.comment) {
-              return { ...machine, break: e.checked, comment: "" };
-            }
-            return { ...machine, break: e.checked };
-          } else {
-            return machine;
-          }
-        } else if (action === "input") {
-          if (machine.id === machineId) {
-            return { ...machine, comment: e.target.value };
-          } else {
-            return machine;
-          }
-        } else {
-          return machine;
-        }
-      }),
-    );
-  };
-
-  const handleSave = async () => {
-    setIsSaving(true);
-    const { error } = await supabase
-      .from("laundry_state")
-      .update({
-        machines: machines,
-      })
-      .eq("laundryId", id);
-
-    if (error) {
-      showToast("error", `${data.laundryName}店の設備状態の更新に失敗しました`);
-    } else {
-      setData((prev) => ({
-        ...prev,
-        machines: machines,
-      }));
-      showToast("success", `${data.laundryName}店の設備状態を更新しました`);
-    }
-    setIsSaving(false);
-  };
-
   return (
     <Dialog.Root
       onOpenChange={(e) => {
-        if (e.open) {
-          setMachines(data.machines);
-        }
+        if (e.open) resetMachines();
       }}
     >
       <Dialog.Trigger asChild>
@@ -240,88 +159,86 @@ const MachinesState = ({ id }) => {
 
             <Dialog.Body p={6} maxH="60vh" overflowY="auto">
               <VStack align="stretch" gap={4}>
-                {machines.map((machine) => {
-                  return (
-                    <Box
-                      key={machine.id}
-                      p={5}
-                      bg={machine.break ? "red.50" : "gray.50"}
-                      borderRadius="lg"
-                      border="2px solid"
-                      borderColor={machine.break ? "red.200" : "gray.200"}
-                      transition="all 0.2s"
-                    >
-                      <VStack align="stretch" gap={4}>
-                        <HStack justify="space-between">
-                          <VStack align="start" gap={1}>
-                            <Heading size="sm" color="gray.800">
-                              {machine.name}
-                            </Heading>
-                            <Badge
-                              bg={machine.break ? "red.300" : "green.300"}
-                              fontSize="xs"
-                              px={2}
-                              py={1}
-                            >
-                              {machine.break ? "故障中" : "稼働中"}
-                            </Badge>
-                          </VStack>
-
-                          <Box>
-                            <Switch.Root
-                              checked={machine.break}
-                              onCheckedChange={(e) =>
-                                changeMachineState(e, machine.id, "switch")
-                              }
-                              size="lg"
-                            >
-                              <Switch.HiddenInput />
-                              <Switch.Control>
-                                <Switch.Thumb />
-                              </Switch.Control>
-                            </Switch.Root>
-                          </Box>
-                        </HStack>
-
-                        {machine.break && (
-                          <Box
-                            p={4}
-                            bg="white"
-                            borderRadius="md"
-                            border="1px solid"
-                            borderColor="red.200"
+                {machines.map((machine) => (
+                  <Box
+                    key={machine.id}
+                    p={5}
+                    bg={machine.break ? "red.50" : "gray.50"}
+                    borderRadius="lg"
+                    border="2px solid"
+                    borderColor={machine.break ? "red.200" : "gray.200"}
+                    transition="all 0.2s"
+                  >
+                    <VStack align="stretch" gap={4}>
+                      <HStack justify="space-between">
+                        <VStack align="start" gap={1}>
+                          <Heading size="sm" color="gray.800">
+                            {machine.name}
+                          </Heading>
+                          <Badge
+                            bg={machine.break ? "red.300" : "green.300"}
+                            fontSize="xs"
+                            px={2}
+                            py={1}
                           >
-                            <VStack align="stretch" gap={3}>
-                              <Text
-                                fontSize="sm"
-                                fontWeight="semibold"
-                                color="gray.700"
-                              >
-                                故障内容
-                              </Text>
-                              <Textarea
-                                fontSize="15px"
-                                placeholder="故障の詳細を入力してください..."
-                                value={machine.comment || ""}
-                                onChange={(e) =>
-                                  changeMachineState(e, machine.id, "input")
-                                }
-                                rows={3}
-                                resize="vertical"
-                                borderColor="red.200"
-                                _focus={{
-                                  borderColor: "red.400",
-                                  boxShadow:
-                                    "0 0 0 1px var(--chakra-colors-red-400)",
-                                }}
-                              />
-                            </VStack>
-                          </Box>
-                        )}
-                      </VStack>
-                    </Box>
-                  );
-                })}
+                            {machine.break ? "故障中" : "稼働中"}
+                          </Badge>
+                        </VStack>
+
+                        <Box>
+                          <Switch.Root
+                            checked={machine.break}
+                            onCheckedChange={(e) =>
+                              changeMachineState(e, machine.id, "switch")
+                            }
+                            size="lg"
+                          >
+                            <Switch.HiddenInput />
+                            <Switch.Control>
+                              <Switch.Thumb />
+                            </Switch.Control>
+                          </Switch.Root>
+                        </Box>
+                      </HStack>
+
+                      {machine.break && (
+                        <Box
+                          p={4}
+                          bg="white"
+                          borderRadius="md"
+                          border="1px solid"
+                          borderColor="red.200"
+                        >
+                          <VStack align="stretch" gap={3}>
+                            <Text
+                              fontSize="sm"
+                              fontWeight="semibold"
+                              color="gray.700"
+                            >
+                              故障内容
+                            </Text>
+                            <Textarea
+                              fontSize="15px"
+                              placeholder="故障の詳細を入力してください..."
+                              value={machine.comment || ""}
+                              onChange={(e) =>
+                                changeMachineState(e, machine.id, "input")
+                              }
+                              rows={3}
+                              resize="vertical"
+                              borderColor="red.200"
+                              _focus={{
+                                borderColor: "red.400",
+                                boxShadow:
+                                  "0 0 0 1px var(--chakra-colors-red-400)",
+                              }}
+                            />
+                          </VStack>
+                        </Box>
+                      )}
+                    </VStack>
+                  </Box>
+                ))}
               </VStack>
             </Dialog.Body>
 
@@ -337,7 +254,7 @@ const MachinesState = ({ id }) => {
                   size="lg"
                   borderRadius="full"
                   px={6}
-                  onClick={() => setMachines(data.machines)}
+                  onClick={resetMachines}
                 >
                   キャンセル
                 </Button>
