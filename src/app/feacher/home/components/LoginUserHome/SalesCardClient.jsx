@@ -139,7 +139,7 @@ const ActiveCard = ({ monthOffset, data, error, isPending, navigate }) => {
         </HStack>
 
         <Box position="relative">
-          <Box opacity={isPending ? 0.3 : 1} transition="opacity 0.15s">
+          <Box opacity={isPending ? 0 : 1} transition="opacity 0.15s">
             <FundsDisplay data={data} error={error} />
           </Box>
           {isPending && (
