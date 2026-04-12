@@ -2,36 +2,15 @@ import {
   Box,
   Container,
   VStack,
-  HStack,
-  Text,
   Heading,
   Grid,
   GridItem,
 } from "@chakra-ui/react";
-import * as Icon from "@/app/feacher/Icon";
 import NowMachinesState from "./NowMachinesState";
 import NowStockState from "./NowStockState";
 import QuickAction from "./QuickAction";
 import SalesCard from "./SalesCard";
-
-const getGreeting = () => {
-  const hour = new Date().getHours();
-  if (hour < 11) return "おはようございます";
-  if (hour < 17) return "こんにちは";
-  return "こんばんは";
-};
-
-const getCurrentDate = () => {
-  const days = ["日", "月", "火", "水", "木", "金", "土"];
-  const today = new Date(
-    new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })
-  );
-  const year = today.getFullYear();
-  const month = today.getMonth() + 1;
-  const date = today.getDate();
-  const day = days[today.getDay()];
-  return `${year}年${month}月${date}日（${day}）`;
-};
+import GreetingHeader from "./GreetingHeader";
 
 const LoginUserHome = ({ id, username = "集金担当者" }) => {
   return (
@@ -43,15 +22,7 @@ const LoginUserHome = ({ id, username = "集金担当者" }) => {
       >
         <VStack align="stretch" gap={{ base: 4, md: 6 }}>
           <Box>
-            <Heading size={{ base: "lg", md: "xl" }} color="gray.800" mb={1}>
-              {getGreeting()}、{username}さん
-            </Heading>
-            <HStack gap={2} color="gray.600">
-              <Icon.LuCalendar size={16} />
-              <Text fontSize={{ base: "sm", md: "md" }}>
-                {getCurrentDate()}
-              </Text>
-            </HStack>
+            <GreetingHeader username={username} />
           </Box>
 
           <SalesCard id={id} />
