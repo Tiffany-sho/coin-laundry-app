@@ -76,7 +76,8 @@ const MonoCoinDataChart = ({ id }) => {
 
   const { startEpoch, endEpoch } = useUploadPage();
 
-  const supabase = createClient();
+  // useMemo で安定したインスタンスを保持し、useEffect の無限ループを防ぐ
+  const supabase = useMemo(() => createClient(), []);
 
   const channelRef = useRef(null);
 
@@ -161,7 +162,7 @@ const MonoCoinDataChart = ({ id }) => {
         channelRef.current = null;
       }
     };
-  }, [supabase, startEpoch, endEpoch]);
+  }, [startEpoch, endEpoch]);
 
   useEffect(() => {
     if (!data) return;

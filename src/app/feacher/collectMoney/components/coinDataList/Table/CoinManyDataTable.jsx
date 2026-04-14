@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Table, Text, Box, HStack, VStack } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
 import { createNowData } from "@/functions/makeDate/date";
@@ -29,7 +29,8 @@ const CoinManyDataTable = () => {
     setDisplayBtn,
   } = useUploadPage();
 
-  const supabase = createClient();
+  // useMemo で安定したインスタンスを保持し、useEffect の無限ループを防ぐ
+  const supabase = useMemo(() => createClient(), []);
   const channelRef = useRef(null);
 
   const setupChannel = (user) => {
@@ -111,7 +112,7 @@ const CoinManyDataTable = () => {
         channelRef.current = null;
       }
     };
-  }, [supabase, orderAmount, upOrder]);
+  }, [orderAmount, upOrder]);
 
   useEffect(() => {
     if (!open) {

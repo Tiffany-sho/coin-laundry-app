@@ -110,7 +110,7 @@ const MoneyDataList = ({ valiant, coinLaundry }) => {
                 >
                   集金総額
                 </Text>
-                {data && (
+                {data && data.length > 0 && (
                   <Text fontSize="xs" color="fg.muted">
                     {createNowData(data[0].date)} 〜{" "}
                     {createNowData(data[data.length - 1].date)}

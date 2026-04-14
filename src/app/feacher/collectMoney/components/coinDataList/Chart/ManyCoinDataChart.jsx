@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Chart, useChart } from "@chakra-ui/charts";
 import {
   CartesianGrid,
@@ -11,7 +12,6 @@ import {
 } from "recharts";
 
 import { getYearMonth } from "@/functions/makeDate/date";
-import { useEffect, useMemo, useRef, useState } from "react";
 import ChartLoading from "@/app/feacher/partials/ChartLoading";
 import { createClient } from "@/utils/supabase/client";
 import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
@@ -76,7 +76,8 @@ const ManyCoinDataChart = () => {
 
   const { startEpoch, endEpoch } = useUploadPage();
 
-  const supabase = createClient();
+  // useMemo で安定したインスタンスを保持し、useEffect の無限ループを防ぐ
+  const supabase = useMemo(() => createClient(), []);
 
   const channelRef = useRef(null);
 
@@ -160,7 +161,7 @@ const ManyCoinDataChart = () => {
         channelRef.current = null;
       }
     };
-  }, [supabase, startEpoch, endEpoch]);
+  }, [startEpoch, endEpoch]);
 
   useEffect(() => {
     if (!data) return;
