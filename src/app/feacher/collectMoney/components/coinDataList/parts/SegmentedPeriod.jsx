@@ -77,14 +77,15 @@ const PeriodRangeSlider = () => {
 
   // 選択期間のサイズ（月数）分だけ前後にシフト
   const shift = (direction) => {
-    const duration = localVal[1] - localVal[0];
+    // span はスライダー差分（= 月数 - 1）。シフト量は月数 = span + 1
+    const span = localVal[1] - localVal[0];
     let newStart, newEnd;
     if (direction === "prev") {
-      newStart = Math.max(0, localVal[0] - duration);
-      newEnd = newStart + duration;
+      newStart = Math.max(0, localVal[0] - span - 1);
+      newEnd = newStart + span;
     } else {
-      newEnd = Math.min(MAX_MONTHS, localVal[1] + duration);
-      newStart = newEnd - duration;
+      newEnd = Math.min(MAX_MONTHS, localVal[1] + span + 1);
+      newStart = newEnd - span;
     }
     const newVal = [newStart, newEnd];
     setLocalVal(newVal);
