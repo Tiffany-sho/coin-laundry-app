@@ -1,60 +1,69 @@
 "use client";
 
-import { useCallback, useState } from "react";
-import { Box, Center, Grid, Spinner, Text, VStack } from "@chakra-ui/react";
+import { useState } from "react";
+import { Box, Button, Grid, HStack, Text, VStack } from "@chakra-ui/react";
+import * as Icon from "@/app/feacher/Icon";
 import NowLaundryNum from "@/app/feacher/coinLandry/components/NowLaundryNum";
 import MachinesState from "@/app/feacher/coinLandry/components/MachinesState";
 
 const StockDialogBody = ({ data }) => {
-  const total = data.length * 2; // 店舗ごとに NowLaundryNum + MachinesState
-  const [loadedCount, setLoadedCount] = useState(0);
+  const [selectedStore, setSelectedStore] = useState(null);
 
-  const handleLoad = useCallback(() => {
-    setLoadedCount((prev) => prev + 1);
-  }, []);
-
-  const isLoading = loadedCount < total;
+  if (selectedStore) {
+    return (
+      <VStack align="stretch" gap={4}>
+        <Button
+          variant="ghost"
+          size="sm"
+          alignSelf="flex-start"
+          onClick={() => setSelectedStore(null)}
+        >
+          <HStack gap={1}>
+            <Icon.LuChevronLeft size={16} />
+            <Text>店舗一覧に戻る</Text>
+          </HStack>
+        </Button>
+        <Text fontSize="lg" fontWeight="bold" textAlign="center" color="gray.800">
+          {selectedStore.store}店
+        </Text>
+        <Grid templateColumns="repeat(2, 1fr)" gap={3}>
+          <NowLaundryNum id={selectedStore.id} />
+          <MachinesState id={selectedStore.id} />
+        </Grid>
+      </VStack>
+    );
+  }
 
   return (
-    <>
-      {isLoading && (
-        <Center py={8}>
-          <VStack gap={3}>
-            <Spinner size="lg" color="blue.500" />
-            <Text fontSize="sm" color="gray.500">
-              読み込み中...
-            </Text>
-          </VStack>
-        </Center>
-      )}
-
-      {/* ロード完了まで非表示だが、マウントしてデータ取得を進める */}
-      <VStack
-        align="stretch"
-        gap={3}
-        visibility={isLoading ? "hidden" : "visible"}
-        h={isLoading ? "0" : "auto"}
-        overflow={isLoading ? "hidden" : "visible"}
-      >
-        {data.map((item) => (
-          <Box key={item.id}>
-            <Text
-              fontSize="lg"
-              fontWeight="semibold"
-              color="gray.700"
-              textAlign="center"
-              my={3}
-            >
-              {item.store}店
-            </Text>
-            <Grid templateColumns="repeat(2,1fr)" gap={3} mt={2}>
-              <NowLaundryNum id={item.id} onLoad={handleLoad} />
-              <MachinesState id={item.id} onLoad={handleLoad} />
-            </Grid>
-          </Box>
-        ))}
-      </VStack>
-    </>
+    <VStack align="stretch" gap={3}>
+      {data.map((item) => (
+        <Box
+          key={item.id}
+          p={4}
+          borderRadius="lg"
+          border="1px solid"
+          borderColor="gray.200"
+          bg="white"
+          cursor="pointer"
+          transition="all 0.2s"
+          _hover={{
+            bg: "blue.50",
+            borderColor: "blue.300",
+            transform: "translateX(4px)",
+            boxShadow: "md",
+          }}
+          onClick={() => setSelectedStore(item)}
+        >
+          <Text
+            fontSize={{ base: "sm", md: "md" }}
+            fontWeight="semibold"
+            color="gray.800"
+          >
+            {item.store}店
+          </Text>
+        </Box>
+      ))}
+    </VStack>
   );
 };
 

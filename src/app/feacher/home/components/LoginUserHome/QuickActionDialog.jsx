@@ -27,7 +27,7 @@ const METHOD_LIST = [
     key: "stock",
     btnTitle: "在庫・設備管理",
     dialogTitle: "店舗を選択すると在庫・設備編集できます",
-    getURL: (id) => `/collectMoney/${id}/newData`,
+    getURL: (id) => `/coinLaundry/${id}`,
     icon: <Icon.LuPackage />,
   },
   {
