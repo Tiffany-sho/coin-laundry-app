@@ -1,8 +1,8 @@
 import { getMonthFunds } from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
 import { HStack, Text, Box } from "@chakra-ui/react";
 
-const MonthFundTotal = async ({ id }) => {
-  const { data, error } = await getMonthFunds(id);
+const MonthFundTotal = async () => {
+  const { data, error } = await getMonthFunds();
 
   if (error) {
     return (

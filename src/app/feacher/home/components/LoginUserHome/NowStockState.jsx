@@ -3,8 +3,8 @@ import { Badge, Box, HStack, Text, VStack } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
 import StockDialog from "./parts/StockDialog";
 
-const NowStockState = async ({ id }) => {
-  const { data, lowStockItems, error } = await getStockStates(id);
+const NowStockState = async () => {
+  const { data, lowStockItems, error } = await getStockStates();
 
   if (error) {
     return (

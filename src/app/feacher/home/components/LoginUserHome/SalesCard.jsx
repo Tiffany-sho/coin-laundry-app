@@ -2,7 +2,7 @@ import { getMonthFundsByOffset } from "@/app/api/supabaseFunctions/supabaseDatab
 import SalesCardClient from "./SalesCardClient";
 
 const SalesCard = async ({ id }) => {
-  const { data, error } = await getMonthFundsByOffset(id, 0);
+  const { data, error } = await getMonthFundsByOffset(0);
   return <SalesCardClient id={id} initialData={data ?? null} initialError={error ?? null} />;
 };
 

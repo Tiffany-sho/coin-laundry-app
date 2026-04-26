@@ -3,8 +3,8 @@ import { Badge, Box, HStack, Text, VStack } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
 import MachinesDialog from "./parts/MachinesDialog";
 
-const NowMachinesState = async ({ id }) => {
-  const { data, breakMachines, error } = await getMachinesStates(id);
+const NowMachinesState = async () => {
+  const { data, breakMachines, error } = await getMachinesStates();
 
   if (error) {
     return (

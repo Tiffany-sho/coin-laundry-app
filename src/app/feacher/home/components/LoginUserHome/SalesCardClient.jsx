@@ -213,7 +213,7 @@ const SalesCardClient = ({ id, initialData, initialError }) => {
   const fetchAndUpdate = (newOffset) => {
     setMonthOffset(newOffset);
     startTransition(async () => {
-      const { data, error } = await getMonthFundsByOffset(id, newOffset);
+      const { data, error } = await getMonthFundsByOffset(newOffset);
       setFundsData(data ?? null);
       setFundsError(error ?? null);
     });

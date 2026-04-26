@@ -40,6 +40,8 @@ import {
   LuFileText,
   LuUsers,
   LuSearch,
+  LuMail,
+  LuPencil,
 } from "react-icons/lu";
 
 import { MdOutlineLocalLaundryService } from "react-icons/md";
@@ -99,4 +101,6 @@ export {
   LuFileText,
   LuUsers,
   LuSearch,
+  LuMail,
+  LuPencil,
 };
