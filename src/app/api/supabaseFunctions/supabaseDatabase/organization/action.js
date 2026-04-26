@@ -141,9 +141,11 @@ export async function inviteMember(email, role) {
 
   if (myError || myMember.role !== "owner") return { error: "権限がありません" };
 
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+
   const { data, error } = await supabase
     .from("organization_invitations")
-    .insert({ org_id: myMember.org_id, email, role, invited_by: user.id })
+    .insert({ org_id: myMember.org_id, email, role, invited_by: user.id, expires_at: expiresAt })
     .select("token, org_id, organizations(name)")
     .single();
 

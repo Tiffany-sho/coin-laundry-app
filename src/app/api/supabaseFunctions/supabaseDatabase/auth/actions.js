@@ -43,7 +43,7 @@ export async function signup(preState, formData) {
 }
 
 export async function requestPasswordReset(preState, formData) {
-  const headersList = headers();
+  const headersList = await headers();
   const origin = headersList.get("origin");
   const supabase = await createClient();
   const email = formData.get("email");
