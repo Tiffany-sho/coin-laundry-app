@@ -7,8 +7,9 @@ export async function middleware(request) {
   const { pathname } = request.nextUrl;
 
   const protectedPaths = ["/account", "/coinLaundry", "/collectMoney"];
+  const publicAuthPaths = ["/auth/invite"];
 
-  if (!user && protectedPaths.some((path) => pathname.startsWith(path))) {
+  if (!user && protectedPaths.some((path) => pathname.startsWith(path)) && !publicAuthPaths.some((path) => pathname.startsWith(path))) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth/login";
     return NextResponse.redirect(url);
