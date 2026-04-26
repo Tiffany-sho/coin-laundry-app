@@ -4,7 +4,7 @@ import {
   getImage,
   uploadImage,
   deleteImage,
-} from "@/app/api/supabaseFunctions/supabaseStorage/route";
+} from "@/app/api/supabaseFunctions/supabaseStorage/action";
 import {
   createStore,
   updateStore,
