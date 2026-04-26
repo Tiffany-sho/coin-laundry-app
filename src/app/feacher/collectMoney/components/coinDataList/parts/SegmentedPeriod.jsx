@@ -2,7 +2,13 @@
 
 import { useState } from "react";
 import { Box, Button, HStack, Slider, Text, VStack } from "@chakra-ui/react";
-import { LuChevronLeft, LuChevronRight } from "@/app/feacher/Icon";
+import {
+  LuChevronLeft,
+  LuChevronRight,
+  LuChevronDown,
+  LuChevronUp,
+  LuCalendar,
+} from "@/app/feacher/Icon";
 import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
 import {
   changeEpocFromNowYearMonth,
@@ -59,6 +65,8 @@ const PeriodRangeSlider = () => {
   const contextStartVal = epochToSliderVal(startEpoch > 0 ? startEpoch : 0);
   const contextEndVal = endEpoch === null ? MAX_MONTHS : epochToSliderVal(endEpoch);
 
+  const [isOpen, setIsOpen] = useState(false);
+
   // ドラッグ中はローカル state で表示のみ更新（フェッチは走らせない）
   const [localVal, setLocalVal] = useState([contextStartVal, contextEndVal]);
 
@@ -98,64 +106,86 @@ const PeriodRangeSlider = () => {
   return (
     <Box w="100%" pt={1}>
       <VStack gap={3} align="stretch">
-        {/* ナビゲーション＋期間表示 */}
+        {/* 設定ボタン＋現在の期間表示 */}
         <HStack justify="space-between" align="center">
           <Button
             size="sm"
-            variant="ghost"
-            onClick={() => shift("prev")}
-            disabled={!canGoPrev}
+            variant="subtle"
+            onClick={() => setIsOpen((v) => !v)}
           >
-            <LuChevronLeft />
-            <Text hideBelow="sm">前の期間</Text>
+            <LuCalendar />
+            期間設定
+            {isOpen ? <LuChevronUp /> : <LuChevronDown />}
           </Button>
-
-          {/* 中央：開始日〜終了日 */}
           <HStack gap={1} align="flex-end">
-            <VStack gap={0} align="flex-start">
-              <Text fontSize="2xs" color="fg.muted">開始日</Text>
-              <Text fontSize="sm" fontWeight="semibold">{startDateStr}</Text>
-            </VStack>
-            <Text color="fg.muted" pb="1px" lineHeight="1">〜</Text>
-            <VStack gap={0} align="flex-start">
-              <Text fontSize="2xs" color="fg.muted">終了日</Text>
-              <Text fontSize="sm" fontWeight="semibold">{endDateStr}</Text>
-            </VStack>
+            <Text fontSize="sm" fontWeight="semibold">{startDateStr}</Text>
+            <Text color="fg.muted" lineHeight="1">〜</Text>
+            <Text fontSize="sm" fontWeight="semibold">{endDateStr}</Text>
           </HStack>
-
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => shift("next")}
-            disabled={!canGoNext}
-          >
-            <Text hideBelow="sm">次の期間</Text>
-            <LuChevronRight />
-          </Button>
         </HStack>
 
-        {/* 範囲スライダー */}
-        <Slider.Root
-          min={0}
-          max={MAX_MONTHS}
-          step={1}
-          value={localVal}
-          onValueChange={(e) => setLocalVal(e.value)}
-          onValueChangeEnd={(e) => handleChangeEnd(e.value)}
-          colorPalette="blue"
-        >
-          <HStack justify="space-between" mb={1}>
-            <Text fontSize="2xs" color="fg.muted">5年前</Text>
-            <Text fontSize="2xs" color="fg.muted">今月</Text>
-          </HStack>
-          <Slider.Control>
-            <Slider.Track>
-              <Slider.Range />
-            </Slider.Track>
-            <Slider.Thumb index={0} />
-            <Slider.Thumb index={1} />
-          </Slider.Control>
-        </Slider.Root>
+        {isOpen && (
+          <>
+            {/* ナビゲーション＋期間表示 */}
+            <HStack justify="space-between" align="center">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => shift("prev")}
+                disabled={!canGoPrev}
+              >
+                <LuChevronLeft />
+                <Text hideBelow="sm">前の期間</Text>
+              </Button>
+
+              {/* 中央：開始日〜終了日 */}
+              <HStack gap={1} align="flex-end">
+                <VStack gap={0} align="flex-start">
+                  <Text fontSize="2xs" color="fg.muted">開始日</Text>
+                  <Text fontSize="sm" fontWeight="semibold">{startDateStr}</Text>
+                </VStack>
+                <Text color="fg.muted" pb="1px" lineHeight="1">〜</Text>
+                <VStack gap={0} align="flex-start">
+                  <Text fontSize="2xs" color="fg.muted">終了日</Text>
+                  <Text fontSize="sm" fontWeight="semibold">{endDateStr}</Text>
+                </VStack>
+              </HStack>
+
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => shift("next")}
+                disabled={!canGoNext}
+              >
+                <Text hideBelow="sm">次の期間</Text>
+                <LuChevronRight />
+              </Button>
+            </HStack>
+
+            {/* 範囲スライダー */}
+            <Slider.Root
+              min={0}
+              max={MAX_MONTHS}
+              step={1}
+              value={localVal}
+              onValueChange={(e) => setLocalVal(e.value)}
+              onValueChangeEnd={(e) => handleChangeEnd(e.value)}
+              colorPalette="blue"
+            >
+              <HStack justify="space-between" mb={1}>
+                <Text fontSize="2xs" color="fg.muted">5年前</Text>
+                <Text fontSize="2xs" color="fg.muted">今月</Text>
+              </HStack>
+              <Slider.Control>
+                <Slider.Track>
+                  <Slider.Range />
+                </Slider.Track>
+                <Slider.Thumb index={0} />
+                <Slider.Thumb index={1} />
+              </Slider.Control>
+            </Slider.Root>
+          </>
+        )}
       </VStack>
     </Box>
   );
