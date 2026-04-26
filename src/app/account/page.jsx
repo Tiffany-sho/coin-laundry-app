@@ -1,4 +1,6 @@
 import { getUser } from "../api/supabaseFunctions/supabaseDatabase/user/action";
+
+export const dynamic = "force-dynamic";
 import { getProfile } from "../api/supabaseFunctions/supabaseDatabase/profiles/action";
 import AccountForm from "../feacher/account/components/accountForm/AccountForm";
 import OrganizationSettings from "../feacher/account/components/organizationSettings/OrganizationSettings";

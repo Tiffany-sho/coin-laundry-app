@@ -1,4 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
+
+export const dynamic = "force-dynamic";
 import ErrorPage from "./feacher/jumpPage/ErrorPage/ErrorPage";
 import NotLoginUserHome from "./feacher/home/components/NotLoginUserHome/NotLoginUserHome";
 import LoginUserHome from "./feacher/home/components/LoginUserHome/LoginUserHome";

@@ -1,5 +1,7 @@
 import { getStore } from "@/app/api/supabaseFunctions/supabaseDatabase/laundryStore/action";
 import CollectMoneyForm from "@/app/feacher/collectMoney/components/collectMoneyForm/CollectMoneyForm";
+
+export const dynamic = "force-dynamic";
 import ErrorPage from "@/app/feacher/jumpPage/ErrorPage/ErrorPage";
 
 const Page = async ({ params }) => {

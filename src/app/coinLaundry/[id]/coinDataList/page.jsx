@@ -1,5 +1,7 @@
 import { getStore } from "@/app/api/supabaseFunctions/supabaseDatabase/laundryStore/action";
 import MoneyDataList from "@/app/feacher/collectMoney/components/coinDataList/CoinDataList";
+
+export const dynamic = "force-dynamic";
 import ErrorPage from "@/app/feacher/jumpPage/ErrorPage/ErrorPage";
 
 const Page = async ({ params }) => {

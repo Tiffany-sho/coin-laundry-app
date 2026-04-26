@@ -2,6 +2,8 @@ import {
   getStore,
   getStores,
 } from "@/app/api/supabaseFunctions/supabaseDatabase/laundryStore/action";
+
+export const dynamic = "force-dynamic";
 import { SearchBox } from "@/app/feacher/coinLandry/components/CoinLaundryList";
 import MonoCard from "@/app/feacher/coinLandry/components/MonoCoinLaundry/MonoCard";
 import ErrorPage from "@/app/feacher/jumpPage/ErrorPage/ErrorPage";

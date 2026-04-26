@@ -1,6 +1,8 @@
 import CoinLaundryForm from "@/app/feacher/coinLandry/components/CoinLaundryForm/CoinLaundryForm";
 import CoinLaundryFormContextProvider from "@/app/feacher/coinLandry/context/CoinlaundryForm/CoinLaundryFormContext";
 
+export const dynamic = "force-dynamic";
+
 const createLaundry = () => {
   return (
     <CoinLaundryFormContextProvider>

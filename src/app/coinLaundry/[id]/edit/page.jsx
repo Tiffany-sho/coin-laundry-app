@@ -1,4 +1,6 @@
 import { getStore } from "@/app/api/supabaseFunctions/supabaseDatabase/laundryStore/action";
+
+export const dynamic = "force-dynamic";
 import CoinLaundryForm from "@/app/feacher/coinLandry/components/CoinLaundryForm/CoinLaundryForm";
 import CoinLaundryFormContextProvider from "@/app/feacher/coinLandry/context/CoinlaundryForm/CoinLaundryFormContext";
 

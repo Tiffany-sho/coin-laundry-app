@@ -1,4 +1,6 @@
 import { getUser } from "@/app/api/supabaseFunctions/supabaseDatabase/user/action";
+
+export const dynamic = "force-dynamic";
 import Log from "@/app/feacher/account/components/logList/Log";
 
 const page = async () => {
