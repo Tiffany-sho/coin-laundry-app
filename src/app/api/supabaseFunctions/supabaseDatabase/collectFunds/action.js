@@ -3,37 +3,33 @@
 import { createClient } from "@/utils/supabase/server";
 import { getUser } from "../user/action";
 import { changeEpocFromNowYearMonth } from "@/functions/makeDate/date";
+import { getStores } from "../laundryStore/action";
+
+async function getOrgStoreIds() {
+  const { data: stores, error } = await getStores();
+  if (error || !stores) return [];
+  return stores.map((s) => s.id);
+}
 
 export const getFundsData = async (id) => {
   const { user } = await getUser();
-  if (!user) {
-    return {
-      error: { msg: "ログインしてください", status: 401 },
-    };
-  }
+  if (!user) return { error: { msg: "ログインしてください", status: 401 } };
+
   const supabase = await createClient();
   const { data: initialData, error: initialError } = await supabase
     .from("collect_funds")
     .select("*")
-    .eq("laundryId", id)
-    .eq("collecter", user.id);
+    .eq("laundryId", id);
 
-  if (initialError) {
-    return { error: initialError };
-  } else {
-    return { data: initialData };
-  }
+  if (initialError) return { error: initialError };
+  return { data: initialData };
 };
 
 export async function createData(formData) {
   const { user } = await getUser();
-  if (!user) {
-    return {
-      error: { msg: "ログインしてください", status: 401 },
-    };
-  }
-  const supabase = await createClient();
+  if (!user) return { error: { msg: "ログインしてください", status: 401 } };
 
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("collect_funds")
     .insert({
@@ -47,69 +43,53 @@ export async function createData(formData) {
     .select("laundryId,laundryName")
     .single();
 
-  if (error) {
-    return { error: "集金データの登録に失敗しました" };
-  }
-  return { data: data };
+  if (error) return { error: "集金データの登録に失敗しました" };
+  return { data };
 }
 
 export async function updateData(fundsArray, totalFunds, id) {
   const { user } = await getUser();
-  if (!user) {
-    return {
-      error: { msg: "ログインしてください", status: 401 },
-    };
-  }
-  const supabase = await createClient();
+  if (!user) return { error: { msg: "ログインしてください", status: 401 } };
 
+  const supabase = await createClient();
   const { error } = await supabase
     .from("collect_funds")
-    .update({
-      fundsArray,
-      totalFunds,
-    })
+    .update({ fundsArray, totalFunds })
     .eq("id", id)
     .eq("collecter", user.id);
 
-  return { error: error };
+  return { error };
 }
 
 export async function updateDate(date, id) {
   const { user } = await getUser();
-  if (!user) {
-    return {
-      error: { msg: "ログインしてください", status: 401 },
-    };
-  }
-  const supabase = await createClient();
+  if (!user) return { error: { msg: "ログインしてください", status: 401 } };
 
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("collect_funds")
-    .update({
-      date,
-    })
+    .update({ date })
     .eq("id", id)
     .eq("collecter", user.id)
     .select("date")
     .single();
 
-  if (error) {
-    return { error: error };
-  }
-  return { data: data };
+  if (error) return { error };
+  return { data };
 }
 
 export async function deleteData(id) {
   const supabase = await createClient();
-
   const { error } = await supabase.from("collect_funds").delete().eq("id", id);
-
-  return { error: error };
+  return { error };
 }
 
 export async function getAllMonthBenefits() {
   const { user } = await getUser();
   if (!user) return { error: "ログインしてください" };
+
+  const storeIds = await getOrgStoreIds();
+  if (storeIds.length === 0) return { data: [] };
 
   const supabase = await createClient();
   const epocYearBeforeMonth = changeEpocFromNowYearMonth(-1);
@@ -118,7 +98,7 @@ export async function getAllMonthBenefits() {
   const { data, error } = await supabase
     .from("collect_funds")
     .select("date,totalFunds,laundryId")
-    .eq("collecter", user.id)
+    .in("laundryId", storeIds)
     .gt("date", epocYearBeforeMonth)
     .lt("date", epocYearAfterMonth);
 
@@ -126,7 +106,11 @@ export async function getAllMonthBenefits() {
   return { data };
 }
 
-export async function getMonthFunds(id) {
+// org 全体の当月集金合計（ホーム画面用）
+export async function getMonthFunds() {
+  const storeIds = await getOrgStoreIds();
+  if (storeIds.length === 0) return { data: [] };
+
   const supabase = await createClient();
   const epocYearMonth = changeEpocFromNowYearMonth(0);
   const epocYearNextMonth = changeEpocFromNowYearMonth(1);
@@ -134,7 +118,7 @@ export async function getMonthFunds(id) {
   const { data, error } = await supabase
     .from("collect_funds")
     .select("totalFunds")
-    .eq("collecter", id)
+    .in("laundryId", storeIds)
     .gt("date", epocYearMonth)
     .lt("date", epocYearNextMonth);
 
@@ -142,7 +126,11 @@ export async function getMonthFunds(id) {
   return { data };
 }
 
-export async function getMonthFundsByOffset(userId, monthOffset) {
+// org 全体の指定月集金合計（ホーム画面グラフ用）
+export async function getMonthFundsByOffset(monthOffset) {
+  const storeIds = await getOrgStoreIds();
+  if (storeIds.length === 0) return { data: [] };
+
   const supabase = await createClient();
   const epocStart = changeEpocFromNowYearMonth(monthOffset);
   const epocEnd = changeEpocFromNowYearMonth(monthOffset + 1);
@@ -150,7 +138,7 @@ export async function getMonthFundsByOffset(userId, monthOffset) {
   const { data, error } = await supabase
     .from("collect_funds")
     .select("totalFunds")
-    .eq("collecter", userId)
+    .in("laundryId", storeIds)
     .gt("date", epocStart)
     .lt("date", epocEnd);
 
