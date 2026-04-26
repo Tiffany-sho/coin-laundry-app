@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
+import { createServiceClient } from "@/utils/supabase/service";
 import { getUser } from "../user/action";
 
 export async function getMyOrganization() {
@@ -192,7 +193,7 @@ export async function deleteInvitation(id) {
 }
 
 export async function getInvitation(token) {
-  const supabase = await createClient();
+  const supabase = createServiceClient();
   const { data, error } = await supabase
     .from("organization_invitations")
     .select("id, org_id, email, role, expires_at, accepted_at, organizations(name), profiles!invited_by(username)")
@@ -207,7 +208,7 @@ export async function acceptInvitation(token) {
   const { user } = await getUser();
   if (!user) return { error: "ログインしてください" };
 
-  const supabase = await createClient();
+  const supabase = createServiceClient();
   const { data: invitation, error: invError } = await supabase
     .from("organization_invitations")
     .select("*")
