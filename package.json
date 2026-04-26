@@ -6,9 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build --turbopack",
-    "start": "next start",
-    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
-    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview"
+    "start": "next start"
   },
   "dependencies": {
     "@chakra-ui/charts": "^3.28.0",
@@ -25,8 +23,5 @@
     "recharts": "^3.3.0",
     "resend": "^6.12.2"
   },
-  "devDependencies": {
-    "@opennextjs/cloudflare": "^1.19.4",
-    "wrangler": "^4.85.0"
-  }
+  "devDependencies": {}
 }
