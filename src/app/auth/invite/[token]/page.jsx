@@ -1,6 +1,8 @@
 import { getUser } from "@/app/api/supabaseFunctions/supabaseDatabase/user/action";
 import { getInvitation } from "@/app/api/supabaseFunctions/supabaseDatabase/organization/action";
 import { redirect } from "next/navigation";
+
+export const dynamic = "force-dynamic";
 import InviteAcceptClient from "./InviteAcceptClient";
 
 export default async function InvitePage({ params }) {
