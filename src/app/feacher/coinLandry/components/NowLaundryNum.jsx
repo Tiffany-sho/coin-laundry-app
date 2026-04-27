@@ -16,7 +16,7 @@ import {
 import * as Icon from "@/app/feacher/Icon";
 import { useNowLaundryNum } from "./useNowLaundryNum";
 
-const NowLaundryNum = ({ id, onLoad }) => {
+const NowLaundryNum = ({ id, onLoad, canEdit = true }) => {
   const {
     data,
     detergent,
@@ -180,40 +180,46 @@ const NowLaundryNum = ({ id, onLoad }) => {
                     <Heading size="sm" color="green.900">
                       洗剤（ソープ）
                     </Heading>
-                    <HStack justify="center" gap={4}>
-                      <IconButton
-                        variant="solid"
-                        size="lg"
-                        bg="gray.600"
-                        onClick={() => setDetergent((prev) => Math.max(0, prev - 1))}
-                        disabled={detergent <= 0}
-                        borderRadius="full"
-                      >
-                        <Icon.LuMinus />
-                      </IconButton>
-                      <Box
-                        bg="white"
-                        px={8}
-                        py={4}
-                        borderRadius="lg"
-                        border="2px solid"
-                        minW="100px"
-                        textAlign="center"
-                      >
-                        <Text fontSize="3xl" fontWeight="bold" color="green.900">
-                          {detergent}
-                        </Text>
-                      </Box>
-                      <IconButton
-                        variant="solid"
-                        size="lg"
-                        bg="gray.600"
-                        onClick={() => setDetergent((prev) => prev + 1)}
-                        borderRadius="full"
-                      >
-                        <Icon.LuPlus />
-                      </IconButton>
-                    </HStack>
+                    {canEdit ? (
+                      <HStack justify="center" gap={4}>
+                        <IconButton
+                          variant="solid"
+                          size="lg"
+                          bg="gray.600"
+                          onClick={() => setDetergent((prev) => Math.max(0, prev - 1))}
+                          disabled={detergent <= 0}
+                          borderRadius="full"
+                        >
+                          <Icon.LuMinus />
+                        </IconButton>
+                        <Box
+                          bg="white"
+                          px={8}
+                          py={4}
+                          borderRadius="lg"
+                          border="2px solid"
+                          minW="100px"
+                          textAlign="center"
+                        >
+                          <Text fontSize="3xl" fontWeight="bold" color="green.900">
+                            {detergent}
+                          </Text>
+                        </Box>
+                        <IconButton
+                          variant="solid"
+                          size="lg"
+                          bg="gray.600"
+                          onClick={() => setDetergent((prev) => prev + 1)}
+                          borderRadius="full"
+                        >
+                          <Icon.LuPlus />
+                        </IconButton>
+                      </HStack>
+                    ) : (
+                      <Text fontSize="3xl" fontWeight="bold" color="green.900" textAlign="center">
+                        {data.detergent}
+                      </Text>
+                    )}
                   </VStack>
                 </Box>
 
@@ -222,40 +228,46 @@ const NowLaundryNum = ({ id, onLoad }) => {
                     <Heading size="sm" color="green.900">
                       柔軟剤（ソフター）
                     </Heading>
-                    <HStack justify="center" gap={4}>
-                      <IconButton
-                        variant="solid"
-                        size="lg"
-                        bg="gray.600"
-                        onClick={() => setSoftener((prev) => Math.max(0, prev - 1))}
-                        disabled={softener <= 0}
-                        borderRadius="full"
-                      >
-                        <Icon.LuMinus />
-                      </IconButton>
-                      <Box
-                        bg="white"
-                        px={8}
-                        py={4}
-                        borderRadius="lg"
-                        border="2px solid"
-                        minW="100px"
-                        textAlign="center"
-                      >
-                        <Text fontSize="3xl" fontWeight="bold">
-                          {softener}
-                        </Text>
-                      </Box>
-                      <IconButton
-                        variant="solid"
-                        size="lg"
-                        bg="gray.600"
-                        onClick={() => setSoftener((prev) => prev + 1)}
-                        borderRadius="full"
-                      >
-                        <Icon.LuPlus />
-                      </IconButton>
-                    </HStack>
+                    {canEdit ? (
+                      <HStack justify="center" gap={4}>
+                        <IconButton
+                          variant="solid"
+                          size="lg"
+                          bg="gray.600"
+                          onClick={() => setSoftener((prev) => Math.max(0, prev - 1))}
+                          disabled={softener <= 0}
+                          borderRadius="full"
+                        >
+                          <Icon.LuMinus />
+                        </IconButton>
+                        <Box
+                          bg="white"
+                          px={8}
+                          py={4}
+                          borderRadius="lg"
+                          border="2px solid"
+                          minW="100px"
+                          textAlign="center"
+                        >
+                          <Text fontSize="3xl" fontWeight="bold">
+                            {softener}
+                          </Text>
+                        </Box>
+                        <IconButton
+                          variant="solid"
+                          size="lg"
+                          bg="gray.600"
+                          onClick={() => setSoftener((prev) => prev + 1)}
+                          borderRadius="full"
+                        >
+                          <Icon.LuPlus />
+                        </IconButton>
+                      </HStack>
+                    ) : (
+                      <Text fontSize="3xl" fontWeight="bold" textAlign="center">
+                        {data.softener}
+                      </Text>
+                    )}
                   </VStack>
                 </Box>
               </VStack>
@@ -269,20 +281,22 @@ const NowLaundryNum = ({ id, onLoad }) => {
             >
               <Dialog.ActionTrigger asChild>
                 <Button variant="outline" size="lg" borderRadius="full" px={6}>
-                  キャンセル
+                  {canEdit ? "キャンセル" : "閉じる"}
                 </Button>
               </Dialog.ActionTrigger>
-              <Dialog.ActionTrigger asChild>
-                <Button
-                  size="lg"
-                  onClick={handleSave}
-                  loading={isSaving}
-                  borderRadius="full"
-                  px={8}
-                >
-                  保存
-                </Button>
-              </Dialog.ActionTrigger>
+              {canEdit && (
+                <Dialog.ActionTrigger asChild>
+                  <Button
+                    size="lg"
+                    onClick={handleSave}
+                    loading={isSaving}
+                    borderRadius="full"
+                    px={8}
+                  >
+                    保存
+                  </Button>
+                </Dialog.ActionTrigger>
+              )}
             </Dialog.Footer>
           </Dialog.Content>
         </Dialog.Positioner>

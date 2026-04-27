@@ -2,6 +2,7 @@ import {
   getStore,
   getStores,
 } from "@/app/api/supabaseFunctions/supabaseDatabase/laundryStore/action";
+import { getMyOrganization } from "@/app/api/supabaseFunctions/supabaseDatabase/organization/action";
 
 export const dynamic = "force-dynamic";
 import { SearchBox } from "@/app/feacher/coinLandry/components/CoinLaundryList";
@@ -11,10 +12,12 @@ import { Box, Container, Flex, Text, VStack } from "@chakra-ui/react";
 
 const CoinLaundry = async ({ params }) => {
   const { id } = await params;
-  const { data: store, error: storeError } = await getStore(id);
-  const { data: stores, error: storesError } = await getStores();
+  const [{ data: store, error: storeError }, { data: stores, error: storesError }, { data: orgData }] =
+    await Promise.all([getStore(id), getStores(), getMyOrganization()]);
   const error = storeError ?? storesError;
   if (error) return <ErrorPage title={error.msg} status={error.status} />;
+
+  const myRole = orgData?.myRole ?? "viewer";
 
   const selectItems = stores.map((item) => {
     const newItem = {
@@ -37,7 +40,7 @@ const CoinLaundry = async ({ params }) => {
         </Flex>
       </VStack>
 
-      <MonoCard coinLaundry={store} />
+      <MonoCard coinLaundry={store} myRole={myRole} />
     </Container>
   );
 };

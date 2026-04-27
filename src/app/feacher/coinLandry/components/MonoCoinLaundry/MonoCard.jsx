@@ -18,14 +18,17 @@ import MachinesState from "../MachinesState";
 import NowLaundryNum from "../NowLaundryNum";
 import HaveMachines from "./HaveMachines";
 
-const MonoCard = ({ coinLaundry }) => {
+const MonoCard = ({ coinLaundry, myRole }) => {
+  const isOwner = myRole === "owner";
+  const canEdit = myRole !== "viewer";
+
   return (
     <Box py={{ base: 6, md: 10 }}>
       <Container px={0}>
         <ImageCarousel images={coinLaundry.images} />
 
         <Box pt={{ base: 6, md: 8 }} position="relative">
-          <ActionMenu id={coinLaundry.id} store={coinLaundry.store} />
+          {isOwner && <ActionMenu id={coinLaundry.id} store={coinLaundry.store} />}
 
           <VStack align="stretch" gap={6}>
             <Heading
@@ -60,26 +63,28 @@ const MonoCard = ({ coinLaundry }) => {
             >
               <MonoDataTotal coinLaundry={coinLaundry} />
               <HaveMachines coinLaundry={coinLaundry} />
-              <NowLaundryNum id={coinLaundry.id} />
-              <MachinesState id={coinLaundry.id} />
+              <NowLaundryNum id={coinLaundry.id} canEdit={canEdit} />
+              <MachinesState id={coinLaundry.id} canEdit={canEdit} />
             </Grid>
 
-            <Flex justifyContent="center" pt={2}>
-              <Link href={`/collectMoney/${coinLaundry.id}/newData`}>
-                <Button
-                  size="lg"
-                  colorPalette="blue"
-                  fontWeight="semibold"
-                  px={8}
-                  _hover={{ transform: "translateY(-2px)" }}
-                  transition="all 0.2s"
-                  boxShadow="md"
-                >
-                  <Icon.PiHandCoinsLight size={24} />
-                  集金を開始
-                </Button>
-              </Link>
-            </Flex>
+            {canEdit && (
+              <Flex justifyContent="center" pt={2}>
+                <Link href={`/collectMoney/${coinLaundry.id}/newData`}>
+                  <Button
+                    size="lg"
+                    colorPalette="blue"
+                    fontWeight="semibold"
+                    px={8}
+                    _hover={{ transform: "translateY(-2px)" }}
+                    transition="all 0.2s"
+                    boxShadow="md"
+                  >
+                    <Icon.PiHandCoinsLight size={24} />
+                    集金を開始
+                  </Button>
+                </Link>
+              </Flex>
+            )}
           </VStack>
         </Box>
       </Container>

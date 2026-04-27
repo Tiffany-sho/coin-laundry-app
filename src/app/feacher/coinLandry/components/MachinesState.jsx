@@ -18,7 +18,7 @@ import {
 import * as Icon from "@/app/feacher/Icon";
 import { useMachinesState } from "./useMachinesState";
 
-const MachinesState = ({ id, onLoad }) => {
+const MachinesState = ({ id, onLoad, canEdit = true }) => {
   const {
     data,
     isSaving,
@@ -190,20 +190,22 @@ const MachinesState = ({ id, onLoad }) => {
                           </Badge>
                         </VStack>
 
-                        <Box>
-                          <Switch.Root
-                            checked={machine.break}
-                            onCheckedChange={(e) =>
-                              changeMachineState(e, machine.id, "switch")
-                            }
-                            size="lg"
-                          >
-                            <Switch.HiddenInput />
-                            <Switch.Control>
-                              <Switch.Thumb />
-                            </Switch.Control>
-                          </Switch.Root>
-                        </Box>
+                        {canEdit && (
+                          <Box>
+                            <Switch.Root
+                              checked={machine.break}
+                              onCheckedChange={(e) =>
+                                changeMachineState(e, machine.id, "switch")
+                              }
+                              size="lg"
+                            >
+                              <Switch.HiddenInput />
+                              <Switch.Control>
+                                <Switch.Thumb />
+                              </Switch.Control>
+                            </Switch.Root>
+                          </Box>
+                        )}
                       </HStack>
 
                       {machine.break && (
@@ -222,22 +224,28 @@ const MachinesState = ({ id, onLoad }) => {
                             >
                               故障内容
                             </Text>
-                            <Textarea
-                              fontSize="15px"
-                              placeholder="故障の詳細を入力してください..."
-                              value={machine.comment || ""}
-                              onChange={(e) =>
-                                changeMachineState(e, machine.id, "input")
-                              }
-                              rows={3}
-                              resize="vertical"
-                              borderColor="red.200"
-                              _focus={{
-                                borderColor: "red.400",
-                                boxShadow:
-                                  "0 0 0 1px var(--chakra-colors-red-400)",
-                              }}
-                            />
+                            {canEdit ? (
+                              <Textarea
+                                fontSize="15px"
+                                placeholder="故障の詳細を入力してください..."
+                                value={machine.comment || ""}
+                                onChange={(e) =>
+                                  changeMachineState(e, machine.id, "input")
+                                }
+                                rows={3}
+                                resize="vertical"
+                                borderColor="red.200"
+                                _focus={{
+                                  borderColor: "red.400",
+                                  boxShadow:
+                                    "0 0 0 1px var(--chakra-colors-red-400)",
+                                }}
+                              />
+                            ) : (
+                              <Text fontSize="sm" color="gray.700">
+                                {machine.comment || "（詳細なし）"}
+                              </Text>
+                            )}
                           </VStack>
                         </Box>
                       )}
@@ -259,23 +267,25 @@ const MachinesState = ({ id, onLoad }) => {
                   size="lg"
                   borderRadius="full"
                   px={6}
-                  onClick={resetMachines}
+                  onClick={canEdit ? resetMachines : undefined}
                 >
-                  キャンセル
+                  {canEdit ? "キャンセル" : "閉じる"}
                 </Button>
               </Dialog.ActionTrigger>
-              <Dialog.ActionTrigger asChild>
-                <Button
-                  size="lg"
-                  variant="solid"
-                  onClick={handleSave}
-                  loading={isSaving}
-                  borderRadius="full"
-                  px={8}
-                >
-                  保存
-                </Button>
-              </Dialog.ActionTrigger>
+              {canEdit && (
+                <Dialog.ActionTrigger asChild>
+                  <Button
+                    size="lg"
+                    variant="solid"
+                    onClick={handleSave}
+                    loading={isSaving}
+                    borderRadius="full"
+                    px={8}
+                  >
+                    保存
+                  </Button>
+                </Dialog.ActionTrigger>
+              )}
             </Dialog.Footer>
           </Dialog.Content>
         </Dialog.Positioner>

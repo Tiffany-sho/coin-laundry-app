@@ -30,6 +30,16 @@ export async function createData(formData) {
   if (!user) return { error: { msg: "ログインしてください", status: 401 } };
 
   const supabase = await createClient();
+  const { data: member } = await supabase
+    .from("organization_members")
+    .select("role")
+    .eq("user_id", user.id)
+    .single();
+
+  if (!member || member.role === "viewer") {
+    return { error: "集金データを登録する権限がありません" };
+  }
+
   const { data, error } = await supabase
     .from("collect_funds")
     .insert({

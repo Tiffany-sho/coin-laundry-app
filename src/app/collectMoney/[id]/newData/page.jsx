@@ -1,4 +1,5 @@
 import { getStore } from "@/app/api/supabaseFunctions/supabaseDatabase/laundryStore/action";
+import { getMyOrganization } from "@/app/api/supabaseFunctions/supabaseDatabase/organization/action";
 import CollectMoneyForm from "@/app/feacher/collectMoney/components/collectMoneyForm/CollectMoneyForm";
 
 export const dynamic = "force-dynamic";
@@ -6,8 +7,14 @@ import ErrorPage from "@/app/feacher/jumpPage/ErrorPage/ErrorPage";
 
 const Page = async ({ params }) => {
   const { id } = await params;
-  const { data, error } = await getStore(id);
+  const [{ data, error }, { data: orgData }] = await Promise.all([
+    getStore(id),
+    getMyOrganization(),
+  ]);
   if (error) return <ErrorPage title={error.msg} status={error.status} />;
+  if (!orgData || orgData.myRole === "viewer") {
+    return <ErrorPage title="集金登録の権限がありません" status={403} />;
+  }
   return <CollectMoneyForm coinLaundry={data} />;
 };
 

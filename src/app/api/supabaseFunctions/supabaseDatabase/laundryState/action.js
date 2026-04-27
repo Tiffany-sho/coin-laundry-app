@@ -4,6 +4,16 @@ import { createClient } from "@/utils/supabase/server";
 import { getUser } from "../user/action";
 import { getStores } from "../laundryStore/action";
 
+async function getMyRole(supabase, userId) {
+  const { data, error } = await supabase
+    .from("organization_members")
+    .select("role")
+    .eq("user_id", userId)
+    .single();
+  if (error) return null;
+  return data.role;
+}
+
 async function getOrgStoreIds() {
   const { data: stores, error } = await getStores();
   if (error || !stores) return [];
@@ -58,7 +68,13 @@ export async function getMachinesStates() {
 }
 
 export async function updateMachinesState(laundryId, machines) {
+  const { user } = await getUser();
+  if (!user) return { error: "ユーザーが認証されていません。" };
+
   const supabase = await createClient();
+  const role = await getMyRole(supabase, user.id);
+  if (!role || role === "viewer") return { error: "設備状態を編集する権限がありません。" };
+
   const { error } = await supabase
     .from("laundry_state")
     .update({ machines })
@@ -69,7 +85,13 @@ export async function updateMachinesState(laundryId, machines) {
 }
 
 export async function updateStockState(laundryId, { detergent, softener }) {
+  const { user } = await getUser();
+  if (!user) return { error: "ユーザーが認証されていません。" };
+
   const supabase = await createClient();
+  const role = await getMyRole(supabase, user.id);
+  if (!role || role === "viewer") return { error: "在庫状態を編集する権限がありません。" };
+
   const { error } = await supabase
     .from("laundry_state")
     .update({ detergent, softener })
