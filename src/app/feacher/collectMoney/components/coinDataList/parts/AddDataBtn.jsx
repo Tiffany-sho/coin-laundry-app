@@ -3,6 +3,7 @@ import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageCont
 import { useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { getUser } from "@/app/api/supabaseFunctions/supabaseDatabase/user/action";
+import { getOrgCollectFundsPaginated } from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
 
 const AddDataBtn = ({ id = "" }) => {
   const supabase = createClient();
@@ -22,15 +23,14 @@ const AddDataBtn = ({ id = "" }) => {
     setIsLoading(true);
 
     try {
-      const { user } = await getUser();
-
-      if (!user) {
-        return;
-      }
       const from = page * PAGE_SIZE;
       const to = from + PAGE_SIZE - 1;
 
       if (id) {
+        // aStore: ブラウザクライアントで自分の集金データを追加取得
+        const { user } = await getUser();
+        if (!user) return;
+
         const { data: nextData, error: nextError } = await supabase
           .from("collect_funds")
           .select("*")
@@ -48,12 +48,13 @@ const AddDataBtn = ({ id = "" }) => {
           setDisplayData((prev) => [...prev, ...nextData]);
         }
       } else {
-        const { data: nextData, error: nextError } = await supabase
-          .from("collect_funds")
-          .select("*")
-          .eq("collecter", user.id)
-          .order(orderAmount, { ascending: upOrder })
-          .range(from, to);
+        // manyStore: サーバーアクションで組織全体の集金データを追加取得
+        const { data: nextData, error: nextError } = await getOrgCollectFundsPaginated(
+          orderAmount,
+          upOrder,
+          from,
+          to
+        );
 
         if (nextError) {
           setDisplayData(null);

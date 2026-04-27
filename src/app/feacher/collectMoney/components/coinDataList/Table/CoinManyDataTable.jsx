@@ -1,15 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Table, Text, Box, HStack, VStack } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
 import { createNowData } from "@/functions/makeDate/date";
-import { createClient } from "@/utils/supabase/client";
 import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
 import TableLoading from "@/app/feacher/partials/TableLoading";
 import TableError from "@/app/feacher/partials/TableError";
-import { getUser } from "@/app/api/supabaseFunctions/supabaseDatabase/user/action";
 import TableEmpty from "@/app/feacher/partials/TableEmpty";
+import { getOrgCollectFundsPaginated } from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
 
 const CoinManyDataTable = () => {
   const [error, setError] = useState(null);
@@ -20,7 +19,7 @@ const CoinManyDataTable = () => {
     PAGE_SIZE,
     orderAmount,
     upOrder,
-    selectedItemId,
+    selectedItem,
     setSelectedItem,
     open,
     setOpen,
@@ -29,64 +28,18 @@ const CoinManyDataTable = () => {
     setDisplayBtn,
   } = useUploadPage();
 
-  // useMemo で安定したインスタンスを保持し、useEffect の無限ループを防ぐ
-  const supabase = useMemo(() => createClient(), []);
-  const channelRef = useRef(null);
-
-  const setupChannel = (user) => {
-    const channelName = `collect_funds_changes_${user.id}`;
-    const channel = supabase
-      .channel(channelName)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "collect_funds",
-          filter: `collecter=eq.${user.id}`,
-        },
-        (payload) => {
-          if (payload.eventType === "INSERT") {
-            setDisplayData((currentData) => [...currentData, payload.new]);
-          }
-          if (payload.eventType === "UPDATE") {
-            setDisplayData((currentData) =>
-              currentData.map((item) =>
-                item.id === payload.new.id ? payload.new : item
-              )
-            );
-          }
-          if (payload.eventType === "DELETE") {
-            setDisplayData((currentData) =>
-              currentData.filter((item) => item.id !== payload.old.id)
-            );
-          }
-        }
-      )
-      .subscribe();
-
-    channelRef.current = channel;
-  };
-
   useEffect(() => {
     const fetchData = async () => {
-      const { user } = await getUser();
-
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-
       setLoading(true);
-      const { data: initialData, error: initialError } = await supabase
-        .from("collect_funds")
-        .select("*")
-        .eq("collecter", user.id)
-        .order(orderAmount, { ascending: upOrder })
-        .range(0, PAGE_SIZE - 1);
+      const { data: initialData, error: initialError } = await getOrgCollectFundsPaginated(
+        orderAmount,
+        upOrder,
+        0,
+        PAGE_SIZE - 1
+      );
 
       if (initialError) {
-        setError(initialError.message);
+        setError(initialError);
         setDisplayData(null);
       } else {
         if (initialData.length < PAGE_SIZE) {
@@ -98,20 +51,9 @@ const CoinManyDataTable = () => {
         setError(null);
       }
       setLoading(false);
-
-      if (user) {
-        setupChannel(user);
-      }
     };
 
     fetchData();
-
-    return () => {
-      if (channelRef.current) {
-        supabase.removeChannel(channelRef.current);
-        channelRef.current = null;
-      }
-    };
   }, [orderAmount, upOrder]);
 
   useEffect(() => {
@@ -150,7 +92,7 @@ const CoinManyDataTable = () => {
 
   const renderRow = (item, index, items) => {
     const total = item.totalFunds || 0;
-    const isSelected = selectedItemId === item.id;
+    const isSelected = selectedItem?.id === item.id;
     const isHighValue = total > 200000;
 
     return (

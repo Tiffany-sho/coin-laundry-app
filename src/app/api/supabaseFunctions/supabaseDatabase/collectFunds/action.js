@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
+import { createServiceClient } from "@/utils/supabase/service";
 import { getUser } from "../user/action";
 import { changeEpocFromNowYearMonth } from "@/functions/makeDate/date";
 import { getStores } from "../laundryStore/action";
@@ -111,6 +112,51 @@ export async function getAllMonthBenefits() {
     .in("laundryId", storeIds)
     .gt("date", epocYearBeforeMonth)
     .lt("date", epocYearAfterMonth);
+
+  if (error) return { error: "集金データの取得に失敗しました" };
+  return { data };
+}
+
+// org 全体の集金データ一覧（RLS回避：サービスクライアント使用）
+export async function getOrgCollectFunds(startEpoch, endEpoch) {
+  const { user } = await getUser();
+  if (!user) return { error: "ログインしてください" };
+
+  const storeIds = await getOrgStoreIds();
+  if (storeIds.length === 0) return { data: [] };
+
+  const supabase = createServiceClient();
+  let query = supabase
+    .from("collect_funds")
+    .select("*")
+    .in("laundryId", storeIds)
+    .order("date", { ascending: true })
+    .gt("date", startEpoch);
+
+  if (endEpoch !== null) {
+    query = query.lt("date", endEpoch);
+  }
+
+  const { data, error } = await query;
+  if (error) return { error: "集金データの取得に失敗しました" };
+  return { data };
+}
+
+// org 全体の集金データ（ページネーション付き）
+export async function getOrgCollectFundsPaginated(orderAmount, upOrder, from, to) {
+  const { user } = await getUser();
+  if (!user) return { error: "ログインしてください" };
+
+  const storeIds = await getOrgStoreIds();
+  if (storeIds.length === 0) return { data: [] };
+
+  const supabase = createServiceClient();
+  const { data, error } = await supabase
+    .from("collect_funds")
+    .select("*")
+    .in("laundryId", storeIds)
+    .order(orderAmount, { ascending: upOrder })
+    .range(from, to);
 
   if (error) return { error: "集金データの取得に失敗しました" };
   return { data };

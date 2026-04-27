@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Chart, useChart } from "@chakra-ui/charts";
 import {
   CartesianGrid,
@@ -13,11 +13,10 @@ import {
 
 import { getYearMonth } from "@/functions/makeDate/date";
 import ChartLoading from "@/app/feacher/partials/ChartLoading";
-import { createClient } from "@/utils/supabase/client";
 import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
 import ChartError from "@/app/feacher/partials/ChartError";
-import { getUser } from "@/app/api/supabaseFunctions/supabaseDatabase/user/action";
 import ChartEmpty from "@/app/feacher/partials/ChartEmpty";
+import { getOrgCollectFunds } from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
 
 const formatYAxis = (value) => {
   if (value === 0) return "0";
@@ -69,98 +68,27 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 const ManyCoinDataChart = () => {
-  const { data, setData } = useUploadPage();
+  const { data, setData, startEpoch, endEpoch } = useUploadPage();
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [chartData, setChartData] = useState([]);
 
-  const { startEpoch, endEpoch } = useUploadPage();
-
-  // useMemo で安定したインスタンスを保持し、useEffect の無限ループを防ぐ
-  const supabase = useMemo(() => createClient(), []);
-
-  const channelRef = useRef(null);
-
-  const setupChannel = (user) => {
-    const channelName = `collect_funds_ManyChart_${user.id}`;
-    const channel = supabase
-      .channel(channelName)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "collect_funds",
-          filter: `collecter=eq.${user.id}`,
-        },
-        (payload) => {
-          if (payload.eventType === "INSERT") {
-            setData((currentData) => [...currentData, payload.new]);
-          }
-          if (payload.eventType === "UPDATE") {
-            setData((currentData) =>
-              currentData.map((item) =>
-                item.id === payload.new.id ? payload.new : item
-              )
-            );
-          }
-          if (payload.eventType === "DELETE") {
-            setData((currentData) =>
-              currentData.filter((item) => item.id !== payload.old.id)
-            );
-          }
-        }
-      )
-      .subscribe();
-
-    channelRef.current = channel;
-  };
-
   useEffect(() => {
     const fetchData = async () => {
-      const { user } = await getUser();
-
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-
       setLoading(true);
-      let query = supabase
-        .from("collect_funds")
-        .select("*")
-        .eq("collecter", user.id)
-        .order("date", { ascending: true })
-        .gt("date", startEpoch);
-
-      if (endEpoch !== null) {
-        query = query.lt("date", endEpoch);
-      }
-
-      const { data: initialData, error: initialError } = await query;
+      const { data: initialData, error: initialError } = await getOrgCollectFunds(startEpoch, endEpoch);
 
       if (initialError) {
-        setError(initialError.message);
+        setError(initialError);
         setData(null);
       } else {
         setData(initialData);
         setError(null);
       }
       setLoading(false);
-
-      if (user) {
-        setupChannel(user);
-      }
     };
 
     fetchData();
-
-    return () => {
-      if (channelRef.current) {
-        supabase.removeChannel(channelRef.current);
-        channelRef.current = null;
-      }
-    };
   }, [startEpoch, endEpoch]);
 
   useEffect(() => {
