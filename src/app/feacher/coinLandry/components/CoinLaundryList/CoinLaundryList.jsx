@@ -6,7 +6,7 @@ import NowLaundryNum from "../NowLaundryNum";
 import * as Icon from "@/app/feacher/Icon";
 import MachinesState from "../MachinesState";
 
-const CoinLaundryList = ({ coinLaundry, benefitRecords }) => {
+const CoinLaundryList = ({ coinLaundry, benefitRecords, myRole }) => {
   return (
     <Card.Root
       maxW="sm"
@@ -93,19 +93,21 @@ const CoinLaundryList = ({ coinLaundry, benefitRecords }) => {
             </Link>
           </Button>
 
-          <Button
-            asChild
-            w="100%"
-            colorPalette="blue"
-            size={{ base: "sm", md: "md" }}
-            fontWeight="semibold"
-            transition="all 0.2s"
-            style={{ flex: 1 }}
-          >
-            <Link href={`/collectMoney/${coinLaundry.id}/newData`}>
-              <Icon.TbCoinYenFilled /> 集金へ
-            </Link>
-          </Button>
+          {myRole !== "viewer" && (
+            <Button
+              asChild
+              w="100%"
+              colorPalette="blue"
+              size={{ base: "sm", md: "md" }}
+              fontWeight="semibold"
+              transition="all 0.2s"
+              style={{ flex: 1 }}
+            >
+              <Link href={`/collectMoney/${coinLaundry.id}/newData`}>
+                <Icon.TbCoinYenFilled /> 集金へ
+              </Link>
+            </Button>
+          )}
         </Flex>
       </Card.Footer>
     </Card.Root>

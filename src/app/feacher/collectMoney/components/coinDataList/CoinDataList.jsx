@@ -32,7 +32,7 @@ import SegmentedPeriod from "./parts/SegmentedPeriod";
 import ChangeStores from "./parts/ChangeStore";
 import { createNowData } from "@/functions/makeDate/date";
 
-const MoneyDataList = ({ valiant, coinLaundry }) => {
+const MoneyDataList = ({ valiant, coinLaundry, myRole }) => {
   const { selectedItem, open, setOpen, data } = useUploadPage();
 
   const [totalRevenue, setTotalRevenue] = useState(null);
@@ -232,7 +232,7 @@ const MoneyDataList = ({ valiant, coinLaundry }) => {
                           </HStack>
                         </Drawer.Header>
                         <Drawer.Body p={6}>
-                          <MoneyDataCard key={selectedItem._id} />
+                          <MoneyDataCard key={selectedItem._id} myRole={myRole} />
                         </Drawer.Body>
                         <Drawer.CloseTrigger asChild>
                           <CloseButton

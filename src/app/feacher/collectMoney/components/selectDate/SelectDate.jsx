@@ -6,6 +6,7 @@ export default function EpochTimeSelector({
   epoc,
   setEpoc,
   submitFunc = () => {},
+  readOnly = false,
 }) {
   const date = new Date(epoc);
   const [year, setYear] = useState(date.getFullYear());
@@ -45,9 +46,13 @@ export default function EpochTimeSelector({
   return (
     <div>
       {!isEditing ? (
-        <div onClick={() => setIsEditing(true)} className={styles.dateDisplay}>
+        <div
+          onClick={readOnly ? undefined : () => setIsEditing(true)}
+          className={styles.dateDisplay}
+          style={readOnly ? { cursor: "default" } : undefined}
+        >
           <div className={styles.dateValue}>{formatDate(selectedDate)}</div>
-          <div className={styles.dateHint}>クリックして変更</div>
+          {!readOnly && <div className={styles.dateHint}>クリックして変更</div>}
         </div>
       ) : (
         <div className={styles.editPanel}>

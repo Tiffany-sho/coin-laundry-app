@@ -2,11 +2,13 @@ import CoinLaundryClientPage from "@/app/feacher/coinLandry/components/CoinLaund
 import ErrorPage from "@/app/feacher/jumpPage/ErrorPage/ErrorPage";
 import { getStores } from "../api/supabaseFunctions/supabaseDatabase/laundryStore/action";
 import { getAllMonthBenefits } from "../api/supabaseFunctions/supabaseDatabase/collectFunds/action";
+import { getMyOrganization } from "../api/supabaseFunctions/supabaseDatabase/organization/action";
 
 const CoinLaundryData = async () => {
-  const [storesResult, benefitsResult] = await Promise.all([
+  const [storesResult, benefitsResult, orgResult] = await Promise.all([
     getStores(),
     getAllMonthBenefits(),
+    getMyOrganization(),
   ]);
 
   if (storesResult.error)
@@ -21,6 +23,7 @@ const CoinLaundryData = async () => {
     <CoinLaundryClientPage
       stores={storesResult.data}
       allBenefits={benefitsResult.data ?? []}
+      myRole={orgResult.data?.myRole ?? "viewer"}
     />
   );
 };

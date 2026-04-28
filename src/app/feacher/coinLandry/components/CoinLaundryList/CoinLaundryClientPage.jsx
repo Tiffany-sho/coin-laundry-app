@@ -28,7 +28,7 @@ const NoResultsState = ({ query }) => (
   </Box>
 );
 
-const CoinLaundryClientPage = ({ stores, allBenefits }) => {
+const CoinLaundryClientPage = ({ stores, allBenefits, myRole }) => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const benefitMap = useMemo(() => {
@@ -100,6 +100,7 @@ const CoinLaundryClientPage = ({ stores, allBenefits }) => {
                     coinLaundry={item}
                     key={item.id}
                     benefitRecords={benefitMap[item.id] ?? []}
+                    myRole={myRole}
                   />
                 ))}
               </Box>
@@ -107,7 +108,7 @@ const CoinLaundryClientPage = ({ stores, allBenefits }) => {
           </Box>
         </Container>
       </Box>
-      <AddBtn />
+      {myRole !== "viewer" && <AddBtn />}
     </>
   );
 };

@@ -20,6 +20,7 @@ const MachineAndFundsList = ({
   totalFunds,
   setTotalFunds,
   setMsg,
+  readOnly = false,
 }) => {
   const { selectedItem, setSelectedItem } = useUploadPage();
 
@@ -188,23 +189,25 @@ const MachineAndFundsList = ({
                       fontWeight="semibold"
                       onFocus={moveCursorToEnd}
                     />
-                    <Editable.Control>
-                      <Editable.EditTrigger asChild>
-                        <IconButton variant="ghost" size="sm">
-                          <Icon.LuPencilLine />
-                        </IconButton>
-                      </Editable.EditTrigger>
-                      <Editable.CancelTrigger asChild>
-                        <IconButton variant="outline" size="sm">
-                          <Icon.LuX />
-                        </IconButton>
-                      </Editable.CancelTrigger>
-                      <Editable.SubmitTrigger asChild>
-                        <IconButton variant="solid" size="sm">
-                          <Icon.LuCheck />
-                        </IconButton>
-                      </Editable.SubmitTrigger>
-                    </Editable.Control>
+                    {!readOnly && (
+                      <Editable.Control>
+                        <Editable.EditTrigger asChild>
+                          <IconButton variant="ghost" size="sm">
+                            <Icon.LuPencilLine />
+                          </IconButton>
+                        </Editable.EditTrigger>
+                        <Editable.CancelTrigger asChild>
+                          <IconButton variant="outline" size="sm">
+                            <Icon.LuX />
+                          </IconButton>
+                        </Editable.CancelTrigger>
+                        <Editable.SubmitTrigger asChild>
+                          <IconButton variant="solid" size="sm">
+                            <Icon.LuCheck />
+                          </IconButton>
+                        </Editable.SubmitTrigger>
+                      </Editable.Control>
+                    )}
                   </Flex>
                 </Editable.Root>
               </Table.Cell>

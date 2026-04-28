@@ -12,7 +12,7 @@ import QuickAction from "./QuickAction";
 import SalesCard from "./SalesCard";
 import GreetingHeader from "./GreetingHeader";
 
-const LoginUserHome = ({ id, username = "集金担当者" }) => {
+const LoginUserHome = ({ id, username = "集金担当者", myRole }) => {
   return (
     <Box bg="gray.50" minH="100vh" pb={20}>
       <Container
@@ -31,7 +31,7 @@ const LoginUserHome = ({ id, username = "集金担当者" }) => {
             <Heading size={{ base: "md", md: "lg" }} color="gray.800" mb={3}>
               クイックアクション
             </Heading>
-            <QuickAction />
+            <QuickAction myRole={myRole} />
           </Box>
 
           <Box>

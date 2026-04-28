@@ -14,7 +14,7 @@ import { showToast } from "@/functions/makeToast/toast";
 import MachineAndFundsList from "./MachineAndFundsList";
 import TotalFundsList from "./TotalFundsList";
 
-const MoneyDataCard = () => {
+const MoneyDataCard = ({ myRole }) => {
   const { selectedItem, setSelectedItem, setOpen } = useUploadPage();
   const [totalFunds, setTotalFunds] = useState(selectedItem.totalFunds || 0);
   const [date, setDate] = useState(selectedItem.date);
@@ -95,6 +95,8 @@ const MoneyDataCard = () => {
     );
   };
 
+  const isViewer = myRole === "viewer";
+
   return (
     <Box>
       {msg && (
@@ -107,6 +109,7 @@ const MoneyDataCard = () => {
         epoc={date}
         setEpoc={setDate}
         submitFunc={submitDate}
+        readOnly={isViewer}
       />
 
       {selectedItem.fundsArray.length > 0 ? (
@@ -116,6 +119,7 @@ const MoneyDataCard = () => {
           totalFunds={totalFunds}
           setTotalFunds={setTotalFunds}
           setMsg={setMsg}
+          readOnly={isViewer}
         />
       ) : (
         <TotalFundsList
@@ -124,17 +128,20 @@ const MoneyDataCard = () => {
           totalFunds={totalFunds}
           setTotalFunds={setTotalFunds}
           setMsg={setMsg}
+          readOnly={isViewer}
         />
       )}
 
-      <Box mt={6}>
-        <AlertDialog
-          target={`${selectedItem.laundryName}店(${createNowData(
-            selectedItem.date
-          )}`}
-          deleteAction={deleteAction}
-        />
-      </Box>
+      {!isViewer && (
+        <Box mt={6}>
+          <AlertDialog
+            target={`${selectedItem.laundryName}店(${createNowData(
+              selectedItem.date
+            )}`}
+            deleteAction={deleteAction}
+          />
+        </Box>
+      )}
     </Box>
   );
 };
