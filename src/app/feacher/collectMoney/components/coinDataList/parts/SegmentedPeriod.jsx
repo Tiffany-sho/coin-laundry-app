@@ -1,12 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { Box, Button, HStack, Slider, Text, VStack } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  HStack,
+  Popover,
+  Portal,
+  Slider,
+  Text,
+  VStack,
+} from "@chakra-ui/react";
 import {
   LuChevronLeft,
   LuChevronRight,
-  LuChevronDown,
-  LuChevronUp,
   LuCalendar,
 } from "@/app/feacher/Icon";
 import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
@@ -16,10 +23,8 @@ import {
 } from "@/functions/makeDate/date";
 
 const EPOCH_OFFSET = 32400000;
-// スライダーの全体範囲：60ヶ月（5年）
 const MAX_MONTHS = 60;
 
-/* ── epoch ↔ 日付文字列 ────────────────────── */
 const epochToDateStr = (epoch) => {
   const d = new Date(epoch + EPOCH_OFFSET);
   const y = d.getFullYear();
@@ -28,7 +33,6 @@ const epochToDateStr = (epoch) => {
   return `${y}/${m}/${day}`;
 };
 
-/* ── epoch ↔ スライダー値（0 = 5年前、60 = 今月）── */
 const epochToSliderVal = (epoch) => {
   if (!epoch) return 0;
   const d = new Date(epoch + EPOCH_OFFSET);
@@ -39,21 +43,25 @@ const epochToSliderVal = (epoch) => {
   return Math.max(0, Math.min(MAX_MONTHS, MAX_MONTHS - months));
 };
 
-// スライダー値 → startEpoch（月初）
 const sliderToStart = (val) => changeEpocFromNowYearMonth(val - MAX_MONTHS);
 
-// スライダー値 → 表示用終了日（月末）
 const sliderToEndDisplay = (val) => {
   const monthStart = new Date(sliderToStart(val) + EPOCH_OFFSET);
-  const lastDay = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0);
-  return getEpochTimeInSeconds(lastDay.getFullYear(), lastDay.getMonth() + 1, lastDay.getDate());
+  const lastDay = new Date(
+    monthStart.getFullYear(),
+    monthStart.getMonth() + 1,
+    0
+  );
+  return getEpochTimeInSeconds(
+    lastDay.getFullYear(),
+    lastDay.getMonth() + 1,
+    lastDay.getDate()
+  );
 };
 
-// スライダー値 → endEpoch（翌月初を上限として使用、MAX_MONTHS のときは null = 上限なし）
 const sliderToEnd = (val) =>
   val >= MAX_MONTHS ? null : changeEpocFromNowYearMonth(val - MAX_MONTHS + 1);
 
-/* ── 今日の epoch ── */
 const todayEpoch = () => {
   const t = new Date();
   return getEpochTimeInSeconds(t.getFullYear(), t.getMonth() + 1, t.getDate());
@@ -62,131 +70,182 @@ const todayEpoch = () => {
 const PeriodRangeSlider = () => {
   const { startEpoch, setStartEpoch, endEpoch, setEndEpoch } = useUploadPage();
 
-  const contextStartVal = epochToSliderVal(startEpoch > 0 ? startEpoch : 0);
-  const contextEndVal = endEpoch === null ? MAX_MONTHS : epochToSliderVal(endEpoch);
+  const appliedStartVal = epochToSliderVal(startEpoch > 0 ? startEpoch : 0);
+  const appliedEndVal =
+    endEpoch === null ? MAX_MONTHS : epochToSliderVal(endEpoch);
 
-  const [isOpen, setIsOpen] = useState(false);
+  const [draftVal, setDraftVal] = useState([appliedStartVal, appliedEndVal]);
+  const [open, setOpen] = useState(false);
 
-  // ドラッグ中はローカル state で表示のみ更新（フェッチは走らせない）
-  const [localVal, setLocalVal] = useState([contextStartVal, contextEndVal]);
-
-  const startDateStr =
-    localVal[0] > 0 ? epochToDateStr(sliderToStart(localVal[0])) : "全期間";
-  const endDateStr =
-    localVal[1] < MAX_MONTHS
-      ? epochToDateStr(sliderToEndDisplay(localVal[1]))
+  const appliedStartStr =
+    appliedStartVal > 0
+      ? epochToDateStr(sliderToStart(appliedStartVal))
+      : "全期間";
+  const appliedEndStr =
+    appliedEndVal < MAX_MONTHS
+      ? epochToDateStr(sliderToEndDisplay(appliedEndVal))
       : epochToDateStr(todayEpoch());
 
-  // ドラッグ終了時だけコンテキストを更新 → チャートのフェッチが走る
-  const handleChangeEnd = ([newStart, newEnd]) => {
-    setStartEpoch(sliderToStart(newStart));
-    setEndEpoch(sliderToEnd(newEnd));
+  const draftStartStr =
+    draftVal[0] > 0 ? epochToDateStr(sliderToStart(draftVal[0])) : "全期間";
+  const draftEndStr =
+    draftVal[1] < MAX_MONTHS
+      ? epochToDateStr(sliderToEndDisplay(draftVal[1]))
+      : epochToDateStr(todayEpoch());
+
+  const handleOpenChange = (e) => {
+    if (e.open) {
+      setDraftVal([appliedStartVal, appliedEndVal]);
+    }
+    setOpen(e.open);
   };
 
-  // 選択期間のサイズ（月数）分だけ前後にシフト
+  const handleApply = () => {
+    setStartEpoch(sliderToStart(draftVal[0]));
+    setEndEpoch(sliderToEnd(draftVal[1]));
+    setOpen(false);
+  };
+
   const shift = (direction) => {
-    // span はスライダー差分（= 月数 - 1）。シフト量は月数 = span + 1
-    const span = localVal[1] - localVal[0];
+    const span = draftVal[1] - draftVal[0];
     let newStart, newEnd;
     if (direction === "prev") {
-      newStart = Math.max(0, localVal[0] - span - 1);
+      newStart = Math.max(0, draftVal[0] - span - 1);
       newEnd = newStart + span;
     } else {
-      newEnd = Math.min(MAX_MONTHS, localVal[1] + span + 1);
+      newEnd = Math.min(MAX_MONTHS, draftVal[1] + span + 1);
       newStart = newEnd - span;
     }
-    const newVal = [newStart, newEnd];
-    setLocalVal(newVal);
-    handleChangeEnd(newVal);
+    setDraftVal([newStart, newEnd]);
   };
 
-  const canGoPrev = localVal[0] > 0;
-  const canGoNext = localVal[1] < MAX_MONTHS;
+  const canGoPrev = draftVal[0] > 0;
+  const canGoNext = draftVal[1] < MAX_MONTHS;
 
   return (
-    <Box w="100%" pt={1}>
-      <VStack gap={3} align="stretch">
-        {/* 設定ボタン＋現在の期間表示 */}
-        <HStack justify="space-between" align="center">
-          <Button
-            size="sm"
-            variant="subtle"
-            onClick={() => setIsOpen((v) => !v)}
-          >
-            <LuCalendar />
-            期間設定
-            {isOpen ? <LuChevronUp /> : <LuChevronDown />}
-          </Button>
-          <HStack gap={1} align="flex-end">
-            <Text fontSize="sm" fontWeight="semibold">{startDateStr}</Text>
-            <Text color="fg.muted" lineHeight="1">〜</Text>
-            <Text fontSize="sm" fontWeight="semibold">{endDateStr}</Text>
-          </HStack>
+    <Box w="100%">
+      <HStack justify="space-between" align="center">
+        <Popover.Root open={open} onOpenChange={handleOpenChange}>
+          <Popover.Trigger asChild>
+            <Button size="sm" variant="subtle">
+              <LuCalendar />
+              期間設定
+            </Button>
+          </Popover.Trigger>
+          <Portal>
+            <Popover.Positioner>
+              <Popover.Content minW="360px">
+                <Popover.Arrow />
+                <Popover.Body p={4}>
+                  <VStack gap={4} align="stretch">
+                    {/* シフトボタン＋ドラフト期間表示 */}
+                    <HStack justify="space-between" align="center">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => shift("prev")}
+                        disabled={!canGoPrev}
+                      >
+                        <LuChevronLeft />
+                        前の期間
+                      </Button>
+
+                      <HStack gap={1} align="flex-end">
+                        <VStack gap={0} align="flex-start">
+                          <Text fontSize="2xs" color="fg.muted">
+                            開始日
+                          </Text>
+                          <Text fontSize="sm" fontWeight="semibold">
+                            {draftStartStr}
+                          </Text>
+                        </VStack>
+                        <Text color="fg.muted" pb="1px" lineHeight="1">
+                          〜
+                        </Text>
+                        <VStack gap={0} align="flex-start">
+                          <Text fontSize="2xs" color="fg.muted">
+                            終了日
+                          </Text>
+                          <Text fontSize="sm" fontWeight="semibold">
+                            {draftEndStr}
+                          </Text>
+                        </VStack>
+                      </HStack>
+
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => shift("next")}
+                        disabled={!canGoNext}
+                      >
+                        次の期間
+                        <LuChevronRight />
+                      </Button>
+                    </HStack>
+
+                    {/* 範囲スライダー */}
+                    <Slider.Root
+                      min={0}
+                      max={MAX_MONTHS}
+                      step={1}
+                      value={draftVal}
+                      onValueChange={(e) => setDraftVal(e.value)}
+                      colorPalette="cyan"
+                    >
+                      <HStack justify="space-between" mb={1}>
+                        <Text fontSize="2xs" color="fg.muted">
+                          5年前
+                        </Text>
+                        <Text fontSize="2xs" color="fg.muted">
+                          今月
+                        </Text>
+                      </HStack>
+                      <Slider.Control>
+                        <Slider.Track>
+                          <Slider.Range />
+                        </Slider.Track>
+                        <Slider.Thumb index={0} />
+                        <Slider.Thumb index={1} />
+                      </Slider.Control>
+                    </Slider.Root>
+
+                    {/* アクションボタン */}
+                    <HStack justify="flex-end" gap={2} pt={1}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setOpen(false)}
+                      >
+                        キャンセル
+                      </Button>
+                      <Button
+                        size="sm"
+                        colorPalette="cyan"
+                        onClick={handleApply}
+                      >
+                        適用
+                      </Button>
+                    </HStack>
+                  </VStack>
+                </Popover.Body>
+              </Popover.Content>
+            </Popover.Positioner>
+          </Portal>
+        </Popover.Root>
+
+        {/* 適用済み期間の表示 */}
+        <HStack gap={1} align="flex-end">
+          <Text fontSize="sm" fontWeight="semibold">
+            {appliedStartStr}
+          </Text>
+          <Text color="fg.muted" lineHeight="1">
+            〜
+          </Text>
+          <Text fontSize="sm" fontWeight="semibold">
+            {appliedEndStr}
+          </Text>
         </HStack>
-
-        {isOpen && (
-          <>
-            {/* ナビゲーション＋期間表示 */}
-            <HStack justify="space-between" align="center">
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => shift("prev")}
-                disabled={!canGoPrev}
-              >
-                <LuChevronLeft />
-                <Text hideBelow="sm">前の期間</Text>
-              </Button>
-
-              {/* 中央：開始日〜終了日 */}
-              <HStack gap={1} align="flex-end">
-                <VStack gap={0} align="flex-start">
-                  <Text fontSize="2xs" color="fg.muted">開始日</Text>
-                  <Text fontSize="sm" fontWeight="semibold">{startDateStr}</Text>
-                </VStack>
-                <Text color="fg.muted" pb="1px" lineHeight="1">〜</Text>
-                <VStack gap={0} align="flex-start">
-                  <Text fontSize="2xs" color="fg.muted">終了日</Text>
-                  <Text fontSize="sm" fontWeight="semibold">{endDateStr}</Text>
-                </VStack>
-              </HStack>
-
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => shift("next")}
-                disabled={!canGoNext}
-              >
-                <Text hideBelow="sm">次の期間</Text>
-                <LuChevronRight />
-              </Button>
-            </HStack>
-
-            {/* 範囲スライダー */}
-            <Slider.Root
-              min={0}
-              max={MAX_MONTHS}
-              step={1}
-              value={localVal}
-              onValueChange={(e) => setLocalVal(e.value)}
-              onValueChangeEnd={(e) => handleChangeEnd(e.value)}
-              colorPalette="blue"
-            >
-              <HStack justify="space-between" mb={1}>
-                <Text fontSize="2xs" color="fg.muted">5年前</Text>
-                <Text fontSize="2xs" color="fg.muted">今月</Text>
-              </HStack>
-              <Slider.Control>
-                <Slider.Track>
-                  <Slider.Range />
-                </Slider.Track>
-                <Slider.Thumb index={0} />
-                <Slider.Thumb index={1} />
-              </Slider.Control>
-            </Slider.Root>
-          </>
-        )}
-      </VStack>
+      </HStack>
     </Box>
   );
 };
