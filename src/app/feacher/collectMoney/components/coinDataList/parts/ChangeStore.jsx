@@ -52,6 +52,7 @@ const ChangeStores = () => {
             border="1px solid"
             borderRadius="full"
             boxShadow="sm"
+            bg="cyan.600"
           >
             <Text fontSize={{ base: "xs", md: "sm" }} fontWeight="semibold">
               {methodArray.btnTitle}

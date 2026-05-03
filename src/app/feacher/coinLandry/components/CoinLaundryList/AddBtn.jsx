@@ -15,24 +15,24 @@ const AddBtn = () => {
         justifyContent="center"
         alignItems="center"
         gap={1}
-        bg="blue.500"
+        bg="cyan.600"
         color="white"
         w={{ base: "60px", md: "70px" }}
         h={{ base: "60px", md: "70px" }}
         borderRadius="full"
         border="2px solid"
-        borderColor="blue.600"
+        borderColor="cyan.700"
         boxShadow="0 4px 15px rgba(59, 130, 246, 0.3), 0 2px 8px rgba(0, 0, 0, 0.1)"
         transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
         _hover={{
-          bg: "blue.600",
+          bg: "cyan.700",
           transform: "scale(1.1) translateY(-2px)",
           boxShadow:
             "0 6px 20px rgba(59, 130, 246, 0.4), 0 4px 12px rgba(0, 0, 0, 0.15)",
         }}
         _active={{
           transform: "scale(0.95)",
-          bg: "blue.700",
+          bg: "cyan.700",
         }}
       >
         <Box>

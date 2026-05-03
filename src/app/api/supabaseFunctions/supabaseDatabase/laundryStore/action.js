@@ -2,6 +2,7 @@
 
 import { cache } from "react";
 import { createClient } from "@/utils/supabase/server";
+import { createServiceClient } from "@/utils/supabase/service";
 import { getUser } from "../user/action";
 
 async function getMyOrgId(supabase, userId) {
@@ -23,8 +24,10 @@ export const getStores = cache(async () => {
   const { orgId } = await getMyOrgId(supabase, user.id);
   if (!orgId) return { data: [] };
 
+  // 組織メンバーであることを確認後、RLSを迂回して取得（閲覧者も参照可能にする）
+  const serviceSupabase = createServiceClient();
   try {
-    const { data, error } = await supabase
+    const { data, error } = await serviceSupabase
       .from("laundry_store")
       .select("*")
       .eq("organization_id", orgId);
@@ -44,8 +47,10 @@ export async function getStore(id) {
   const { orgId } = await getMyOrgId(supabase, user.id);
   if (!orgId) return { error: { msg: "組織が見つかりません", status: 403 } };
 
+  // 組織メンバーであることを確認後、RLSを迂回して取得（閲覧者も参照可能にする）
+  const serviceSupabase = createServiceClient();
   try {
-    const { data: coinLaundryStore, error } = await supabase
+    const { data: coinLaundryStore, error } = await serviceSupabase
       .from("laundry_store")
       .select("*")
       .eq("organization_id", orgId)
