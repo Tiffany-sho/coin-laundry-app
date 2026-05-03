@@ -38,13 +38,13 @@ export default function ProviderForm({ title }) {
           left="0"
           right="0"
           height="1px"
-          bg="gray.300"
+          bg="var(--divider, #F1F5F9)"
         />
         <Text
           position="relative"
           textAlign="center"
           fontSize="sm"
-          color="gray.500"
+          color="var(--text-faint, #94A3B8)"
           bg="white"
           px={4}
           mx="auto"
@@ -60,14 +60,20 @@ export default function ProviderForm({ title }) {
           variant="outline"
           size="lg"
           w="full"
-          borderColor="gray.300"
+          borderColor="var(--divider, #F1F5F9)"
           bg="white"
+          color="var(--text-main, #1E3A5F)"
           fontWeight="medium"
+          _hover={{
+            borderColor: "cyan.300",
+            bg: "cyan.50",
+          }}
           _focus={{
-            borderColor: "blue.500",
-            boxShadow: "0 0 0 1px var(--chakra-colors-blue-500)",
+            borderColor: "cyan.500",
+            boxShadow: "0 0 0 2px rgba(8, 145, 178, 0.20)",
             outline: "none",
           }}
+          transition="all 0.18s"
         >
           <Box display="flex" alignItems="center" gap={2}>
             <Icon.FcGoogle size={20} />
@@ -80,14 +86,20 @@ export default function ProviderForm({ title }) {
           variant="outline"
           size="lg"
           w="full"
-          borderColor="gray.300"
+          borderColor="var(--divider, #F1F5F9)"
           bg="white"
+          color="var(--text-main, #1E3A5F)"
           fontWeight="medium"
+          _hover={{
+            borderColor: "cyan.300",
+            bg: "cyan.50",
+          }}
           _focus={{
-            borderColor: "blue.500",
-            boxShadow: "0 0 0 1px var(--chakra-colors-blue-500)",
+            borderColor: "cyan.500",
+            boxShadow: "0 0 0 2px rgba(8, 145, 178, 0.20)",
             outline: "none",
           }}
+          transition="all 0.18s"
         >
           <Box display="flex" alignItems="center" gap={2}>
             <Icon.IoLogoGithub size={20} />

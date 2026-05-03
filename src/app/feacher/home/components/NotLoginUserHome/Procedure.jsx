@@ -29,7 +29,7 @@ const Procedure = () => {
   ];
 
   return (
-    <Box py={{ base: 16, md: 20 }} bg="gray.50">
+    <Box py={{ base: 16, md: 20 }} bg="var(--app-bg, #F0F9FF)">
       <Container maxW="container.xl">
         <VStack spacing={{ base: 12, md: 16 }}>
           {/* ヘッダー */}
@@ -63,7 +63,7 @@ const Procedure = () => {
                 {/* ステップ番号 */}
                 <Circle
                   size={{ base: "50px", md: "60px" }}
-                  bg="blue.600"
+                  bg="cyan.600"
                   color="white"
                   fontSize={{ base: "xl", md: "2xl" }}
                   fontWeight="bold"

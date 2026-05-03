@@ -65,12 +65,12 @@ const ExplainFunction = () => {
                   borderRadius="xl"
                   border="1px"
                   borderColor="gray.200"
-                  bg="blue.50"
+                  bg="cyan.50"
                   _hover={{
-                    borderColor: "blue.300",
+                    borderColor: "cyan.300",
                     boxShadow: "lg",
                     transform: "translateY(-8px)",
-                    bg: "blue.50",
+                    bg: "cyan.50",
                   }}
                   transition="all 0.3s"
                   h="full"
@@ -78,7 +78,7 @@ const ExplainFunction = () => {
                 >
                   <Text
                     fontSize={{ base: "40px", md: "48px" }}
-                    color="blue.600"
+                    color="cyan.600"
                     mb={4}
                   >
                     {feature.icon}

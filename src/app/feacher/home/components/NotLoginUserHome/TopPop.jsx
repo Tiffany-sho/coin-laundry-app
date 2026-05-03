@@ -66,7 +66,7 @@ const TopPop = () => {
               _hover={{
                 transform: "translateY(-2px)",
                 boxShadow: "2xl",
-                color: "blue.400",
+                color: "cyan.300",
               }}
               transition="all 0.2s"
             >

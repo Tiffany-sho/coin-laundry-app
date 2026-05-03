@@ -31,34 +31,54 @@ export default function AuthForm({ mode, action }) {
       display="flex"
       alignItems="center"
       justifyContent="center"
-      bg="gray.50"
+      bg="var(--app-bg, #F0F9FF)"
       px={4}
     >
       <form action={formAction}>
         <Card.Root
           maxW="md"
           w="full"
-          boxShadow="xl"
-          borderRadius="xl"
+          boxShadow="0 12px 40px rgba(14, 116, 144, 0.18)"
+          borderRadius="2xl"
           overflow="hidden"
+          border="1px solid rgba(8, 145, 178, 0.12)"
         >
-          <Card.Header bg="gray.700" color="white" py={6} textAlign="center">
+          <Card.Header
+            style={{ background: "linear-gradient(140deg, #0E7490 0%, #0891B2 55%, #06B6D4 100%)" }}
+            color="white"
+            py={7}
+            px={8}
+            textAlign="center"
+          >
             <Card.Title fontSize="2xl" fontWeight="bold" mb={2}>
               {title}
             </Card.Title>
-            <Card.Description color="blue.50" fontSize="sm">
+            <Card.Description color="rgba(255,255,255,0.75)" fontSize="sm">
               {description}
             </Card.Description>
           </Card.Header>
 
-          <Card.Body py={8} px={6}>
+          <Card.Body py={8} px={6} bg="white">
             <Stack gap="6" w="full">
-              {state?.error && <Text color="red.600">{state.error}</Text>}
+              {state?.error && (
+                <Box
+                  p={3}
+                  bg="red.50"
+                  borderLeft="4px solid"
+                  borderColor="red.400"
+                  borderRadius="md"
+                >
+                  <Text color="red.700" fontSize="sm" fontWeight="medium">
+                    {state.error}
+                  </Text>
+                </Box>
+              )}
               <Field.Root>
                 <Field.Label
                   htmlFor="email"
                   fontSize="sm"
                   fontWeight="semibold"
+                  color="var(--text-main, #1E3A5F)"
                 >
                   メールアドレス
                 </Field.Label>
@@ -69,10 +89,11 @@ export default function AuthForm({ mode, action }) {
                   placeholder="メールアドレス"
                   required
                   size="lg"
-                  borderRadius="md"
+                  borderRadius="lg"
+                  borderColor="var(--divider, #F1F5F9)"
                   _focus={{
-                    borderColor: "blue.500",
-                    boxShadow: "0 0 0 1px var(--chakra-colors-blue-500)",
+                    borderColor: "cyan.500",
+                    boxShadow: "0 0 0 2px rgba(8, 145, 178, 0.20)",
                   }}
                 />
               </Field.Root>
@@ -82,6 +103,7 @@ export default function AuthForm({ mode, action }) {
                   htmlFor="password"
                   fontSize="sm"
                   fontWeight="semibold"
+                  color="var(--text-main, #1E3A5F)"
                 >
                   パスワード
                 </Field.Label>
@@ -91,41 +113,47 @@ export default function AuthForm({ mode, action }) {
                   placeholder="パスワード"
                   required
                   size="lg"
-                  borderRadius="md"
+                  borderRadius="lg"
+                  borderColor="var(--divider, #F1F5F9)"
                   _focus={{
-                    borderColor: "blue.500",
-                    boxShadow: "0 0 0 1px var(--chakra-colors-blue-500)",
+                    borderColor: "cyan.500",
+                    boxShadow: "0 0 0 2px rgba(8, 145, 178, 0.20)",
                   }}
                 />
               </Field.Root>
-              <Text fontSize="sm" color="gray.600">
-                <Link href="/auth/forgetPassword" passHref>
-                  <Text
-                    as="span"
-                    color="blue.500"
-                    fontWeight="semibold"
-                    _hover={{
-                      color: "blue.600",
-                      textDecoration: "underline",
-                    }}
-                  >
-                    {isLogin && "パスワードを忘れた場合"}
-                  </Text>
-                </Link>
-              </Text>
+
+              {isLogin && (
+                <Text fontSize="sm" color="var(--text-muted, #64748B)">
+                  <Link href="/auth/forgetPassword" passHref>
+                    <Text
+                      as="span"
+                      color="var(--teal, #0891B2)"
+                      fontWeight="semibold"
+                      _hover={{
+                        color: "var(--teal-dark, #0E7490)",
+                        textDecoration: "underline",
+                      }}
+                    >
+                      パスワードを忘れた場合
+                    </Text>
+                  </Link>
+                </Text>
+              )}
             </Stack>
           </Card.Body>
 
-          <Card.Footer flexDirection="column" gap={4} px={6} pb={6}>
+          <Card.Footer flexDirection="column" gap={4} px={6} pb={6} bg="white">
             <Button
-              variant="solid"
               type="submit"
               size="lg"
               w="full"
               fontWeight="bold"
+              color="white"
+              style={{ background: "linear-gradient(135deg, #0891B2 0%, #0E7490 100%)" }}
+              boxShadow="0 4px 14px rgba(8, 145, 178, 0.30)"
               _hover={{
                 transform: "translateY(-2px)",
-                boxShadow: "lg",
+                boxShadow: "0 6px 20px rgba(8, 145, 178, 0.40)",
               }}
               transition="all 0.2s"
             >
@@ -133,15 +161,15 @@ export default function AuthForm({ mode, action }) {
             </Button>
 
             <Box textAlign="center" w="full">
-              <Text fontSize="sm" color="gray.600">
+              <Text fontSize="sm" color="var(--text-muted, #64748B)">
                 {linkText}？{" "}
                 <Link href={linkHref} passHref>
                   <Text
                     as="span"
-                    color="blue.500"
+                    color="var(--teal, #0891B2)"
                     fontWeight="semibold"
                     _hover={{
-                      color: "blue.600",
+                      color: "var(--teal-dark, #0E7490)",
                       textDecoration: "underline",
                     }}
                   >

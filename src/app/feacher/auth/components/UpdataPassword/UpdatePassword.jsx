@@ -22,7 +22,7 @@ export default function ChangePassword({ action }) {
       minH="100vh"
       align="center"
       justify="center"
-      bg="gray.50"
+      bg="var(--app-bg, #F0F9FF)"
       p={{ base: 2, md: 4 }}
     >
       <Box w="full" maxW="28rem">
@@ -30,13 +30,12 @@ export default function ChangePassword({ action }) {
           <Card.Root
             bg="white"
             borderRadius="2xl"
-            boxShadow="2xl"
+            boxShadow="0 12px 40px rgba(14, 116, 144, 0.18)"
             overflow="hidden"
-            border="1px solid"
-            borderColor="gray.200"
+            border="1px solid rgba(8, 145, 178, 0.12)"
           >
             <Card.Header
-              bg="gray.700"
+              style={{ background: "linear-gradient(140deg, #0E7490 0%, #0891B2 55%, #06B6D4 100%)" }}
               color="white"
               p={{ base: 6, md: 8 }}
               textAlign="center"
@@ -48,7 +47,7 @@ export default function ChangePassword({ action }) {
               >
                 パスワード変更
               </Card.Title>
-              <Text color="whiteAlpha.900" fontSize="sm" mt={2}>
+              <Text color="rgba(255,255,255,0.75)" fontSize="sm" mt={2}>
                 新しいパスワードを入力してください
               </Text>
             </Card.Header>
@@ -59,7 +58,7 @@ export default function ChangePassword({ action }) {
                   htmlFor="password"
                   fontSize="sm"
                   fontWeight="semibold"
-                  color="gray.700"
+                  color="var(--text-main, #1E3A5F)"
                   mb={2}
                 >
                   新しいパスワード
@@ -73,14 +72,12 @@ export default function ChangePassword({ action }) {
                       aria-label={
                         showPassword ? "パスワードを隠す" : "パスワードを表示"
                       }
-                      color="gray.500"
+                      color="var(--text-faint, #94A3B8)"
                       _hover={{
-                        color: "gray.700",
+                        color: "var(--teal, #0891B2)",
                         bg: "transparent",
                       }}
-                      _focus={{
-                        outline: "none",
-                      }}
+                      _focus={{ outline: "none" }}
                     >
                       {showPassword ? (
                         <Icon.LuEyeOff size={20} />
@@ -96,23 +93,23 @@ export default function ChangePassword({ action }) {
                     type={showPassword ? "text" : "password"}
                     placeholder="新しいパスワード"
                     required
-                    border="2px solid"
-                    borderColor="gray.400"
+                    border="1.5px solid"
+                    borderColor="var(--divider, #F1F5F9)"
                     borderRadius="lg"
                     py={3}
                     px={4}
                     pr={12}
                     fontSize="md"
                     bg="white"
-                    color="gray.800"
+                    color="var(--text-main, #1E3A5F)"
                     transition="all 0.2s"
                     _focus={{
-                      borderColor: "gray.600",
-                      boxShadow: "0 0 0 3px rgba(75, 85, 99, 0.15)",
+                      borderColor: "cyan.500",
+                      boxShadow: "0 0 0 2px rgba(8, 145, 178, 0.20)",
                       outline: "none",
                     }}
                     _placeholder={{
-                      color: "gray.400",
+                      color: "var(--text-faint, #94A3B8)",
                     }}
                   />
                 </InputGroup>
@@ -129,20 +126,17 @@ export default function ChangePassword({ action }) {
                 fontSize="md"
                 fontWeight="bold"
                 color="white"
-                bg="gray.700"
+                style={{ background: "linear-gradient(135deg, #0891B2 0%, #0E7490 100%)" }}
                 border="none"
                 borderRadius="lg"
                 cursor="pointer"
-                transition="all 0.3s ease"
-                boxShadow="0 4px 6px rgba(0, 0, 0, 0.2)"
+                transition="all 0.2s"
+                boxShadow="0 4px 14px rgba(8, 145, 178, 0.28)"
                 _hover={{
-                  bg: "gray.800",
                   transform: "translateY(-2px)",
-                  boxShadow: "0 6px 12px rgba(0, 0, 0, 0.3)",
+                  boxShadow: "0 6px 20px rgba(8, 145, 178, 0.40)",
                 }}
-                _active={{
-                  transform: "translateY(0)",
-                }}
+                _active={{ transform: "translateY(0)" }}
                 _disabled={{
                   opacity: 0.6,
                   cursor: "not-allowed",
