@@ -16,6 +16,8 @@ import {
   Button,
   Stack,
   Skeleton,
+  Grid,
+  GridItem,
 } from "@chakra-ui/react";
 import { LuPlus } from "@/app/feacher/Icon";
 import { useUploadPage } from "../../context/UploadPageContext";
@@ -95,168 +97,179 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole }) => {
           )}
         </Flex>
 
-        {/* 集金総額カード */}
-        <Card.Root borderRadius="2xl" variant="elevated">
-          <Card.Body p={{ base: 4, md: 6 }}>
-            <VStack align="stretch" gap={3}>
-              {/* ラベル・日付範囲 */}
-              <HStack justify="space-between" align="center">
-                <Text
-                  fontSize="xs"
-                  fontWeight="semibold"
-                  color="fg.muted"
-                  textTransform="uppercase"
-                  letterSpacing="widest"
-                >
-                  集金総額
-                </Text>
-                {data && data.length > 0 && (
-                  <Text fontSize="xs" color="fg.muted">
-                    {createNowData(data[0].date)} 〜{" "}
-                    {createNowData(data[data.length - 1].date)}
-                  </Text>
-                )}
-              </HStack>
+        <Grid
+          templateColumns={{ base: "1fr", md: "3fr 2fr" }}
+          gap={6}
+          alignItems="start"
+        >
+          {/* 左列：集金総額カード＋チャート（PC時 sticky） */}
+          <GridItem position="sticky" top="64px" alignSelf="start">
+            <VStack align="stretch" gap={6}>
+              {/* 集金総額カード */}
+              <Card.Root borderRadius="2xl" variant="elevated">
+                <Card.Body p={{ base: 4, md: 6 }}>
+                  <VStack align="stretch" gap={3}>
+                    <HStack justify="space-between" align="center">
+                      <Text
+                        fontSize="xs"
+                        fontWeight="semibold"
+                        color="fg.muted"
+                        textTransform="uppercase"
+                        letterSpacing="widest"
+                      >
+                        集金総額
+                      </Text>
+                      {data && data.length > 0 && (
+                        <Text fontSize="xs" color="fg.muted">
+                          {createNowData(data[0].date)} 〜{" "}
+                          {createNowData(data[data.length - 1].date)}
+                        </Text>
+                      )}
+                    </HStack>
 
-              {/* メイン金額 */}
-              <HStack align="baseline" gap={1}>
-                <Text
-                  fontSize={{ base: "xl", md: "2xl" }}
-                  fontWeight="semibold"
-                  color="fg.muted"
-                >
-                  ¥
-                </Text>
-                {totalRevenue !== null ? (
-                  <Text
-                    fontSize={{ base: "5xl", md: "7xl" }}
-                    fontWeight="black"
-                    lineHeight="1"
-                    letterSpacing="tight"
-                  >
-                    {totalRevenue.toLocaleString()}
-                  </Text>
-                ) : (
-                  <Skeleton height="14" width="40%" borderRadius="lg" />
-                )}
-                <Text
-                  fontSize={{ base: "lg", md: "xl" }}
-                  fontWeight="medium"
-                  color="fg.muted"
-                  alignSelf="flex-end"
-                  pb={1}
-                >
-                  円
-                </Text>
-              </HStack>
-
-              {/* サブ情報 */}
-              {data && (
-                <Text fontSize="sm" color="fg.muted">
-                  累計{" "}
-                  <Text as="span" fontWeight="bold" color="fg">
-                    {data.length}
-                  </Text>{" "}
-                  回の集金
-                </Text>
-              )}
-            </VStack>
-          </Card.Body>
-        </Card.Root>
-
-        {/* 期間スライダー＋チャートカード */}
-        <Card.Root borderRadius="2xl" variant="elevated">
-          <Card.Body p={{ base: 4, md: 6 }}>
-            <VStack align="stretch" gap={4}>
-              <SegmentedPeriod />
-              {valiant === "aStore" && <MonoCoinDataChart id={coinLaundry.id} />}
-              {valiant === "manyStore" && <ManyCoinDataChart />}
-            </VStack>
-          </Card.Body>
-        </Card.Root>
-
-        <VStack align="stretch" gap={4}>
-          <HStack>
-            <Heading>売上履歴</Heading>
-            <OrderSelecter />
-          </HStack>
-
-          <Stack>
-            {valiant === "aStore" && (
-              <CoinMonoDataTable id={coinLaundry.id} />
-            )}
-            {valiant === "manyStore" && <CoinManyDataTable />}
-
-            {valiant === "aStore" && <AddDataBtn id={coinLaundry.id} />}
-            {valiant === "manyStore" && <AddDataBtn />}
-
-            <Drawer.Root
-              size={{ base: "xs", md: "md" }}
-              open={open}
-              onOpenChange={(e) => {
-                setOpen(e.open);
-              }}
-            >
-              <Portal>
-                <Drawer.Backdrop />
-                <Drawer.Positioner>
-                  <Drawer.Content borderRadius="24px 0 0 24px">
-                    {selectedItem && (
-                      <>
-                        <Drawer.Header
-                          borderBottom="2px solid"
-                          borderColor="gray.200"
-                          p={6}
+                    <HStack align="baseline" gap={1}>
+                      <Text
+                        fontSize={{ base: "xl", md: "2xl" }}
+                        fontWeight="semibold"
+                        color="fg.muted"
+                      >
+                        ¥
+                      </Text>
+                      {totalRevenue !== null ? (
+                        <Text
+                          fontSize={{ base: "5xl", md: "7xl" }}
+                          fontWeight="black"
+                          lineHeight="1"
+                          letterSpacing="tight"
                         >
-                          <HStack align="stretch" pt={8}>
-                            {valiant === "aStore" && (
-                              <Heading size="lg" fontWeight="bold">
-                                {selectedItem.laundryName}店
-                              </Heading>
-                            )}
-                            {valiant === "manyStore" && (
-                              <Link
-                                href={`/coinLaundry/${selectedItem.laundryId}/coinDataList`}
-                                fontSize="xl"
-                                fontWeight="bold"
-                                _hover={{
-                                  textDecoration: "underline",
-                                }}
-                              >
-                                {selectedItem.laundryName}店
-                              </Link>
-                            )}
-                            <Box mt={2}>
-                              <DataClipBoard data={selectedItem} />
-                            </Box>
-                          </HStack>
-                        </Drawer.Header>
-                        <Drawer.Body p={6}>
-                          <MoneyDataCard key={selectedItem._id} myRole={myRole} />
-                        </Drawer.Body>
-                        <Drawer.CloseTrigger asChild>
-                          <CloseButton
-                            size="lg"
-                            position="absolute"
-                            top={4}
-                            right={4}
-                            borderRadius="full"
-                            border="1px solid"
-                            borderColor="gray.300"
-                            _hover={{
-                              transform: "rotate(90deg)",
-                            }}
-                            transition="all 0.2s"
-                          />
-                        </Drawer.CloseTrigger>
-                      </>
+                          {totalRevenue.toLocaleString()}
+                        </Text>
+                      ) : (
+                        <Skeleton height="14" width="40%" borderRadius="lg" />
+                      )}
+                      <Text
+                        fontSize={{ base: "lg", md: "xl" }}
+                        fontWeight="medium"
+                        color="fg.muted"
+                        alignSelf="flex-end"
+                        pb={1}
+                      >
+                        円
+                      </Text>
+                    </HStack>
+
+                    {data && (
+                      <Text fontSize="sm" color="fg.muted">
+                        累計{" "}
+                        <Text as="span" fontWeight="bold" color="fg">
+                          {data.length}
+                        </Text>{" "}
+                        回の集金
+                      </Text>
                     )}
-                  </Drawer.Content>
-                </Drawer.Positioner>
-              </Portal>
-            </Drawer.Root>
-          </Stack>
-        </VStack>
+                  </VStack>
+                </Card.Body>
+              </Card.Root>
+
+              {/* 期間スライダー＋チャートカード */}
+              <Card.Root borderRadius="2xl" variant="elevated">
+                <Card.Body p={{ base: 4, md: 6 }}>
+                  <VStack align="stretch" gap={4}>
+                    <SegmentedPeriod />
+                    {valiant === "aStore" && <MonoCoinDataChart id={coinLaundry.id} />}
+                    {valiant === "manyStore" && <ManyCoinDataChart />}
+                  </VStack>
+                </Card.Body>
+              </Card.Root>
+            </VStack>
+          </GridItem>
+
+          {/* 右列：売上履歴（スクロール） */}
+          <GridItem>
+            <VStack align="stretch" gap={4}>
+              <HStack>
+                <Heading>売上履歴</Heading>
+                <OrderSelecter />
+              </HStack>
+
+              <Stack>
+                {valiant === "aStore" && (
+                  <CoinMonoDataTable id={coinLaundry.id} />
+                )}
+                {valiant === "manyStore" && <CoinManyDataTable />}
+
+                {valiant === "aStore" && <AddDataBtn id={coinLaundry.id} />}
+                {valiant === "manyStore" && <AddDataBtn />}
+
+                <Drawer.Root
+                  size={{ base: "xs", md: "md" }}
+                  open={open}
+                  onOpenChange={(e) => {
+                    setOpen(e.open);
+                  }}
+                >
+                  <Portal>
+                    <Drawer.Backdrop />
+                    <Drawer.Positioner>
+                      <Drawer.Content borderRadius="24px 0 0 24px">
+                        {selectedItem && (
+                          <>
+                            <Drawer.Header
+                              borderBottom="2px solid"
+                              borderColor="gray.200"
+                              p={6}
+                            >
+                              <HStack align="stretch" pt={8}>
+                                {valiant === "aStore" && (
+                                  <Heading size="lg" fontWeight="bold">
+                                    {selectedItem.laundryName}店
+                                  </Heading>
+                                )}
+                                {valiant === "manyStore" && (
+                                  <Link
+                                    href={`/coinLaundry/${selectedItem.laundryId}/coinDataList`}
+                                    fontSize="xl"
+                                    fontWeight="bold"
+                                    _hover={{
+                                      textDecoration: "underline",
+                                    }}
+                                  >
+                                    {selectedItem.laundryName}店
+                                  </Link>
+                                )}
+                                <Box mt={2}>
+                                  <DataClipBoard data={selectedItem} />
+                                </Box>
+                              </HStack>
+                            </Drawer.Header>
+                            <Drawer.Body p={6}>
+                              <MoneyDataCard key={selectedItem._id} myRole={myRole} />
+                            </Drawer.Body>
+                            <Drawer.CloseTrigger asChild>
+                              <CloseButton
+                                size="lg"
+                                position="absolute"
+                                top={4}
+                                right={4}
+                                borderRadius="full"
+                                border="1px solid"
+                                borderColor="gray.300"
+                                _hover={{
+                                  transform: "rotate(90deg)",
+                                }}
+                                transition="all 0.2s"
+                              />
+                            </Drawer.CloseTrigger>
+                          </>
+                        )}
+                      </Drawer.Content>
+                    </Drawer.Positioner>
+                  </Portal>
+                </Drawer.Root>
+              </Stack>
+            </VStack>
+          </GridItem>
+        </Grid>
       </VStack>
     </Box>
   );
