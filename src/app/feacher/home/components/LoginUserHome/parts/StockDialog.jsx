@@ -66,7 +66,7 @@ const StockDialog = ({ initialData }) => {
             <HStack justify="space-between">
               <HStack gap={2}>
                 <Icon.CiCircleAlert color={alertColor} size={18} />
-                <Text fontSize="sm" fontWeight="bold" color="gray.800">
+                <Text fontSize="sm" fontWeight="bold" color="var(--text-main, #1E3A5F)">
                   {currentData.laundryName}
                 </Text>
               </HStack>
@@ -134,16 +134,30 @@ const StockDialog = ({ initialData }) => {
       <Portal>
         <Dialog.Backdrop />
         <Dialog.Positioner>
-          <Dialog.Content borderRadius="16px" maxW="md" bg="white" boxShadow="xl">
+          <Dialog.Content
+            borderRadius="20px"
+            maxW="md"
+            bg="white"
+            boxShadow="0 12px 40px rgba(14,116,144,0.18)"
+          >
             <Dialog.Header
-              bg="green.50"
-              borderBottom="1px solid"
-              borderColor="green.200"
+              bg="var(--teal-pale, #CFFAFE)"
+              borderBottom="1px solid rgba(8,145,178,0.15)"
               p={6}
             >
-              <Dialog.Title fontSize="xl" fontWeight="bold" color="green.900">
-                在庫管理（{currentData.laundryName}店）
-              </Dialog.Title>
+              <HStack gap={3}>
+                <Box
+                  style={{ background: "linear-gradient(135deg, #0891B2 0%, #0E7490 100%)" }}
+                  color="white"
+                  borderRadius="full"
+                  p={2}
+                >
+                  <Icon.LuPackage size={20} />
+                </Box>
+                <Dialog.Title fontSize="xl" fontWeight="bold" color="var(--teal-deeper, #155E75)">
+                  在庫管理（{currentData.laundryName}店）
+                </Dialog.Title>
+              </HStack>
             </Dialog.Header>
             <Dialog.CloseTrigger asChild>
               <CloseButton
@@ -153,7 +167,7 @@ const StockDialog = ({ initialData }) => {
                 right={4}
                 bg="white"
                 borderRadius="full"
-                _hover={{ bg: "green.100" }}
+                _hover={{ bg: "cyan.50" }}
               />
             </Dialog.CloseTrigger>
 
@@ -174,12 +188,21 @@ const StockDialog = ({ initialData }) => {
 
             <Dialog.Footer
               borderTop="1px solid"
-              borderColor="green.200"
+              borderColor="var(--divider, #F1F5F9)"
               p={6}
               gap={3}
             >
               <Dialog.ActionTrigger asChild>
-                <Button variant="outline" size="lg" borderRadius="full" px={6}>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  borderRadius="full"
+                  px={6}
+                  borderColor="var(--divider, #F1F5F9)"
+                  color="var(--text-muted, #64748B)"
+                  _hover={{ bg: "var(--app-bg, #F0F9FF)" }}
+                  onClick={resetStock}
+                >
                   キャンセル
                 </Button>
               </Dialog.ActionTrigger>
@@ -190,6 +213,11 @@ const StockDialog = ({ initialData }) => {
                   loading={isSaving}
                   borderRadius="full"
                   px={8}
+                  color="white"
+                  style={{ background: "linear-gradient(135deg, #0891B2 0%, #0E7490 100%)" }}
+                  boxShadow="0 4px 14px rgba(8,145,178,0.28)"
+                  _hover={{ transform: "translateY(-1px)", boxShadow: "0 6px 18px rgba(8,145,178,0.36)" }}
+                  transition="all 0.2s"
                 >
                   保存
                 </Button>

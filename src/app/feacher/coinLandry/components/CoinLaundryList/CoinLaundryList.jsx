@@ -2,9 +2,7 @@
 import Link from "next/link";
 import { Button, Card, Flex, Image, Box, Grid } from "@chakra-ui/react";
 import DisplayMonthBenifit from "./DisplayMonthBenifit";
-import NowLaundryNum from "../NowLaundryNum";
 import * as Icon from "@/app/feacher/Icon";
-import MachinesState from "../MachinesState";
 
 const CoinLaundryList = ({ coinLaundry, benefitRecords, myRole }) => {
   return (
@@ -71,10 +69,7 @@ const CoinLaundryList = ({ coinLaundry, benefitRecords, myRole }) => {
         </Card.Description>
 
         <DisplayMonthBenifit records={benefitRecords} />
-        <Grid templateColumns="repeat(2,1fr)" gap={3} mt={2}>
-          <NowLaundryNum id={coinLaundry.id} />
-          <MachinesState id={coinLaundry.id} />
-        </Grid>
+       
       </Card.Body>
 
       <Card.Footer gap="2" p={5} pt={0}>
