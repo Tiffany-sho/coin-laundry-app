@@ -25,6 +25,12 @@ import DeletePicture from "@/app/feacher/coinLandry/components/CoinLaundryForm/D
 import { useCoinLaundryForm } from "@/app/feacher/coinLandry/context/CoinlaundryForm/CoinLaundryFormContext";
 import { useStoreSubmit } from "./useStoreSubmit";
 
+const FOCUS_STYLE = {
+  borderColor: "cyan.500",
+  boxShadow: "0 0 0 2px rgba(8, 145, 178, 0.20)",
+  outline: "none",
+};
+
 const CoinLaundryForm = ({ storeId, images = [], method }) => {
   const { state, dispatch } = useCoinLaundryForm();
   const [open, setOpen] = useState(false);
@@ -39,30 +45,40 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
       align="center"
       minH="100vh"
       p={{ base: 4, md: 6 }}
-      bg="gray.50"
+      bg="var(--app-bg, #F0F9FF)"
     >
       <Box w="full" maxW="600px">
         <form ref={formRef}>
           <Box
             bg="white"
-            borderRadius="lg"
-            boxShadow="md"
+            borderRadius="2xl"
+            boxShadow="var(--shadow-sm)"
+            border="1px solid rgba(8, 145, 178, 0.10)"
             p={{ base: 6, md: 8 }}
           >
             <Heading
               as="h1"
               size={{ base: "lg", md: "xl" }}
               mb={6}
-              color="gray.800"
+              color="var(--text-main, #1E3A5F)"
             >
               {method === "POST" && "登録"}
               {method === "PUT" && "編集"}フォーム
             </Heading>
 
             {state.msg && (
-              <Text color="red.500" fontSize="sm" fontWeight="medium" mb={4}>
-                {state.msg}
-              </Text>
+              <Box
+                mb={4}
+                p={3}
+                bg="red.50"
+                borderLeft="4px solid"
+                borderColor="red.400"
+                borderRadius="md"
+              >
+                <Text color="red.700" fontSize="sm" fontWeight="medium">
+                  {state.msg}
+                </Text>
+              </Box>
             )}
 
             <Stack gap={6} w="full">
@@ -70,7 +86,7 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
                 <Field.Label
                   fontSize="sm"
                   fontWeight="semibold"
-                  color="gray.700"
+                  color="var(--text-main, #1E3A5F)"
                   mb={2}
                 >
                   店舗名
@@ -78,13 +94,13 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
                 <InputGroup
                   endAddon="店"
                   endAddonProps={{
-                    bg: "gray.100",
-                    color: "gray.600",
+                    bg: "var(--teal-pale, #CFFAFE)",
+                    color: "var(--teal-deeper, #155E75)",
                     px: 4,
                     fontWeight: "semibold",
                     fontSize: "sm",
                     borderLeft: "1px solid",
-                    borderColor: "gray.200",
+                    borderColor: "rgba(8,145,178,0.20)",
                   }}
                 >
                   <Input
@@ -93,19 +109,15 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
                     id="store"
                     value={state.store}
                     placeholder="例)四条河原町"
-                    border="1px solid"
-                    borderColor="gray.300"
-                    borderRadius="md"
+                    border="1.5px solid"
+                    borderColor="var(--divider, #F1F5F9)"
+                    borderRadius="lg"
                     py={2}
                     px={3}
                     fontSize="16px"
                     transition="all 0.2s"
-                    _focus={{
-                      borderColor: "blue.500",
-                      boxShadow: "0 0 0 1px rgba(66, 153, 225, 0.6)",
-                      outline: "none",
-                    }}
-                    _placeholder={{ color: "gray.400" }}
+                    _focus={FOCUS_STYLE}
+                    _placeholder={{ color: "var(--text-faint, #94A3B8)" }}
                     onChange={(e) =>
                       dispatch({
                         type: "SET_FORM_DATA",
@@ -120,7 +132,7 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
                 <Field.Label
                   fontSize="sm"
                   fontWeight="semibold"
-                  color="gray.700"
+                  color="var(--text-main, #1E3A5F)"
                   mb={2}
                 >
                   場所
@@ -131,19 +143,15 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
                   id="location"
                   value={state.location}
                   placeholder="例)京都府京都市下京区"
-                  border="1px solid"
-                  borderColor="gray.300"
-                  borderRadius="md"
+                  border="1.5px solid"
+                  borderColor="var(--divider, #F1F5F9)"
+                  borderRadius="lg"
                   py={2}
                   px={3}
                   fontSize="16px"
                   transition="all 0.2s"
-                  _focus={{
-                    borderColor: "blue.500",
-                    boxShadow: "0 0 0 1px rgba(66, 153, 225, 0.6)",
-                    outline: "none",
-                  }}
-                  _placeholder={{ color: "gray.400" }}
+                  _focus={FOCUS_STYLE}
+                  _placeholder={{ color: "var(--text-faint, #94A3B8)" }}
                   onChange={(e) =>
                     dispatch({
                       type: "SET_FORM_DATA",
@@ -157,7 +165,7 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
                 <Field.Label
                   fontSize="sm"
                   fontWeight="semibold"
-                  color="gray.700"
+                  color="var(--text-main, #1E3A5F)"
                   mb={2}
                 >
                   概要
@@ -169,19 +177,15 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
                   h="24"
                   value={state.description}
                   placeholder="例)デパートやブティックだけでなく、着物や書道具を商う古くからの店が並ぶ繁華街です。"
-                  border="1px solid"
-                  borderColor="gray.300"
-                  borderRadius="md"
+                  border="1.5px solid"
+                  borderColor="var(--divider, #F1F5F9)"
+                  borderRadius="lg"
                   py={2}
                   px={3}
                   fontSize="16px"
                   transition="all 0.2s"
-                  _focus={{
-                    borderColor: "blue.500",
-                    boxShadow: "0 0 0 1px rgba(66, 153, 225, 0.6)",
-                    outline: "none",
-                  }}
-                  _placeholder={{ color: "gray.400" }}
+                  _focus={FOCUS_STYLE}
+                  _placeholder={{ color: "var(--text-faint, #94A3B8)" }}
                   onChange={(e) =>
                     dispatch({
                       type: "SET_FORM_DATA",
@@ -199,15 +203,18 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
                 <Drawer.Trigger asChild>
                   <Button
                     w="full"
-                    bg="gray.100"
-                    color="gray.700"
+                    bg="var(--teal-pale, #CFFAFE)"
+                    color="var(--teal-deeper, #155E75)"
                     fontWeight="semibold"
                     py={2.5}
-                    borderRadius="md"
-                    border="1px solid"
-                    borderColor="gray.300"
+                    borderRadius="lg"
+                    border="1.5px solid"
+                    borderColor="rgba(8,145,178,0.25)"
                     transition="all 0.2s"
-                    _hover={{ bg: "gray.200" }}
+                    _hover={{
+                      bg: "cyan.100",
+                      borderColor: "var(--teal, #0891B2)",
+                    }}
                     onClick={() => setOpen((prev) => !prev)}
                   >
                     {open ? "選択中..." : "機械選択"}
@@ -230,7 +237,7 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
                               bg="white"
                               borderRadius="full"
                               boxShadow="sm"
-                              _hover={{ bg: "gray.100", transform: "scale(1.1)" }}
+                              _hover={{ bg: "cyan.50", transform: "scale(1.1)" }}
                               transition="all 0.2s"
                             />
                           </Drawer.CloseTrigger>
@@ -249,7 +256,7 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
               mt={8}
               pt={6}
               borderTop="1px solid"
-              borderColor="gray.200"
+              borderColor="var(--divider, #F1F5F9)"
               gap={3}
               flexDirection={{ base: "column", md: "row" }}
               justifyContent="flex-end"
@@ -262,13 +269,13 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
                   fontWeight="semibold"
                   py={2}
                   px={6}
-                  borderRadius="md"
+                  borderRadius="lg"
                   border="1px solid"
-                  borderColor="gray.300"
+                  borderColor="var(--divider, #F1F5F9)"
                   bg="white"
-                  color="gray.700"
+                  color="var(--text-muted, #64748B)"
                   transition="all 0.2s"
-                  _hover={{ bg: "gray.50" }}
+                  _hover={{ bg: "var(--app-bg, #F0F9FF)" }}
                 >
                   キャンセル
                 </Button>

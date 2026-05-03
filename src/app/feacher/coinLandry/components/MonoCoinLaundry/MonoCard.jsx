@@ -72,7 +72,9 @@ const MonoCard = ({ coinLaundry, myRole }) => {
                 <Link href={`/collectMoney/${coinLaundry.id}/newData`}>
                   <Button
                     size="lg"
-                    colorPalette="blue"
+                    color="white"
+                  style={{ background: "linear-gradient(135deg, #0891B2 0%, #0E7490 100%)" }}
+                  boxShadow="0 4px 14px rgba(8,145,178,0.28)"
                     fontWeight="semibold"
                     px={8}
                     _hover={{ transform: "translateY(-2px)" }}

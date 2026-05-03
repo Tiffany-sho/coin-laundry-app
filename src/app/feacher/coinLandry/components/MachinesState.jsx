@@ -38,13 +38,7 @@ const MachinesState = ({ id, onLoad, canEdit = true }) => {
 
   if (!data)
     return (
-      <Box
-        bg="red.50"
-        p={3}
-        borderRadius="lg"
-        borderLeft="4px solid"
-        borderColor="red.500"
-      >
+      <Box bg="red.50" p={3} borderRadius="lg" borderLeft="4px solid" borderColor="red.500">
         <Text fontSize="sm" color="red.600" fontWeight="medium">
           データを入手できませんでした
         </Text>
@@ -103,12 +97,7 @@ const MachinesState = ({ id, onLoad, canEdit = true }) => {
             ) : (
               <HStack align="stretch">
                 {breakMachine.slice(0, 1).map((machine, index) => (
-                  <Text
-                    key={index}
-                    fontSize="xs"
-                    color="red.700"
-                    fontWeight="medium"
-                  >
+                  <Text key={index} fontSize="xs" color="red.700" fontWeight="medium">
                     {machine.name.slice(0, 5)}
                   </Text>
                 ))}
@@ -122,34 +111,31 @@ const MachinesState = ({ id, onLoad, canEdit = true }) => {
           </VStack>
         </Box>
       </Dialog.Trigger>
+
       <Portal>
         <Dialog.Backdrop />
         <Dialog.Positioner>
-          <Dialog.Content
-            borderRadius="16px"
-            maxW="lg"
-            bg="white"
-            boxShadow="xl"
-          >
+          <Dialog.Content borderRadius="20px" maxW="lg" bg="white" boxShadow="0 12px 40px rgba(14,116,144,0.18)">
             <Dialog.Header
-              bg="orange.50"
-              borderBottom="1px solid"
-              borderColor="orange.200"
+              bg="var(--teal-pale, #CFFAFE)"
+              borderBottom="1px solid rgba(8,145,178,0.15)"
               p={6}
             >
               <HStack gap={3}>
-                <Box bg="orange.500" color="white" borderRadius="full" p={2}>
+                <Box
+                  style={{ background: "linear-gradient(135deg, #0891B2 0%, #0E7490 100%)" }}
+                  color="white"
+                  borderRadius="full"
+                  p={2}
+                >
                   <Icon.LuWrench size={20} />
                 </Box>
-                <Dialog.Title
-                  fontSize="xl"
-                  fontWeight="bold"
-                  color="orange.900"
-                >
-                  設備状態管理({data.laundryName}店)
+                <Dialog.Title fontSize="xl" fontWeight="bold" color="var(--teal-deeper, #155E75)">
+                  設備状態管理（{data.laundryName}店）
                 </Dialog.Title>
               </HStack>
             </Dialog.Header>
+
             <Dialog.CloseTrigger asChild>
               <CloseButton
                 size="sm"
@@ -158,7 +144,7 @@ const MachinesState = ({ id, onLoad, canEdit = true }) => {
                 right={4}
                 bg="white"
                 borderRadius="full"
-                _hover={{ bg: "orange.50" }}
+                _hover={{ bg: "cyan.50" }}
               />
             </Dialog.CloseTrigger>
 
@@ -168,20 +154,21 @@ const MachinesState = ({ id, onLoad, canEdit = true }) => {
                   <Box
                     key={machine.id}
                     p={5}
-                    bg={machine.break ? "red.50" : "gray.50"}
-                    borderRadius="lg"
+                    bg={machine.break ? "red.50" : "var(--app-bg, #F0F9FF)"}
+                    borderRadius="14px"
                     border="2px solid"
-                    borderColor={machine.break ? "red.200" : "gray.200"}
+                    borderColor={machine.break ? "red.200" : "var(--divider, #F1F5F9)"}
                     transition="all 0.2s"
                   >
                     <VStack align="stretch" gap={4}>
                       <HStack justify="space-between">
                         <VStack align="start" gap={1}>
-                          <Heading size="sm" color="gray.800">
+                          <Heading size="sm" color="var(--text-main, #1E3A5F)">
                             {machine.name}
                           </Heading>
                           <Badge
-                            bg={machine.break ? "red.300" : "green.300"}
+                            bg={machine.break ? "red.300" : "cyan.200"}
+                            color={machine.break ? "red.900" : "var(--teal-deeper, #155E75)"}
                             fontSize="xs"
                             px={2}
                             py={1}
@@ -217,11 +204,7 @@ const MachinesState = ({ id, onLoad, canEdit = true }) => {
                           borderColor="red.200"
                         >
                           <VStack align="stretch" gap={3}>
-                            <Text
-                              fontSize="sm"
-                              fontWeight="semibold"
-                              color="gray.700"
-                            >
+                            <Text fontSize="sm" fontWeight="semibold" color="var(--text-main, #1E3A5F)">
                               故障内容
                             </Text>
                             {canEdit ? (
@@ -237,12 +220,11 @@ const MachinesState = ({ id, onLoad, canEdit = true }) => {
                                 borderColor="red.200"
                                 _focus={{
                                   borderColor: "red.400",
-                                  boxShadow:
-                                    "0 0 0 1px var(--chakra-colors-red-400)",
+                                  boxShadow: "0 0 0 1px var(--chakra-colors-red-400)",
                                 }}
                               />
                             ) : (
-                              <Text fontSize="sm" color="gray.700">
+                              <Text fontSize="sm" color="var(--text-muted, #64748B)">
                                 {machine.comment || "（詳細なし）"}
                               </Text>
                             )}
@@ -257,7 +239,7 @@ const MachinesState = ({ id, onLoad, canEdit = true }) => {
 
             <Dialog.Footer
               borderTop="1px solid"
-              borderColor="gray.200"
+              borderColor="var(--divider, #F1F5F9)"
               p={6}
               gap={3}
             >
@@ -267,6 +249,9 @@ const MachinesState = ({ id, onLoad, canEdit = true }) => {
                   size="lg"
                   borderRadius="full"
                   px={6}
+                  borderColor="var(--divider, #F1F5F9)"
+                  color="var(--text-muted, #64748B)"
+                  _hover={{ bg: "var(--app-bg, #F0F9FF)" }}
                   onClick={canEdit ? resetMachines : undefined}
                 >
                   {canEdit ? "キャンセル" : "閉じる"}
@@ -276,11 +261,15 @@ const MachinesState = ({ id, onLoad, canEdit = true }) => {
                 <Dialog.ActionTrigger asChild>
                   <Button
                     size="lg"
-                    variant="solid"
                     onClick={handleSave}
                     loading={isSaving}
                     borderRadius="full"
                     px={8}
+                    color="white"
+                    style={{ background: "linear-gradient(135deg, #0891B2 0%, #0E7490 100%)" }}
+                    boxShadow="0 4px 14px rgba(8,145,178,0.28)"
+                    _hover={{ transform: "translateY(-1px)", boxShadow: "0 6px 18px rgba(8,145,178,0.36)" }}
+                    transition="all 0.2s"
                   >
                     保存
                   </Button>

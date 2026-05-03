@@ -55,8 +55,11 @@ const MonoDataTotal = async ({ coinLaundry }) => {
             <Button
               fontSize="xs"
               variant="outline"
-              color="gray.600"
+              color="var(--teal, #0891B2)"
+              borderColor="rgba(8,145,178,0.30)"
               _hover={{
+                bg: "cyan.50",
+                borderColor: "var(--teal, #0891B2)",
                 transform: "translateY(-2px)",
                 boxShadow: "md",
               }}
