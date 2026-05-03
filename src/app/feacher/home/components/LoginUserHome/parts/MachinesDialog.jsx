@@ -51,23 +51,21 @@ const MachinesDialog = ({ initialData }) => {
             borderColor: "red.300",
           }}
         >
-          <VStack align="stretch" gap={2}>
-            <HStack justify="space-between">
-              <HStack gap={2}>
-                <Icon.LiaStoreSolid color="var(--chakra-colors-red-500)" size={18} />
-                <Text fontSize="sm" fontWeight="bold" color="var(--text-main, #1E3A5F)">
-                  {data.laundryName}
-                </Text>
-              </HStack>
+          <VStack align="center" gap={2} textAlign="center">
+            <HStack gap={2} justify="center">
+              <Icon.LiaStoreSolid color="var(--chakra-colors-red-500)" size={18} />
+              <Text fontSize="sm" fontWeight="bold" color="var(--text-main, #1E3A5F)">
+                {data.laundryName}
+              </Text>
               <Badge bg="red.100" color="red.700" fontSize="xs" px={2} py={0.5} borderRadius="full">
                 {breakMachine.length}台故障
               </Badge>
             </HStack>
 
-            <VStack align="stretch" gap={1} pl={2}>
+            <VStack align="center" gap={1}>
               {breakMachine.slice(0, 3).map((machine) => (
-                <HStack key={machine.id} gap={2}>
-                  <Box w="4px" h="4px" bg="red.500" borderRadius="full" />
+                <HStack key={machine.id} gap={2} justify="center">
+                  <Box w="4px" h="4px" bg="red.500" borderRadius="full" flexShrink={0} />
                   <Text fontSize="xs" color="red.700" fontWeight="medium">
                     {machine.name}
                   </Text>
@@ -79,7 +77,7 @@ const MachinesDialog = ({ initialData }) => {
                 </HStack>
               ))}
               {breakMachine.length > 3 && (
-                <Text fontSize="xs" color="red.600" pl={4}>
+                <Text fontSize="xs" color="red.600">
                   他 {breakMachine.length - 3}台
                 </Text>
               )}

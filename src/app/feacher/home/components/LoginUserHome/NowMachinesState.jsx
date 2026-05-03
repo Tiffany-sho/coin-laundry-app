@@ -74,51 +74,49 @@ const NowMachinesState = async () => {
   }
 
   return (
-    <VStack align="stretch" gap={3} w="full">
-      <Box
-        bg="red.50"
-        px={4}
-        py={8}
-        border="2px solid"
-        borderRadius="lg"
-        borderLeft="4px solid"
-        borderColor="red.500"
-      >
-        <VStack align="center" gap={2} textAlign="center">
-          <Box bg="red.500" color="white" borderRadius="full" p={1.5}>
-            <Icon.CiCircleAlert size={16} />
-          </Box>
-          <Text fontSize="sm" color="gray.600" fontWeight="semibold">
-            設備状況
+    <Box
+      bg="red.50"
+      px={4}
+      py={6}
+      border="2px solid"
+      borderRadius="lg"
+      borderLeft="4px solid"
+      borderColor="red.500"
+    >
+      <VStack align="center" gap={3} textAlign="center">
+        <Box bg="red.500" color="white" borderRadius="full" p={1.5}>
+          <Icon.CiCircleAlert size={16} />
+        </Box>
+        <Text fontSize="sm" color="gray.600" fontWeight="semibold">
+          設備状況
+        </Text>
+        <HStack gap={2} justify="center">
+          <Badge
+            bg="red.500"
+            color="white"
+            fontSize="sm"
+            px={3}
+            py={1}
+            borderRadius="full"
+            fontWeight="bold"
+          >
+            故障発生中
+          </Badge>
+          <Text fontSize="lg" fontWeight="bold" color="red.700">
+            {breakMachines.length}店舗
           </Text>
-          <HStack gap={2} justify="center">
-            <Badge
-              bg="red.500"
-              color="white"
-              fontSize="sm"
-              px={3}
-              py={1}
-              borderRadius="full"
-              fontWeight="bold"
-            >
-              故障発生中
-            </Badge>
-            <Text fontSize="lg" fontWeight="bold" color="red.700">
-              {breakMachines.length}店舗
-            </Text>
-          </HStack>
-          <Text fontSize="xs" color="red.600">
-            至急対応が必要な店舗があります
-          </Text>
-        </VStack>
-      </Box>
+        </HStack>
+        <Text fontSize="xs" color="red.600">
+          至急対応が必要な店舗があります
+        </Text>
 
-      <VStack align="stretch" gap={2} w="full">
-        {breakMachines.map((item) => (
-          <MachinesDialog initialData={item} key={item.laundryId} />
-        ))}
+        <VStack align="stretch" gap={2} w="full" pt={1}>
+          {breakMachines.map((item) => (
+            <MachinesDialog initialData={item} key={item.laundryId} />
+          ))}
+        </VStack>
       </VStack>
-    </VStack>
+    </Box>
   );
 };
 

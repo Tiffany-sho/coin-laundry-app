@@ -74,51 +74,49 @@ const NowStockState = async () => {
   }
 
   return (
-    <VStack align="stretch" gap={3} w="full">
-      <Box
-        bg="orange.50"
-        px={4}
-        py={8}
-        border="2px solid"
-        borderRadius="lg"
-        borderLeft="4px solid"
-        borderColor="orange.500"
-      >
-        <VStack align="center" gap={2} textAlign="center">
-          <Box bg="orange.500" color="white" borderRadius="full" p={1.5}>
-            <Icon.CiCircleAlert size={16} />
-          </Box>
-          <Text fontSize="sm" color="gray.600" fontWeight="semibold">
-            在庫状況
+    <Box
+      bg="orange.50"
+      px={4}
+      py={6}
+      border="2px solid"
+      borderRadius="lg"
+      borderLeft="4px solid"
+      borderColor="orange.500"
+    >
+      <VStack align="center" gap={3} textAlign="center">
+        <Box bg="orange.500" color="white" borderRadius="full" p={1.5}>
+          <Icon.CiCircleAlert size={16} />
+        </Box>
+        <Text fontSize="sm" color="gray.600" fontWeight="semibold">
+          在庫状況
+        </Text>
+        <HStack gap={2} justify="center">
+          <Badge
+            bg="orange.500"
+            color="white"
+            fontSize="sm"
+            px={3}
+            py={1}
+            borderRadius="full"
+            fontWeight="bold"
+          >
+            在庫不足
+          </Badge>
+          <Text fontSize="lg" fontWeight="bold" color="orange.700">
+            {lowStockItems.length}店舗
           </Text>
-          <HStack gap={2} justify="center">
-            <Badge
-              bg="orange.500"
-              color="white"
-              fontSize="sm"
-              px={3}
-              py={1}
-              borderRadius="full"
-              fontWeight="bold"
-            >
-              在庫不足
-            </Badge>
-            <Text fontSize="lg" fontWeight="bold" color="orange.700">
-              {lowStockItems.length}店舗
-            </Text>
-          </HStack>
-          <Text fontSize="xs" color="orange.600">
-            補充が必要な店舗があります
-          </Text>
-        </VStack>
-      </Box>
+        </HStack>
+        <Text fontSize="xs" color="orange.600">
+          補充が必要な店舗があります
+        </Text>
 
-      <VStack align="stretch" gap={2} w="full">
-        {lowStockItems.map((item) => (
-          <StockDialog initialData={item} key={item.laundryId} />
-        ))}
+        <VStack align="stretch" gap={2} w="full" pt={1}>
+          {lowStockItems.map((item) => (
+            <StockDialog initialData={item} key={item.laundryId} />
+          ))}
+        </VStack>
       </VStack>
-    </VStack>
+    </Box>
   );
 };
 

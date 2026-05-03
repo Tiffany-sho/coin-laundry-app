@@ -62,14 +62,12 @@ const StockDialog = ({ initialData }) => {
             borderColor: hoverBorderColor,
           }}
         >
-          <VStack align="stretch" gap={2}>
-            <HStack justify="space-between">
-              <HStack gap={2}>
-                <Icon.CiCircleAlert color={alertColor} size={18} />
-                <Text fontSize="sm" fontWeight="bold" color="var(--text-main, #1E3A5F)">
-                  {currentData.laundryName}
-                </Text>
-              </HStack>
+          <VStack align="center" gap={2} textAlign="center">
+            <HStack gap={2} justify="center">
+              <Icon.CiCircleAlert color={alertColor} size={18} />
+              <Text fontSize="sm" fontWeight="bold" color="var(--text-main, #1E3A5F)">
+                {currentData.laundryName}
+              </Text>
               {isCritical && (
                 <Badge
                   bg="red.500"
@@ -85,7 +83,7 @@ const StockDialog = ({ initialData }) => {
               )}
             </HStack>
 
-            <HStack gap={2} flexWrap="wrap">
+            <HStack gap={2} flexWrap="wrap" justify="center">
               <Badge
                 {...getStockBadgeStyle(currentData.detergent)}
                 fontSize="xs"
