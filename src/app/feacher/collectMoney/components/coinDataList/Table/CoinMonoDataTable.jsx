@@ -148,8 +148,9 @@ const CoinMonoDataTable = ({ id }) => {
                 onClick={() => toggleHander(item)}
                 bg={isSelected ? "cyan.50" : "white"}
                 cursor="pointer"
-                position="relative"
                 transition="all 0.2s ease"
+                borderLeft="4px solid"
+                borderLeftColor={isSelected ? "var(--teal, #0891B2)" : "transparent"}
                 _hover={{
                   bg: isSelected ? "cyan.100" : "cyan.50",
                   transform: "translateX(4px)",
@@ -162,17 +163,6 @@ const CoinMonoDataTable = ({ id }) => {
                 }
                 borderColor="gray.100"
               >
-                {isSelected && (
-                  <Box
-                    position="absolute"
-                    left="0"
-                    top="0"
-                    bottom="0"
-                    width="4px"
-                    bg="var(--teal, #0891B2)"
-                    borderRadius="0 4px 4px 0"
-                  />
-                )}
 
                 <Table.Cell py={4} px={{ base: 4, md: 6 }}>
                   <HStack justify="space-between" align="center" gap={4}>
