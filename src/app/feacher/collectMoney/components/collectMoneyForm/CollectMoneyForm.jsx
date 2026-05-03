@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Box, Card, HStack, Stack, Text, VStack } from "@chakra-ui/react";
+import { Box, HStack, Stack, Text, VStack } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
 
 import EpochTimeSelector from "../selectDate/SelectDate";
@@ -14,6 +14,10 @@ import DraftBanner from "./parts/DraftBanner";
 import useDraft from "../../hooks/useDraft";
 import useCollectMethod from "../../hooks/useCollectMethod";
 import * as Icon from "@/app/feacher/Icon";
+
+const SectionDivider = () => (
+  <Box h="1px" bg="var(--divider, #F1F5F9)" />
+);
 
 const CollectMoneyForm = ({ coinLaundry }) => {
   const router = useRouter();
@@ -58,35 +62,32 @@ const CollectMoneyForm = ({ coinLaundry }) => {
         pt={{ base: 20, md: 24 }}
         pb={{ base: 32, md: 36 }}
         px={{ base: 4, md: 8 }}
+        maxW="700px"
+        mx="auto"
       >
-        <Stack gap={{ base: 4, md: 6 }} maxW="1200px" mx="auto">
+        <Stack gap={0}>
           {draft && (
-            <DraftBanner
-              savedAt={draft.savedAt}
-              onRestore={handleRestoreDraft}
-              onDiscard={discardDraft}
-            />
+            <Box pb={4}>
+              <DraftBanner
+                savedAt={draft.savedAt}
+                onRestore={handleRestoreDraft}
+                onDiscard={discardDraft}
+              />
+            </Box>
           )}
 
           {/* 集金日 */}
-          <Card.Root
-            bg="white"
-            shadow="md"
-            borderRadius="2xl"
-            overflow="hidden"
-            transition="all 0.3s"
-            _hover={{ shadow: "lg", transform: "translateY(-2px)" }}
-          >
-            <Card.Body p={{ base: 5, md: 6 }}>
-              <HStack mb={4} color="var(--teal, #0891B2)">
-                <Icon.LuCalendar size={22} />
-                <Text fontSize="md" fontWeight="semibold">
-                  集金日
-                </Text>
-              </HStack>
-              <EpochTimeSelector epoc={epoc} setEpoc={setEpoc} />
-            </Card.Body>
-          </Card.Root>
+          <Box py={{ base: 5, md: 6 }}>
+            <HStack mb={4} color="var(--teal, #0891B2)">
+              <Icon.LuCalendar size={20} />
+              <Text fontSize="md" fontWeight="semibold">
+                集金日
+              </Text>
+            </HStack>
+            <EpochTimeSelector epoc={epoc} setEpoc={setEpoc} />
+          </Box>
+
+          <SectionDivider />
 
           {/* 集金方式 */}
           <CollectMethodCard
@@ -97,53 +98,41 @@ const CollectMoneyForm = ({ coinLaundry }) => {
             onFixedChange={handleFixedChange}
           />
 
+          <SectionDivider />
+
           {/* 金額入力 */}
-          <Box>
+          <Box py={{ base: 5, md: 6 }}>
+            <HStack mb={4} color="var(--teal, #0891B2)">
+              <Icon.RiMoneyCnyCircleLine size={20} />
+              <Text fontSize="md" fontWeight="semibold">
+                {checked ? "機種別金額" : "合計金額"}
+              </Text>
+            </HStack>
             {checked ? (
               <MachineAndMoney
                 machinesAndFunds={machinesAndFunds}
                 setMachinesAndFunds={setMachinesAndFunds}
               />
             ) : (
-              <Card.Root
-                bg="white"
-                shadow="md"
-                borderRadius="2xl"
-                overflow="hidden"
-              >
-                <Card.Body p={{ base: 5, md: 6 }}>
-                  <HStack mb={4} color="var(--teal, #0891B2)">
-                    <Icon.RiMoneyCnyCircleLine size={22} />
-                    <Text fontSize="md" fontWeight="semibold">
-                      合計金額
-                    </Text>
-                  </HStack>
-                  <MoneyTotal
-                    moneyTotal={moneyTotal}
-                    setMoneyTotal={setMoneyTotal}
-                  />
-                </Card.Body>
-              </Card.Root>
+              <MoneyTotal
+                moneyTotal={moneyTotal}
+                setMoneyTotal={setMoneyTotal}
+              />
             )}
           </Box>
 
           {msg && (
-            <Card.Root
-              bg="red.50"
-              borderColor="red.300"
-              borderWidth="1px"
-              shadow="sm"
-              borderRadius="xl"
-            >
-              <Card.Body p={4}>
+            <>
+              <SectionDivider />
+              <Box py={4}>
                 <HStack>
-                  <Icon.LiaStoreSolid size={20} color="red.600" />
-                  <Text color="red.700" fontSize="sm" fontWeight="medium">
+                  <Icon.LiaStoreSolid size={18} color="var(--chakra-colors-red-500)" />
+                  <Text color="red.600" fontSize="sm" fontWeight="medium">
                     {msg}
                   </Text>
                 </HStack>
-              </Card.Body>
-            </Card.Root>
+              </Box>
+            </>
           )}
         </Stack>
       </Box>
