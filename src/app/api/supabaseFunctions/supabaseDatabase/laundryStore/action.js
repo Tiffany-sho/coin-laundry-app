@@ -1,5 +1,6 @@
 "use server";
 
+import { cache } from "react";
 import { createClient } from "@/utils/supabase/server";
 import { getUser } from "../user/action";
 
@@ -13,7 +14,8 @@ async function getMyOrgId(supabase, userId) {
   return { orgId: data.org_id, myRole: data.role };
 }
 
-export async function getStores() {
+// cache() でリクエスト内の重複呼び出しを1回に集約する
+export const getStores = cache(async () => {
   const { user } = await getUser();
   if (!user) return { error: { msg: "ログインしてください", status: 401 } };
 
@@ -32,7 +34,7 @@ export async function getStores() {
   } catch {
     return { error: { msg: "予期しないエラーが発生しました", status: 400 } };
   }
-}
+});
 
 export async function getStore(id) {
   const { user } = await getUser();
