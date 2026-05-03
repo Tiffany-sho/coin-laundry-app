@@ -14,7 +14,7 @@ import GreetingHeader from "./GreetingHeader";
 
 const LoginUserHome = ({ id, username = "集金担当者", myRole }) => {
   return (
-    <Box bg="gray.50" minH="100vh" pb={20}>
+    <Box bg="var(--app-bg, #F0F9FF)" minH="100vh" pb={20}>
       <Container
         maxW="container.xl"
         px={{ base: 3, md: 4 }}

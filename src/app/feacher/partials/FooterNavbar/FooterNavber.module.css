@@ -5,10 +5,12 @@
   left: 0;
   right: 0;
   z-index: 1300;
-  background-color: var(--chakra-colors-bg);
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
-  padding: 0.5rem 0;
-  border-top: 1px solid var(--chakra-colors-gray-200);
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 -1px 0 rgba(8, 145, 178, 0.10);
+  padding: 8px 0 env(safe-area-inset-bottom, 14px);
+  border-top: 1px solid rgba(8, 145, 178, 0.10);
   transition: transform 0.3s ease-in-out;
 }
 
@@ -28,32 +30,65 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.25rem;
-  padding: 0.5rem 1rem;
+  gap: 4px;
+  padding: 6px 12px;
   text-decoration: none;
-  color: var(--chakra-colors-gray-700);
+  color: var(--text-faint, #94A3B8);
   background: transparent;
   border: none;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: color 0.18s;
   flex: 1;
-  max-width: 100px;
+  max-width: 90px;
+  min-height: 52px;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.navItem:hover,
-.navItem:active {
-  background-color: var(--chakra-colors-gray-50);
-  color: var(--chakra-colors-blue-400);
+.navItem:hover {
+  color: var(--teal-dark, #0E7490);
+}
+
+.navItem.active {
+  color: var(--teal-dark, #0E7490);
 }
 
 .icon {
   font-size: 1.5rem;
+  line-height: 1;
+  transition: transform 0.18s;
+}
+
+.navItem.active .icon {
+  transform: scale(1.08);
 }
 
 .label {
-  font-size: 0.625rem;
-  font-weight: 600;
+  font-size: 10px;
+  font-weight: 500;
   text-align: center;
+  letter-spacing: 0.02em;
+}
+
+.navItem.active .label {
+  font-weight: 700;
+}
+
+/* active indicator dot */
+.indicator {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--teal-dark, #0E7490);
+  margin-top: 1px;
+  opacity: 0;
+  transform: scale(0);
+  transition: opacity 0.22s, transform 0.22s;
+}
+
+.navItem.active .indicator {
+  opacity: 1;
+  transform: scale(1);
 }
 
 .logoutForm {
@@ -61,17 +96,16 @@
   margin: 0;
   padding: 0;
   flex: 1;
-  max-width: 100px;
+  max-width: 90px;
 }
 
 .logoutForm .navItem {
-  color: var(--chakra-colors-red-500);
+  color: #EF4444;
   width: 100%;
 }
 
 .logoutForm .navItem:hover {
-  color: var(--chakra-colors-red-600);
-  background-color: var(--chakra-colors-red-50);
+  color: #DC2626;
 }
 
 @media (max-width: 639px) {
@@ -84,13 +118,13 @@
   .footerNavbar {
     display: block;
   }
-  
+
   .icon {
     font-size: 1.4rem;
   }
-  
+
   .label {
-    font-size: 0.75rem;
+    font-size: 11px;
   }
 }
 

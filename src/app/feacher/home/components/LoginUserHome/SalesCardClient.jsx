@@ -114,11 +114,11 @@ const ActiveCard = ({ monthOffset, data, error, isPending, navigate }) => {
 
   return (
     <Box
-      bg={monthBg}
+      style={{ background: "linear-gradient(140deg, #0E7490 0%, #0891B2 55%, #06B6D4 100%)" }}
       transition="background 0.4s"
       p={{ base: 4, md: 6 }}
       borderRadius="xl"
-      boxShadow="lg"
+      boxShadow="0 12px 40px rgba(14, 116, 144, 0.28)"
       position="relative"
       overflow="hidden"
     >

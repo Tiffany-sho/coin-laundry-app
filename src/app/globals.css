@@ -1,8 +1,22 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #F0F9FF;
+  --foreground: #1E3A5F;
+
+  --teal:        #0891B2;
+  --teal-dark:   #0E7490;
+  --teal-deeper: #155E75;
+  --teal-pale:   #CFFAFE;
+  --app-bg:      #F0F9FF;
+  --card-bg:     #FFFFFF;
+  --text-main:   #1E3A5F;
+  --text-muted:  #64748B;
+  --text-faint:  #94A3B8;
+  --divider:     #F1F5F9;
+  --shadow-sm:   0 2px 12px rgba(8, 145, 178, 0.08);
+  --shadow-hero: 0 12px 40px rgba(14, 116, 144, 0.28);
 }
 
 @theme inline {
@@ -12,15 +26,9 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--app-bg);
+  color: var(--text-main);
+  font-family: 'Noto Sans JP', sans-serif;
+  -webkit-font-smoothing: antialiased;
 }

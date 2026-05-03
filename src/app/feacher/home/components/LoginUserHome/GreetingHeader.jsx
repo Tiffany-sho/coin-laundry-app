@@ -34,10 +34,10 @@ const GreetingHeader = ({ username = "集金担当者" }) => {
 
   return (
     <>
-      <Heading size={{ base: "lg", md: "xl" }} color="gray.800" mb={1}>
+      <Heading size={{ base: "lg", md: "xl" }} color="var(--text-main, #1E3A5F)" mb={1}>
         {greeting}、{username}さん
       </Heading>
-      <HStack gap={2} color="gray.600">
+      <HStack gap={2} color="var(--text-muted, #64748B)">
         <Icon.LuCalendar size={16} />
         <Text fontSize={{ base: "sm", md: "md" }}>{dateStr}</Text>
       </HStack>

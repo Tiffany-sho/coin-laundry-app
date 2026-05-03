@@ -65,8 +65,8 @@ const QuickActionDialog = async ({ method }) => {
             border="1px solid"
             borderColor="gray.200"
             _hover={{
-              bg: "blue.50",
-              borderColor: "blue.300",
+              bg: "cyan.50",
+              borderColor: "cyan.300",
               transform: "translateY(-2px)",
             }}
             transition="all 0.2s"
@@ -91,14 +91,14 @@ const QuickActionDialog = async ({ method }) => {
             overflow="hidden"
           >
             <Dialog.Header
-              bg="blue.50"
+              bg="cyan.50"
               borderBottom="1px solid"
-              borderColor="blue.100"
+              borderColor="cyan.100"
               p={{ base: 4, md: 6 }}
             >
               <Heading
                 size={{ base: "md", md: "lg" }}
-                color="blue.900"
+                color="cyan.900"
                 fontWeight="bold"
               >
                 {methodItem.dialogTitle}
@@ -114,7 +114,7 @@ const QuickActionDialog = async ({ method }) => {
                 bg="white"
                 borderRadius="full"
                 boxShadow="sm"
-                _hover={{ bg: "blue.50", transform: "scale(1.1)" }}
+                _hover={{ bg: "cyan.50", transform: "scale(1.1)" }}
                 transition="all 0.2s"
               />
             </Dialog.CloseTrigger>
@@ -147,8 +147,8 @@ const QuickActionDialog = async ({ method }) => {
                         cursor="pointer"
                         transition="all 0.2s"
                         _hover={{
-                          bg: "blue.50",
-                          borderColor: "blue.300",
+                          bg: "cyan.50",
+                          borderColor: "cyan.300",
                           transform: "translateX(4px)",
                           boxShadow: "md",
                         }}
