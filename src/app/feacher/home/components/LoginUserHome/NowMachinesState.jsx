@@ -14,6 +14,7 @@ const NowMachinesState = async () => {
         borderRadius="lg"
         borderLeft="4px solid"
         borderColor="red.500"
+        textAlign="center"
       >
         <Text color="red.700" fontWeight="semibold">
           データ取得失敗
@@ -31,6 +32,7 @@ const NowMachinesState = async () => {
         border="2px solid"
         borderLeft="4px solid"
         borderColor="green.500"
+        textAlign="center"
       >
         <Text fontSize="sm" color="gray.600" fontWeight="semibold">
           設備状況
@@ -53,23 +55,19 @@ const NowMachinesState = async () => {
         borderLeft="4px solid"
         borderColor="green.500"
       >
-        <VStack align="stretch" gap={2}>
-          <HStack justify="space-between">
-            <Text fontSize="sm" color="gray.600" fontWeight="semibold">
-              設備状況
-            </Text>
-            <Box bg="green.500" color="white" borderRadius="full" p={1.5}>
-              <Icon.LuCheck size={16} />
-            </Box>
-          </HStack>
-          <VStack align="stretch" gap={1}>
-            <Text fontSize="lg" fontWeight="bold" color="green.700">
-              フル稼働中
-            </Text>
-            <Text fontSize="sm" color="green.600">
-              すべての設備が正常に稼働しています
-            </Text>
-          </VStack>
+        <VStack align="center" gap={2} textAlign="center">
+          <Box bg="green.500" color="white" borderRadius="full" p={1.5}>
+            <Icon.LuCheck size={16} />
+          </Box>
+          <Text fontSize="sm" color="gray.600" fontWeight="semibold">
+            設備状況
+          </Text>
+          <Text fontSize="lg" fontWeight="bold" color="green.700">
+            フル稼働中
+          </Text>
+          <Text fontSize="sm" color="green.600">
+            すべての設備が正常に稼働しています
+          </Text>
         </VStack>
       </Box>
     );
@@ -86,33 +84,33 @@ const NowMachinesState = async () => {
         borderLeft="4px solid"
         borderColor="red.500"
       >
-        <HStack justify="space-between" mb={2}>
-          <Text fontSize="sm" color="gray.600" fontWeight="semibold">
-            設備状況
-          </Text>
+        <VStack align="center" gap={2} textAlign="center">
           <Box bg="red.500" color="white" borderRadius="full" p={1.5}>
             <Icon.CiCircleAlert size={16} />
           </Box>
-        </HStack>
-        <HStack gap={2} mb={1}>
-          <Badge
-            bg="red.500"
-            color="white"
-            fontSize="sm"
-            px={3}
-            py={1}
-            borderRadius="full"
-            fontWeight="bold"
-          >
-            故障発生中
-          </Badge>
-          <Text fontSize="lg" fontWeight="bold" color="red.700">
-            {breakMachines.length}店舗
+          <Text fontSize="sm" color="gray.600" fontWeight="semibold">
+            設備状況
           </Text>
-        </HStack>
-        <Text fontSize="xs" color="red.600">
-          至急対応が必要な店舗があります
-        </Text>
+          <HStack gap={2} justify="center">
+            <Badge
+              bg="red.500"
+              color="white"
+              fontSize="sm"
+              px={3}
+              py={1}
+              borderRadius="full"
+              fontWeight="bold"
+            >
+              故障発生中
+            </Badge>
+            <Text fontSize="lg" fontWeight="bold" color="red.700">
+              {breakMachines.length}店舗
+            </Text>
+          </HStack>
+          <Text fontSize="xs" color="red.600">
+            至急対応が必要な店舗があります
+          </Text>
+        </VStack>
       </Box>
 
       <VStack align="stretch" gap={2} w="full">
