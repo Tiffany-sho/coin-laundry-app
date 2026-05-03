@@ -51,13 +51,13 @@ export default function InviteForm({ orgName, inviterName, onInvited }) {
   };
 
   return (
-    <Box p={5} bg="blue.50" borderRadius="lg" border="1px solid" borderColor="blue.200">
-      <Text fontSize="sm" fontWeight="bold" color="blue.800" mb={4}>
+    <Box p={5} bg="var(--teal-pale, #CFFAFE)" borderRadius="lg" border="1px solid" borderColor="cyan.100">
+      <Text fontSize="sm" fontWeight="bold" color="var(--teal-deeper, #155E75)" mb={4}>
         メンバーを招待
       </Text>
       <VStack align="stretch" gap={3}>
         <Field.Root>
-          <Field.Label fontSize="xs" color="gray.600" mb={1}>
+          <Field.Label fontSize="xs" color="var(--teal-dark, #0E7490)" mb={1}>
             メールアドレス
           </Field.Label>
           <Input
@@ -68,11 +68,13 @@ export default function InviteForm({ orgName, inviterName, onInvited }) {
             bg="white"
             borderRadius="lg"
             fontSize="sm"
+            borderColor="cyan.100"
+            _focus={{ borderColor: "var(--teal, #0891B2)", boxShadow: "0 0 0 3px rgba(8,145,178,0.1)" }}
           />
         </Field.Root>
 
         <Field.Root>
-          <Field.Label fontSize="xs" color="gray.600" mb={1}>
+          <Field.Label fontSize="xs" color="var(--teal-dark, #0E7490)" mb={1}>
             役割
           </Field.Label>
           <NativeSelect.Root>
@@ -91,13 +93,15 @@ export default function InviteForm({ orgName, inviterName, onInvited }) {
         </Field.Root>
 
         <Button
-          bg="blue.500"
+          style={{ background: "linear-gradient(135deg, #0891B2 0%, #0E7490 100%)" }}
           color="white"
           fontWeight="bold"
           borderRadius="lg"
           onClick={handleInvite}
           disabled={loading || !email}
-          _hover={{ bg: "blue.600" }}
+          boxShadow="0 4px 14px rgba(8,145,178,0.28)"
+          _hover={{ transform: "translateY(-1px)", boxShadow: "0 6px 18px rgba(8,145,178,0.36)" }}
+          transition="all 0.2s"
         >
           {loading ? <Spinner size="sm" /> : <Icon.LuMail size={16} />}
           &nbsp;招待メールを送信

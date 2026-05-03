@@ -26,16 +26,16 @@ export default function AccountForm({ user }) {
         bg="white"
         borderRadius="xl"
         p={{ base: 6, md: 8 }}
-        boxShadow="lg"
+        boxShadow="var(--shadow-sm)"
         border="1px solid"
-        borderColor="gray.200"
+        borderColor="cyan.100"
       >
         <Flex justify="space-between" align="center" mb={8}>
           <Heading
             as="h1"
             fontSize={{ base: "xl", md: "2xl" }}
             fontWeight="bold"
-            color="gray.800"
+            color="var(--teal-deeper, #155E75)"
           >
             マイページ
           </Heading>
@@ -43,14 +43,14 @@ export default function AccountForm({ user }) {
             <Button
               size="sm"
               variant="outline"
-              borderColor="gray.300"
-              color="gray.700"
+              borderColor="cyan.100"
+              color="var(--teal, #0891B2)"
               fontWeight="semibold"
               borderRadius="lg"
               gap={2}
               _hover={{
-                bg: "gray.50",
-                borderColor: "gray.400",
+                bg: "var(--teal-pale, #CFFAFE)",
+                borderColor: "cyan.300",
               }}
             >
               <Icon.LuHistory size={16} />
@@ -66,7 +66,7 @@ export default function AccountForm({ user }) {
               fontSize="sm"
               fontWeight="semibold"
               mb={2}
-              color="gray.700"
+              color="var(--text-main, #1E3A5F)"
             >
               メールアドレス
             </Field.Label>
@@ -75,11 +75,11 @@ export default function AccountForm({ user }) {
               type="text"
               value={user?.email || ""}
               disabled
-              bg="gray.50"
-              color="gray.500"
+              bg="var(--app-bg, #F0F9FF)"
+              color="var(--text-muted, #64748B)"
               cursor="not-allowed"
               border="1px solid"
-              borderColor="gray.200"
+              borderColor="cyan.100"
               borderRadius="lg"
               py={3}
               px={4}
@@ -94,7 +94,7 @@ export default function AccountForm({ user }) {
               fontSize="sm"
               fontWeight="semibold"
               mb={2}
-              color="gray.700"
+              color="var(--text-main, #1E3A5F)"
             >
               氏名
             </Field.Label>
@@ -104,7 +104,7 @@ export default function AccountForm({ user }) {
               value={fullname || ""}
               onChange={(e) => setFullname(e.target.value)}
               border="1px solid"
-              borderColor="gray.200"
+              borderColor="cyan.100"
               borderRadius="lg"
               py={3}
               px={4}
@@ -112,8 +112,8 @@ export default function AccountForm({ user }) {
               transition="all 0.2s"
               _focus={{
                 outline: "none",
-                borderColor: "blue.500",
-                boxShadow: "0 0 0 3px rgba(49, 130, 206, 0.1)",
+                borderColor: "var(--teal, #0891B2)",
+                boxShadow: "0 0 0 3px rgba(8, 145, 178, 0.1)",
               }}
             />
           </Field.Root>
@@ -124,7 +124,7 @@ export default function AccountForm({ user }) {
               fontSize="sm"
               fontWeight="semibold"
               mb={2}
-              color="gray.700"
+              color="var(--text-main, #1E3A5F)"
             >
               ユーザー名
             </Field.Label>
@@ -134,7 +134,7 @@ export default function AccountForm({ user }) {
               value={username || ""}
               onChange={(e) => setUsername(e.target.value)}
               border="1px solid"
-              borderColor="gray.200"
+              borderColor="cyan.100"
               borderRadius="lg"
               py={3}
               px={4}
@@ -142,8 +142,8 @@ export default function AccountForm({ user }) {
               transition="all 0.2s"
               _focus={{
                 outline: "none",
-                borderColor: "blue.500",
-                boxShadow: "0 0 0 3px rgba(49, 130, 206, 0.1)",
+                borderColor: "var(--teal, #0891B2)",
+                boxShadow: "0 0 0 3px rgba(8, 145, 178, 0.1)",
               }}
             />
           </Field.Root>
@@ -154,7 +154,7 @@ export default function AccountForm({ user }) {
               fontSize="sm"
               fontWeight="semibold"
               mb={2}
-              color="gray.700"
+              color="var(--text-main, #1E3A5F)"
             >
               役割
             </Field.Label>
@@ -169,11 +169,11 @@ export default function AccountForm({ user }) {
                   : "閲覧者"
               }
               disabled
-              bg="gray.50"
-              color="gray.500"
+              bg="var(--app-bg, #F0F9FF)"
+              color="var(--text-muted, #64748B)"
               cursor="not-allowed"
               border="1px solid"
-              borderColor="gray.200"
+              borderColor="cyan.100"
               borderRadius="lg"
               py={3}
               px={4}
@@ -188,7 +188,7 @@ export default function AccountForm({ user }) {
             px={6}
             fontSize="md"
             fontWeight="semibold"
-            bg="blue.500"
+            style={{ background: "linear-gradient(135deg, #0891B2 0%, #0E7490 100%)" }}
             color="white"
             border="none"
             borderRadius="lg"
@@ -196,17 +196,17 @@ export default function AccountForm({ user }) {
             transition="all 0.2s"
             onClick={handleUpdate}
             disabled={loading}
-            _hover={{ bg: "blue.600" }}
-            _active={{ bg: "blue.700" }}
+            boxShadow="0 4px 14px rgba(8,145,178,0.28)"
+            _hover={{ transform: "translateY(-1px)", boxShadow: "0 6px 18px rgba(8,145,178,0.36)" }}
             _disabled={{ opacity: 0.6, cursor: "not-allowed" }}
           >
             {loading ? "更新中..." : "更新"}
           </Button>
 
-          <Separator my={4} />
+          <Separator my={4} borderColor="var(--divider, #F1F5F9)" />
 
           <VStack align="stretch" gap={3}>
-            <Text fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>
+            <Text fontSize="sm" fontWeight="semibold" color="var(--text-muted, #64748B)" mb={2}>
               その他の操作
             </Text>
 
@@ -215,12 +215,12 @@ export default function AccountForm({ user }) {
                 p={4}
                 borderRadius="lg"
                 border="1px solid"
-                borderColor="gray.200"
+                borderColor="cyan.100"
                 cursor="pointer"
                 transition="all 0.2s"
                 _hover={{
-                  bg: "gray.50",
-                  borderColor: "blue.300",
+                  bg: "var(--teal-pale, #CFFAFE)",
+                  borderColor: "cyan.300",
                   transform: "translateX(2px)",
                 }}
               >
@@ -229,30 +229,30 @@ export default function AccountForm({ user }) {
                     <Flex
                       w="40px"
                       h="40px"
-                      bg="blue.50"
+                      bg="var(--teal-pale, #CFFAFE)"
                       borderRadius="lg"
                       align="center"
                       justify="center"
-                      color="blue.600"
+                      color="var(--teal, #0891B2)"
                     >
                       <Icon.LuHistory size={20} />
                     </Flex>
                     <Box>
-                      <Text fontSize="sm" fontWeight="semibold" color="gray.800">
+                      <Text fontSize="sm" fontWeight="semibold" color="var(--text-main, #1E3A5F)">
                         アクションログ
                       </Text>
-                      <Text fontSize="xs" color="gray.500">
+                      <Text fontSize="xs" color="var(--text-muted, #64748B)">
                         操作履歴を確認できます
                       </Text>
                     </Box>
                   </HStack>
-                  <Icon.LuChevronRight color="#9CA3AF" />
+                  <Icon.LuChevronRight color="var(--text-faint, #94A3B8)" />
                 </HStack>
               </Box>
             </Link>
           </VStack>
 
-          <Separator my={2} />
+          <Separator my={2} borderColor="var(--divider, #F1F5F9)" />
 
           <form action="/api/auth/logout" method="post">
             <Button
@@ -265,7 +265,7 @@ export default function AccountForm({ user }) {
               bg="white"
               color="red.500"
               border="2px solid"
-              borderColor="red.500"
+              borderColor="red.400"
               borderRadius="lg"
               cursor="pointer"
               transition="all 0.2s"

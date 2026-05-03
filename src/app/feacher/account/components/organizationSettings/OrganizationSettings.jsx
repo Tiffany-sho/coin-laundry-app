@@ -81,7 +81,7 @@ export default function OrganizationSettings({ currentUserId, currentUsername })
   if (loading) {
     return (
       <Flex justify="center" py={8}>
-        <Spinner color="blue.500" />
+        <Spinner color="var(--teal, #0891B2)" />
       </Flex>
     );
   }
@@ -101,11 +101,11 @@ export default function OrganizationSettings({ currentUserId, currentUsername })
       {/* 組織名 */}
       <Box>
         <HStack justify="space-between" mb={3}>
-          <Heading as="h3" fontSize="md" color="gray.700">
+          <Heading as="h3" fontSize="md" color="var(--teal-deeper, #155E75)">
             組織情報
           </Heading>
         </HStack>
-        <Box p={4} bg="gray.50" borderRadius="lg" border="1px solid" borderColor="gray.200">
+        <Box p={4} bg="var(--teal-pale, #CFFAFE)" borderRadius="lg" border="1px solid" borderColor="cyan.100">
           {editingName ? (
             <HStack>
               <Input
@@ -114,10 +114,12 @@ export default function OrganizationSettings({ currentUserId, currentUsername })
                 fontSize="sm"
                 bg="white"
                 borderRadius="lg"
+                borderColor="cyan.100"
+                _focus={{ borderColor: "var(--teal, #0891B2)", boxShadow: "0 0 0 3px rgba(8,145,178,0.1)" }}
               />
               <Button
                 size="sm"
-                bg="blue.500"
+                style={{ background: "linear-gradient(135deg, #0891B2 0%, #0E7490 100%)" }}
                 color="white"
                 onClick={handleSaveName}
                 disabled={savingName}
@@ -130,13 +132,13 @@ export default function OrganizationSettings({ currentUserId, currentUsername })
             </HStack>
           ) : (
             <HStack justify="space-between">
-              <Text fontWeight="semibold" color="gray.800">
+              <Text fontWeight="semibold" color="var(--teal-deeper, #155E75)">
                 {org.name}
               </Text>
               <Button
                 size="xs"
                 variant="ghost"
-                color="gray.500"
+                color="var(--teal, #0891B2)"
                 onClick={() => setEditingName(true)}
               >
                 <Icon.LuPencil size={14} />
@@ -147,12 +149,12 @@ export default function OrganizationSettings({ currentUserId, currentUsername })
         </Box>
       </Box>
 
-      <Separator />
+      <Separator borderColor="var(--divider, #F1F5F9)" />
 
       {/* メンバー一覧 */}
       <Box>
         <HStack justify="space-between" mb={3}>
-          <Heading as="h3" fontSize="md" color="gray.700">
+          <Heading as="h3" fontSize="md" color="var(--teal-deeper, #155E75)">
             メンバー（{members.length}名）
           </Heading>
         </HStack>
@@ -163,7 +165,7 @@ export default function OrganizationSettings({ currentUserId, currentUsername })
         />
       </Box>
 
-      <Separator />
+      <Separator borderColor="var(--divider, #F1F5F9)" />
 
       {/* 招待フォーム */}
       <InviteForm
@@ -175,9 +177,9 @@ export default function OrganizationSettings({ currentUserId, currentUsername })
       {/* 保留中の招待 */}
       {invitations.length > 0 && (
         <>
-          <Separator />
+          <Separator borderColor="var(--divider, #F1F5F9)" />
           <Box>
-            <Heading as="h3" fontSize="md" color="gray.700" mb={3}>
+            <Heading as="h3" fontSize="md" color="var(--teal-deeper, #155E75)" mb={3}>
               保留中の招待
             </Heading>
             <VStack align="stretch" gap={2}>
@@ -192,14 +194,14 @@ export default function OrganizationSettings({ currentUserId, currentUsername })
                 >
                   <HStack justify="space-between">
                     <VStack align="start" gap={0}>
-                      <Text fontSize="sm" fontWeight="medium" color="gray.800">
+                      <Text fontSize="sm" fontWeight="medium" color="var(--text-main, #1E3A5F)">
                         {inv.email}
                       </Text>
                       <HStack gap={2}>
                         <Badge fontSize="2xs" colorPalette="yellow" variant="subtle">
                           {inv.role === "collecter" ? "集金担当者" : "閲覧者"}
                         </Badge>
-                        <Text fontSize="2xs" color="gray.400">
+                        <Text fontSize="2xs" color="var(--text-faint, #94A3B8)">
                           {new Date(inv.expires_at).toLocaleDateString("ja-JP")} 期限
                         </Text>
                       </HStack>

@@ -20,9 +20,9 @@ import {
 import { showToast } from "@/functions/makeToast/toast";
 
 const ROLE_INFO = {
-  owner:     { label: "店舗管理者", color: "purple" },
-  collecter: { label: "集金担当者", color: "blue" },
-  viewer:    { label: "閲覧者",     color: "gray" },
+  owner:     { label: "店舗管理者", bg: "var(--teal-pale, #CFFAFE)", color: "var(--teal-deeper, #155E75)" },
+  collecter: { label: "集金担当者", bg: "cyan.100",                   color: "var(--teal-deeper, #155E75)" },
+  viewer:    { label: "閲覧者",     bg: "gray.100",                   color: "gray.700" },
 };
 
 export default function MemberList({ members, currentUserId, onChanged }) {
@@ -69,34 +69,34 @@ export default function MemberList({ members, currentUserId, onChanged }) {
             bg="white"
             borderRadius="lg"
             border="1px solid"
-            borderColor="gray.200"
+            borderColor="cyan.100"
           >
             <HStack justify="space-between" align="center">
               <HStack gap={3}>
                 <Flex
                   w="36px"
                   h="36px"
-                  bg="blue.50"
+                  bg="var(--teal-pale, #CFFAFE)"
                   borderRadius="full"
                   align="center"
                   justify="center"
-                  color="blue.500"
+                  color="var(--teal, #0891B2)"
                   flexShrink={0}
                 >
                   <Icon.LuUser size={16} />
                 </Flex>
                 <Box>
                   <HStack gap={2}>
-                    <Text fontSize="sm" fontWeight="semibold" color="gray.800">
+                    <Text fontSize="sm" fontWeight="semibold" color="var(--text-main, #1E3A5F)">
                       {profile?.username || profile?.full_name || "ユーザー"}
                     </Text>
                     {isMe && (
-                      <Badge fontSize="2xs" colorPalette="green" variant="subtle">
+                      <Badge fontSize="2xs" colorPalette="cyan" variant="subtle">
                         あなた
                       </Badge>
                     )}
                   </HStack>
-                  <Text fontSize="xs" color="gray.500">
+                  <Text fontSize="xs" color="var(--text-muted, #64748B)">
                     {profile?.full_name || ""}
                   </Text>
                 </Box>
@@ -105,8 +105,8 @@ export default function MemberList({ members, currentUserId, onChanged }) {
               <HStack gap={2}>
                 {isOwner || isMe ? (
                   <Badge
-                    bg={`${roleInfo.color}.100`}
-                    color={`${roleInfo.color}.800`}
+                    bg={roleInfo.bg}
+                    color={roleInfo.color}
                     px={2}
                     py={0.5}
                     borderRadius="full"

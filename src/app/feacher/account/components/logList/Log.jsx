@@ -16,23 +16,22 @@ const Log = async ({ id }) => {
     <Box
       bg="white"
       borderRadius="xl"
-      boxShadow="md"
+      boxShadow="var(--shadow-sm)"
       overflow="hidden"
       border="1px solid"
-      borderColor="gray.200"
+      borderColor="cyan.100"
     >
       <Box
-        bg="gray.700"
+        style={{ background: "linear-gradient(135deg, #0E7490 0%, #0891B2 55%, #06B6D4 100%)" }}
         color="white"
         p={4}
-        borderBottom="1px solid"
-        borderColor="gray.600"
+        borderBottom="1px solid rgba(8,145,178,0.2)"
       >
         <HStack gap={3}>
           <Flex
             w="40px"
             h="40px"
-            bg="gray.600"
+            bg="whiteAlpha.200"
             borderRadius="lg"
             align="center"
             justify="center"
@@ -43,7 +42,7 @@ const Log = async ({ id }) => {
             <Text fontSize="lg" fontWeight="bold">
               アクションログ
             </Text>
-            <Text fontSize="xs" color="gray.300">
+            <Text fontSize="xs" color="whiteAlpha.800">
               {data.length}件の履歴
             </Text>
           </Box>
@@ -52,12 +51,12 @@ const Log = async ({ id }) => {
 
       <Box overflowX="auto">
         <Table.Root size="sm" variant="line">
-          <Table.Header bg="gray.50">
+          <Table.Header bg="var(--teal-pale, #CFFAFE)">
             <Table.Row>
               <Table.ColumnHeader
                 fontSize="xs"
                 fontWeight="bold"
-                color="gray.600"
+                color="var(--teal-deeper, #155E75)"
                 textTransform="uppercase"
                 py={3}
                 px={4}
@@ -70,7 +69,7 @@ const Log = async ({ id }) => {
               <Table.ColumnHeader
                 fontSize="xs"
                 fontWeight="bold"
-                color="gray.600"
+                color="var(--teal-deeper, #155E75)"
                 textTransform="uppercase"
                 py={3}
                 px={4}
@@ -83,7 +82,7 @@ const Log = async ({ id }) => {
               <Table.ColumnHeader
                 fontSize="xs"
                 fontWeight="bold"
-                color="gray.600"
+                color="var(--teal-deeper, #155E75)"
                 textTransform="uppercase"
                 textAlign="end"
                 py={3}
@@ -108,22 +107,20 @@ const Log = async ({ id }) => {
                 <Table.Row
                   key={item.id}
                   transition="all 0.2s"
-                  _hover={{
-                    bg: "blue.50",
-                  }}
-                  bg={index % 2 === 0 ? "white" : "gray.50"}
+                  _hover={{ bg: "cyan.50" }}
+                  bg={index % 2 === 0 ? "white" : "var(--app-bg, #F0F9FF)"}
                 >
                   <Table.Cell py={4} px={4}>
                     <HStack gap={2}>
-                      <Box w="8px" h="8px" bg="blue.500" borderRadius="full" />
-                      <Text fontSize="sm" color="gray.700" fontWeight="medium">
+                      <Box w="8px" h="8px" bg="var(--teal, #0891B2)" borderRadius="full" />
+                      <Text fontSize="sm" color="var(--text-main, #1E3A5F)" fontWeight="medium">
                         {createNowData(item.date)}
                       </Text>
                     </HStack>
                   </Table.Cell>
 
                   <Table.Cell py={4} px={4}>
-                    <Text fontSize="sm" color="gray.800" lineHeight="1.5">
+                    <Text fontSize="sm" color="var(--text-main, #1E3A5F)" lineHeight="1.5">
                       {item.message}
                     </Text>
                   </Table.Cell>
@@ -131,8 +128,8 @@ const Log = async ({ id }) => {
                   <Table.Cell textAlign="end" py={4} px={4}>
                     {item.user === user.id ? (
                       <Badge
-                        bg="blue.100"
-                        color="blue.800"
+                        bg="cyan.100"
+                        color="var(--teal-deeper, #155E75)"
                         px={3}
                         py={1}
                         borderRadius="full"
@@ -171,15 +168,15 @@ const Log = async ({ id }) => {
       </Box>
 
       {data.length > 0 && (
-        <Box bg="gray.50" p={3} borderTop="1px solid" borderColor="gray.200">
+        <Box bg="var(--teal-pale, #CFFAFE)" p={3} borderTop="1px solid" borderColor="cyan.100">
           <Flex justify="space-between" align="center">
-            <Text fontSize="xs" color="gray.500">
+            <Text fontSize="xs" color="var(--teal-dark, #0E7490)">
               最新のアクションが上に表示されます
             </Text>
             <HStack gap={4}>
               <HStack gap={1}>
-                <Box w="8px" h="8px" bg="blue.500" borderRadius="full" />
-                <Text fontSize="xs" color="gray.600">
+                <Box w="8px" h="8px" bg="var(--teal, #0891B2)" borderRadius="full" />
+                <Text fontSize="xs" color="var(--teal-deeper, #155E75)">
                   アクティブ
                 </Text>
               </HStack>

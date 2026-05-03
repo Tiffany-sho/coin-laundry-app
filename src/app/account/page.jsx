@@ -19,16 +19,16 @@ export default async function Account() {
           bg="white"
           borderRadius="xl"
           p={{ base: 6, md: 8 }}
-          boxShadow="lg"
+          boxShadow="var(--shadow-sm)"
           border="1px solid"
-          borderColor="gray.200"
+          borderColor="cyan.100"
           mt={6}
         >
           <Heading
             as="h2"
             fontSize={{ base: "lg", md: "xl" }}
             fontWeight="bold"
-            color="gray.800"
+            color="var(--teal-deeper, #155E75)"
             mb={6}
           >
             組織管理
