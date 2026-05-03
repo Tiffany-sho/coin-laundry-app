@@ -22,10 +22,31 @@ const MONTH_BG = {
   12: "blue.600",
 };
 
+const MONTH_GRADIENT = {
+  1:  "linear-gradient(140deg, #1e3a5f 0%, #2563eb 55%, #3b82f6 100%)",
+  2:  "linear-gradient(140deg, #6b21a8 0%, #9333ea 55%, #c084fc 100%)",
+  3:  "linear-gradient(140deg, #be185d 0%, #ec4899 55%, #f9a8d4 100%)",
+  4:  "linear-gradient(140deg, #be123c 0%, #f43f5e 55%, #fb7185 100%)",
+  5:  "linear-gradient(140deg, #15803d 0%, #22c55e 55%, #4ade80 100%)",
+  6:  "linear-gradient(140deg, #0f766e 0%, #14b8a6 55%, #5eead4 100%)",
+  7:  "linear-gradient(140deg, #0e7490 0%, #0891b2 55%, #22d3ee 100%)",
+  8:  "linear-gradient(140deg, #c2410c 0%, #ea580c 55%, #fb923c 100%)",
+  9:  "linear-gradient(140deg, #b45309 0%, #d97706 55%, #fbbf24 100%)",
+  10: "linear-gradient(140deg, #9a3412 0%, #c2410c 55%, #ea580c 100%)",
+  11: "linear-gradient(140deg, #7f1d1d 0%, #b91c1c 55%, #ef4444 100%)",
+  12: "linear-gradient(140deg, #1e3a8a 0%, #2563eb 55%, #60a5fa 100%)",
+};
+
 const getMonthBg = (monthOffset) => {
   const now = new Date();
   const month = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1).getMonth() + 1;
   return MONTH_BG[month];
+};
+
+const getMonthGradient = (monthOffset) => {
+  const now = new Date();
+  const month = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1).getMonth() + 1;
+  return MONTH_GRADIENT[month];
 };
 
 const getMonthLabel = (offset) => {
@@ -110,11 +131,10 @@ const FuturePlaceholder = () => (
 const ActiveCard = ({ monthOffset, data, error, isPending, navigate }) => {
   const isCurrentMonth = monthOffset === 0;
   const monthLabel = getMonthLabel(monthOffset);
-  const monthBg = getMonthBg(monthOffset);
 
   return (
     <Box
-      style={{ background: "linear-gradient(140deg, #0E7490 0%, #0891B2 55%, #06B6D4 100%)" }}
+      style={{ background: getMonthGradient(monthOffset) }}
       transition="background 0.4s"
       p={{ base: 4, md: 6 }}
       borderRadius="xl"
