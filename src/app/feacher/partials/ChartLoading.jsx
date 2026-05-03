@@ -144,12 +144,12 @@ const ChartLoading = () => {
         </Flex>
 
         {/* X軸ラベル */}
-        <Flex gap={4} justify="space-around" px={12}>
+        <Flex gap={2} px={2}>
           {[...Array(7)].map((_, i) => (
             <Skeleton
               key={`x-${i}`}
               height="12px"
-              width="40px"
+              flex="1"
               borderRadius="md"
               startColor="gray.100"
               endColor="gray.200"
