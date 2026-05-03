@@ -125,9 +125,10 @@ const CheckDialog = ({
           color="white"
           size="lg"
           fontWeight="semibold"
-          _hover={{
-            bg: "gray.600",
-          }}
+          style={{ background: "linear-gradient(135deg, #0891B2 0%, #0E7490 100%)" }}
+          boxShadow="0 4px 14px rgba(8,145,178,0.28)"
+          _hover={{ transform: "translateY(-1px)", boxShadow: "0 6px 18px rgba(8,145,178,0.36)" }}
+          transition="all 0.2s"
         >
           登録確認
         </Button>
@@ -137,56 +138,66 @@ const CheckDialog = ({
         <Dialog.Positioner>
           <Dialog.Content
             bg="white"
-            borderRadius="2xl"
-            boxShadow="2xl"
+            borderRadius="20px"
+            boxShadow="0 12px 40px rgba(14,116,144,0.18)"
             maxW="600px"
             mx={4}
             overflow="hidden"
           >
-            <Dialog.Header bg="gray.800" color="white" py={5} px={6}>
-              <Dialog.Title fontSize="xl" fontWeight="bold">
-                集金情報データの確認
-              </Dialog.Title>
+            <Dialog.Header
+              style={{ background: "linear-gradient(135deg, #0891B2 0%, #0E7490 100%)" }}
+              color="white"
+              py={5}
+              px={6}
+            >
+              <HStack gap={3}>
+                <Box color="white">
+                  <Icon.RiMoneyCnyCircleLine size={20} />
+                </Box>
+                <Dialog.Title fontSize="xl" fontWeight="bold">
+                  集金情報データの確認
+                </Dialog.Title>
+              </HStack>
             </Dialog.Header>
 
             <Dialog.Body py={6} px={6}>
               <Stack gap={6}>
                 <Box>
                   <HStack mb={2}>
-                    <Icon.LiaStoreSolid size={24} />
-                    <Text fontSize="sm" fontWeight="semibold" color="gray.600">
+                    <Icon.LiaStoreSolid size={24} color="var(--teal, #0891B2)" />
+                    <Text fontSize="sm" fontWeight="semibold" color="var(--text-muted, #64748B)">
                       店舗
                     </Text>
                   </HStack>
 
                   <Box
                     p={3}
-                    bg="blue.50"
+                    bg="var(--teal-pale, #CFFAFE)"
                     borderRadius="lg"
                     borderWidth="1px"
-                    borderColor="blue.200"
+                    borderColor="cyan.200"
                   >
-                    <Text fontSize="lg" fontWeight="bold">
+                    <Text fontSize="lg" fontWeight="bold" color="var(--text-main, #1E3A5F)">
                       {coinLaundry.store}
                     </Text>
                   </Box>
                 </Box>
                 <Box>
                   <HStack mb={2}>
-                    <Icon.LuCalendar size={24} />
-                    <Text fontSize="sm" fontWeight="semibold" color="gray.600">
+                    <Icon.LuCalendar size={24} color="var(--teal, #0891B2)" />
+                    <Text fontSize="sm" fontWeight="semibold" color="var(--text-muted, #64748B)">
                       日付
                     </Text>
                   </HStack>
 
                   <Box
                     p={3}
-                    bg="blue.50"
+                    bg="var(--teal-pale, #CFFAFE)"
                     borderRadius="lg"
                     borderWidth="1px"
-                    borderColor="blue.200"
+                    borderColor="cyan.200"
                   >
-                    <Text fontSize="lg" fontWeight="bold">
+                    <Text fontSize="lg" fontWeight="bold" color="var(--text-main, #1E3A5F)">
                       {createNowData(epoc)}
                     </Text>
                   </Box>
@@ -196,8 +207,8 @@ const CheckDialog = ({
 
                 <Box>
                   <HStack mb={3}>
-                    <Icon.RiMoneyCnyCircleLine size={24} />
-                    <Text fontSize="sm" fontWeight="semibold" color="gray.600">
+                    <Icon.RiMoneyCnyCircleLine size={24} color="var(--teal, #0891B2)" />
+                    <Text fontSize="sm" fontWeight="semibold" color="var(--text-muted, #64748B)">
                       集金データ
                     </Text>
                   </HStack>
@@ -210,15 +221,15 @@ const CheckDialog = ({
                           justify="space-between"
                           align="center"
                           p={3}
-                          bg="gray.50"
+                          bg="var(--app-bg, #F0F9FF)"
                           borderRadius="md"
                           borderWidth="1px"
-                          borderColor="gray.200"
+                          borderColor="var(--divider, #F1F5F9)"
                         >
                           <Text
                             fontSize="md"
                             fontWeight="medium"
-                            color="gray.700"
+                            color="var(--text-main, #1E3A5F)"
                           >
                             {item.machine.name}
                           </Text>
@@ -226,14 +237,14 @@ const CheckDialog = ({
                             <Text
                               fontSize="lg"
                               fontWeight="bold"
-                              color="gray.800"
+                              color="var(--text-main, #1E3A5F)"
                             >
                               {item.funds || 0}
                             </Text>
-                            <Text fontSize="sm" color="gray.600">
+                            <Text fontSize="sm" color="var(--text-muted, #64748B)">
                               枚
                             </Text>
-                            <Text fontSize="sm" color="gray.500" ml={2}>
+                            <Text fontSize="sm" color="var(--text-faint, #94A3B8)" ml={2}>
                               (¥{((item.funds || 0) * 100).toLocaleString()})
                             </Text>
                           </Flex>
@@ -242,16 +253,16 @@ const CheckDialog = ({
                     ) : (
                       <Box
                         p={4}
-                        bg="blue.50"
+                        bg="var(--teal-pale, #CFFAFE)"
                         borderRadius="lg"
                         borderWidth="2px"
-                        borderColor="blue.200"
+                        borderColor="cyan.200"
                       >
                         <Flex justify="space-between" align="center">
-                          <Text fontSize="md" fontWeight="semibold">
+                          <Text fontSize="md" fontWeight="semibold" color="var(--text-main, #1E3A5F)">
                             合計金額
                           </Text>
-                          <Text fontSize="2xl" fontWeight="bold">
+                          <Text fontSize="2xl" fontWeight="bold" color="var(--teal-deeper, #155E75)">
                             ¥{parseInt(moneyTotal || 0).toLocaleString()}
                           </Text>
                         </Flex>
@@ -260,12 +271,12 @@ const CheckDialog = ({
                   </Stack>
 
                   {checked && (
-                    <Box mt={3} p={4} borderRadius="lg" bg="blue.50">
+                    <Box mt={3} p={4} borderRadius="lg" bg="var(--teal-pale, #CFFAFE)">
                       <Flex justify="space-between" align="center">
-                        <Text fontSize="md" fontWeight="bold">
+                        <Text fontSize="md" fontWeight="bold" color="var(--text-main, #1E3A5F)">
                           総合計
                         </Text>
-                        <Text fontSize="2xl" fontWeight="bold">
+                        <Text fontSize="2xl" fontWeight="bold" color="var(--teal-deeper, #155E75)">
                           ¥
                           {(
                             machinesAndFunds.reduce(
@@ -284,9 +295,9 @@ const CheckDialog = ({
             <Dialog.Footer
               py={4}
               px={6}
-              bg="gray.50"
+              bg="var(--app-bg, #F0F9FF)"
               borderTop="1px"
-              borderColor="gray.200"
+              borderColor="var(--divider, #F1F5F9)"
             >
               <Flex gap={3} justify="flex-end" w="full">
                 <Dialog.ActionTrigger asChild>
@@ -294,15 +305,15 @@ const CheckDialog = ({
                     variant="outline"
                     size="lg"
                     bg="white"
-                    color="gray.700"
+                    color="var(--text-muted, #64748B)"
                     borderWidth="2px"
-                    borderColor="gray.300"
+                    borderColor="var(--divider, #F1F5F9)"
                     fontWeight="semibold"
                     px={6}
                     disabled={isLoading}
                     _hover={{
-                      bg: "gray.100",
-                      borderColor: "gray.400",
+                      bg: "var(--app-bg, #F0F9FF)",
+                      borderColor: "cyan.200",
                     }}
                   >
                     キャンセル
@@ -315,13 +326,14 @@ const CheckDialog = ({
                   fontWeight="semibold"
                   px={8}
                   disabled={isLoading}
-                  _hover={{
-                    bg: "gray.700",
-                  }}
+                  style={{ background: "linear-gradient(135deg, #0891B2 0%, #0E7490 100%)" }}
+                  boxShadow="0 4px 14px rgba(8,145,178,0.28)"
+                  _hover={{ transform: "translateY(-1px)", boxShadow: "0 6px 18px rgba(8,145,178,0.36)" }}
                   _disabled={{
                     opacity: 0.6,
                     cursor: "not-allowed",
                   }}
+                  transition="all 0.2s"
                 >
                   {isLoading && <Spinner size="sm" mr={2} />}
                   登録

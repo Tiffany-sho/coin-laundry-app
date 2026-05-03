@@ -50,7 +50,7 @@ const CollectMoneyForm = ({ coinLaundry }) => {
   };
 
   return (
-    <VStack spacing={0} minH="100vh" bg="gray.50">
+    <VStack spacing={0} minH="100vh" bg="var(--app-bg, #F0F9FF)">
       <CollectMoneyHeader storeName={coinLaundry.store} />
 
       <Box
@@ -78,7 +78,7 @@ const CollectMoneyForm = ({ coinLaundry }) => {
             _hover={{ shadow: "lg", transform: "translateY(-2px)" }}
           >
             <Card.Body p={{ base: 5, md: 6 }}>
-              <HStack mb={4} color="teal.600">
+              <HStack mb={4} color="var(--teal, #0891B2)">
                 <Icon.LuCalendar size={22} />
                 <Text fontSize="md" fontWeight="semibold">
                   集金日
@@ -112,7 +112,7 @@ const CollectMoneyForm = ({ coinLaundry }) => {
                 overflow="hidden"
               >
                 <Card.Body p={{ base: 5, md: 6 }}>
-                  <HStack mb={4} color="teal.600">
+                  <HStack mb={4} color="var(--teal, #0891B2)">
                     <Icon.RiMoneyCnyCircleLine size={22} />
                     <Text fontSize="md" fontWeight="semibold">
                       合計金額

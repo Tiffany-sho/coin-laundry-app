@@ -30,20 +30,20 @@ const CollectMoneyFooter = ({
       bottom="0"
       zIndex="1400"
       borderTopWidth="1px"
-      borderTopColor="gray.200"
+      borderTopColor="var(--divider, #F1F5F9)"
       shadow="lg"
       gap={{ base: 3, md: 4 }}
       justify="space-between"
       flexWrap={{ base: "wrap", sm: "nowrap" }}
     >
       <Box minW={{ base: "full", sm: "150px" }}>
-        <Text fontSize="xs" fontWeight="medium" color="gray.600" mb={1}>
+        <Text fontSize="xs" fontWeight="medium" color="var(--text-muted, #64748B)" mb={1}>
           合計収益額
         </Text>
         <Text
           fontSize={{ base: "xl", md: "2xl" }}
           fontWeight="bold"
-          color="blue.500"
+          color="var(--teal, #0891B2)"
         >
           ¥{total.toLocaleString()}
         </Text>
@@ -61,16 +61,16 @@ const CollectMoneyFooter = ({
             variant="outline"
             size="lg"
             bg="white"
-            color="gray.700"
+            color="var(--text-muted, #64748B)"
             fontWeight="semibold"
             px={{ base: 6, md: 8 }}
             borderWidth="2px"
-            borderColor="gray.300"
+            borderColor="var(--divider, #F1F5F9)"
             borderRadius="xl"
             flex={{ base: 1, sm: "unset" }}
             _hover={{
-              bg: "gray.50",
-              borderColor: "gray.400",
+              bg: "var(--app-bg, #F0F9FF)",
+              borderColor: "cyan.200",
               transform: "translateY(-1px)",
             }}
             _active={{ transform: "translateY(0)" }}

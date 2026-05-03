@@ -31,12 +31,12 @@ const CollectMethodCard = ({
         >
           <Box flex="1" minW="200px">
             <HStack mb={2}>
-              <Icon.RiMoneyCnyCircleLine size={22} color="teal.600" />
-              <Text fontSize="lg" fontWeight="bold" color="gray.800">
+              <Icon.RiMoneyCnyCircleLine size={22} color="var(--teal, #0891B2)" />
+              <Text fontSize="lg" fontWeight="bold" color="var(--text-main, #1E3A5F)">
                 {checked ? "機種別集金" : "まとめて集金"}
               </Text>
             </HStack>
-            <Text fontSize="sm" color="gray.600">
+            <Text fontSize="sm" color="var(--text-muted, #64748B)">
               {checked
                 ? "各機種ごとに金額を入力します"
                 : "合計金額のみを入力します"}
@@ -44,7 +44,7 @@ const CollectMethodCard = ({
           </Box>
 
           {loading ? (
-            <Spinner size="lg" color="blue.500" thickness="3px" />
+            <Spinner size="lg" color="cyan.500" thickness="3px" />
           ) : (
             <Switch.Root
               checked={checked}
@@ -53,8 +53,8 @@ const CollectMethodCard = ({
             >
               <Switch.HiddenInput />
               <Switch.Control
-                bg={checked ? "blue.500" : "gray.300"}
-                _hover={{ bg: checked ? "blue.600" : "gray.400" }}
+                bg={checked ? "var(--teal, #0891B2)" : "gray.300"}
+                _hover={{ bg: checked ? "var(--teal-dark, #0E7490)" : "gray.400" }}
                 transition="all 0.2s"
               >
                 <Switch.Thumb bg="white" shadow="md" />
@@ -63,7 +63,7 @@ const CollectMethodCard = ({
           )}
         </Flex>
 
-        <Box pt={5} mt={5} borderTop="1px" borderColor="gray.200">
+        <Box pt={5} mt={5} borderTop="1px" borderColor="var(--divider, #F1F5F9)">
           <FixSwitch toggleChangeFixed={onFixedChange} fixed={fixed} />
         </Box>
       </Card.Body>

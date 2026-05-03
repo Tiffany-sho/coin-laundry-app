@@ -12,14 +12,14 @@ const CollectMoneyHeader = ({ storeName }) => {
       top="0"
       zIndex="1400"
       borderBottomWidth="1px"
-      borderBottomColor="gray.200"
+      borderBottomColor="var(--divider, #F1F5F9)"
       shadow="sm"
     >
       <HStack justify="space-between" maxW="1200px" mx="auto">
         <Heading
           fontSize={{ base: "xl", md: "2xl" }}
           fontWeight="bold"
-          color="gray.800"
+          color="var(--text-main, #1E3A5F)"
         >
           {storeName}店
         </Heading>

@@ -11,11 +11,11 @@ const FixSwitch = ({ toggleChangeFixed, fixed }) => {
       <Checkbox.Control
         borderColor="gray.300"
         _checked={{
-          bg: "blue.500",
-          borderColor: "blue.500",
+          bg: "var(--teal, #0891B2)",
+          borderColor: "var(--teal, #0891B2)",
         }}
       />
-      <Checkbox.Label fontSize="sm" color="gray.600" fontWeight="medium">
+      <Checkbox.Label fontSize="sm" color="var(--text-muted, #64748B)" fontWeight="medium">
         この状態に固定
       </Checkbox.Label>
     </Checkbox.Root>

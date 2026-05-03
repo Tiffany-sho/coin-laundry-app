@@ -7,38 +7,29 @@ import AddBtn from "./AddBtn";
 import SearchBox from "../SearchBox";
 
 const EmptyStoresState = () => (
-  <Box bg="white" p={12} borderRadius="16px" textAlign="center" boxShadow="md">
-    <Heading size="lg" color="gray.500" fontWeight="medium" mb={2}>
+  <Box bg="white" p={12} borderRadius="18px" textAlign="center" boxShadow="var(--shadow-sm)">
+    <Heading size="lg" color="var(--text-muted, #64748B)" fontWeight="medium" mb={2}>
       店舗がありません
     </Heading>
-    <Text color="gray.400" fontSize="sm">
+    <Text color="var(--text-faint, #94A3B8)" fontSize="sm">
       右下のボタンから新しい店舗を追加できます
     </Text>
   </Box>
 );
 
 const NoResultsState = ({ query }) => (
-  <Box bg="white" p={12} borderRadius="16px" textAlign="center" boxShadow="md">
-    <Heading size="lg" color="gray.500" fontWeight="medium" mb={2}>
+  <Box bg="white" p={12} borderRadius="18px" textAlign="center" boxShadow="var(--shadow-sm)">
+    <Heading size="lg" color="var(--text-muted, #64748B)" fontWeight="medium" mb={2}>
       「{query}」に一致する店舗がありません
     </Heading>
-    <Text color="gray.400" fontSize="sm">
+    <Text color="var(--text-faint, #94A3B8)" fontSize="sm">
       別のキーワードで検索してみてください
     </Text>
   </Box>
 );
 
-const CoinLaundryClientPage = ({ stores, allBenefits, myRole }) => {
+const CoinLaundryClientPage = ({ stores, myRole }) => {
   const [searchQuery, setSearchQuery] = useState("");
-
-  const benefitMap = useMemo(() => {
-    const map = {};
-    allBenefits?.forEach((record) => {
-      if (!map[record.laundryId]) map[record.laundryId] = [];
-      map[record.laundryId].push(record);
-    });
-    return map;
-  }, [allBenefits]);
 
   const filteredStores = useMemo(() => {
     if (!searchQuery.trim()) return stores;
@@ -69,7 +60,7 @@ const CoinLaundryClientPage = ({ stores, allBenefits, myRole }) => {
               gap={4}
             >
               <Box>
-                <Text color="gray.600" fontSize={{ base: "sm", md: "md" }}>
+                <Text color="var(--text-muted, #64748B)" fontSize={{ base: "sm", md: "md" }}>
                   {countText}
                 </Text>
               </Box>
@@ -99,7 +90,6 @@ const CoinLaundryClientPage = ({ stores, allBenefits, myRole }) => {
                   <CoinLaundryList
                     coinLaundry={item}
                     key={item.id}
-                    benefitRecords={benefitMap[item.id] ?? []}
                     myRole={myRole}
                   />
                 ))}

@@ -12,7 +12,12 @@ const MoneyTotal = ({ moneyTotal, setMoneyTotal }) => {
         <NumberInput.Control />
         <InputGroup
           startAddon={
-            <Box fontWeight="bold" fontSize="lg" color="gray.700" bg="gray.100">
+            <Box
+              fontWeight="bold"
+              fontSize="lg"
+              color="var(--teal-deeper, #155E75)"
+              bg="var(--teal-pale, #CFFAFE)"
+            >
               ¥
             </Box>
           }
@@ -23,25 +28,25 @@ const MoneyTotal = ({ moneyTotal, setMoneyTotal }) => {
             fontSize="16px"
             fontWeight="semibold"
             borderWidth="2px"
-            borderColor="gray.300"
+            borderColor="var(--divider, #F1F5F9)"
             _focus={{
-              borderColor: "blue.500",
-              boxShadow: "0 0 0 3px rgba(66, 153, 225, 0.15)",
+              borderColor: "var(--teal, #0891B2)",
+              boxShadow: "0 0 0 3px rgba(8, 145, 178, 0.15)",
               outline: "none",
             }}
             _hover={{
-              borderColor: "gray.400",
+              borderColor: "cyan.300",
             }}
           />
         </InputGroup>
       </NumberInput.Root>
 
       {moneyTotal && (
-        <Box mt={4} p={4} bg="blue.50" borderRadius="lg" textAlign="center">
-          <Box fontSize="sm" color="blue.600" fontWeight="medium" mb={1}>
+        <Box mt={4} p={4} bg="var(--teal-pale, #CFFAFE)" borderRadius="lg" textAlign="center">
+          <Box fontSize="sm" color="var(--teal, #0891B2)" fontWeight="medium" mb={1}>
             入力金額
           </Box>
-          <Box fontSize="2xl" fontWeight="bold" color="blue.700">
+          <Box fontSize="2xl" fontWeight="bold" color="var(--teal-deeper, #155E75)">
             ¥{parseInt(moneyTotal).toLocaleString()}
           </Box>
         </Box>

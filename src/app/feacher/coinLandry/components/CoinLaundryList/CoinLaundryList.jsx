@@ -1,10 +1,8 @@
-// CoinLaundryList.jsx
 import Link from "next/link";
-import { Button, Card, Flex, Image, Box, Grid } from "@chakra-ui/react";
-import DisplayMonthBenifit from "./DisplayMonthBenifit";
+import { Button, Card, Flex, Image, Box, Text, HStack } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
 
-const CoinLaundryList = ({ coinLaundry, benefitRecords, myRole }) => {
+const CoinLaundryList = ({ coinLaundry, myRole }) => {
   return (
     <Card.Root
       maxW="sm"
@@ -12,17 +10,19 @@ const CoinLaundryList = ({ coinLaundry, benefitRecords, myRole }) => {
       overflow="hidden"
       mb={4}
       mx="auto"
-      boxShadow="lg"
-      borderRadius="16px"
+      boxShadow="var(--shadow-sm)"
+      borderRadius="18px"
+      border="1px solid"
+      borderColor="var(--divider, #F1F5F9)"
       transition="all 0.3s"
-      _hover={{ boxShadow: "xl", transform: "translateY(-2px)" }}
+      _hover={{ boxShadow: "0 8px 24px rgba(8,145,178,0.12)", transform: "translateY(-2px)", borderColor: "cyan.200" }}
     >
       <Box
         position="relative"
         w="100%"
         paddingBottom="56.25%"
         overflow="hidden"
-        bg="gray.100"
+        bg="var(--teal-pale, #CFFAFE)"
       >
         <Image
           position="absolute"
@@ -44,32 +44,21 @@ const CoinLaundryList = ({ coinLaundry, benefitRecords, myRole }) => {
         />
       </Box>
 
-      <Card.Body gap="3" p={5}>
+      <Card.Body gap="2" p={5}>
         <Card.Title
           fontSize={{ base: "lg", md: "xl" }}
           fontWeight="bold"
-          color="gray.700"
+          color="var(--text-main, #1E3A5F)"
           letterSpacing="tight"
           noOfLines={1}
         >
           {coinLaundry.store}店
         </Card.Title>
 
-        <Card.Description
-          display="inline-flex"
-          alignItems="center"
-          gap="1"
-          fontSize={{ base: "sm", md: "md" }}
-          color="gray.600"
-          lineHeight="1.7"
-          noOfLines={1}
-        >
-          <Icon.PiMapPin />
-          {coinLaundry.location}
-        </Card.Description>
-
-        <DisplayMonthBenifit records={benefitRecords} />
-       
+        <HStack color="var(--text-muted, #64748B)" fontSize={{ base: "sm", md: "md" }}>
+          <Icon.PiMapPin size={15} />
+          <Text noOfLines={1}>{coinLaundry.location}</Text>
+        </HStack>
       </Card.Body>
 
       <Card.Footer gap="2" p={5} pt={0}>
@@ -80,6 +69,9 @@ const CoinLaundryList = ({ coinLaundry, benefitRecords, myRole }) => {
             variant="outline"
             size={{ base: "sm", md: "md" }}
             fontWeight="semibold"
+            borderColor="var(--divider, #F1F5F9)"
+            color="var(--text-muted, #64748B)"
+            _hover={{ bg: "var(--app-bg, #F0F9FF)", borderColor: "cyan.200" }}
             transition="all 0.2s"
             style={{ flex: 1 }}
           >
@@ -92,11 +84,12 @@ const CoinLaundryList = ({ coinLaundry, benefitRecords, myRole }) => {
             <Button
               asChild
               w="100%"
-              colorPalette="blue"
               size={{ base: "sm", md: "md" }}
               fontWeight="semibold"
+              color="white"
+              style={{ background: "linear-gradient(135deg, #0891B2 0%, #0E7490 100%)", flex: 1 }}
+              _hover={{ transform: "translateY(-1px)", boxShadow: "0 4px 12px rgba(8,145,178,0.28)" }}
               transition="all 0.2s"
-              style={{ flex: 1 }}
             >
               <Link href={`/collectMoney/${coinLaundry.id}/newData`}>
                 <Icon.TbCoinYenFilled /> 集金へ
