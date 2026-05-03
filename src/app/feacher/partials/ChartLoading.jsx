@@ -1,11 +1,12 @@
 import { Box, Flex, Skeleton, Stack } from "@chakra-ui/react";
 
+const CHART_HEIGHT = "300px";
+
 const ChartLoading = () => {
-  // データポイントの高さ（パーセンテージ）
   const dataPoints = [40, 65, 45, 80, 55, 70, 50];
 
   return (
-    <Box w="100%" h="600px" py={6} px={4}>
+    <Box w="100%" h={CHART_HEIGHT} py={6} px={4}>
       <Stack gap={6} h="100%">
         {/* Y軸ラベルとグラフエリア */}
         <Flex gap={4} h="100%">

@@ -137,7 +137,7 @@ const ManyCoinDataChart = () => {
   }
 
   return (
-    <Chart.Root minWidth="0" chart={chart}>
+    <Chart.Root minWidth="0" height="300px" chart={chart}>
       <LineChart data={chart.data} margin={{ left: 16, right: 24, top: 24, bottom: 8 }}>
         <CartesianGrid
           stroke={chart.color("border")}
