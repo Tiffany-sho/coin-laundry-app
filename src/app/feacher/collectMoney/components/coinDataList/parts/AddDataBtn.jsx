@@ -78,7 +78,7 @@ const AddDataBtn = ({ id = "" }) => {
     displayBtn && (
       <Button
         variant="outline"
-        color="blue.600"
+        color="var(--teal, #0891B2)"
         border="none"
         onClick={() => addData(id)}
         disabled={isLoading}

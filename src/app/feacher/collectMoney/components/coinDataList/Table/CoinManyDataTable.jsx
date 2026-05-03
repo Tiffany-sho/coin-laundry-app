@@ -99,12 +99,12 @@ const CoinManyDataTable = () => {
       <Table.Row
         key={item.id}
         onClick={() => toggleHander(item)}
-        bg={isSelected ? "blue.50" : "white"}
+        bg={isSelected ? "cyan.50" : "white"}
         cursor="pointer"
         position="relative"
         transition="all 0.2s ease"
         _hover={{
-          bg: isSelected ? "blue.100" : "gray.50",
+          bg: isSelected ? "cyan.100" : "cyan.50",
           transform: "translateX(4px)",
         }}
         _active={{ transform: "translateX(2px)" }}
@@ -118,7 +118,7 @@ const CoinManyDataTable = () => {
             top="0"
             bottom="0"
             width="4px"
-            bg="blue.500"
+            bg="var(--teal, #0891B2)"
             borderRadius="0 4px 4px 0"
           />
         )}
@@ -135,7 +135,7 @@ const CoinManyDataTable = () => {
               <Text
                 fontSize={{ base: "xl", md: "2xl" }}
                 fontWeight="bold"
-                color={isHighValue ? "green.600" : "gray.800"}
+                color={isHighValue ? "var(--teal-deeper, #155E75)" : "var(--text-main, #1E3A5F)"}
                 lineHeight="1.2"
               >
                 ¥{total.toLocaleString()}
@@ -208,17 +208,17 @@ const CoinManyDataTable = () => {
             overflow="hidden"
           >
             <Box
-              bg="gray.50"
+              bg="cyan.50"
               p={4}
               cursor="pointer"
               onClick={() => toggleDateCollapse(date)}
               transition="all 0.2s"
-              _hover={{ bg: "blue.100" }}
+              _hover={{ bg: "cyan.100" }}
             >
               <HStack justify="space-between">
                 <HStack gap={3}>
                   <Box
-                    bg="gray.500"
+                    bg="var(--teal, #0891B2)"
                     color="white"
                     borderRadius="lg"
                     p={2}
@@ -241,7 +241,7 @@ const CoinManyDataTable = () => {
                     <Text fontSize="xs" color="gray.600">
                       合計
                     </Text>
-                    <Text fontSize="xl" fontWeight="bold" color="blue.600">
+                    <Text fontSize="xl" fontWeight="bold" color="var(--teal, #0891B2)">
                       ¥{totalForDate.toLocaleString()}
                     </Text>
                   </VStack>

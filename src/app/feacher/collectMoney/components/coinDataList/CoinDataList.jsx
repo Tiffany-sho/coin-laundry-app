@@ -86,7 +86,7 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole }) => {
             >
               <Button
                 size={{ base: "md", md: "lg" }}
-                colorPalette="blue"
+                colorPalette="cyan"
                 borderRadius="full"
                 px={6}
                 fontWeight="semibold"
@@ -216,7 +216,7 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole }) => {
                           <>
                             <Drawer.Header
                               borderBottom="2px solid"
-                              borderColor="gray.200"
+                              borderColor="cyan.100"
                               p={6}
                             >
                               <HStack align="stretch" pt={8}>
@@ -253,7 +253,7 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole }) => {
                                 right={4}
                                 borderRadius="full"
                                 border="1px solid"
-                                borderColor="gray.300"
+                                borderColor="cyan.100"
                                 _hover={{
                                   transform: "rotate(90deg)",
                                 }}

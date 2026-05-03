@@ -146,12 +146,12 @@ const CoinMonoDataTable = ({ id }) => {
               <Table.Row
                 key={item.id}
                 onClick={() => toggleHander(item)}
-                bg={isSelected ? "blue.50" : "white"}
+                bg={isSelected ? "cyan.50" : "white"}
                 cursor="pointer"
                 position="relative"
                 transition="all 0.2s ease"
                 _hover={{
-                  bg: isSelected ? "blue.100" : "gray.50",
+                  bg: isSelected ? "cyan.100" : "cyan.50",
                   transform: "translateX(4px)",
                 }}
                 _active={{
@@ -169,7 +169,7 @@ const CoinMonoDataTable = ({ id }) => {
                     top="0"
                     bottom="0"
                     width="4px"
-                    bg="blue.500"
+                    bg="var(--teal, #0891B2)"
                     borderRadius="0 4px 4px 0"
                   />
                 )}
@@ -179,7 +179,7 @@ const CoinMonoDataTable = ({ id }) => {
                     <Text
                       fontSize={{ base: "2xl", md: "3xl" }}
                       fontWeight="bold"
-                      color={isHighValue ? "green.600" : "gray.800"}
+                      color={isHighValue ? "var(--teal-deeper, #155E75)" : "var(--text-main, #1E3A5F)"}
                       lineHeight="1.2"
                     >
                       ¥{total.toLocaleString()}

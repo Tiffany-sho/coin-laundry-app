@@ -64,7 +64,7 @@ const TotalFundsList = ({
       p={5}
       borderRadius="xl"
       border="1px solid"
-      borderColor="blue.100"
+      borderColor="cyan.100"
     >
       <Box>
         <Text fontSize="sm" color="gray.600" mb={1}>

@@ -106,7 +106,7 @@ const MachineAndFundsList = ({
         p={5}
         borderRadius="xl"
         border="1px solid"
-        borderColor="blue.100"
+        borderColor="cyan.100"
       >
         <Flex justifyContent="space-between" alignItems="center">
           <Box>
@@ -118,7 +118,7 @@ const MachineAndFundsList = ({
             </Text>
           </Box>
 
-          <Badge bg="blue.200" fontSize="lg" px={4} py={2} borderRadius="full">
+          <Badge bg="cyan.100" color="var(--teal-deeper, #155E75)" fontSize="lg" px={4} py={2} borderRadius="full">
             {selectedItem.fundsArray.length}台
           </Badge>
         </Flex>
@@ -213,14 +213,14 @@ const MachineAndFundsList = ({
               </Table.Cell>
             </Table.Row>
           ))}
-          <Table.Row bg="blue.50" fontWeight="bold">
+          <Table.Row bg="cyan.50" fontWeight="bold">
             <Table.Cell py={4}>
-              <Text fontSize="lg" fontWeight="bold" color="gray.800">
+              <Text fontSize="lg" fontWeight="bold" color="var(--text-main, #1E3A5F)">
                 合計
               </Text>
             </Table.Cell>
             <Table.Cell textAlign="right">
-              <Text fontSize="xl" fontWeight="bold" color="blue.600">
+              <Text fontSize="xl" fontWeight="bold" color="var(--teal, #0891B2)">
                 ¥{totalFunds.toLocaleString()}
               </Text>
             </Table.Cell>
