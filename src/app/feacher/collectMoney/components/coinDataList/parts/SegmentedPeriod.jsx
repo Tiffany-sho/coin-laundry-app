@@ -127,7 +127,7 @@ const PeriodRangeSlider = () => {
   return (
     <Box w="100%">
       {/* 1行目：期間設定ボタン＋適用済み期間テキスト */}
-      <HStack justify="center" align="center" gap={2} mb={2}>
+      <HStack justify="center" align="center" gap={2} mb={2} flexWrap="wrap">
         <Popover.Root open={open} onOpenChange={handleOpenChange}>
           <Popover.Trigger asChild>
             <Button size="sm" variant="subtle">
