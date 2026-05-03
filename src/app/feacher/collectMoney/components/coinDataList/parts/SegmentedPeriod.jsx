@@ -134,7 +134,7 @@ const PeriodRangeSlider = () => {
           </Popover.Trigger>
           <Portal>
             <Popover.Positioner>
-              <Popover.Content minW="360px">
+              <Popover.Content minW={{ base: "calc(100vw - 32px)", sm: "480px" }}>
                 <Popover.Arrow />
                 <Popover.Body p={4}>
                   <VStack gap={4} align="stretch">
