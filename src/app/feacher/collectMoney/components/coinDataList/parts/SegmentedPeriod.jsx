@@ -126,8 +126,110 @@ const PeriodRangeSlider = () => {
 
   return (
     <Box w="100%">
+      {/* 1行目：期間設定ボタン＋適用済み期間テキスト */}
+      <HStack justify="center" align="center" gap={2} mb={2}>
+        <Popover.Root open={open} onOpenChange={handleOpenChange}>
+          <Popover.Trigger asChild>
+            <Button size="sm" variant="subtle">
+              <LuCalendar />
+              期間設定
+            </Button>
+          </Popover.Trigger>
+          <Portal>
+            <Popover.Positioner>
+              <Popover.Content minW={{ base: "calc(100vw - 32px)", sm: "360px" }}>
+                <Popover.Arrow />
+                <Popover.Body p={4}>
+                  <VStack gap={4} align="stretch">
+                    {/* ドラフト期間表示 */}
+                    <HStack justify="center" gap={1} align="flex-end">
+                      <VStack gap={0} align="flex-start">
+                        <Text fontSize="2xs" color="fg.muted">
+                          開始日
+                        </Text>
+                        <Text fontSize="sm" fontWeight="semibold">
+                          {draftStartStr}
+                        </Text>
+                      </VStack>
+                      <Text color="fg.muted" pb="1px" lineHeight="1">
+                        〜
+                      </Text>
+                      <VStack gap={0} align="flex-start">
+                        <Text fontSize="2xs" color="fg.muted">
+                          終了日
+                        </Text>
+                        <Text fontSize="sm" fontWeight="semibold">
+                          {draftEndStr}
+                        </Text>
+                      </VStack>
+                    </HStack>
+
+                    {/* 範囲スライダー */}
+                    <Slider.Root
+                      min={0}
+                      max={MAX_MONTHS}
+                      step={1}
+                      value={draftVal}
+                      onValueChange={(e) => setDraftVal(e.value)}
+                      colorPalette="cyan"
+                    >
+                      <HStack justify="space-between" mb={1}>
+                        <Text fontSize="2xs" color="fg.muted">
+                          5年前
+                        </Text>
+                        <Text fontSize="2xs" color="fg.muted">
+                          今月
+                        </Text>
+                      </HStack>
+                      <Slider.Control>
+                        <Slider.Track>
+                          <Slider.Range />
+                        </Slider.Track>
+                        <Slider.Thumb index={0} />
+                        <Slider.Thumb index={1} />
+                      </Slider.Control>
+                    </Slider.Root>
+
+                    {/* アクションボタン */}
+                    <HStack justify="flex-end" gap={2} pt={1}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setOpen(false)}
+                      >
+                        キャンセル
+                      </Button>
+                      <Button
+                        size="sm"
+                        colorPalette="cyan"
+                        onClick={handleApply}
+                      >
+                        適用
+                      </Button>
+                    </HStack>
+                  </VStack>
+                </Popover.Body>
+              </Popover.Content>
+            </Popover.Positioner>
+          </Portal>
+        </Popover.Root>
+
+        {/* 適用済み期間の表示 */}
+        <HStack gap={1} align="flex-end">
+          <Text fontSize="sm" fontWeight="semibold">
+            {appliedStartStr}
+          </Text>
+          <Text color="fg.muted" lineHeight="1">
+            〜
+          </Text>
+          <Text fontSize="sm" fontWeight="semibold">
+            {appliedEndStr}
+          </Text>
+        </HStack>
+      </HStack>
+
+      {/* 2行目：シフトボタン */}
       <HStack justify="space-between" align="center">
-        {/* 前の期間ボタン（常時表示） */}
         <Button
           size="sm"
           variant="ghost"
@@ -138,109 +240,6 @@ const PeriodRangeSlider = () => {
           <Text hideBelow="sm">前の期間</Text>
         </Button>
 
-        {/* 中央：期間設定ボタン＋適用済み期間テキスト */}
-        <HStack gap={2} align="center">
-          <Popover.Root open={open} onOpenChange={handleOpenChange}>
-            <Popover.Trigger asChild>
-              <Button size="sm" variant="subtle">
-                <LuCalendar />
-                期間設定
-              </Button>
-            </Popover.Trigger>
-            <Portal>
-              <Popover.Positioner>
-                <Popover.Content minW={{ base: "calc(100vw - 32px)", sm: "360px" }}>
-                  <Popover.Arrow />
-                  <Popover.Body p={4}>
-                    <VStack gap={4} align="stretch">
-                      {/* ドラフト期間表示 */}
-                      <HStack justify="center" gap={1} align="flex-end">
-                        <VStack gap={0} align="flex-start">
-                          <Text fontSize="2xs" color="fg.muted">
-                            開始日
-                          </Text>
-                          <Text fontSize="sm" fontWeight="semibold">
-                            {draftStartStr}
-                          </Text>
-                        </VStack>
-                        <Text color="fg.muted" pb="1px" lineHeight="1">
-                          〜
-                        </Text>
-                        <VStack gap={0} align="flex-start">
-                          <Text fontSize="2xs" color="fg.muted">
-                            終了日
-                          </Text>
-                          <Text fontSize="sm" fontWeight="semibold">
-                            {draftEndStr}
-                          </Text>
-                        </VStack>
-                      </HStack>
-
-                      {/* 範囲スライダー */}
-                      <Slider.Root
-                        min={0}
-                        max={MAX_MONTHS}
-                        step={1}
-                        value={draftVal}
-                        onValueChange={(e) => setDraftVal(e.value)}
-                        colorPalette="cyan"
-                      >
-                        <HStack justify="space-between" mb={1}>
-                          <Text fontSize="2xs" color="fg.muted">
-                            5年前
-                          </Text>
-                          <Text fontSize="2xs" color="fg.muted">
-                            今月
-                          </Text>
-                        </HStack>
-                        <Slider.Control>
-                          <Slider.Track>
-                            <Slider.Range />
-                          </Slider.Track>
-                          <Slider.Thumb index={0} />
-                          <Slider.Thumb index={1} />
-                        </Slider.Control>
-                      </Slider.Root>
-
-                      {/* アクションボタン */}
-                      <HStack justify="flex-end" gap={2} pt={1}>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => setOpen(false)}
-                        >
-                          キャンセル
-                        </Button>
-                        <Button
-                          size="sm"
-                          colorPalette="cyan"
-                          onClick={handleApply}
-                        >
-                          適用
-                        </Button>
-                      </HStack>
-                    </VStack>
-                  </Popover.Body>
-                </Popover.Content>
-              </Popover.Positioner>
-            </Portal>
-          </Popover.Root>
-
-          {/* 適用済み期間の表示 */}
-          <HStack gap={1} align="flex-end">
-            <Text fontSize="sm" fontWeight="semibold">
-              {appliedStartStr}
-            </Text>
-            <Text color="fg.muted" lineHeight="1">
-              〜
-            </Text>
-            <Text fontSize="sm" fontWeight="semibold">
-              {appliedEndStr}
-            </Text>
-          </HStack>
-        </HStack>
-
-        {/* 次の期間ボタン（常時表示） */}
         <Button
           size="sm"
           variant="ghost"
