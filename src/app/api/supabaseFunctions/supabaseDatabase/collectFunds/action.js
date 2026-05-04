@@ -133,7 +133,7 @@ export async function updateData(fundsArray, totalFunds, id) {
   const { data: updated, error } = await query;
   console.log("[updateData] user.id:", user.id, "role:", member.role, "target id:", id, "updated rows:", updated, "error:", error);
   if (!error && (!updated || updated.length === 0)) {
-    return { error: { msg: "更新対象が見つかりません（IDまたは所有者が一致しない）", status: 404 } };
+    return { error: { msg: `更新対象が見つかりません [id=${id}, user=${user.id}, role=${member.role}]`, status: 404 } };
   }
   return { error };
 }
