@@ -10,7 +10,6 @@ export function useUserProfile() {
   const [loading, setLoading] = useState(true);
   const [fullname, setFullname] = useState(null);
   const [username, setUsername] = useState(null);
-  const [role, setRole] = useState(null);
 
   const fetchProfile = useCallback(async () => {
     setLoading(true);
@@ -20,7 +19,6 @@ export function useUserProfile() {
     } else if (data) {
       setFullname(data.full_name);
       setUsername(data.username);
-      setRole(data.role);
     }
     setLoading(false);
   }, []);
@@ -40,5 +38,5 @@ export function useUserProfile() {
     setLoading(false);
   };
 
-  return { loading, fullname, username, role, setFullname, setUsername, handleUpdate };
+  return { loading, fullname, username, setFullname, setUsername, handleUpdate };
 }

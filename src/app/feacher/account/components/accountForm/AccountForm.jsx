@@ -16,8 +16,14 @@ import * as Icon from "@/app/feacher/Icon";
 import Link from "next/link";
 import { useUserProfile } from "./useUserProfile";
 
-export default function AccountForm({ user }) {
-  const { loading, fullname, username, role, setFullname, setUsername, handleUpdate } =
+const ROLE_LABEL = {
+  admin:     "店舗管理者",
+  collecter: "集金担当者",
+  viewer:    "閲覧者",
+};
+
+export default function AccountForm({ user, myRole }) {
+  const { loading, fullname, username, setFullname, setUsername, handleUpdate } =
     useUserProfile();
 
   return (
@@ -161,13 +167,7 @@ export default function AccountForm({ user }) {
             <Input
               id="role"
               type="text"
-              value={
-                role === "admin"
-                  ? "店舗管理者"
-                  : role === "collecter"
-                  ? "集金担当者"
-                  : "閲覧者"
-              }
+              value={ROLE_LABEL[myRole] ?? "閲覧者"}
               disabled
               bg="var(--app-bg, #F0F9FF)"
               color="var(--text-muted, #64748B)"

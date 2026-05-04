@@ -16,7 +16,7 @@ export default async function Account() {
 
   return (
     <Box maxW="600px" mx="auto" p={{ base: 4, md: 8 }}>
-      <AccountForm user={user} />
+      <AccountForm user={user} myRole={org?.myRole} />
 
       {org?.myRole === "admin" && (
         <Card.Root
