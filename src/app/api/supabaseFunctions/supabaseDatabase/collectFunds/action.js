@@ -120,7 +120,8 @@ export async function updateData(fundsArray, totalFunds, id) {
     return { error: { msg: "集金データを編集する権限がありません", status: 403 } };
   }
 
-  const { error } = await supabase
+  const serviceSupabase = createServiceClient();
+  const { error } = await serviceSupabase
     .from("collect_funds")
     .update({ fundsArray, totalFunds })
     .eq("id", id)
@@ -145,7 +146,8 @@ export async function updateDate(date, id) {
     return { error: { msg: "集金データを編集する権限がありません", status: 403 } };
   }
 
-  const { data, error } = await supabase
+  const serviceSupabase = createServiceClient();
+  const { data, error } = await serviceSupabase
     .from("collect_funds")
     .update({ date })
     .eq("id", id)
@@ -173,7 +175,8 @@ export async function deleteData(id) {
     return { error: { msg: "集金データを削除する権限がありません", status: 403 } };
   }
 
-  let query = supabase.from("collect_funds").delete().eq("id", id);
+  const serviceSupabase = createServiceClient();
+  let query = serviceSupabase.from("collect_funds").delete().eq("id", id);
   if (member.role !== "admin") {
     query = query.eq("collecter", user.id);
   }
