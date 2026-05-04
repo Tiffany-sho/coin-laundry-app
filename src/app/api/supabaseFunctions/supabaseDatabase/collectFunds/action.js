@@ -121,12 +121,15 @@ export async function updateData(fundsArray, totalFunds, id) {
   }
 
   const serviceSupabase = createServiceClient();
-  const { error } = await serviceSupabase
+  let query = serviceSupabase
     .from("collect_funds")
     .update({ fundsArray, totalFunds })
-    .eq("id", id)
-    .eq("collecter", user.id);
+    .eq("id", id);
+  if (member.role !== "admin") {
+    query = query.eq("collecter", user.id);
+  }
 
+  const { error } = await query;
   return { error };
 }
 
@@ -147,13 +150,14 @@ export async function updateDate(date, id) {
   }
 
   const serviceSupabase = createServiceClient();
-  const { data, error } = await serviceSupabase
+  let dateQuery = serviceSupabase
     .from("collect_funds")
     .update({ date })
-    .eq("id", id)
-    .eq("collecter", user.id)
-    .select("date")
-    .single();
+    .eq("id", id);
+  if (member.role !== "admin") {
+    dateQuery = dateQuery.eq("collecter", user.id);
+  }
+  const { data, error } = await dateQuery.select("date").single();
 
   if (error) return { error };
   return { data };
