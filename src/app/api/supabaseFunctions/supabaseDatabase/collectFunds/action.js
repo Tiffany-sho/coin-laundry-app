@@ -109,6 +109,17 @@ export async function updateData(fundsArray, totalFunds, id) {
   if (!user) return { error: { msg: "ログインしてください", status: 401 } };
 
   const supabase = await createClient();
+
+  const { data: member } = await supabase
+    .from("organization_members")
+    .select("role")
+    .eq("user_id", user.id)
+    .single();
+
+  if (!member || member.role === "viewer") {
+    return { error: { msg: "集金データを編集する権限がありません", status: 403 } };
+  }
+
   const { error } = await supabase
     .from("collect_funds")
     .update({ fundsArray, totalFunds })
@@ -123,6 +134,17 @@ export async function updateDate(date, id) {
   if (!user) return { error: { msg: "ログインしてください", status: 401 } };
 
   const supabase = await createClient();
+
+  const { data: member } = await supabase
+    .from("organization_members")
+    .select("role")
+    .eq("user_id", user.id)
+    .single();
+
+  if (!member || member.role === "viewer") {
+    return { error: { msg: "集金データを編集する権限がありません", status: 403 } };
+  }
+
   const { data, error } = await supabase
     .from("collect_funds")
     .update({ date })
@@ -136,8 +158,27 @@ export async function updateDate(date, id) {
 }
 
 export async function deleteData(id) {
+  const { user } = await getUser();
+  if (!user) return { error: { msg: "ログインしてください", status: 401 } };
+
   const supabase = await createClient();
-  const { error } = await supabase.from("collect_funds").delete().eq("id", id);
+
+  const { data: member } = await supabase
+    .from("organization_members")
+    .select("role")
+    .eq("user_id", user.id)
+    .single();
+
+  if (!member || member.role === "viewer") {
+    return { error: { msg: "集金データを削除する権限がありません", status: 403 } };
+  }
+
+  let query = supabase.from("collect_funds").delete().eq("id", id);
+  if (member.role !== "admin") {
+    query = query.eq("collecter", user.id);
+  }
+
+  const { error } = await query;
   return { error };
 }
 
