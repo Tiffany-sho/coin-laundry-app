@@ -25,57 +25,28 @@ const MachineAndFundsList = ({
   const { selectedItem, setSelectedItem } = useUploadPage();
 
   const editAbleForm = async (id, e, action) => {
-    setSelectedItem((item) => {
-      const fundsAndMachines = item.fundsArray.map((item) => {
-        if (id === item.id) {
-          const input = e.value || 0;
-          if (!validateNumberInput(input)) {
-            return item;
-          }
+    const input = e.value || 0;
 
-          const parsedValue = parseInt(input);
+    if (action === "change" && !validateNumberInput(input)) return;
 
-          if (action === "change") {
-            return {
-              ...item,
-              funds: parsedValue,
-            };
-          } else if (action === "reset") {
-            return {
-              ...item,
-              funds: parsedValue,
-            };
-          } else if (action === "submit") {
-            return {
-              ...item,
-              funds: parsedValue,
-            };
-          }
-        }
-        return item;
-      });
-
-      return { ...item, fundsArray: fundsAndMachines };
+    const parsedValue = parseInt(input) || 0;
+    const updatedFundsArray = selectedItem.fundsArray.map((item) => {
+      if (id === item.id) return { ...item, funds: parsedValue };
+      return item;
     });
 
+    setSelectedItem((item) => ({ ...item, fundsArray: updatedFundsArray }));
+
     if (action === "submit") {
-      await submitMachineData(e.value);
+      await submitMachineData(updatedFundsArray);
     }
   };
 
-  const submitMachineData = async (input) => {
+  const submitMachineData = async (fundsArray) => {
     try {
-      if (!validateNumberInput(input)) {
-        throw new Error("数字以外の文字が含まれています");
-      }
-
       const totalFunds =
-        selectedItem.fundsArray.reduce((acc, cur) => acc + cur.funds, 0) * 100;
-      const result = await updateData(
-        selectedItem.fundsArray,
-        totalFunds,
-        selectedItem.id
-      );
+        fundsArray.reduce((acc, cur) => acc + cur.funds, 0) * 100;
+      const result = await updateData(fundsArray, totalFunds, selectedItem.id);
 
       if (result.error) {
         throw new Error("編集に失敗しました");
