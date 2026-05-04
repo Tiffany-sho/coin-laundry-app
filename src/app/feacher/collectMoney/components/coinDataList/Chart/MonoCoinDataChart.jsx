@@ -14,10 +14,9 @@ import ChartLoading from "@/app/feacher/partials/ChartLoading";
 import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
 import { createClient } from "@/utils/supabase/client";
 import ChartError from "@/app/feacher/partials/ChartError";
-import { getUser } from "@/app/api/supabaseFunctions/supabaseDatabase/user/action";
 import ChartEmpty from "@/app/feacher/partials/ChartEmpty";
+import { getStoreFundsForChart } from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
 
-// "YYYY-MM" → Y軸用フォーマット（万円単位）
 const formatYAxis = (value) => {
   if (value === 0) return "0";
   if (value >= 100000000) return `${(value / 100000000).toFixed(0)}億`;
@@ -25,7 +24,6 @@ const formatYAxis = (value) => {
   return `${value}`;
 };
 
-// X軸カスタムTick：各年で最初に登場する月に西暦を上段に表示
 const CustomXTick = ({ x, y, payload, firstMonthsOfYear }) => {
   if (!payload?.value) return null;
   const month = parseInt(payload.value.slice(5, 7), 10);
@@ -45,7 +43,6 @@ const CustomXTick = ({ x, y, payload, firstMonthsOfYear }) => {
   );
 };
 
-// カスタムTooltip
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   const month = parseInt(label.slice(5, 7), 10);
@@ -69,7 +66,7 @@ const CustomTooltip = ({ active, payload, label }) => {
   );
 };
 
-const MonoCoinDataChart = ({ id }) => {
+const MonoCoinDataChart = ({ id, myRole }) => {
   const { data, setData } = useUploadPage();
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -77,13 +74,34 @@ const MonoCoinDataChart = ({ id }) => {
 
   const { startEpoch, endEpoch } = useUploadPage();
 
-  // useMemo で安定したインスタンスを保持し、useEffect の無限ループを防ぐ
   const supabase = useMemo(() => createClient(), []);
-
   const channelRef = useRef(null);
 
-  const setupChannel = (user) => {
-    const channelName = `collect_funds_MonoChart_${user.id}`;
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      const { data: initialData, error: initialError } = await getStoreFundsForChart(
+        id,
+        startEpoch,
+        endEpoch
+      );
+
+      if (initialError) {
+        setError(initialError);
+        setData(null);
+      } else {
+        setData(initialData);
+        setError(null);
+      }
+      setLoading(false);
+    };
+
+    fetchData();
+
+    // 閲覧者はリアルタイム不要
+    if (myRole === "viewer") return;
+
+    const channelName = `collect_funds_MonoChart_store_${id}`;
     const channel = supabase
       .channel(channelName)
       .on(
@@ -92,22 +110,22 @@ const MonoCoinDataChart = ({ id }) => {
           event: "*",
           schema: "public",
           table: "collect_funds",
-          filter: `collecter=eq.${user.id}`,
+          filter: `laundryId=eq.${id}`,
         },
         (payload) => {
           if (payload.eventType === "INSERT") {
-            setData((currentData) => [...currentData, payload.new]);
+            setData((currentData) => [...(currentData ?? []), payload.new]);
           }
           if (payload.eventType === "UPDATE") {
             setData((currentData) =>
-              currentData.map((item) =>
+              (currentData ?? []).map((item) =>
                 item.id === payload.new.id ? payload.new : item
               )
             );
           }
           if (payload.eventType === "DELETE") {
             setData((currentData) =>
-              currentData.filter((item) => item.id !== payload.old.id)
+              (currentData ?? []).filter((item) => item.id !== payload.old.id)
             );
           }
         }
@@ -115,47 +133,6 @@ const MonoCoinDataChart = ({ id }) => {
       .subscribe();
 
     channelRef.current = channel;
-  };
-
-  useEffect(() => {
-    const fetchData = async (id) => {
-      const { user } = await getUser();
-
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-
-      setLoading(true);
-      let query = supabase
-        .from("collect_funds")
-        .select("*")
-        .eq("laundryId", id)
-        .eq("collecter", user.id)
-        .order("date", { ascending: true })
-        .gt("date", startEpoch);
-
-      if (endEpoch !== null) {
-        query = query.lt("date", endEpoch);
-      }
-
-      const { data: initialData, error: initialError } = await query;
-
-      if (initialError) {
-        setError(initialError.message);
-        setData(null);
-      } else {
-        setData(initialData);
-        setError(null);
-      }
-      setLoading(false);
-
-      if (user) {
-        setupChannel(user);
-      }
-    };
-
-    fetchData(id);
 
     return () => {
       if (channelRef.current) {
@@ -163,7 +140,7 @@ const MonoCoinDataChart = ({ id }) => {
         channelRef.current = null;
       }
     };
-  }, [startEpoch, endEpoch]);
+  }, [startEpoch, endEpoch, myRole]);
 
   useEffect(() => {
     if (!data) return;
@@ -175,18 +152,13 @@ const MonoCoinDataChart = ({ id }) => {
       if (alreadryMonth) {
         alreadryMonth.uv += num.totalFunds;
       } else {
-        const newObj = {
-          name: getYearMonth(num.date),
-          uv: num.totalFunds,
-        };
-        acc.push(newObj);
+        acc.push({ name: getYearMonth(num.date), uv: num.totalFunds });
       }
       return acc;
     }, []);
     setChartData(dataList);
   }, [data]);
 
-  // 各年で最初に登場する月の "YYYY-MM" を収集
   const firstMonthsOfYear = useMemo(() => {
     const yearFirst = {};
     chartData.forEach(({ name }) => {
@@ -202,7 +174,7 @@ const MonoCoinDataChart = ({ id }) => {
   });
 
   if (loading) return <ChartLoading />;
-  if (error) return <ChartError message={error.messaage} />;
+  if (error) return <ChartError message={error} />;
 
   if (!data || data.length === 0) {
     return <ChartEmpty />;
@@ -212,9 +184,8 @@ const MonoCoinDataChart = ({ id }) => {
   }
 
   return (
-    <Box w="100%" h="300px" overflow="hidden">
     <Chart.Root h="100%" chart={chart}>
-      <LineChart data={chart.data} margin={{ left: 16, right: 24, top: 24, bottom: 8 }}>
+      <LineChart data={chart.data} margin={{ left: -16, right: 24, top: 24, bottom: 8 }}>
         <CartesianGrid
           stroke={chart.color("border")}
           strokeDasharray="3 3"
@@ -250,7 +221,6 @@ const MonoCoinDataChart = ({ id }) => {
         />
       </LineChart>
     </Chart.Root>
-    </Box>
   );
 };
 

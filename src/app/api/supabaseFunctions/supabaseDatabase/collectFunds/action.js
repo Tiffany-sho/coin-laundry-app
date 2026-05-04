@@ -26,6 +26,31 @@ export const getFundsData = async (id) => {
   return { data: initialData };
 };
 
+// 店舗のチャート用全集金データ取得（期間フィルタ付き、RLS回避）
+export async function getStoreFundsForChart(id, startEpoch, endEpoch) {
+  const { user } = await getUser();
+  if (!user) return { error: "ログインしてください" };
+
+  const storeIds = await getOrgStoreIds();
+  if (!storeIds.includes(id)) return { error: "アクセス権限がありません" };
+
+  const supabase = createServiceClient();
+  let query = supabase
+    .from("collect_funds")
+    .select("*")
+    .eq("laundryId", id)
+    .order("date", { ascending: true })
+    .gt("date", startEpoch);
+
+  if (endEpoch !== null) {
+    query = query.lt("date", endEpoch);
+  }
+
+  const { data, error } = await query;
+  if (error) return { error: "集金データの取得に失敗しました" };
+  return { data };
+}
+
 // 店舗の全集金データ取得（ページネーション付き、RLS回避）
 // 管理者・集金担当者・閲覧者全員が参照可能
 export async function getStoreFundsPaginated(id, orderAmount, upOrder, from, to) {

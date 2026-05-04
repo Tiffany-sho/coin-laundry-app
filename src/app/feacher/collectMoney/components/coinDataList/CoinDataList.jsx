@@ -176,7 +176,7 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole }) => {
                 <Card.Body p={{ base: 4, md: 6 }}>
                   <VStack align="stretch" gap={4}>
                     <SegmentedPeriod />
-                    {valiant === "aStore" && <MonoCoinDataChart id={coinLaundry.id} />}
+                    {valiant === "aStore" && <MonoCoinDataChart id={coinLaundry.id} myRole={myRole} />}
                     {valiant === "manyStore" && <ManyCoinDataChart />}
                   </VStack>
                 </Card.Body>
