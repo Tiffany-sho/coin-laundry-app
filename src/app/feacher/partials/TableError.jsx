@@ -7,6 +7,7 @@ const TableError = ({
   onRetry,
 }) => {
   return (
+    <Table.Root>
     <Table.Body>
       <Table.Row>
         <Table.Cell colSpan={columnCount} py={12} bg="red.50">
@@ -102,6 +103,7 @@ const TableError = ({
         </Table.Cell>
       </Table.Row>
     </Table.Body>
+    </Table.Root>
   );
 };
 

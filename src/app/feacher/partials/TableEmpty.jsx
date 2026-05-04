@@ -6,6 +6,7 @@ const TableEmpty = ({
   columnCount = 3,
 }) => {
   return (
+    <Table.Root>
     <Table.Body>
       <Table.Row>
         <Table.Cell colSpan={columnCount} py={12} bg="gray.50">
@@ -78,6 +79,7 @@ const TableEmpty = ({
         </Table.Cell>
       </Table.Row>
     </Table.Body>
+    </Table.Root>
   );
 };
 

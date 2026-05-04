@@ -194,7 +194,7 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole }) => {
 
               <Stack>
                 {valiant === "aStore" && (
-                  <CoinMonoDataTable id={coinLaundry.id} />
+                  <CoinMonoDataTable id={coinLaundry.id} myRole={myRole} />
                 )}
                 {valiant === "manyStore" && <CoinManyDataTable />}
 

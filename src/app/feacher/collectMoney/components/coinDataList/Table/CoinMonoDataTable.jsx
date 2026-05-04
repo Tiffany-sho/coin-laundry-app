@@ -7,10 +7,10 @@ import { createClient } from "@/utils/supabase/client";
 import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
 import TableLoading from "@/app/feacher/partials/TableLoading";
 import TableError from "@/app/feacher/partials/TableError";
-import { getUser } from "@/app/api/supabaseFunctions/supabaseDatabase/user/action";
 import TableEmpty from "@/app/feacher/partials/TableEmpty";
+import { getStoreFundsPaginated } from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
 
-const CoinMonoDataTable = ({ id }) => {
+const CoinMonoDataTable = ({ id, myRole }) => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
@@ -21,7 +21,7 @@ const CoinMonoDataTable = ({ id }) => {
     PAGE_SIZE,
     orderAmount,
     upOrder,
-    selectedItemId,
+    selectedItem,
     setSelectedItem,
     open,
     setOpen,
@@ -29,6 +29,8 @@ const CoinMonoDataTable = ({ id }) => {
     setDisplayData,
     setDisplayBtn,
   } = useUploadPage();
+
+  const selectedItemId = selectedItem?.id;
 
   useEffect(() => {
     if (!open) {
@@ -47,87 +49,75 @@ const CoinMonoDataTable = ({ id }) => {
       return;
     }
 
-    const setupChannel = (id, user) => {
-      const channelName = `collect_funds_changes_for_${id}_user_${user.id}`;
-      const channel = supabase
-        .channel(channelName)
-        .on(
-          "postgres_changes",
-          {
-            event: "*",
-            schema: "public",
-            table: "collect_funds",
-            filter: `collecter=eq.${user.id}`,
-          },
-          (payload) => {
-            if (payload.eventType === "INSERT") {
-              setDisplayData((currentData) => [...currentData, payload.new]);
-            }
-            if (payload.eventType === "UPDATE") {
-              setDisplayData((currentData) =>
-                currentData.map((item) =>
-                  item.id === payload.new.id ? payload.new : item
-                )
-              );
-            }
-            if (payload.eventType === "DELETE") {
-              setDisplayData((currentData) =>
-                currentData.filter((item) => item.id !== payload.old.id)
-              );
-            }
-          }
-        )
-        .subscribe();
-
-      channelRef.current = channel;
-    };
-
-    const fetchData = async (id) => {
-      const { user } = await getUser();
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-
+    const fetchData = async () => {
       setLoading(true);
-      const { data: initialData, error: initialError } = await supabase
-        .from("collect_funds")
-        .select("*")
-        .eq("laundryId", id)
-        .eq("collecter", user.id)
-        .order(orderAmount, { ascending: upOrder })
-        .range(0, PAGE_SIZE - 1);
+      const { data: initialData, error: initialError } = await getStoreFundsPaginated(
+        id,
+        orderAmount,
+        upOrder,
+        0,
+        PAGE_SIZE - 1
+      );
 
       if (initialError) {
-        setError(initialError.message);
+        setError(initialError);
         setDisplayData(null);
       } else {
-        if (initialData.length < PAGE_SIZE) {
-          setDisplayBtn(false);
-        } else {
-          setDisplayBtn(true);
-        }
+        setDisplayBtn(initialData.length >= PAGE_SIZE);
         setDisplayData(initialData);
         setError(null);
       }
       setLoading(false);
-
-      if (id && user) {
-        setupChannel(id, user);
-      }
     };
 
-    fetchData(id);
+    fetchData();
+
+    // 閲覧者はリアルタイム不要（集金操作不可）
+    if (myRole === "viewer") return;
+
+    const channelName = `collect_funds_store_${id}`;
+    const channel = supabase
+      .channel(channelName)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "collect_funds",
+          filter: `laundryId=eq.${id}`,
+        },
+        (payload) => {
+          if (payload.eventType === "INSERT") {
+            setDisplayData((currentData) => [...currentData, payload.new]);
+          }
+          if (payload.eventType === "UPDATE") {
+            setDisplayData((currentData) =>
+              currentData.map((item) =>
+                item.id === payload.new.id ? payload.new : item
+              )
+            );
+          }
+          if (payload.eventType === "DELETE") {
+            setDisplayData((currentData) =>
+              currentData.filter((item) => item.id !== payload.old.id)
+            );
+          }
+        }
+      )
+      .subscribe();
+
+    channelRef.current = channel;
+
     return () => {
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current);
         channelRef.current = null;
       }
     };
-  }, [id, orderAmount, upOrder, setSelectedItem]);
+  }, [id, orderAmount, upOrder, myRole]);
 
   if (loading) return <TableLoading />;
-  if (error) return <TableError message={error.message} />;
+  if (error) return <TableError message={error} />;
 
   if (!displayData || displayData.length === 0) {
     return <TableEmpty />;
