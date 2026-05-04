@@ -20,7 +20,7 @@ import {
 import { showToast } from "@/functions/makeToast/toast";
 
 const ROLE_INFO = {
-  owner:     { label: "店舗管理者", bg: "var(--teal-pale, #CFFAFE)", color: "var(--teal-deeper, #155E75)" },
+  admin:     { label: "店舗管理者", bg: "var(--teal-pale, #CFFAFE)", color: "var(--teal-deeper, #155E75)" },
   collecter: { label: "集金担当者", bg: "cyan.100",                   color: "var(--teal-deeper, #155E75)" },
   viewer:    { label: "閲覧者",     bg: "gray.100",                   color: "gray.700" },
 };
@@ -59,7 +59,7 @@ export default function MemberList({ members, currentUserId, onChanged }) {
         const profile = member.profiles;
         const roleInfo = ROLE_INFO[member.role] ?? ROLE_INFO.viewer;
         const isMe = member.user_id === currentUserId;
-        const isOwner = member.role === "owner";
+        const isOwner = member.role === "admin";
         const isLoading = loadingId === member.user_id;
 
         return (

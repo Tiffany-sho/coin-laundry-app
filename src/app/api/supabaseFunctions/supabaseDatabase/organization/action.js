@@ -34,7 +34,7 @@ export async function createOrganization(name) {
 
   const { error: memberError } = await supabase
     .from("organization_members")
-    .insert({ org_id: org.id, user_id: user.id, role: "owner" });
+    .insert({ org_id: org.id, user_id: user.id, role: "admin" });
 
   if (memberError) return { error: "メンバー登録に失敗しました" };
   return { data: org };
@@ -94,7 +94,7 @@ export async function removeMember(userId) {
     .eq("user_id", user.id)
     .single();
 
-  if (myError || myMember.role !== "owner") return { error: "権限がありません" };
+  if (myError || myMember.role !== "admin") return { error: "権限がありません" };
 
   const serviceSupabase = createServiceClient();
   const { error } = await serviceSupabase
@@ -118,7 +118,7 @@ export async function updateMemberRole(userId, role) {
     .eq("user_id", user.id)
     .single();
 
-  if (myError || myMember.role !== "owner") return { error: "権限がありません" };
+  if (myError || myMember.role !== "admin") return { error: "権限がありません" };
 
   const serviceSupabase = createServiceClient();
   const { error } = await serviceSupabase
@@ -142,7 +142,7 @@ export async function inviteMember(email, role) {
     .eq("user_id", user.id)
     .single();
 
-  if (myError || myMember.role !== "owner") return { error: "権限がありません" };
+  if (myError || myMember.role !== "admin") return { error: "権限がありません" };
 
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
@@ -167,7 +167,7 @@ export async function getOrganizationInvitations() {
     .eq("user_id", user.id)
     .single();
 
-  if (myError || myMember.role !== "owner") return { error: "権限がありません" };
+  if (myError || myMember.role !== "admin") return { error: "権限がありません" };
 
   const { data, error } = await supabase
     .from("organization_invitations")

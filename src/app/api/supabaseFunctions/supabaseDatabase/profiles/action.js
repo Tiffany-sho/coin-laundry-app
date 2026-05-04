@@ -52,7 +52,7 @@ export const registerProfile = async ({ fullname, username, collectMethod, role 
   if (error) return { error };
 
   // owner ロールで新規登録した場合、組織を自動作成
-  if (role === "owner") {
+  if (role === "admin") {
     const orgName = username ? `${username}の組織` : "マイ組織";
     const { data: org, error: orgError } = await supabase
       .from("organizations")
@@ -63,7 +63,7 @@ export const registerProfile = async ({ fullname, username, collectMethod, role 
     if (!orgError && org) {
       await supabase
         .from("organization_members")
-        .insert({ org_id: org.id, user_id: user.id, role: "owner" });
+        .insert({ org_id: org.id, user_id: user.id, role: "admin" });
     }
   }
 

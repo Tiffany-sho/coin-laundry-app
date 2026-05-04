@@ -35,7 +35,7 @@ const CheckProfiles = () => {
 
   const getRoleInfo = (role) => {
     switch (role) {
-      case "owner":
+      case "admin":
         return { label: "店舗管理者", color: "purple", icon: <Icon.LuCrown /> };
       case "collecter":
         return {

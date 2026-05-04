@@ -138,9 +138,8 @@ const ManyCoinDataChart = () => {
   }
 
   return (
-    <Box w="100%" h="300px" overflow="hidden">
     <Chart.Root h="100%" chart={chart}>
-      <LineChart data={chart.data} margin={{ left: 16, right: 24, top: 24, bottom: 8 }}>
+      <LineChart data={chart.data} margin={{ left: -16, right: 24, top: 24, bottom: 8 }}>
         <CartesianGrid
           stroke={chart.color("border")}
           strokeDasharray="3 3"
@@ -176,7 +175,6 @@ const ManyCoinDataChart = () => {
         />
       </LineChart>
     </Chart.Root>
-    </Box>
   );
 };
 

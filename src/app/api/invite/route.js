@@ -12,7 +12,7 @@ export async function POST(request) {
     }
 
     const roleLabel =
-      role === "owner" ? "店舗管理者" : role === "collecter" ? "集金担当者" : "閲覧者";
+      role === "admin" ? "店舗管理者" : role === "collecter" ? "集金担当者" : "閲覧者";
 
     const { error } = await resend.emails.send({
       from: "Collecie <noreply@collecie.com>",

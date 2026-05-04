@@ -3,7 +3,7 @@ import { useUploadProfiles } from "../context/UploadProfilesContext";
 
 const items = [
   {
-    value: "owner",
+    value: "admin",
     title: "店舗管理者",
     description: "すべての権限が許可されています",
   },

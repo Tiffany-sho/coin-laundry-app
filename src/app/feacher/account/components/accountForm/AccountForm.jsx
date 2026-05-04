@@ -162,7 +162,7 @@ export default function AccountForm({ user }) {
               id="role"
               type="text"
               value={
-                role === "owner"
+                role === "admin"
                   ? "店舗管理者"
                   : role === "collecter"
                   ? "集金担当者"

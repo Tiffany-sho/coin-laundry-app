@@ -18,7 +18,7 @@ import { acceptInvitation } from "@/app/api/supabaseFunctions/supabaseDatabase/o
 import { showToast } from "@/functions/makeToast/toast";
 
 const ROLE_INFO = {
-  owner:    { label: "店舗管理者", color: "purple" },
+  admin:    { label: "店舗管理者", color: "purple" },
   collecter: { label: "集金担当者", color: "blue" },
   viewer:   { label: "閲覧者",     color: "gray" },
 };

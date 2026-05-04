@@ -73,7 +73,7 @@ export async function createStore(formData) {
   if (!user) return { error: "ユーザーが認証されていません。" };
 
   const { orgId, myRole } = await getMyOrgId(supabase, user.id);
-  if (!orgId || myRole !== "owner") return { error: "店舗を作成する権限がありません。" };
+  if (!orgId || myRole !== "admin") return { error: "店舗を作成する権限がありません。" };
 
   const machinesString = formData.get("machines");
   const imagesString = formData.get("images");
@@ -133,7 +133,7 @@ export async function updateStore(formData, id) {
 
   const supabase = await createClient();
   const { orgId, myRole } = await getMyOrgId(supabase, user.id);
-  if (!orgId || myRole !== "owner") return { error: "店舗を編集する権限がありません。" };
+  if (!orgId || myRole !== "admin") return { error: "店舗を編集する権限がありません。" };
 
   const machinesString = formData.get("machines");
   const imagesString = formData.get("images");
@@ -207,7 +207,7 @@ export async function deleteStore(id) {
 
   const supabase = await createClient();
   const { orgId, myRole } = await getMyOrgId(supabase, user.id);
-  if (!orgId || myRole !== "owner") return { error: "店舗を削除する権限がありません。" };
+  if (!orgId || myRole !== "admin") return { error: "店舗を削除する権限がありません。" };
 
   try {
     const { data, error } = await supabase

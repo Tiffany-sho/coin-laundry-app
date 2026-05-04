@@ -11,7 +11,7 @@ export const UploadProfilesProvider = ({ children }) => {
   const [fullname, setFullname] = useState("");
   const [username, setUsername] = useState("");
   const [collectMethod, setCollectMethod] = useState("machines");
-  const [role, setRole] = useState("owner");
+  const [role, setRole] = useState("admin");
 
   const handleNext = () => {
     if (step < totalSteps) {

@@ -19,7 +19,7 @@ import NowLaundryNum from "../NowLaundryNum";
 import HaveMachines from "./HaveMachines";
 
 const MonoCard = ({ coinLaundry, myRole }) => {
-  const isOwner = myRole === "owner";
+  const isOwner = myRole === "admin";
   const canEdit = myRole !== "viewer";
 
   return (
