@@ -49,7 +49,7 @@ const MachineAndFundsList = ({
       const result = await updateData(fundsArray, totalFunds, selectedItem.id);
 
       if (result.error) {
-        throw new Error(result.error.msg || result.error.message || JSON.stringify(result.error));
+        throw new Error("編集に失敗しました");
       }
 
       showToast(
