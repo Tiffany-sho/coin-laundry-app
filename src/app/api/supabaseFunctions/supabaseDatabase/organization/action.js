@@ -96,7 +96,8 @@ export async function removeMember(userId) {
 
   if (myError || myMember.role !== "owner") return { error: "権限がありません" };
 
-  const { error } = await supabase
+  const serviceSupabase = createServiceClient();
+  const { error } = await serviceSupabase
     .from("organization_members")
     .delete()
     .eq("org_id", myMember.org_id)
@@ -119,7 +120,8 @@ export async function updateMemberRole(userId, role) {
 
   if (myError || myMember.role !== "owner") return { error: "権限がありません" };
 
-  const { error } = await supabase
+  const serviceSupabase = createServiceClient();
+  const { error } = await serviceSupabase
     .from("organization_members")
     .update({ role })
     .eq("org_id", myMember.org_id)

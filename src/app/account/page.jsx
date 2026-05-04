@@ -2,19 +2,23 @@ import { getUser } from "../api/supabaseFunctions/supabaseDatabase/user/action";
 
 export const dynamic = "force-dynamic";
 import { getProfile } from "../api/supabaseFunctions/supabaseDatabase/profiles/action";
+import { getMyOrganization } from "../api/supabaseFunctions/supabaseDatabase/organization/action";
 import AccountForm from "../feacher/account/components/accountForm/AccountForm";
 import OrganizationSettings from "../feacher/account/components/organizationSettings/OrganizationSettings";
 import { Box, Card, Heading, Separator } from "@chakra-ui/react";
 
 export default async function Account() {
   const { user } = await getUser();
-  const { data: profile } = await getProfile();
+  const [{ data: profile }, { data: org }] = await Promise.all([
+    getProfile(),
+    getMyOrganization(),
+  ]);
 
   return (
     <Box maxW="600px" mx="auto" p={{ base: 4, md: 8 }}>
       <AccountForm user={user} />
 
-      {profile?.role === "owner" && (
+      {org?.myRole === "owner" && (
         <Card.Root
           bg="white"
           borderRadius="xl"
