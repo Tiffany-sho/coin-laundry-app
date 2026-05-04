@@ -1,14 +1,17 @@
-import { getMessage } from "@/app/api/supabaseFunctions/supabaseDatabase/actionMessage/action";
-import { getUser } from "@/app/api/supabaseFunctions/supabaseDatabase/user/action";
+import {
+  getMessage,
+  getOrgMessages,
+} from "@/app/api/supabaseFunctions/supabaseDatabase/actionMessage/action";
 import ErrorPage from "@/app/feacher/jumpPage/ErrorPage/ErrorPage";
 import TableEmpty from "@/app/feacher/partials/TableEmpty";
 import { createNowData } from "@/functions/makeDate/date";
 import { Table, Box, Badge, HStack, Text, Flex } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
 
-const Log = async ({ id }) => {
-  const { data, error } = await getMessage(id);
-  const { user } = await getUser();
+const Log = async ({ orgId, userId, currentUserId }) => {
+  const { data, error } = orgId
+    ? await getOrgMessages(orgId)
+    : await getMessage(userId);
 
   if (error) return <ErrorPage title={error.msg} status={error.status} />;
 
@@ -50,6 +53,12 @@ const Log = async ({ id }) => {
       </Box>
 
       <Box overflowX="auto">
+        {data.length === 0 ? (
+          <TableEmpty
+            columnCount={3}
+            message="まだアクションログがありません"
+          />
+        ) : (
         <Table.Root size="sm" variant="line">
           <Table.Header bg="var(--teal-pale, #CFFAFE)">
             <Table.Row>
@@ -96,12 +105,6 @@ const Log = async ({ id }) => {
             </Table.Row>
           </Table.Header>
 
-          {data.length === 0 ? (
-            <TableEmpty
-              columnCount={3}
-              message="まだアクションログがありません"
-            />
-          ) : (
             <Table.Body>
               {data.map((item, index) => (
                 <Table.Row
@@ -126,7 +129,7 @@ const Log = async ({ id }) => {
                   </Table.Cell>
 
                   <Table.Cell textAlign="end" py={4} px={4}>
-                    {item.user === user.id ? (
+                    {item.user === currentUserId ? (
                       <Badge
                         bg="cyan.100"
                         color="var(--teal-deeper, #155E75)"
@@ -156,15 +159,17 @@ const Log = async ({ id }) => {
                         gap={1}
                       >
                         <Icon.LuUsers size={12} />
-                        他のユーザー
+                        {item.profiles?.username ||
+                          item.profiles?.full_name ||
+                          "他のユーザー"}
                       </Badge>
                     )}
                   </Table.Cell>
                 </Table.Row>
               ))}
             </Table.Body>
-          )}
         </Table.Root>
+        )}
       </Box>
 
       {data.length > 0 && (
