@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Chart, useChart } from "@chakra-ui/charts";
+import { Box } from "@chakra-ui/react";
 import {
   CartesianGrid,
   Line,
@@ -211,7 +212,8 @@ const MonoCoinDataChart = ({ id }) => {
   }
 
   return (
-    <Chart.Root minWidth="0" height="300px" chart={chart}>
+    <Box w="100%" h="300px" overflow="hidden">
+    <Chart.Root h="100%" chart={chart}>
       <LineChart data={chart.data} margin={{ left: 16, right: 24, top: 24, bottom: 8 }}>
         <CartesianGrid
           stroke={chart.color("border")}
@@ -248,6 +250,7 @@ const MonoCoinDataChart = ({ id }) => {
         />
       </LineChart>
     </Chart.Root>
+    </Box>
   );
 };
 
