@@ -63,7 +63,7 @@ export async function getStoreFundsPaginated(id, orderAmount, upOrder, from, to)
   const supabase = createServiceClient();
   const { data, error } = await supabase
     .from("collect_funds")
-    .select("*")
+    .select("*, profiles!collect_funds_collecter_fkey(username)")
     .eq("laundryId", id)
     .order(orderAmount, { ascending: upOrder })
     .range(from, to);
@@ -248,7 +248,7 @@ export async function getOrgCollectFundsPaginated(orderAmount, upOrder, from, to
   const supabase = createServiceClient();
   const { data, error } = await supabase
     .from("collect_funds")
-    .select("*")
+    .select("*, profiles!collect_funds_collecter_fkey(username)")
     .in("laundryId", storeIds)
     .order(orderAmount, { ascending: upOrder })
     .range(from, to);
