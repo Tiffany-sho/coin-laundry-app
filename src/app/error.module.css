@@ -1,0 +1,121 @@
+.container {
+  min-height: 100dvh;
+  background: var(--app-bg, #F0F9FF);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1.5rem;
+}
+
+.card {
+  background: var(--card-bg, #FFFFFF);
+  border-radius: 18px;
+  box-shadow: var(--shadow-sm, 0 2px 12px rgba(8, 145, 178, 0.08));
+  padding: 2.5rem 2rem;
+  max-width: 400px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  animation: slideUp 0.35s ease-out both;
+}
+
+/* アイコン */
+.iconWrapper {
+  width: 64px;
+  height: 64px;
+  background: #FFF7ED;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.icon {
+  width: 28px;
+  height: 28px;
+  color: #F97316;
+}
+
+/* テキスト */
+.title {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-main, #1E3A5F);
+  text-align: center;
+  margin: 0;
+}
+
+.message {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 0.875rem;
+  color: var(--text-muted, #64748B);
+  text-align: center;
+  line-height: 1.6;
+  margin: 0;
+  word-break: break-word;
+}
+
+/* アクション */
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  width: 100%;
+  margin-top: 0.25rem;
+}
+
+.retryButton {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(140deg, #0E7490 0%, #0891B2 55%, #06B6D4 100%);
+  color: #fff;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  min-height: 48px;
+  transition: opacity 0.15s ease;
+}
+
+.retryButton:hover {
+  opacity: 0.88;
+}
+
+.homeLink {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--teal-pale, #CFFAFE);
+  color: var(--teal-dark, #0E7490);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 10px;
+  text-align: center;
+  text-decoration: none;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease;
+}
+
+.homeLink:hover {
+  background: #BAF5FC;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 640px) {
+  .card {
+    padding: 2rem 1.5rem;
+  }
+}

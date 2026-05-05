@@ -1,11 +1,15 @@
-// PageLoading.jsx
 import React from "react";
 import styles from "./PageLoading.module.css";
 
 const LoadingScreen = () => {
   return (
     <div className={styles.loadingContainer}>
-      <div className={styles.spinner}></div>
+      <p className={styles.logo}>Collecie</p>
+
+      <div className={styles.spinnerWrapper}>
+        <div className={styles.spinnerRing}></div>
+        <div className={styles.spinnerDot}></div>
+      </div>
 
       <div className={styles.textContainer}>
         <div className={styles.loadingText}>

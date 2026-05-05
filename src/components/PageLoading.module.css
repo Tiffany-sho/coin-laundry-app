@@ -4,7 +4,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: #ffffff;
+  background: var(--app-bg, #F0F9FF);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -13,58 +13,85 @@
   z-index: 9999;
 }
 
-.spinner {
-  width: 60px;
-  height: 60px;
-  border: 4px solid #e5e7eb;
-  border-top-color: #3b82f6;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+/* ロゴ */
+.logo {
+  font-family: 'Space Mono', monospace;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--teal-deeper, #155E75);
+  letter-spacing: 0.08em;
+  animation: fadeIn 0.4s ease-out both;
 }
 
+/* スピナーリング */
+.spinnerWrapper {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  animation: fadeIn 0.4s ease-out 0.1s both;
+}
+
+.spinnerRing {
+  width: 64px;
+  height: 64px;
+  border: 3px solid var(--teal-pale, #CFFAFE);
+  border-top-color: var(--teal, #0891B2);
+  border-radius: 50%;
+  animation: spin 0.9s cubic-bezier(0.55, 0.15, 0.45, 0.85) infinite;
+}
+
+.spinnerDot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  background: var(--teal, #0891B2);
+  border-radius: 50%;
+  opacity: 0.7;
+}
+
+/* テキスト + プログレス */
 .textContainer {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
+  animation: fadeIn 0.4s ease-out 0.2s both;
 }
 
 .loadingText {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #1f2937;
-  letter-spacing: 0.05em;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-muted, #64748B);
+  letter-spacing: 0.06em;
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.4rem;
 }
 
 .dots {
   display: flex;
   gap: 4px;
-  margin-left: 4px;
 }
 
 .dot {
-  width: 6px;
-  height: 6px;
-  background: #3b82f6;
+  width: 5px;
+  height: 5px;
+  background: var(--teal, #0891B2);
   border-radius: 50%;
   animation: bounce 1.4s ease-in-out infinite;
 }
 
-.dot:nth-child(2) {
-  animation-delay: 0.2s;
-}
-
-.dot:nth-child(3) {
-  animation-delay: 0.4s;
-}
+.dot:nth-child(2) { animation-delay: 0.2s; }
+.dot:nth-child(3) { animation-delay: 0.4s; }
 
 .progressBar {
-  width: 200px;
-  height: 3px;
-  background: #e5e7eb;
+  width: 160px;
+  height: 2px;
+  background: var(--teal-pale, #CFFAFE);
   border-radius: 10px;
   overflow: hidden;
   position: relative;
@@ -75,45 +102,45 @@
   left: 0;
   top: 0;
   height: 100%;
-  width: 40%;
-  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+  width: 45%;
+  background: linear-gradient(90deg, var(--teal-dark, #0E7490), var(--teal, #0891B2), #06B6D4);
   border-radius: 10px;
-  animation: progress 1.5s ease-in-out infinite;
+  animation: progress 1.6s ease-in-out infinite;
 }
 
+/* アニメーション */
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
 @keyframes bounce {
-  0%, 60%, 100% {
-    transform: translateY(0);
-  }
-  30% {
-    transform: translateY(-8px);
-  }
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-6px); }
 }
 
 @keyframes progress {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(400%);
-  }
+  0% { transform: translateX(-120%); }
+  100% { transform: translateX(320%); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @media (max-width: 640px) {
-  .spinner {
-    width: 50px;
-    height: 50px;
+  .spinnerRing {
+    width: 52px;
+    height: 52px;
   }
-
-  .loadingText {
-    font-size: 1rem;
+  .spinnerWrapper {
+    width: 52px;
+    height: 52px;
   }
-
+  .logo {
+    font-size: 1.5rem;
+  }
   .progressBar {
-    width: 160px;
+    width: 130px;
   }
 }
