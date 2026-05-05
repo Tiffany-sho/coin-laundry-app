@@ -33,7 +33,7 @@ const AddDataBtn = ({ id = "" }) => {
 
         const { data: nextData, error: nextError } = await supabase
           .from("collect_funds")
-          .select("*")
+          .select("*, profiles!collect_funds_collecter_fkey(username)")
           .eq("collecter", user.id)
           .eq("laundryId", id)
           .order(orderAmount, { ascending: upOrder })
