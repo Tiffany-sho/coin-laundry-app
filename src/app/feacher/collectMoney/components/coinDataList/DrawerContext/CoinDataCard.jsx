@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Alert } from "@chakra-ui/react";
+import { Box, Alert, Text } from "@chakra-ui/react";
 import { createNowData } from "@/functions/makeDate/date";
 import { useEffect, useState } from "react";
 import AlertDialog from "@/app/feacher/dialog/AlertDialog";
@@ -111,6 +111,10 @@ const MoneyDataCard = ({ myRole }) => {
         submitFunc={submitDate}
         readOnly={isViewer}
       />
+
+      <Text fontSize="sm" color="var(--text-muted, #64748B)" mt={2} mb={2}>
+        集金者：{selectedItem.profiles?.username ?? "不明"}
+      </Text>
 
       {selectedItem.fundsArray.length > 0 ? (
         <MachineAndFundsList
