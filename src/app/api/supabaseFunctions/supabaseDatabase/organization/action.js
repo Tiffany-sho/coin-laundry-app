@@ -152,7 +152,10 @@ export async function inviteMember(email, role) {
     .select("token, org_id, organizations(name)")
     .single();
 
-  if (error) return { error: "招待の作成に失敗しました" };
+  if (error) {
+    console.error("inviteMember error:", JSON.stringify(error));
+    return { error: `招待の作成に失敗しました: ${error.message}` };
+  }
   return { data };
 }
 
