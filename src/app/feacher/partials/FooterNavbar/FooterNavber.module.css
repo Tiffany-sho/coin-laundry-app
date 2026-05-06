@@ -9,7 +9,7 @@
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   box-shadow: 0 -1px 0 rgba(8, 145, 178, 0.10);
-  padding: 8px 0 env(safe-area-inset-bottom, 14px);
+  padding: 10px 8px calc(env(safe-area-inset-bottom, 0px) + 20px);
   border-top: 1px solid rgba(8, 145, 178, 0.10);
   transition: transform 0.3s ease-in-out;
 }
@@ -19,30 +19,44 @@
 }
 
 .container {
-  display: flex;
-  justify-content: space-around;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   align-items: center;
+  position: relative;
   max-width: 100%;
   margin: 0 auto;
+}
+
+/* sliding pill — absolutely positioned, moves via CSS custom prop */
+.pill {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: calc(100% / 4);
+  height: 48px;
+  border-radius: 999px;
+  background: var(--teal-pale, #CFFAFE);
+  transform: translateY(-50%) translateX(calc(var(--active-idx, 0) * 100%)) scaleX(0.82);
+  transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .navItem {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 4px;
-  padding: 6px 12px;
+  padding: 6px 8px;
   text-decoration: none;
   color: var(--text-faint, #94A3B8);
-  background: transparent;
-  border: none;
   cursor: pointer;
-  transition: color 0.18s;
-  flex: 1;
-  max-width: 90px;
   min-height: 52px;
-  justify-content: center;
+  position: relative;
+  z-index: 1;
   -webkit-tap-highlight-color: transparent;
+  transition: color 0.18s;
 }
 
 .navItem:hover {
@@ -72,40 +86,6 @@
 
 .navItem.active .label {
   font-weight: 700;
-}
-
-/* active indicator dot */
-.indicator {
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: var(--teal-dark, #0E7490);
-  margin-top: 1px;
-  opacity: 0;
-  transform: scale(0);
-  transition: opacity 0.22s, transform 0.22s;
-}
-
-.navItem.active .indicator {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.logoutForm {
-  display: flex;
-  margin: 0;
-  padding: 0;
-  flex: 1;
-  max-width: 90px;
-}
-
-.logoutForm .navItem {
-  color: #EF4444;
-  width: 100%;
-}
-
-.logoutForm .navItem:hover {
-  color: #DC2626;
 }
 
 @media (max-width: 639px) {

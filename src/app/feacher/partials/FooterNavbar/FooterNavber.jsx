@@ -42,9 +42,15 @@ const FooterNavbar = () => {
     return pathname.startsWith(href);
   };
 
+  const activeIndex = NAV_ITEMS.findIndex(({ href }) => isActive(href));
+
   return (
     <nav className={`${styles.footerNavbar} ${!isVisible ? styles.hidden : ""}`}>
-      <div className={styles.container}>
+      <div
+        className={styles.container}
+        style={{ "--active-idx": activeIndex >= 0 ? activeIndex : 0 }}
+      >
+        {activeIndex >= 0 && <div className={styles.pill} />}
         {NAV_ITEMS.map(({ href, icon, label }) => (
           <Link
             key={href}
@@ -53,7 +59,6 @@ const FooterNavbar = () => {
           >
             <span className={styles.icon}>{icon}</span>
             <span className={styles.label}>{label}</span>
-            <span className={styles.indicator} />
           </Link>
         ))}
       </div>
