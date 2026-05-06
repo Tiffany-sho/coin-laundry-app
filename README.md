@@ -1,68 +1,63 @@
-<main>
-<h1>コインランドリーの集金アプリ（Collecie）</h1>
-<hr>
-<h2>概要</h2>
-<p>本アプリケーションは、**コインランドリー**の集金業務を効率化するために開発されました。
-店舗の登録から集金情報の記録、データ分析までを一元管理できます。
+# Collecie — コインランドリー集金アプリ
 
-集金データは、**「機器ごとの詳細な記録」**と**「全機器の総額の記録」**の二つの方法で記録可能です。コインランドリーの経営者、集金担当者、データ管理者の方々にとって有用な機能が複数実装されています。</p>
+コインランドリーの集金業務を効率化する Web アプリケーションです。  
+店舗登録・集金記録・在庫/機器状態管理・データ可視化を一元管理できます。
 
-<hr>
-<h2>実装機能</h2>
+**公開 URL**: https://www.collecie.com/
 
-<ul>
-<li>
-<h3>ユーザ登録機能</h3>
-<p>ユーザー認証機能があるため、登録された店舗情報や集金データは他者から閲覧されることはありません。</P>
-</li>
+---
 
-<li>
-<h3>在庫・機械の現状確認</h3>
-<p>店舗ごとに在庫（洗剤など）や機器（洗濯機、乾燥機など）の状態を記録・確認することができます。</P>
-</li>
+## 機能
 
-<li>
-<h3>集金記録</h3>
-<p>集金データを記録、更新、削除することができます。</P>
-</li>
+- **ユーザー認証** — Supabase Auth によるサインアップ・ログイン。登録データは本人のみ閲覧可能（RLS 有効）
+- **店舗管理** — 店舗の登録・編集・削除。機器構成や写真も管理可能
+- **集金記録** — 機器ごとの詳細記録と全機器合計の 2 方式に対応。記録の作成・更新・削除が可能
+- **在庫・機器状態管理** — 店舗ごとに洗剤などの在庫や機器（洗濯機・乾燥機）の状態を記録・確認
+- **データ可視化** — 集金データをグラフで表示し、収益の推移を直感的に把握
 
-<li>
-<h3>集金記録の可視化</h3>
-<p>記録された集金データをチャート（グラフ）で表示し、集金状況の変動を直感的に把握できます。</P>
-</li>
-</ul>
+---
 
-<h2>使い方</h2>
-<h3>リポジトリーから利用する場合</h3>
-<p>git clone　https://github.com/Tiffany-sho/coin-laundry-app.git</p>
-<p>npm install</p>
-<p>npm run dev</p>
-<p>.envファイルにsupabaseのURLとANON_KEYの入力が必要です</p>
-<p>NEXT_PUBLIC_SUPABASE_URL="https://xxxxxxxxxxxx.supabase.co"</p>
-<p>NEXT_PUBLIC_SUPABASE_ANON_KEY="aaabbbcccddddxxxxx....."</p>
+## 技術スタック
 
-<h3>公開URLで利用する場合</h3>
-<p>https://www.collecie.com/</p>
-<p>上記のURLで利用できます。sampleデータを見たい場合はメールアドレス:sample@sample.mail.jp,パスワード:sampleと入力してください。※ サンプルデータのため、データの編集・削除は極力ご遠慮ください。</p>
+| 役割 | 技術 |
+| --- | --- |
+| フレームワーク | Next.js 16 (App Router) |
+| UI ライブラリ | Chakra UI v3 |
+| バックエンド / DB / 認証 | Supabase (RLS 有効) |
+| チャート | Recharts |
+| デプロイ | Vercel |
 
-<h2>使用技術</h2>
+---
 
-<li>
-<h3>フロントエンド :</h3>
-<p>React + Next.js</P>
-</li>
+## ローカルで動かす
 
-<li>
-<h3>バックエンド :</h3>
-<p>Supabase (認証、データベース、ストレージ機能全般に使用) </P>
-</li>
+```bash
+git clone https://github.com/Tiffany-sho/coin-laundry-app.git
+cd coin-laundry-app
+npm install
+npm run dev
+```
 
-<li>
-<h3>UIライブラリ :</h3>
-<p>chakraUI </P>
-</li>
+`.env.local` に以下の環境変数を設定してください。
 
-</ul>
+```
+NEXT_PUBLIC_SUPABASE_URL=https://xxxxxxxxxxxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=aaabbbcccddddxxxxx.....
+```
 
-<h2>本アプリは商用利用不可とさせていただきますが、個人でのユーザー登録・利用は心より歓迎いたします！</h2>
-</main>
+---
+
+## サンプルデータで試す
+
+公開 URL (https://www.collecie.com/) にアクセスし、下記の情報でログインするとサンプルデータを確認できます。
+
+- **メールアドレス**: sample@sample.mail.jp
+- **パスワード**: sample
+
+> サンプルデータのため、編集・削除はご遠慮ください。
+
+---
+
+## ライセンス・利用について
+
+本アプリは商用利用不可です。個人でのユーザー登録・利用は歓迎いたします。
