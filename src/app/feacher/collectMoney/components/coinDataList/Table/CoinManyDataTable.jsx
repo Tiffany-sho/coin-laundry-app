@@ -8,7 +8,7 @@ import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageCont
 import TableLoading from "@/app/feacher/partials/TableLoading";
 import TableError from "@/app/feacher/partials/TableError";
 import TableEmpty from "@/app/feacher/partials/TableEmpty";
-import { getOrgCollectFundsPaginated } from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
+import { getOrgCollectFundsPaginated, getFundItemById } from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
 
 const CoinManyDataTable = () => {
   const [error, setError] = useState(null);
@@ -21,6 +21,7 @@ const CoinManyDataTable = () => {
     upOrder,
     selectedItem,
     setSelectedItem,
+    setIsFundsArrayLoading,
     open,
     setOpen,
     displayData,
@@ -62,9 +63,15 @@ const CoinManyDataTable = () => {
     }
   }, [open]);
 
-  const toggleHander = (item) => {
+  const toggleHander = async (item) => {
     setOpen(true);
     setSelectedItem(item);
+    setIsFundsArrayLoading(true);
+    const { data } = await getFundItemById(item.id);
+    if (data) {
+      setSelectedItem({ ...item, fundsArray: data.fundsArray });
+    }
+    setIsFundsArrayLoading(false);
   };
 
   const toggleDateCollapse = (date) => {

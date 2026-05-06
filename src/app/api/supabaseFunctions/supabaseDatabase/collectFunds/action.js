@@ -37,7 +37,7 @@ export async function getStoreFundsForChart(id, startEpoch, endEpoch) {
   const supabase = createServiceClient();
   let query = supabase
     .from("collect_funds")
-    .select("*")
+    .select("date, totalFunds, laundryId")
     .eq("laundryId", id)
     .order("date", { ascending: true })
     .gt("date", startEpoch);
@@ -63,10 +63,30 @@ export async function getStoreFundsPaginated(id, orderAmount, upOrder, from, to)
   const supabase = createServiceClient();
   const { data, error } = await supabase
     .from("collect_funds")
-    .select("*, profiles!collect_funds_collecter_fkey(username)")
+    .select("id, laundryId, laundryName, date, totalFunds, collecter, profiles!collect_funds_collecter_fkey(username)")
     .eq("laundryId", id)
     .order(orderAmount, { ascending: upOrder })
     .range(from, to);
+
+  if (error) return { error: "集金データの取得に失敗しました" };
+  return { data };
+}
+
+// 単一集金レコードのfundsArrayをon-demand取得
+export async function getFundItemById(id) {
+  const { user } = await getUser();
+  if (!user) return { error: "ログインしてください" };
+
+  const storeIds = await getOrgStoreIds();
+  if (storeIds.length === 0) return { error: "アクセス権限がありません" };
+
+  const supabase = createServiceClient();
+  const { data, error } = await supabase
+    .from("collect_funds")
+    .select("fundsArray")
+    .eq("id", id)
+    .in("laundryId", storeIds)
+    .single();
 
   if (error) return { error: "集金データの取得に失敗しました" };
   return { data };
@@ -223,7 +243,7 @@ export async function getOrgCollectFunds(startEpoch, endEpoch) {
   const supabase = createServiceClient();
   let query = supabase
     .from("collect_funds")
-    .select("*")
+    .select("date, totalFunds, laundryId")
     .in("laundryId", storeIds)
     .order("date", { ascending: true })
     .gt("date", startEpoch);
@@ -248,7 +268,7 @@ export async function getOrgCollectFundsPaginated(orderAmount, upOrder, from, to
   const supabase = createServiceClient();
   const { data, error } = await supabase
     .from("collect_funds")
-    .select("*, profiles!collect_funds_collecter_fkey(username)")
+    .select("id, laundryId, laundryName, date, totalFunds, collecter, profiles!collect_funds_collecter_fkey(username)")
     .in("laundryId", storeIds)
     .order(orderAmount, { ascending: upOrder })
     .range(from, to);

@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Alert, Text } from "@chakra-ui/react";
+import { Box, Alert, Text, Spinner } from "@chakra-ui/react";
 import { createNowData } from "@/functions/makeDate/date";
 import { useEffect, useState } from "react";
 import AlertDialog from "@/app/feacher/dialog/AlertDialog";
@@ -15,7 +15,7 @@ import MachineAndFundsList from "./MachineAndFundsList";
 import TotalFundsList from "./TotalFundsList";
 
 const MoneyDataCard = ({ myRole }) => {
-  const { selectedItem, setSelectedItem, setOpen } = useUploadPage();
+  const { selectedItem, setSelectedItem, setOpen, isFundsArrayLoading } = useUploadPage();
   const [totalFunds, setTotalFunds] = useState(selectedItem.totalFunds || 0);
   const [date, setDate] = useState(selectedItem.date);
   const [msg, setMsg] = useState("");
@@ -116,7 +116,11 @@ const MoneyDataCard = ({ myRole }) => {
         集金者：{selectedItem.profiles?.username ?? "不明"}
       </Text>
 
-      {selectedItem.fundsArray.length > 0 ? (
+      {isFundsArrayLoading ? (
+        <Box py={6} display="flex" justifyContent="center">
+          <Spinner color="var(--teal, #0891B2)" />
+        </Box>
+      ) : selectedItem.fundsArray?.length > 0 ? (
         <MachineAndFundsList
           moveCursorToEnd={moveCursorToEnd}
           validateNumberInput={validateNumberInput}
