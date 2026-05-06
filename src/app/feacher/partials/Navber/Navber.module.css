@@ -46,10 +46,10 @@
 
 .logoText {
   display: inline;
-  font-family: 'Noto Sans JP', sans-serif;
-  font-size: 1.25rem;
+  font-family: 'Dancing Script', cursive;
+  font-size: 1.6rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
 }
 
 .navLinks {
@@ -147,6 +147,6 @@
     font-size: 0.75rem;
   }
   .logoText {
-    font-size: 1.1rem;
+    font-size: 1.4rem;
   }
 }
