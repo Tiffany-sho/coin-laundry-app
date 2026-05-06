@@ -29,10 +29,10 @@
 }
 
 .appName {
-  font-family: 'Space Mono', monospace;
-  font-size: 2.75rem;
+  font-family: 'Dancing Script', cursive;
+  font-size: 3.75rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.02em;
   color: var(--teal-deeper, #155E75);
   opacity: 0;
   animation: textIn 0.5s cubic-bezier(0.34, 1.2, 0.64, 1) 0.45s forwards;
