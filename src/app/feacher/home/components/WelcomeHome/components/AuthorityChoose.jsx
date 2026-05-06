@@ -5,17 +5,12 @@ const items = [
   {
     value: "admin",
     title: "店舗管理者",
-    description: "すべての権限が許可されています",
+    description: "店舗の登録・設定など、すべての操作が行えます",
   },
   {
     value: "collecter",
-    title: "集金担当者",
-    description: "集金データを登録できます",
-  },
-  {
-    value: "viewer",
-    title: "閲覧者",
-    description: "集金データを閲覧できます",
+    title: "担当スタッフ",
+    description: "集金データの登録・閲覧が行えます",
   },
 ];
 
@@ -35,7 +30,7 @@ const AuthorityChoose = () => {
           color="gray.800"
           mb={4}
         >
-          あなたの役割を選択してください
+          あなたは店舗管理者ですか？
         </RadioCard.Label>
         <Stack
           justify="center"
