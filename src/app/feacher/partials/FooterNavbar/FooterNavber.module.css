@@ -9,7 +9,7 @@
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   box-shadow: 0 -1px 0 rgba(8, 145, 178, 0.10);
-  padding: 10px 8px calc(env(safe-area-inset-bottom, 0px) + 20px);
+  padding: 10px 8px calc(env(safe-area-inset-bottom, 0px) + 28px);
   border-top: 1px solid rgba(8, 145, 178, 0.10);
   transition: transform 0.3s ease-in-out;
 }
@@ -27,17 +27,17 @@
   margin: 0 auto;
 }
 
-/* sliding pill — absolutely positioned, moves via CSS custom prop */
+/* sliding circle — centered in each grid cell via left %, moves via CSS custom prop */
 .pill {
   position: absolute;
   top: 50%;
-  left: 0;
-  width: calc(100% / 4);
-  height: 48px;
-  border-radius: 999px;
+  left: calc(var(--active-idx, 0) * 25% + 12.5%);
+  transform: translate(-50%, -50%);
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
   background: var(--teal-pale, #CFFAFE);
-  transform: translateY(-50%) translateX(calc(var(--active-idx, 0) * 100%)) scaleX(0.82);
-  transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: left 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
   pointer-events: none;
   z-index: 0;
 }
