@@ -40,15 +40,15 @@ const MachinesDialog = ({ initialData }) => {
           bg="white"
           p={3}
           borderRadius="md"
-          border="1px solid"
-          borderColor="red.200"
+          border="2px solid"
+          borderColor="orange.200"
           cursor="pointer"
           transition="all 0.2s"
           _hover={{
-            bg: "red.50",
+            bg: "orange.50",
             transform: "translateY(-2px)",
             boxShadow: "md",
-            borderColor: "red.300",
+            borderColor: "orange.300",
           }}
         >
           <VStack align="center" gap={2} textAlign="center">
@@ -57,7 +57,7 @@ const MachinesDialog = ({ initialData }) => {
               <Text fontSize="sm" fontWeight="bold" color="var(--text-main, #1E3A5F)">
                 {data.laundryName}
               </Text>
-              <Badge bg="red.100" color="red.700" fontSize="xs" px={2} py={0.5} borderRadius="full">
+              <Badge bg="orange.100" color="orange.700" fontSize="xs" px={2} py={0.5} borderRadius="full">
                 {breakMachine.length}台故障
               </Badge>
             </HStack>
@@ -65,19 +65,19 @@ const MachinesDialog = ({ initialData }) => {
             <VStack align="center" gap={1}>
               {breakMachine.slice(0, 3).map((machine) => (
                 <HStack key={machine.id} gap={2} justify="center">
-                  <Box w="4px" h="4px" bg="red.500" borderRadius="full" flexShrink={0} />
-                  <Text fontSize="xs" color="red.700" fontWeight="medium">
+                  <Box w="4px" h="4px" bg="orange.500" borderRadius="full" flexShrink={0} />
+                  <Text fontSize="xs" color="orange.700" fontWeight="medium">
                     {machine.name}
                   </Text>
                   {machine.comment && (
-                    <Text fontSize="xs" color="red.700" fontWeight="medium" bg="red.50" px={2} py={1} borderRadius="md">
+                    <Text fontSize="xs" color="orange.700" fontWeight="medium" bg="orange.50" px={2} py={1} borderRadius="md">
                       {machine.comment}
                     </Text>
                   )}
                 </HStack>
               ))}
               {breakMachine.length > 3 && (
-                <Text fontSize="xs" color="red.600">
+                <Text fontSize="xs" color="orange.600">
                   他 {breakMachine.length - 3}台
                 </Text>
               )}
@@ -133,10 +133,10 @@ const MachinesDialog = ({ initialData }) => {
                   <Box
                     key={machine.id}
                     p={5}
-                    bg={machine.break ? "red.50" : "var(--app-bg, #F0F9FF)"}
+                    bg={machine.break ? "orange.50" : "cyan.50"}
                     borderRadius="14px"
                     border="2px solid"
-                    borderColor={machine.break ? "red.200" : "var(--divider, #F1F5F9)"}
+                    borderColor={machine.break ? "orange.200" : "cyan.200"}
                     transition="all 0.2s"
                   >
                     <VStack align="stretch" gap={4}>
@@ -146,8 +146,8 @@ const MachinesDialog = ({ initialData }) => {
                             {machine.name}
                           </Heading>
                           <Badge
-                            bg={machine.break ? "red.300" : "cyan.200"}
-                            color={machine.break ? "red.900" : "var(--teal-deeper, #155E75)"}
+                            bg={machine.break ? "orange.300" : "cyan.200"}
+                            color={machine.break ? "orange.900" : "var(--teal-deeper, #155E75)"}
                             fontSize="xs"
                             px={2}
                             py={1}
@@ -168,7 +168,7 @@ const MachinesDialog = ({ initialData }) => {
                       </HStack>
 
                       {machine.break && (
-                        <Box p={4} bg="white" borderRadius="md" border="1px solid" borderColor="red.200">
+                        <Box p={4} bg="white" borderRadius="md" border="1px solid" borderColor="orange.200">
                           <VStack align="stretch" gap={3}>
                             <Text fontSize="sm" fontWeight="semibold" color="var(--text-main, #1E3A5F)">
                               故障内容
@@ -179,10 +179,10 @@ const MachinesDialog = ({ initialData }) => {
                               onChange={(e) => changeMachineState(e, machine.id, "input")}
                               rows={3}
                               resize="vertical"
-                              borderColor="red.200"
+                              borderColor="orange.200"
                               _focus={{
-                                borderColor: "red.400",
-                                boxShadow: "0 0 0 1px var(--chakra-colors-red-400)",
+                                borderColor: "orange.400",
+                                boxShadow: "0 0 0 1px var(--chakra-colors-orange-400)",
                               }}
                             />
                           </VStack>

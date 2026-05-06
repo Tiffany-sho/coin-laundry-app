@@ -9,11 +9,11 @@ const NowMachinesState = async () => {
   if (error) {
     return (
       <Box
-        bg="red.50"
+        bg="orange.50"
         p={4}
         borderRadius="xl"
         border="1px solid"
-        borderColor="red.200"
+        borderColor="orange.200"
         textAlign="center"
       >
         <Text color="red.600" fontWeight="semibold">
@@ -73,15 +73,15 @@ const NowMachinesState = async () => {
 
   return (
     <Box
-      bg="red.50"
+      bg="orange.50"
       px={4}
       py={6}
       border="1px solid"
       borderRadius="xl"
-      borderColor="red.200"
+      borderColor="orange.200"
     >
       <VStack align="center" gap={3} textAlign="center">
-        <Box bg="red.400" color="white" borderRadius="full" p={1.5}>
+        <Box bg="orange.400" color="white" borderRadius="full" p={1.5}>
           <Icon.CiCircleAlert size={16} />
         </Box>
         <Text fontSize="sm" color="var(--text-muted, #64748B)" fontWeight="semibold">
@@ -89,7 +89,7 @@ const NowMachinesState = async () => {
         </Text>
         <HStack gap={2} justify="center">
           <Badge
-            bg="red.400"
+            bg="orange.400"
             color="white"
             fontSize="sm"
             px={3}
@@ -99,11 +99,11 @@ const NowMachinesState = async () => {
           >
             故障発生中
           </Badge>
-          <Text fontSize="lg" fontWeight="bold" color="red.700">
+          <Text fontSize="lg" fontWeight="bold" color="orange.700">
             {breakMachines.length}店舗
           </Text>
         </HStack>
-        <Text fontSize="xs" color="red.500">
+        <Text fontSize="xs" color="orange.500">
           至急対応が必要な店舗があります
         </Text>
 

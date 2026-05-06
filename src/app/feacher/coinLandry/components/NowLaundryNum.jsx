@@ -12,6 +12,7 @@ import {
   Portal,
   Box,
   Heading,
+  Skeleton,
 } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
 import { useNowLaundryNum } from "./useNowLaundryNum";
@@ -33,16 +34,16 @@ const NowLaundryNum = ({ id, onLoad, canEdit = true }) => {
     if (!isLoading) onLoad?.();
   }, [isLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (isLoading) return null;
+  if (isLoading) return <Skeleton borderRadius="lg" height="80px" />;
 
   if (!data)
     return (
       <Box
-        bg="red.50"
+        bg="orange.50"
         p={3}
         borderRadius="lg"
         borderLeft="4px solid"
-        borderColor="red.500"
+        borderColor="orange.500"
       >
         <Text fontSize="sm" color="red.600" fontWeight="medium">
           データを入手できませんでした
@@ -58,17 +59,17 @@ const NowLaundryNum = ({ id, onLoad, canEdit = true }) => {
     >
       <Dialog.Trigger asChild>
         <Box
-          bg={data.detergent > 1 && data.softener > 1 ? "green.50" : "red.50"}
+          bg={data.detergent > 1 && data.softener > 1 ? "cyan.50" : "orange.50"}
           p={3}
           borderRadius="lg"
           borderColor={
-            data.detergent > 1 && data.softener > 1 ? "green.200" : "red.200"
+            data.detergent > 1 && data.softener > 1 ? "cyan.200" : "orange.200"
           }
-          borderWidth="0.5px"
+          borderWidth="2px"
           cursor="pointer"
           transition="all 0.2s"
           _hover={{
-            bg: data.detergent > 1 && data.softener > 1 ? "green.100" : "red.100",
+            bg: data.detergent > 1 && data.softener > 1 ? "cyan.100" : "orange.100",
             transform: "translateY(-2px)",
             boxShadow: "md",
           }}
@@ -79,8 +80,8 @@ const NowLaundryNum = ({ id, onLoad, canEdit = true }) => {
                 <Box
                   bg={
                     data.detergent > 1 && data.softener > 1
-                      ? "green.500"
-                      : "red.500"
+                      ? "cyan.500"
+                      : "orange.500"
                   }
                   color="white"
                   borderRadius="full"
@@ -96,8 +97,8 @@ const NowLaundryNum = ({ id, onLoad, canEdit = true }) => {
                   fontSize="xs"
                   color={
                     data.detergent > 1 && data.softener > 1
-                      ? "green.700"
-                      : "red.700"
+                      ? "cyan.700"
+                      : "orange.700"
                   }
                   fontWeight="semibold"
                 >
@@ -107,7 +108,7 @@ const NowLaundryNum = ({ id, onLoad, canEdit = true }) => {
 
               <HStack gap={2} flexWrap="wrap">
                 <Text
-                  color={data.detergent > 1 ? "green.700" : "red.700"}
+                  color={data.detergent > 1 ? "cyan.700" : "orange.700"}
                   fontSize="xs"
                   py={1}
                   borderRadius="md"
@@ -118,8 +119,8 @@ const NowLaundryNum = ({ id, onLoad, canEdit = true }) => {
                 <Text
                   color={
                     data.detergent > 1 && data.softener > 1
-                      ? "green.700"
-                      : "red.700"
+                      ? "cyan.700"
+                      : "orange.700"
                   }
                   fontSize="xs"
                   py={1}
@@ -129,7 +130,7 @@ const NowLaundryNum = ({ id, onLoad, canEdit = true }) => {
                   /
                 </Text>
                 <Text
-                  color={data.softener > 1 ? "green.700" : "red.700"}
+                  color={data.softener > 1 ? "cyan.700" : "orange.700"}
                   fontSize="xs"
                   py={1}
                   borderRadius="md"
@@ -152,12 +153,12 @@ const NowLaundryNum = ({ id, onLoad, canEdit = true }) => {
             boxShadow="xl"
           >
             <Dialog.Header
-              bg="green.50"
+              bg="cyan.50"
               borderBottom="1px solid"
-              borderColor="green.200"
+              borderColor="cyan.200"
               p={6}
             >
-              <Dialog.Title fontSize="xl" fontWeight="bold" color="green.900">
+              <Dialog.Title fontSize="xl" fontWeight="bold" color="cyan.900">
                 在庫管理({data.laundryName}店)
               </Dialog.Title>
             </Dialog.Header>
@@ -169,7 +170,7 @@ const NowLaundryNum = ({ id, onLoad, canEdit = true }) => {
                 right={4}
                 bg="white"
                 borderRadius="full"
-                _hover={{ bg: "green.100" }}
+                _hover={{ bg: "cyan.100" }}
               />
             </Dialog.CloseTrigger>
 
@@ -177,7 +178,7 @@ const NowLaundryNum = ({ id, onLoad, canEdit = true }) => {
               <VStack align="stretch" gap={6}>
                 <Box p={4} borderRadius="lg" border="1px solid">
                   <VStack align="stretch" gap={3}>
-                    <Heading size="sm" color="green.900">
+                    <Heading size="sm" color="cyan.900">
                       洗剤（ソープ）
                     </Heading>
                     {canEdit ? (
@@ -201,7 +202,7 @@ const NowLaundryNum = ({ id, onLoad, canEdit = true }) => {
                           minW="100px"
                           textAlign="center"
                         >
-                          <Text fontSize="3xl" fontWeight="bold" color="green.900">
+                          <Text fontSize="3xl" fontWeight="bold" color="cyan.900">
                             {detergent}
                           </Text>
                         </Box>
@@ -216,7 +217,7 @@ const NowLaundryNum = ({ id, onLoad, canEdit = true }) => {
                         </IconButton>
                       </HStack>
                     ) : (
-                      <Text fontSize="3xl" fontWeight="bold" color="green.900" textAlign="center">
+                      <Text fontSize="3xl" fontWeight="bold" color="cyan.900" textAlign="center">
                         {data.detergent}
                       </Text>
                     )}
@@ -225,7 +226,7 @@ const NowLaundryNum = ({ id, onLoad, canEdit = true }) => {
 
                 <Box p={4} borderRadius="lg" border="1px solid">
                   <VStack align="stretch" gap={3}>
-                    <Heading size="sm" color="green.900">
+                    <Heading size="sm" color="cyan.900">
                       柔軟剤（ソフター）
                     </Heading>
                     {canEdit ? (
@@ -275,7 +276,7 @@ const NowLaundryNum = ({ id, onLoad, canEdit = true }) => {
 
             <Dialog.Footer
               borderTop="1px solid"
-              borderColor="green.200"
+              borderColor="cyan.200"
               p={6}
               gap={3}
             >

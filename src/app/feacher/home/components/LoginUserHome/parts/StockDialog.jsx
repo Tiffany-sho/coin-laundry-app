@@ -16,8 +16,8 @@ import StockCounter from "./StockCounter";
 import { useStockEdit } from "./useStockEdit";
 
 const getStockBadgeStyle = (count) => ({
-  bg: count < 1 ? "red.500" : count < 2 ? "orange.200" : "green.200",
-  color: count < 1 ? "white" : count < 2 ? "orange.800" : "green.800",
+  bg: count < 1 ? "orange.500" : count < 2 ? "orange.200" : "cyan.200",
+  color: count < 1 ? "white" : count < 2 ? "orange.800" : "cyan.800",
 });
 
 const StockDialog = ({ initialData }) => {
@@ -33,11 +33,11 @@ const StockDialog = ({ initialData }) => {
   } = useStockEdit(initialData);
 
   const isCritical = currentData.detergent < 1 || currentData.softener < 1;
-  const borderColor = isCritical ? "red.200" : "orange.200";
-  const hoverBg = isCritical ? "red.50" : "orange.50";
-  const hoverBorderColor = isCritical ? "red.300" : "orange.300";
+  const borderColor = isCritical ? "orange.200" : "orange.200";
+  const hoverBg = isCritical ? "orange.50" : "orange.50";
+  const hoverBorderColor = isCritical ? "orange.300" : "orange.300";
   const alertColor = isCritical
-    ? "var(--chakra-colors-red-500)"
+    ? "var(--chakra-colors-orange-500)"
     : "var(--chakra-colors-orange-500)";
 
   return (
@@ -51,7 +51,7 @@ const StockDialog = ({ initialData }) => {
           bg="white"
           p={3}
           borderRadius="md"
-          border="1px solid"
+          border="2px solid"
           borderColor={borderColor}
           cursor="pointer"
           transition="all 0.2s"
@@ -70,7 +70,7 @@ const StockDialog = ({ initialData }) => {
               </Text>
               {isCritical && (
                 <Badge
-                  bg="red.500"
+                  bg="orange.500"
                   color="white"
                   fontSize="xs"
                   px={2}
@@ -116,9 +116,9 @@ const StockDialog = ({ initialData }) => {
 
             <Text
               fontSize="xs"
-              color={isCritical ? "red.700" : "orange.700"}
+              color={isCritical ? "orange.700" : "orange.700"}
               fontWeight="medium"
-              bg={isCritical ? "red.50" : "orange.50"}
+              bg={isCritical ? "orange.50" : "orange.50"}
               px={2}
               py={1}
               borderRadius="md"

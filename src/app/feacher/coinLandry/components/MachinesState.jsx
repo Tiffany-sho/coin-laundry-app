@@ -14,6 +14,7 @@ import {
   Switch,
   Badge,
   Textarea,
+  Skeleton,
 } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
 import { useMachinesState } from "./useMachinesState";
@@ -34,11 +35,11 @@ const MachinesState = ({ id, onLoad, canEdit = true }) => {
     if (!isLoading) onLoad?.();
   }, [isLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (isLoading) return null;
+  if (isLoading) return <Skeleton borderRadius="lg" height="80px" />;
 
   if (!data)
     return (
-      <Box bg="red.50" p={3} borderRadius="lg" borderLeft="4px solid" borderColor="red.500">
+      <Box bg="orange.50" p={3} borderRadius="lg" borderLeft="4px solid" borderColor="orange.500">
         <Text fontSize="sm" color="red.600" fontWeight="medium">
           データを入手できませんでした
         </Text>
@@ -53,15 +54,15 @@ const MachinesState = ({ id, onLoad, canEdit = true }) => {
     >
       <Dialog.Trigger asChild>
         <Box
-          bg={breakMachine.length === 0 ? "green.50" : "red.50"}
+          bg={breakMachine.length === 0 ? "cyan.50" : "orange.50"}
           p={3}
           borderRadius="lg"
-          borderColor={breakMachine.length === 0 ? "green.200" : "red.200"}
-          borderWidth="0.5px"
+          borderColor={breakMachine.length === 0 ? "cyan.200" : "orange.200"}
+          borderWidth="2px"
           cursor="pointer"
           transition="all 0.2s"
           _hover={{
-            bg: breakMachine.length === 0 ? "green.100" : "red.100",
+            bg: breakMachine.length === 0 ? "cyan.100" : "orange.100",
             transform: "translateY(-2px)",
             boxShadow: "md",
           }}
@@ -69,7 +70,7 @@ const MachinesState = ({ id, onLoad, canEdit = true }) => {
           <VStack align="stretch" gap={2}>
             <HStack>
               <Box
-                bg={breakMachine.length === 0 ? "green.500" : "red.500"}
+                bg={breakMachine.length === 0 ? "cyan.500" : "orange.500"}
                 color="white"
                 borderRadius="full"
                 p={1}
@@ -81,28 +82,28 @@ const MachinesState = ({ id, onLoad, canEdit = true }) => {
                 )}
               </Box>
               {breakMachine.length === 0 ? (
-                <Text fontSize="xs" fontWeight="semibold" color="green.700">
+                <Text fontSize="xs" fontWeight="semibold" color="cyan.700">
                   フル稼働中
                 </Text>
               ) : (
-                <Text fontSize="xs" color="red.700" fontWeight="semibold">
+                <Text fontSize="xs" color="orange.700" fontWeight="semibold">
                   故障 {breakMachine.length}台
                 </Text>
               )}
             </HStack>
             {breakMachine.length === 0 ? (
-              <Text fontSize="xs" color="green.700" fontWeight="medium">
+              <Text fontSize="xs" color="cyan.700" fontWeight="medium">
                 異常なし
               </Text>
             ) : (
               <HStack align="stretch">
                 {breakMachine.slice(0, 1).map((machine, index) => (
-                  <Text key={index} fontSize="xs" color="red.700" fontWeight="medium">
+                  <Text key={index} fontSize="xs" color="orange.700" fontWeight="medium">
                     {machine.name.slice(0, 5)}
                   </Text>
                 ))}
                 {breakMachine.length > 1 && (
-                  <Text fontSize="xs" color="red.700" fontWeight="medium">
+                  <Text fontSize="xs" color="orange.700" fontWeight="medium">
                     他 {breakMachine.length - 1}台
                   </Text>
                 )}
@@ -154,10 +155,10 @@ const MachinesState = ({ id, onLoad, canEdit = true }) => {
                   <Box
                     key={machine.id}
                     p={5}
-                    bg={machine.break ? "red.50" : "var(--app-bg, #F0F9FF)"}
+                    bg={machine.break ? "orange.50" : "cyan.50"}
                     borderRadius="14px"
                     border="2px solid"
-                    borderColor={machine.break ? "red.200" : "var(--divider, #F1F5F9)"}
+                    borderColor={machine.break ? "orange.200" : "cyan.200"}
                     transition="all 0.2s"
                   >
                     <VStack align="stretch" gap={4}>
@@ -167,8 +168,8 @@ const MachinesState = ({ id, onLoad, canEdit = true }) => {
                             {machine.name}
                           </Heading>
                           <Badge
-                            bg={machine.break ? "red.300" : "cyan.200"}
-                            color={machine.break ? "red.900" : "var(--teal-deeper, #155E75)"}
+                            bg={machine.break ? "orange.300" : "cyan.200"}
+                            color={machine.break ? "orange.900" : "var(--teal-deeper, #155E75)"}
                             fontSize="xs"
                             px={2}
                             py={1}
@@ -201,7 +202,7 @@ const MachinesState = ({ id, onLoad, canEdit = true }) => {
                           bg="white"
                           borderRadius="md"
                           border="1px solid"
-                          borderColor="red.200"
+                          borderColor="orange.200"
                         >
                           <VStack align="stretch" gap={3}>
                             <Text fontSize="sm" fontWeight="semibold" color="var(--text-main, #1E3A5F)">
@@ -217,10 +218,10 @@ const MachinesState = ({ id, onLoad, canEdit = true }) => {
                                 }
                                 rows={3}
                                 resize="vertical"
-                                borderColor="red.200"
+                                borderColor="orange.200"
                                 _focus={{
-                                  borderColor: "red.400",
-                                  boxShadow: "0 0 0 1px var(--chakra-colors-red-400)",
+                                  borderColor: "orange.400",
+                                  boxShadow: "0 0 0 1px var(--chakra-colors-orange-400)",
                                 }}
                               />
                             ) : (
