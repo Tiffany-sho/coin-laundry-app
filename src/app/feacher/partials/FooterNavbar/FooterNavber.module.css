@@ -33,8 +33,8 @@
   top: 50%;
   left: calc(var(--active-idx, 0) * 25% + 12.5%);
   transform: translate(-50%, -50%);
-  width: 52px;
-  height: 52px;
+  width: 62px;
+  height: 62px;
   border-radius: 50%;
   background: var(--teal-pale, #CFFAFE);
   transition: left 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
