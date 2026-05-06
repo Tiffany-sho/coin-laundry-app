@@ -8,8 +8,12 @@ export default function SplashScreen() {
   const [gone, setGone] = useState(false);
 
   useEffect(() => {
-    const leaveTimer = setTimeout(() => setLeaving(true), 1200);
-    return () => clearTimeout(leaveTimer);
+    const minWait = new Promise((resolve) => setTimeout(resolve, 1500));
+    const pageLoad = new Promise((resolve) => {
+      if (document.readyState === "complete") resolve();
+      else window.addEventListener("load", resolve, { once: true });
+    });
+    Promise.all([minWait, pageLoad]).then(() => setLeaving(true));
   }, []);
 
   useEffect(() => {
