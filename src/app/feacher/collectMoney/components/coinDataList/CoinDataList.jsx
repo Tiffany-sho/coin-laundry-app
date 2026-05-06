@@ -35,7 +35,7 @@ import ChangeStores from "./parts/ChangeStore";
 import { createNowData } from "@/functions/makeDate/date";
 
 const MoneyDataList = ({ valiant, coinLaundry, myRole }) => {
-  const { selectedItem, open, setOpen, data } = useUploadPage();
+  const { selectedItem, open, setOpen, data, isFundsArrayLoading } = useUploadPage();
 
   const [totalRevenue, setTotalRevenue] = useState(null);
   useEffect(() => {
@@ -80,20 +80,22 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole }) => {
           </HStack>
 
           {valiant === "aStore" && (
-            <Link
-              href={`/collectMoney/${coinLaundry.id}/newData`}
-              _hover={{ textDecoration: "none" }}
-            >
-              <Button
-                size={{ base: "md", md: "lg" }}
-                colorPalette="cyan"
-                borderRadius="full"
-                px={6}
-                fontWeight="semibold"
+            <Box display={{ base: "none", md: "block" }}>
+              <Link
+                href={`/collectMoney/${coinLaundry.id}/newData`}
+                _hover={{ textDecoration: "none" }}
               >
-                <LuPlus /> 新規集金を記録
-              </Button>
-            </Link>
+                <Button
+                  size="lg"
+                  colorPalette="cyan"
+                  borderRadius="full"
+                  px={6}
+                  fontWeight="semibold"
+                >
+                  <LuPlus /> 新規集金を記録
+                </Button>
+              </Link>
+            </Box>
           )}
         </Flex>
 
@@ -192,6 +194,25 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole }) => {
                 <OrderSelecter />
               </HStack>
 
+              {valiant === "aStore" && (
+                <Box display={{ base: "block", md: "none" }}>
+                  <Link
+                    href={`/collectMoney/${coinLaundry.id}/newData`}
+                    _hover={{ textDecoration: "none" }}
+                  >
+                    <Button
+                      w="full"
+                      size="md"
+                      colorPalette="cyan"
+                      borderRadius="full"
+                      fontWeight="semibold"
+                    >
+                      <LuPlus /> 新規集金を記録
+                    </Button>
+                  </Link>
+                </Box>
+              )}
+
               <Stack>
                 {valiant === "aStore" && (
                   <CoinMonoDataTable id={coinLaundry.id} myRole={myRole} />
@@ -237,9 +258,11 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole }) => {
                                     {selectedItem.laundryName}店
                                   </Link>
                                 )}
-                                <Box mt={2}>
-                                  <DataClipBoard data={selectedItem} />
-                                </Box>
+                                {!isFundsArrayLoading && selectedItem.fundsArray && (
+                                  <Box mt={2}>
+                                    <DataClipBoard data={selectedItem} />
+                                  </Box>
+                                )}
                               </HStack>
                             </Drawer.Header>
                             <Drawer.Body p={6}>
