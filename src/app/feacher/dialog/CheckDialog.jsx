@@ -3,324 +3,290 @@ import {
   Button,
   CloseButton,
   Dialog,
-  Portal,
-  Text,
   Flex,
+  HStack,
   Image,
+  Portal,
+  Separator,
   Spinner,
+  Stack,
+  Text,
 } from "@chakra-ui/react";
 import { useCoinLaundryForm } from "@/app/feacher/coinLandry/context/CoinlaundryForm/CoinLaundryFormContext";
+import * as Icon from "@/app/feacher/Icon";
+
+const InfoRow = ({ label, icon, children }) => (
+  <Box>
+    <HStack mb={2} gap={2}>
+      <Box color="var(--teal, #0891B2)">{icon}</Box>
+      <Text
+        fontSize="xs"
+        fontWeight="semibold"
+        color="var(--text-muted, #64748B)"
+        textTransform="uppercase"
+        letterSpacing="wide"
+      >
+        {label}
+      </Text>
+    </HStack>
+    <Box
+      p={3}
+      bg="var(--teal-pale, #CFFAFE)"
+      borderRadius="lg"
+      borderWidth="1px"
+      borderColor="cyan.200"
+    >
+      {children}
+    </Box>
+  </Box>
+);
 
 const CheckDialog = ({ method, postHander, dialogRef }) => {
   const { state } = useCoinLaundryForm();
+
+  const hasMachines = state.machines.filter((m) => m.num !== 0).length > 0;
+  const allPictures = [...(state.existingPictures ?? []), ...(state.newPictures ?? [])];
+
   return (
     <Dialog.Root
-      w="100%"
       role="alertdialog"
-      size="cover"
       placement="center"
       motionPreset="slide-in-bottom"
     >
       <Dialog.Trigger asChild>
-        <Button variant="solid">
-          {method === "POST" && "登録確認"}
-          {method === "PUT" && "編集"}
+        <Button
+          w={{ base: "full", md: "auto" }}
+          minW={{ md: "140px" }}
+          fontWeight="semibold"
+          borderRadius="lg"
+          color="white"
+          style={{ background: "linear-gradient(135deg, #0891B2 0%, #0E7490 100%)" }}
+          boxShadow="0 4px 14px rgba(8,145,178,0.28)"
+          _hover={{ transform: "translateY(-1px)", boxShadow: "0 6px 18px rgba(8,145,178,0.36)" }}
+          transition="all 0.2s"
+        >
+          {method === "POST" ? "登録確認" : "編集確認"}
         </Button>
       </Dialog.Trigger>
+
       <Portal>
         <Dialog.Backdrop bg="blackAlpha.600" backdropFilter="blur(4px)" />
         <Dialog.Positioner>
-          <Dialog.Content borderRadius="16px" boxShadow="xl" overflow="hidden">
+          <Dialog.Content
+            bg="white"
+            borderRadius="20px"
+            boxShadow="0 12px 40px rgba(14,116,144,0.18)"
+            maxW="680px"
+            w="calc(100vw - 32px)"
+            overflow="hidden"
+          >
+            {/* ヘッダー */}
             <Dialog.Header
-              bg="gray.700"
+              style={{ background: "linear-gradient(135deg, #0891B2 0%, #0E7490 100%)" }}
               color="white"
-              p={6}
-              borderBottom="none"
+              py={5}
+              px={6}
             >
-              <Dialog.Title
-                fontSize="2xl"
-                fontWeight="bold"
-                letterSpacing="wide"
-              >
-                店舗情報の確認
-              </Dialog.Title>
+              <HStack gap={3}>
+                <Box color="white">
+                  <Icon.LiaStoreSolid size={20} />
+                </Box>
+                <Dialog.Title fontSize="xl" fontWeight="bold">
+                  店舗情報の確認
+                </Dialog.Title>
+              </HStack>
             </Dialog.Header>
 
+            {/* ボディ */}
             <Dialog.Body
-              p={8}
-              bg="gray.50"
+              p={{ base: 5, md: 7 }}
+              bg="white"
               maxH="60vh"
               overflowY="auto"
               css={{
-                "&::-webkit-scrollbar": {
-                  width: "8px",
-                },
-                "&::-webkit-scrollbar-track": {
-                  background: "#e2e8f0",
-                  borderRadius: "4px",
-                },
-                "&::-webkit-scrollbar-thumb": {
-                  background: "#cbd5e0",
-                  borderRadius: "4px",
-                },
+                "&::-webkit-scrollbar": { width: "6px" },
+                "&::-webkit-scrollbar-track": { background: "transparent" },
+                "&::-webkit-scrollbar-thumb": { background: "#CBD5E0", borderRadius: "4px" },
               }}
             >
-              <Box
-                bg="white"
-                borderRadius="12px"
-                p={5}
-                mb={5}
-                boxShadow="sm"
-                transition="all 0.2s"
-                _hover={{ transform: "translateY(-2px)", boxShadow: "md" }}
-              >
-                <Text
-                  fontSize="sm"
-                  fontWeight="semibold"
-                  color="gray.600"
-                  mb={2}
-                  textTransform="uppercase"
-                  letterSpacing="wide"
-                >
-                  店舗名
-                </Text>
-                <Text fontSize="md" color="gray.800" lineHeight="1.6">
-                  {state.store}
-                </Text>
-              </Box>
+              <Stack gap={5}>
+                <InfoRow label="店舗名" icon={<Icon.LiaStoreSolid size={13} />}>
+                  <Text fontSize="lg" fontWeight="bold" color="var(--text-main, #1E3A5F)">
+                    {state.store}
+                  </Text>
+                </InfoRow>
 
-              <Box
-                bg="white"
-                borderRadius="12px"
-                p={5}
-                mb={5}
-                boxShadow="sm"
-                transition="all 0.2s"
-                _hover={{ transform: "translateY(-2px)", boxShadow: "md" }}
-              >
-                <Text
-                  fontSize="sm"
-                  fontWeight="semibold"
-                  color="gray.600"
-                  mb={2}
-                  textTransform="uppercase"
-                  letterSpacing="wide"
-                >
-                  場所
-                </Text>
-                <Text fontSize="md" color="gray.800" lineHeight="1.6">
-                  {state.location}
-                </Text>
-              </Box>
+                <InfoRow label="場所" icon={<Icon.PiMapPin size={13} />}>
+                  <Text fontSize="md" color="var(--text-main, #1E3A5F)">
+                    {state.location}
+                  </Text>
+                </InfoRow>
 
-              <Box
-                bg="white"
-                borderRadius="12px"
-                p={5}
-                mb={5}
-                boxShadow="sm"
-                transition="all 0.2s"
-                _hover={{ transform: "translateY(-2px)", boxShadow: "md" }}
-              >
-                <Text
-                  fontSize="sm"
-                  fontWeight="semibold"
-                  color="gray.600"
-                  mb={2}
-                  textTransform="uppercase"
-                  letterSpacing="wide"
-                >
-                  概要
-                </Text>
-                <Text fontSize="md" color="gray.800" lineHeight="1.6">
-                  {state.description}
-                </Text>
-              </Box>
+                <InfoRow label="概要" icon={<Icon.LuFileText size={13} />}>
+                  <Text fontSize="sm" color="var(--text-main, #1E3A5F)" whiteSpace="pre-wrap" lineHeight="1.7">
+                    {state.description}
+                  </Text>
+                </InfoRow>
 
-              <Box
-                bg="white"
-                borderRadius="12px"
-                p={5}
-                mb={5}
-                boxShadow="sm"
-                transition="all 0.2s"
-                _hover={{ transform: "translateY(-2px)", boxShadow: "md" }}
-              >
-                <Text
-                  fontSize="sm"
-                  fontWeight="semibold"
-                  color="gray.600"
-                  mb={2}
-                  textTransform="uppercase"
-                  letterSpacing="wide"
-                >
-                  機械
-                </Text>
-                {state.machines.length > 0 ? (
-                  <Box as="ul" listStyleType="none" p={0} m={0} mt={3}>
-                    {state.machines
-                      .filter((machine) => machine.num !== 0)
-                      .map((machine) => (
-                        <Box
-                          as="li"
-                          key={machine.name}
-                          bg="gray.100"
-                          p={3}
-                          px={4}
-                          borderRadius="8px"
-                          mb={2}
-                          borderLeft="4px solid"
-                          borderLeftColor="gray.700"
-                          fontSize="15px"
-                          color="gray.800"
-                          transition="all 0.2s"
-                          _hover={{ bg: "gray.200" }}
-                        >
-                          <Flex justifyContent="space-between">
-                            <div>
-                              {machine.name} : {machine.num}個
-                            </div>
-                            {machine.comment && (
-                              <div>価格帯 : {machine.comment}</div>
-                            )}
+                <Separator borderColor="var(--divider, #F1F5F9)" />
+
+                {/* 機械 */}
+                <Box>
+                  <HStack mb={3} gap={2}>
+                    <Box color="var(--teal, #0891B2)">
+                      <Icon.LuWrench size={13} />
+                    </Box>
+                    <Text
+                      fontSize="xs"
+                      fontWeight="semibold"
+                      color="var(--text-muted, #64748B)"
+                      textTransform="uppercase"
+                      letterSpacing="wide"
+                    >
+                      機械
+                    </Text>
+                  </HStack>
+
+                  {hasMachines ? (
+                    <Stack gap={2}>
+                      {state.machines
+                        .filter((m) => m.num !== 0)
+                        .map((machine) => (
+                          <Flex
+                            key={machine.name}
+                            justify="space-between"
+                            align="center"
+                            p={3}
+                            bg="var(--app-bg, #F0F9FF)"
+                            borderRadius="md"
+                            borderWidth="1px"
+                            borderColor="var(--divider, #F1F5F9)"
+                          >
+                            <Text fontSize="sm" fontWeight="semibold" color="var(--text-main, #1E3A5F)">
+                              {machine.name}
+                            </Text>
+                            <HStack gap={3}>
+                              <Text
+                                fontSize="sm"
+                                fontWeight="bold"
+                                color="var(--teal, #0891B2)"
+                                bg="var(--teal-pale, #CFFAFE)"
+                                px={2.5}
+                                py={0.5}
+                                borderRadius="full"
+                              >
+                                {machine.num}台
+                              </Text>
+                              {machine.comment && (
+                                <Text fontSize="xs" color="var(--text-muted, #64748B)">
+                                  {machine.comment}
+                                </Text>
+                              )}
+                            </HStack>
                           </Flex>
+                        ))}
+                    </Stack>
+                  ) : (
+                    <Box
+                      p={4}
+                      bg="var(--app-bg, #F0F9FF)"
+                      borderRadius="md"
+                      textAlign="center"
+                    >
+                      <Text color="var(--text-faint, #94A3B8)" fontSize="sm">
+                        機械の登録なし
+                      </Text>
+                    </Box>
+                  )}
+                </Box>
+
+                {/* 写真 */}
+                {allPictures.length > 0 && (
+                  <>
+                    <Separator borderColor="var(--divider, #F1F5F9)" />
+                    <Box>
+                      <HStack mb={3} gap={2}>
+                        <Box color="var(--teal, #0891B2)">
+                          <Icon.LuFileImage size={13} />
                         </Box>
-                      ))}
-                  </Box>
-                ) : (
-                  <Text
-                    color="gray.400"
-                    fontStyle="italic"
-                    fontSize="sm"
-                    py={3}
-                  >
-                    登録された機械はありません
-                  </Text>
+                        <Text
+                          fontSize="xs"
+                          fontWeight="semibold"
+                          color="var(--text-muted, #64748B)"
+                          textTransform="uppercase"
+                          letterSpacing="wide"
+                        >
+                          写真
+                        </Text>
+                      </HStack>
+                      <Flex flexWrap="wrap" gap={3}>
+                        {allPictures.map((item) => (
+                          <Box
+                            key={item.url}
+                            borderRadius="lg"
+                            overflow="hidden"
+                            border="1px solid"
+                            borderColor="cyan.100"
+                            boxShadow="sm"
+                          >
+                            <Image
+                              src={item.url}
+                              w="88px"
+                              h="88px"
+                              objectFit="cover"
+                              alt="店舗写真"
+                            />
+                          </Box>
+                        ))}
+                      </Flex>
+                    </Box>
+                  </>
                 )}
-              </Box>
-
-              {state.existingPictures.length > 0 && (
-                <Box
-                  bg="white"
-                  borderRadius="12px"
-                  p={5}
-                  mb={5}
-                  boxShadow="sm"
-                  transition="all 0.2s"
-                  _hover={{ transform: "translateY(-2px)", boxShadow: "md" }}
-                >
-                  <Text
-                    fontSize="sm"
-                    fontWeight="semibold"
-                    color="gray.600"
-                    mb={2}
-                    textTransform="uppercase"
-                    letterSpacing="wide"
-                  >
-                    写真
-                  </Text>
-                  <Flex flexWrap="wrap" gap={3} mt={3}>
-                    {state.existingPictures.map((item) => (
-                      <Box
-                        key={item.url}
-                        position="relative"
-                        borderRadius="8px"
-                        overflow="hidden"
-                        boxShadow="sm"
-                        transition="all 0.2s"
-                        _hover={{ transform: "scale(1.05)", boxShadow: "md" }}
-                      >
-                        <Image
-                          src={item.url}
-                          w="80px"
-                          h="80px"
-                          objectFit="cover"
-                          alt="店舗写真"
-                        />
-                      </Box>
-                    ))}
-                  </Flex>
-                </Box>
-              )}
-
-              {state.newPictures.length > 0 && (
-                <Box
-                  bg="white"
-                  borderRadius="12px"
-                  p={5}
-                  mb={5}
-                  boxShadow="sm"
-                  transition="all 0.2s"
-                  _hover={{ transform: "translateY(-2px)", boxShadow: "md" }}
-                >
-                  <Text
-                    fontSize="sm"
-                    fontWeight="semibold"
-                    color="gray.600"
-                    mb={2}
-                    textTransform="uppercase"
-                    letterSpacing="wide"
-                  >
-                    追加写真
-                  </Text>
-                  <Flex flexWrap="wrap" gap={3} mt={3}>
-                    {state.newPictures.map((item) => (
-                      <Box
-                        key={item.url}
-                        position="relative"
-                        borderRadius="8px"
-                        overflow="hidden"
-                        boxShadow="sm"
-                        transition="all 0.2s"
-                        _hover={{ transform: "scale(1.05)", boxShadow: "md" }}
-                      >
-                        <Image
-                          src={item.url}
-                          w="80px"
-                          h="80px"
-                          objectFit="cover"
-                          alt="追加写真"
-                        />
-                      </Box>
-                    ))}
-                  </Flex>
-                </Box>
-              )}
+              </Stack>
             </Dialog.Body>
 
+            {/* フッター */}
             <Dialog.Footer
-              p={5}
-              bg="white"
+              py={4}
+              px={{ base: 5, md: 7 }}
+              bg="var(--app-bg, #F0F9FF)"
               borderTop="1px solid"
-              borderColor="gray.200"
+              borderColor="var(--divider, #F1F5F9)"
               gap={3}
               justifyContent="flex-end"
             >
               <Dialog.ActionTrigger asChild>
                 <Button
-                  variant="outline"
                   ref={dialogRef}
-                  minW="100px"
+                  variant="outline"
+                  bg="white"
+                  color="var(--text-muted, #64748B)"
+                  borderWidth="1.5px"
+                  borderColor="var(--divider, #F1F5F9)"
+                  borderRadius="lg"
                   fontWeight="semibold"
-                  transition="all 0.2s"
+                  px={6}
                   disabled={state.isLoading}
+                  _hover={{ bg: "gray.50", borderColor: "cyan.200" }}
                 >
                   キャンセル
                 </Button>
               </Dialog.ActionTrigger>
               <Button
                 onClick={postHander}
-                minW="100px"
-                bg="gray.700"
-                color="white"
                 fontWeight="semibold"
+                borderRadius="lg"
+                px={8}
+                color="white"
+                style={{ background: "linear-gradient(135deg, #0891B2 0%, #0E7490 100%)" }}
+                boxShadow="0 4px 14px rgba(8,145,178,0.28)"
+                _hover={{ transform: "translateY(-1px)", boxShadow: "0 6px 18px rgba(8,145,178,0.36)" }}
+                _disabled={{ opacity: 0.6, cursor: "not-allowed", transform: "none" }}
                 transition="all 0.2s"
-                _hover={{ bg: "gray.800" }}
                 disabled={state.isLoading}
               >
                 {state.isLoading && <Spinner size="sm" mr={2} />}
-                {method === "POST" && "登録"}
-                {method === "PUT" && "編集"}
+                {method === "POST" ? "登録する" : "編集する"}
               </Button>
             </Dialog.Footer>
 
@@ -328,13 +294,11 @@ const CheckDialog = ({ method, postHander, dialogRef }) => {
               <CloseButton
                 size="sm"
                 position="absolute"
-                top={6}
-                right={6}
+                top={4}
+                right={4}
                 color="white"
-                opacity={0.9}
-                transition="opacity 0.2s"
-                _hover={{ opacity: 1 }}
                 disabled={state.isLoading}
+                _hover={{ bg: "whiteAlpha.300" }}
               />
             </Dialog.CloseTrigger>
           </Dialog.Content>
