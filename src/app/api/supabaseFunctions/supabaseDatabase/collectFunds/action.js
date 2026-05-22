@@ -12,6 +12,23 @@ async function getOrgStoreIds() {
   return stores.map((s) => s.id);
 }
 
+export async function hasStoreFunds(id) {
+  const { user } = await getUser();
+  if (!user) return { has: false };
+
+  const storeIds = await getOrgStoreIds();
+  if (!storeIds.includes(id)) return { has: false };
+
+  const supabase = createServiceClient();
+  const { count, error } = await supabase
+    .from("collect_funds")
+    .select("id", { count: "exact", head: true })
+    .eq("laundryId", id);
+
+  if (error) return { has: false };
+  return { has: (count ?? 0) > 0 };
+}
+
 export const getFundsData = async (id) => {
   const { user } = await getUser();
   if (!user) return { error: { msg: "ログインしてください", status: 401 } };

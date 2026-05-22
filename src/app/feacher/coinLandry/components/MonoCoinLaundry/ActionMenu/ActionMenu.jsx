@@ -3,11 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Styles from "./ActionMenu.module.css";
-import { redirect } from "next/navigation";
-import AlertDialog from "@/app/feacher/dialog/AlertDialog";
 import * as Icon from "@/app/feacher/Icon";
-import { deleteStore } from "@/app/api/supabaseFunctions/supabaseDatabase/laundryStore/action";
-import { showToast } from "@/functions/makeToast/toast";
+import DeleteStoreDialog from "@/app/feacher/dialog/DeleteStoreDialog";
 
 const ActionMenu = ({ id, store }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -16,19 +13,6 @@ const ActionMenu = ({ id, store }) => {
   const handleEdit = () => {
     setIsOpen(false);
     router.push(`/coinLaundry/${id}/edit`);
-  };
-
-  const deleteAction = async () => {
-    const { data, error } = await deleteStore(id);
-
-    if (error) {
-      console.error("API Error:", error);
-      showToast("error", "店舗の削除に失敗しました");
-      return;
-    }
-
-    showToast("warning", `${data.store}店を削除しました`);
-    redirect("/coinLaundry");
   };
 
   return (
@@ -52,7 +36,7 @@ const ActionMenu = ({ id, store }) => {
               <span>編集</span>
             </button>
             <div className={`${Styles.menuItem} ${Styles.delete}`}>
-              <AlertDialog target={`${store}店`} deleteAction={deleteAction} />
+              <DeleteStoreDialog id={id} store={store} />
             </div>
           </div>
         </>
