@@ -80,8 +80,9 @@ export async function createStore(formData) {
   const machinesData = machinesString ? JSON.parse(machinesString) : [];
   const imagesData = imagesString ? JSON.parse(imagesString) : [];
 
+  const serviceSupabase = createServiceClient();
   try {
-    const { data, error: storeError } = await supabase
+    const { data, error: storeError } = await serviceSupabase
       .from("laundry_store")
       .insert({
         store: formData.get("store"),
@@ -111,7 +112,7 @@ export async function createStore(formData) {
     ];
     machinesState.unshift(...addStates);
 
-    const { error: stockError } = await supabase.from("laundry_state").insert({
+    const { error: stockError } = await serviceSupabase.from("laundry_state").insert({
       laundryId: data.id,
       laundryName: data.store,
       detergent: 0,
