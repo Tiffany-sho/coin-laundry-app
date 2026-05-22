@@ -178,6 +178,7 @@ const MachineForm = ({ setOpen }) => {
 
       <Button
         mt={4}
+        mb={{ base: "24", md: "0" }}
         w="100%"
         color="white"
         style={{ background: "linear-gradient(135deg, #0891B2 0%, #0E7490 100%)" }}
