@@ -107,7 +107,8 @@ export async function createData(formData) {
     return { error: "集金データを登録する権限がありません" };
   }
 
-  const { data, error } = await supabase
+  const serviceSupabase = createServiceClient();
+  const { data, error } = await serviceSupabase
     .from("collect_funds")
     .insert({
       laundryId: formData.storeId,

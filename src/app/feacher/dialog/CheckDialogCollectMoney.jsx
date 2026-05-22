@@ -79,7 +79,7 @@ const CheckDialog = ({
       }
     } catch (error) {
       console.error("API Error:", error);
-      setMsg("API Error:", error);
+      setMsg(error.message || "データの登録に失敗しました");
       setIsLoading(false);
       return;
     }
