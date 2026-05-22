@@ -70,29 +70,18 @@ const MoneyDataCard = ({ myRole }) => {
   };
 
   const deleteAction = async () => {
-    try {
-      const result = await deleteData(selectedItem.id);
+    const storeName = selectedItem.laundryName;
+    const dateStr = createNowData(selectedItem.date);
+    const result = await deleteData(selectedItem.id);
 
-      if (result.error) {
-        throw new Error(result.error.message || "削除に失敗しました");
-      }
-    } catch (error) {
-      showToast(
-        "warning",
-        `${selectedItem.laundryName}店(${createNowData(
-          selectedItem.date
-        )})の集金データを削除に失敗しました`
-      );
+    if (result.error) {
+      showToast("error", `${storeName}店(${dateStr})の集金データの削除に失敗しました`);
+      return;
     }
 
     setSelectedItem(null);
     setOpen(false);
-    showToast(
-      "warning",
-      `${selectedItem.laundryName}店(${createNowData(
-        selectedItem.date
-      )})の集金データを削除しました`
-    );
+    showToast("warning", `${storeName}店(${dateStr})の集金データを削除しました`);
   };
 
   const isViewer = myRole === "viewer";

@@ -19,6 +19,7 @@ import { createData } from "@/app/api/supabaseFunctions/supabaseDatabase/collect
 
 import * as Icon from "@/app/feacher/Icon";
 import { createMessage } from "@/app/api/supabaseFunctions/supabaseDatabase/actionMessage/action";
+import { showToast } from "@/functions/makeToast/toast";
 
 const coinWeight = 4.8;
 
@@ -79,7 +80,9 @@ const CheckDialog = ({
       }
     } catch (error) {
       console.error("API Error:", error);
-      setMsg(error.message || "データの登録に失敗しました");
+      const msg = error.message || "データの登録に失敗しました";
+      setMsg(msg);
+      showToast("error", `集金データの登録に失敗しました`);
       setIsLoading(false);
       return;
     }

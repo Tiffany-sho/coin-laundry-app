@@ -11,6 +11,7 @@ import {
 } from "@/app/api/supabaseFunctions/supabaseDatabase/laundryStore/action";
 import { createMessage } from "@/app/api/supabaseFunctions/supabaseDatabase/actionMessage/action";
 import { useCoinLaundryForm } from "@/app/feacher/coinLandry/context/CoinlaundryForm/CoinLaundryFormContext";
+import { showToast } from "@/functions/makeToast/toast";
 
 export function useStoreSubmit({ storeId, images, method, formRef, dialogRef }) {
   const { state, dispatch } = useCoinLaundryForm();
@@ -85,7 +86,9 @@ export function useStoreSubmit({ storeId, images, method, formRef, dialogRef }) 
       }
     } catch (error) {
       console.error("API Error:", error);
-      dispatch({ type: "SET_MSG", payload: error.message || "データの送信に失敗しました。" });
+      const msg = error.message || "データの送信に失敗しました。";
+      dispatch({ type: "SET_MSG", payload: msg });
+      showToast("error", method === "POST" ? "店舗の登録に失敗しました" : "店舗の編集に失敗しました");
       dispatch({ type: "SET_ISLOADING", payload: false });
       if (dialogRef.current) dialogRef.current.click();
 
