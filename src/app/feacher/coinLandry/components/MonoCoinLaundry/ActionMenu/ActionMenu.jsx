@@ -19,19 +19,15 @@ const ActionMenu = ({ id, store }) => {
   };
 
   const deleteAction = async () => {
-    let responseData;
     const { data, error } = await deleteStore(id);
-    responseData = data;
 
-    try {
-      if (error) {
-        throw new Error("ストアの削除に失敗しました");
-      }
-    } catch (err) {
+    if (error) {
       console.error("API Error:", error);
-      showToast("error", `${responseData.store}店の削除に失敗しました`);
+      showToast("error", "店舗の削除に失敗しました");
+      return;
     }
-    showToast("warning", `${responseData.store}店を削除しました`);
+
+    showToast("warning", `${data.store}店を削除しました`);
     redirect("/coinLaundry");
   };
 

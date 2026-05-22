@@ -146,8 +146,9 @@ export async function updateStore(formData, id) {
   const addMachine = afterMachineArray.filter((m) => !beforeMachineArray.includes(m));
   const deleteMachine = beforeMachineArray.filter((m) => !afterMachineArray.includes(m));
 
+  const serviceSupabase = createServiceClient();
   try {
-    const { data, error } = await supabase
+    const { data, error } = await serviceSupabase
       .from("laundry_store")
       .update({
         store: formData.get("store"),
@@ -163,7 +164,7 @@ export async function updateStore(formData, id) {
 
     if (error) return { error: "店舗情報の更新に失敗しました" };
 
-    const { data: machinesState, error: machinesError } = await supabase
+    const { data: machinesState, error: machinesError } = await serviceSupabase
       .from("laundry_state")
       .select("machines")
       .eq("laundryId", data.id)
@@ -182,14 +183,14 @@ export async function updateStore(formData, id) {
       (machine) => !deleteMachine.includes(machine.name)
     );
 
-    const { error: stockError } = await supabase
+    const { error: stockError } = await serviceSupabase
       .from("laundry_state")
       .update({ laundryName: data.store, machines: newMachinesState })
       .eq("laundryId", data.id);
 
     if (stockError) return { error: "設備状況編集に失敗しました" };
 
-    const { error: fundsError } = await supabase
+    const { error: fundsError } = await serviceSupabase
       .from("collect_funds")
       .update({ laundryName: data.store })
       .eq("laundryId", data.id);
@@ -209,8 +210,9 @@ export async function deleteStore(id) {
   const { orgId, myRole } = await getMyOrgId(supabase, user.id);
   if (!orgId || myRole !== "admin") return { error: "店舗を削除する権限がありません。" };
 
+  const serviceSupabase = createServiceClient();
   try {
-    const { data, error } = await supabase
+    const { data, error } = await serviceSupabase
       .from("laundry_store")
       .delete()
       .eq("organization_id", orgId)
