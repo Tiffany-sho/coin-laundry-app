@@ -142,8 +142,8 @@ const ActiveCard = ({ monthOffset, data, error, isPending, navigate }) => {
       position="relative"
       overflow="hidden"
     >
-      <Box position="absolute" top="-20%" right="-10%" w="200px" h="200px" bg="white" opacity={0.05} borderRadius="full" />
-      <Box position="absolute" bottom="-30%" left="-5%" w="150px" h="150px" bg="white" opacity={0.05} borderRadius="full" />
+      <Box position="absolute" top="-20%" right="-10%" w="200px" h="200px" bg="var(--card-bg, #FFFFFF)" opacity={0.05} borderRadius="full" />
+      <Box position="absolute" bottom="-30%" left="-5%" w="150px" h="150px" bg="var(--card-bg, #FFFFFF)" opacity={0.05} borderRadius="full" />
 
       <VStack align="stretch" gap={3} position="relative">
         <HStack justify="space-between">

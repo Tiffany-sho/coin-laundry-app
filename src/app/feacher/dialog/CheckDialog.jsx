@@ -73,7 +73,7 @@ const CheckDialog = ({ method, postHander, dialogRef }) => {
         <Dialog.Backdrop bg="blackAlpha.600" backdropFilter="blur(4px)" />
         <Dialog.Positioner>
           <Dialog.Content
-            bg="white"
+            bg="var(--card-bg, #FFFFFF)"
             borderRadius="20px"
             boxShadow="0 12px 40px rgba(14,116,144,0.18)"
             maxW="680px"
@@ -100,7 +100,7 @@ const CheckDialog = ({ method, postHander, dialogRef }) => {
             {/* ボディ */}
             <Dialog.Body
               p={{ base: 5, md: 7 }}
-              bg="white"
+              bg="var(--card-bg, #FFFFFF)"
               maxH="60vh"
               overflowY="auto"
               css={{
@@ -259,7 +259,7 @@ const CheckDialog = ({ method, postHander, dialogRef }) => {
                 <Button
                   ref={dialogRef}
                   variant="outline"
-                  bg="white"
+                  bg="var(--card-bg, #FFFFFF)"
                   color="var(--text-muted, #64748B)"
                   borderWidth="1.5px"
                   borderColor="var(--divider, #F1F5F9)"

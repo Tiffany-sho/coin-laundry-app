@@ -86,7 +86,7 @@ const QuickActionDialog = async ({ method }) => {
           <Dialog.Content
             borderRadius="xl"
             maxW={{ base: "90%", md: "md" }}
-            bg="white"
+            bg="var(--card-bg, #FFFFFF)"
             boxShadow="2xl"
             overflow="hidden"
           >
@@ -111,7 +111,7 @@ const QuickActionDialog = async ({ method }) => {
                 position="absolute"
                 top={{ base: 3, md: 4 }}
                 right={{ base: 3, md: 4 }}
-                bg="white"
+                bg="var(--card-bg, #FFFFFF)"
                 borderRadius="full"
                 boxShadow="sm"
                 _hover={{ bg: "cyan.50", transform: "scale(1.1)" }}
@@ -143,7 +143,7 @@ const QuickActionDialog = async ({ method }) => {
                         borderRadius="lg"
                         border="1px solid"
                         borderColor="gray.200"
-                        bg="white"
+                        bg="var(--card-bg, #FFFFFF)"
                         cursor="pointer"
                         transition="all 0.2s"
                         _hover={{

@@ -53,7 +53,7 @@ const MachineForm = ({ setOpen }) => {
         {state.machines.map((machine) => (
           <Box
             key={machine.name}
-            bg="white"
+            bg="var(--card-bg, #FFFFFF)"
             p={5}
             borderRadius="14px"
             boxShadow="var(--shadow-sm)"
@@ -87,7 +87,7 @@ const MachineForm = ({ setOpen }) => {
                         <IconButton
                           variant="outline"
                           size="md"
-                          bg="white"
+                          bg="var(--card-bg, #FFFFFF)"
                           borderColor="var(--divider, #F1F5F9)"
                           color="var(--text-muted, #64748B)"
                           transition="all 0.2s"
@@ -101,7 +101,7 @@ const MachineForm = ({ setOpen }) => {
                       <IconButton
                         variant="outline"
                         size="md"
-                        bg="white"
+                        bg="var(--card-bg, #FFFFFF)"
                         borderColor="var(--divider, #F1F5F9)"
                         color="var(--text-faint, #94A3B8)"
                         transition="all 0.2s"
@@ -129,7 +129,7 @@ const MachineForm = ({ setOpen }) => {
                       <IconButton
                         variant="outline"
                         size="md"
-                        bg="white"
+                        bg="var(--card-bg, #FFFFFF)"
                         borderColor="var(--divider, #F1F5F9)"
                         color="var(--text-muted, #64748B)"
                         transition="all 0.2s"
@@ -168,7 +168,7 @@ const MachineForm = ({ setOpen }) => {
                   }}
                   _placeholder={{ color: "var(--text-faint, #94A3B8)" }}
                   fontSize="sm"
-                  bg="white"
+                  bg="var(--card-bg, #FFFFFF)"
                 />
               </Box>
             </Flex>

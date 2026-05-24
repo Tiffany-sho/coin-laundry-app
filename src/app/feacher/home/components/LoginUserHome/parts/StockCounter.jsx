@@ -27,7 +27,7 @@ const StockCounter = ({ label, value, onChange }) => {
             <Icon.LuMinus />
           </IconButton>
           <Box
-            bg="white"
+            bg="var(--card-bg, #FFFFFF)"
             px={8}
             py={4}
             borderRadius="lg"

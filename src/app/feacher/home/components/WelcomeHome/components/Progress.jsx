@@ -26,7 +26,7 @@ const Progress = ({ user }) => {
           gap={8}
           maxW="500px"
           w="full"
-          bg="white"
+          bg="var(--card-bg, #FFFFFF)"
           p={{ base: 6, md: 10 }}
           borderRadius="2xl"
           boxShadow="xl"

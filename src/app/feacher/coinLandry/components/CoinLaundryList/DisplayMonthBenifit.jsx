@@ -28,7 +28,7 @@ const DisplayMonthBenifit = ({ records = [] }) => {
   return (
     <Box
       p={5}
-      bg="white"
+      bg="var(--card-bg, #FFFFFF)"
       borderRadius="lg"
       borderWidth="1px"
       borderColor="gray.200"

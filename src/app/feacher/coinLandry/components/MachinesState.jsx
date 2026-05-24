@@ -116,7 +116,7 @@ const MachinesState = ({ id, onLoad, canEdit = true }) => {
       <Portal>
         <Dialog.Backdrop />
         <Dialog.Positioner>
-          <Dialog.Content borderRadius="20px" maxW="lg" bg="white" boxShadow="0 12px 40px rgba(14,116,144,0.18)">
+          <Dialog.Content borderRadius="20px" maxW="lg" bg="var(--card-bg, #FFFFFF)" boxShadow="0 12px 40px rgba(14,116,144,0.18)">
             <Dialog.Header
               bg="var(--teal-pale, #CFFAFE)"
               borderBottom="1px solid rgba(8,145,178,0.15)"
@@ -143,7 +143,7 @@ const MachinesState = ({ id, onLoad, canEdit = true }) => {
                 position="absolute"
                 top={4}
                 right={4}
-                bg="white"
+                bg="var(--card-bg, #FFFFFF)"
                 borderRadius="full"
                 _hover={{ bg: "cyan.50" }}
               />
@@ -199,7 +199,7 @@ const MachinesState = ({ id, onLoad, canEdit = true }) => {
                       {machine.break && (
                         <Box
                           p={4}
-                          bg="white"
+                          bg="var(--card-bg, #FFFFFF)"
                           borderRadius="md"
                           border="1px solid"
                           borderColor="orange.200"

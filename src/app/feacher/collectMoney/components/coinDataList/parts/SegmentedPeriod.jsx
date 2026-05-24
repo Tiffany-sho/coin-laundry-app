@@ -144,18 +144,18 @@ const PeriodRangeSlider = () => {
                     {/* ドラフト期間表示 */}
                     <HStack justify="center" gap={1} align="flex-end">
                       <VStack gap={0} align="flex-start">
-                        <Text fontSize="2xs" color="fg.muted">
+                        <Text fontSize="2xs" color="var(--text-muted)">
                           開始日
                         </Text>
                         <Text fontSize="sm" fontWeight="semibold">
                           {draftStartStr}
                         </Text>
                       </VStack>
-                      <Text color="fg.muted" pb="1px" lineHeight="1">
+                      <Text color="var(--text-muted)" pb="1px" lineHeight="1">
                         〜
                       </Text>
                       <VStack gap={0} align="flex-start">
-                        <Text fontSize="2xs" color="fg.muted">
+                        <Text fontSize="2xs" color="var(--text-muted)">
                           終了日
                         </Text>
                         <Text fontSize="sm" fontWeight="semibold">
@@ -174,10 +174,10 @@ const PeriodRangeSlider = () => {
                       colorPalette="cyan"
                     >
                       <HStack justify="space-between" mb={1}>
-                        <Text fontSize="2xs" color="fg.muted">
+                        <Text fontSize="2xs" color="var(--text-muted)">
                           5年前
                         </Text>
-                        <Text fontSize="2xs" color="fg.muted">
+                        <Text fontSize="2xs" color="var(--text-muted)">
                           今月
                         </Text>
                       </HStack>
@@ -219,7 +219,7 @@ const PeriodRangeSlider = () => {
           <Text fontSize="sm" fontWeight="semibold">
             {appliedStartStr}
           </Text>
-          <Text color="fg.muted" lineHeight="1">
+          <Text color="var(--text-muted)" lineHeight="1">
             〜
           </Text>
           <Text fontSize="sm" fontWeight="semibold">

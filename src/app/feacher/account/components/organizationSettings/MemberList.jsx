@@ -66,7 +66,7 @@ export default function MemberList({ members, currentUserId, onChanged }) {
           <Box
             key={member.id}
             p={3}
-            bg="white"
+            bg="var(--card-bg, #FFFFFF)"
             borderRadius="lg"
             border="1px solid"
             borderColor="cyan.100"

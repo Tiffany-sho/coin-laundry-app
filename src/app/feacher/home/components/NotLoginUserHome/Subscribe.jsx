@@ -28,7 +28,7 @@ const Subscribe = () => {
           <Link href="/auth/login">
             <Button
               size="lg"
-              bg="white"
+              bg="var(--card-bg, #FFFFFF)"
               color="var(--teal-deeper, #155E75)"
               fontWeight="bold"
               _hover={{

@@ -36,7 +36,7 @@ const ExplainFunction = () => {
   ];
 
   return (
-    <Box py={{ base: 16, md: 20 }} bg="white">
+    <Box py={{ base: 16, md: 20 }} bg="var(--card-bg, #FFFFFF)">
       <Container maxW="container.xl">
         <VStack spacing={{ base: 12, md: 16 }}>
           <VStack spacing={4} textAlign="center">

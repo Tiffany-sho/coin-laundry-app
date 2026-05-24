@@ -9,7 +9,7 @@ const FinishPage = () => {
         <Box
           w="60px"
           h="60px"
-          bg="white"
+          bg="var(--card-bg, #FFFFFF)"
           borderRadius="xl"
           display="flex"
           align="center"

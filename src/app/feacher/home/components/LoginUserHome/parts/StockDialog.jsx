@@ -48,7 +48,7 @@ const StockDialog = ({ initialData }) => {
     >
       <Dialog.Trigger asChild>
         <Box
-          bg="white"
+          bg="var(--card-bg, #FFFFFF)"
           p={3}
           borderRadius="md"
           border="2px solid"
@@ -135,7 +135,7 @@ const StockDialog = ({ initialData }) => {
           <Dialog.Content
             borderRadius="20px"
             maxW="md"
-            bg="white"
+            bg="var(--card-bg, #FFFFFF)"
             boxShadow="0 12px 40px rgba(14,116,144,0.18)"
           >
             <Dialog.Header
@@ -163,7 +163,7 @@ const StockDialog = ({ initialData }) => {
                 position="absolute"
                 top={4}
                 right={4}
-                bg="white"
+                bg="var(--card-bg, #FFFFFF)"
                 borderRadius="full"
                 _hover={{ bg: "cyan.50" }}
               />

@@ -43,7 +43,7 @@ export default function InviteAcceptClient({ token, invitation }) {
   return (
     <Box minH="100vh" bg="gray.50" display="flex" alignItems="center" justifyContent="center" p={4}>
       <Box
-        bg="white"
+        bg="var(--card-bg, #FFFFFF)"
         borderRadius="xl"
         boxShadow="lg"
         p={{ base: 6, md: 10 }}

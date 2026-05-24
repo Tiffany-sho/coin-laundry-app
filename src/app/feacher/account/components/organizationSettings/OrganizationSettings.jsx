@@ -112,7 +112,7 @@ export default function OrganizationSettings({ currentUserId, currentUsername })
                 value={orgName}
                 onChange={(e) => setOrgName(e.target.value)}
                 fontSize="sm"
-                bg="white"
+                bg="var(--card-bg, #FFFFFF)"
                 borderRadius="lg"
                 borderColor="cyan.100"
                 _focus={{ borderColor: "var(--teal, #0891B2)", boxShadow: "0 0 0 3px rgba(8,145,178,0.1)" }}

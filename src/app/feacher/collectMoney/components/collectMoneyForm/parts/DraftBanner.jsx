@@ -41,7 +41,7 @@ const DraftBanner = ({ savedAt, onRestore, onDiscard }) => {
             variant="outline"
             borderColor="amber.400"
             color="amber.700"
-            bg="white"
+            bg="var(--card-bg, #FFFFFF)"
             borderRadius="lg"
             fontWeight="semibold"
             onClick={onDiscard}

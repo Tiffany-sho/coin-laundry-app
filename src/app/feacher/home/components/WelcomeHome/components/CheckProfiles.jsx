@@ -53,7 +53,7 @@ const CheckProfiles = () => {
   const InfoItem = ({ icon, label, value, badge }) => (
     <Box
       p={4}
-      bg="white"
+      bg="var(--card-bg, #FFFFFF)"
       borderRadius="lg"
       border="2px solid"
       borderColor="gray.200"

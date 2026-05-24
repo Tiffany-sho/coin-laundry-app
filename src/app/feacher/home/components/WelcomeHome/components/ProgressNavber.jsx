@@ -10,7 +10,7 @@ const ProgressNavbar = () => {
       left="0"
       w="full"
       p={{ base: 4, md: 6 }}
-      bg="white"
+      bg="var(--card-bg, #FFFFFF)"
       borderBottom="1px solid"
       borderColor="gray.200"
       boxShadow="sm"

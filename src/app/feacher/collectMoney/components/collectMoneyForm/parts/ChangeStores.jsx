@@ -66,7 +66,7 @@ const ChangeStores = () => {
           <Dialog.Content
             borderRadius="xl"
             maxW={{ base: "90%", md: "md" }}
-            bg="white"
+            bg="var(--card-bg, #FFFFFF)"
             boxShadow="2xl"
             overflow="hidden"
           >
@@ -91,7 +91,7 @@ const ChangeStores = () => {
                 position="absolute"
                 top={{ base: 3, md: 4 }}
                 right={{ base: 3, md: 4 }}
-                bg="white"
+                bg="var(--card-bg, #FFFFFF)"
                 borderRadius="full"
                 boxShadow="sm"
                 _hover={{ bg: "blue.50", transform: "scale(1.1)" }}
@@ -122,7 +122,7 @@ const ChangeStores = () => {
                           borderRadius="lg"
                           border="1px solid"
                           borderColor="gray.200"
-                          bg="white"
+                          bg="var(--card-bg, #FFFFFF)"
                           cursor="pointer"
                           transition="all 0.2s"
                           _hover={{

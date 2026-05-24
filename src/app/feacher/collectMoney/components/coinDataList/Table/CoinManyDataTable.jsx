@@ -170,7 +170,7 @@ const CoinManyDataTable = () => {
   // 日付順以外はグループなしのフラットリスト
   if (orderAmount !== "date") {
     return (
-      <Box bg="white" borderRadius="2xl" shadow="md" overflow="hidden">
+      <Box bg="var(--card-bg, #FFFFFF)" borderRadius="2xl" shadow="md" overflow="hidden">
         <Box overflowX="auto">
           <Table.Root size="lg" variant="plain">
             <Table.Body>
@@ -199,7 +199,7 @@ const CoinManyDataTable = () => {
         return (
           <Box
             key={date}
-            bg="white"
+            bg="var(--card-bg, #FFFFFF)"
             borderRadius="2xl"
             shadow="md"
             overflow="hidden"

@@ -37,7 +37,7 @@ const MachinesDialog = ({ initialData }) => {
       {/* トリガーカード：故障状態を示す赤系は意味的に維持 */}
       <Dialog.Trigger asChild>
         <Box
-          bg="white"
+          bg="var(--card-bg, #FFFFFF)"
           p={3}
           borderRadius="md"
           border="2px solid"
@@ -92,7 +92,7 @@ const MachinesDialog = ({ initialData }) => {
           <Dialog.Content
             borderRadius="20px"
             maxW="lg"
-            bg="white"
+            bg="var(--card-bg, #FFFFFF)"
             boxShadow="0 12px 40px rgba(14,116,144,0.18)"
           >
             <Dialog.Header
@@ -121,7 +121,7 @@ const MachinesDialog = ({ initialData }) => {
                 position="absolute"
                 top={4}
                 right={4}
-                bg="white"
+                bg="var(--card-bg, #FFFFFF)"
                 borderRadius="full"
                 _hover={{ bg: "cyan.50" }}
               />
@@ -168,7 +168,7 @@ const MachinesDialog = ({ initialData }) => {
                       </HStack>
 
                       {machine.break && (
-                        <Box p={4} bg="white" borderRadius="md" border="1px solid" borderColor="orange.200">
+                        <Box p={4} bg="var(--card-bg, #FFFFFF)" borderRadius="md" border="1px solid" borderColor="orange.200">
                           <VStack align="stretch" gap={3}>
                             <Text fontSize="sm" fontWeight="semibold" color="var(--text-main, #1E3A5F)">
                               故障内容

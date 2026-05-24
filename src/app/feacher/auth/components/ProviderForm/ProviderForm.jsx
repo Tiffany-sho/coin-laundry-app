@@ -45,7 +45,7 @@ export default function ProviderForm({ title }) {
           textAlign="center"
           fontSize="sm"
           color="var(--text-faint, #94A3B8)"
-          bg="white"
+          bg="var(--card-bg, #FFFFFF)"
           px={4}
           mx="auto"
           width="fit-content"
@@ -61,7 +61,7 @@ export default function ProviderForm({ title }) {
           size="lg"
           w="full"
           borderColor="var(--divider, #F1F5F9)"
-          bg="white"
+          bg="var(--card-bg, #FFFFFF)"
           color="var(--text-main, #1E3A5F)"
           fontWeight="medium"
           _hover={{
@@ -87,7 +87,7 @@ export default function ProviderForm({ title }) {
           size="lg"
           w="full"
           borderColor="var(--divider, #F1F5F9)"
-          bg="white"
+          bg="var(--card-bg, #FFFFFF)"
           color="var(--text-main, #1E3A5F)"
           fontWeight="medium"
           _hover={{

@@ -12,7 +12,7 @@ const SearchBox = ({ value, onChange }) => {
           value={value}
           onChange={(e) => onChange(e.target.value)}
           fontSize="md"
-          bg="white"
+          bg="var(--card-bg, #FFFFFF)"
           borderRadius="lg"
           boxShadow="md"
           _placeholder={{ color: "gray.400" }}

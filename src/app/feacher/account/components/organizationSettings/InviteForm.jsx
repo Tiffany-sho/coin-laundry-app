@@ -65,7 +65,7 @@ export default function InviteForm({ orgName, inviterName, onInvited }) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="example@email.com"
-            bg="white"
+            bg="var(--card-bg, #FFFFFF)"
             borderRadius="lg"
             fontSize="sm"
             borderColor="cyan.100"
@@ -81,7 +81,7 @@ export default function InviteForm({ orgName, inviterName, onInvited }) {
             <NativeSelect.Field
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              bg="white"
+              bg="var(--card-bg, #FFFFFF)"
               borderRadius="lg"
               fontSize="sm"
             >

@@ -36,7 +36,7 @@ export default function OtherActionsCard() {
             <Button
               type="submit" w="full" py={3.5} px={6}
               fontSize="md" fontWeight="semibold"
-              bg="white" color="red.500"
+              bg="var(--card-bg, #FFFFFF)" color="red.500"
               border="2px solid" borderColor="red.400"
               borderRadius="lg" cursor="pointer" transition="all 0.2s"
               _hover={{ bg: "red.50" }} _active={{ bg: "red.100" }}

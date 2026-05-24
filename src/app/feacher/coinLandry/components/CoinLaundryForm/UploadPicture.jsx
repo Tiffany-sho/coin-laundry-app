@@ -95,7 +95,7 @@ const UploadPicture = () => {
               gap={2}
               py={2.5}
               px={5}
-              bg="white"
+              bg="var(--card-bg, #FFFFFF)"
               color="gray.700"
               fontWeight="semibold"
               border="2px solid"

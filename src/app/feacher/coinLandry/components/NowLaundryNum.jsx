@@ -168,7 +168,7 @@ const NowLaundryNum = ({ id, onLoad, canEdit = true }) => {
                 position="absolute"
                 top={4}
                 right={4}
-                bg="white"
+                bg="var(--card-bg, #FFFFFF)"
                 borderRadius="full"
                 _hover={{ bg: "cyan.100" }}
               />

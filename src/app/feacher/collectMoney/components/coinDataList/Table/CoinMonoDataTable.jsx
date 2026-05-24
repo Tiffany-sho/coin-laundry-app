@@ -132,7 +132,7 @@ const CoinMonoDataTable = ({ id, myRole }) => {
   }
 
   return (
-    <Box bg="white" borderRadius="2xl" shadow="md" overflow="hidden">
+    <Box bg="var(--card-bg, #FFFFFF)" borderRadius="2xl" shadow="md" overflow="hidden">
       <Table.Root size="lg" variant="plain">
         <Table.Body>
           {displayData.map((item, index) => {

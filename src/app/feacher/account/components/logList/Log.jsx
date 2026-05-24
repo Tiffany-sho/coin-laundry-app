@@ -17,7 +17,7 @@ const Log = async ({ orgId, userId, currentUserId }) => {
 
   return (
     <Box
-      bg="white"
+      bg="var(--card-bg, #FFFFFF)"
       borderRadius="xl"
       boxShadow="var(--shadow-sm)"
       overflow="hidden"

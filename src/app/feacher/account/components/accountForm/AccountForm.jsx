@@ -27,9 +27,10 @@ export default function AccountForm({ user, myRole }) {
     useUserProfile();
 
   return (
-    <Box maxW="600px" mx="auto" p={{ base: 4, md: 8 }}>
+    <>
       <Card.Root
-        bg="white"
+        w="full"
+        bg="var(--card-bg, #FFFFFF)"
         borderRadius="xl"
         p={{ base: 6, md: 8 }}
         boxShadow="var(--shadow-sm)"
@@ -262,7 +263,7 @@ export default function AccountForm({ user, myRole }) {
               px={6}
               fontSize="md"
               fontWeight="semibold"
-              bg="white"
+              bg="var(--card-bg, #FFFFFF)"
               color="red.500"
               border="2px solid"
               borderColor="red.400"
@@ -277,6 +278,6 @@ export default function AccountForm({ user, myRole }) {
           </form>
         </VStack>
       </Card.Root>
-    </Box>
+    </>
   );
 }

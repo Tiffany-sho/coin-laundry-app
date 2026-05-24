@@ -51,7 +51,7 @@ const Procedure = () => {
                 align="start"
                 w="full"
                 p={{ base: 6, md: 8 }}
-                bg="white"
+                bg="var(--card-bg, #FFFFFF)"
                 borderRadius="xl"
                 boxShadow="md"
                 _hover={{

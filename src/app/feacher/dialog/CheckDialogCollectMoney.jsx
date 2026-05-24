@@ -140,7 +140,7 @@ const CheckDialog = ({
         <Dialog.Backdrop bg="blackAlpha.600" backdropFilter="blur(4px)" />
         <Dialog.Positioner>
           <Dialog.Content
-            bg="white"
+            bg="var(--card-bg, #FFFFFF)"
             borderRadius="20px"
             boxShadow="0 12px 40px rgba(14,116,144,0.18)"
             maxW="600px"
@@ -307,7 +307,7 @@ const CheckDialog = ({
                   <Button
                     variant="outline"
                     size="lg"
-                    bg="white"
+                    bg="var(--card-bg, #FFFFFF)"
                     color="var(--text-muted, #64748B)"
                     borderWidth="2px"
                     borderColor="var(--divider, #F1F5F9)"
