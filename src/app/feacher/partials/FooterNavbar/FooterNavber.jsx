@@ -7,10 +7,10 @@ import styles from "./FooterNavber.module.css";
 import { useEffect, useState } from "react";
 
 const NAV_ITEMS = [
-  { href: "/",            icon: <Icon.IoHomeOutline />,                    label: "ホーム" },
-  { href: "/coinLaundry", icon: <Icon.MdOutlineLocalLaundryService />,     label: "店舗" },
-  { href: "/collectMoney",icon: <Icon.BiCoinStack />,                      label: "収益" },
-  { href: "/account",     icon: <Icon.RiAccountCircleLine />,              label: "アカウント" },
+  { href: "/",             icon: <Icon.IoHomeOutline />,                label: "ホーム" },
+  { href: "/coinLaundry",  icon: <Icon.MdOutlineLocalLaundryService />, label: "店舗" },
+  { href: "/collectMoney", icon: <Icon.BiCoinStack />,                  label: "収益" },
+  { href: "/settings",     icon: <Icon.LuSettings />,                   label: "設定" },
 ];
 
 const FooterNavbar = () => {

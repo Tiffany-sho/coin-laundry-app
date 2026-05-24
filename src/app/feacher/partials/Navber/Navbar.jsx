@@ -60,8 +60,8 @@ const Navbar = ({ user }) => {
                 </Link>
               </li>
               <li>
-                <Link href="/account" className={styles.navItem}>
-                  <span>アカウント</span>
+                <Link href="/settings" className={styles.navItem}>
+                  <span>設定</span>
                 </Link>
               </li>
             </>
