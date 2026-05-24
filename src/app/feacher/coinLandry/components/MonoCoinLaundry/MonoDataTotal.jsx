@@ -16,10 +16,10 @@ const MonoDataTotal = async ({ coinLaundry }) => {
   if (!data || data.length === 0) {
     return (
       <VStack align="stretch" gap={1}>
-        <Text fontSize="2xl" fontWeight="bold" color="green.700">
+        <Text fontSize="2xl" fontWeight="bold" color="var(--teal-deeper)">
           ¥0
         </Text>
-        <Text fontSize="xs" color="gray.500">
+        <Text fontSize="xs" color="var(--text-muted)">
           集金データがありません
         </Text>
       </VStack>
@@ -33,22 +33,22 @@ const MonoDataTotal = async ({ coinLaundry }) => {
 
   return (
     <Box
-      bg="white"
+      bg="var(--card-bg, #FFFFFF)"
       p={{ base: 5, md: 6 }}
-      borderRadius="16px"
-      border="2px solid"
-      borderColor="gray.200"
-      boxShadow="0 4px 15px rgba(0, 0, 0, 0.05)"
+      borderRadius="xl"
+      border="1px solid"
+      borderColor="cyan.100"
+      boxShadow="var(--shadow-sm)"
     >
       <VStack align="stretch" gap={3}>
-        <Text fontSize="sm" fontWeight="semibold" color="gray.600">
+        <Text fontSize="sm" fontWeight="semibold" color="var(--text-muted)">
           総売上
         </Text>
         <VStack align="stretch" gap={1}>
-          <Text fontSize="3xl" fontWeight="bold" color="green.700">
+          <Text fontSize="3xl" fontWeight="bold" color="var(--teal-deeper)">
             ¥{totalRevenue.toLocaleString()}
           </Text>
-          <Text fontSize="xs" color="gray.500">
+          <Text fontSize="xs" color="var(--text-muted)">
             累計 {data.length}回の集金
           </Text>
           <Link href={`/coinLaundry/${coinLaundry.id}/coinDataList`}>
@@ -58,7 +58,7 @@ const MonoDataTotal = async ({ coinLaundry }) => {
               color="var(--teal, #0891B2)"
               borderColor="rgba(8,145,178,0.30)"
               _hover={{
-                bg: "cyan.50",
+                bg: "var(--teal-pale)",
                 borderColor: "var(--teal, #0891B2)",
                 transform: "translateY(-2px)",
                 boxShadow: "md",
