@@ -7,7 +7,7 @@ import AddBtn from "./AddBtn";
 import SearchBox from "../SearchBox";
 
 const EmptyStoresState = () => (
-  <Box bg="white" p={12} borderRadius="18px" textAlign="center" boxShadow="var(--shadow-sm)">
+  <Box bg="var(--card-bg, #FFFFFF)" p={12} borderRadius="18px" textAlign="center" boxShadow="var(--shadow-sm)">
     <Heading size="lg" color="var(--text-muted, #64748B)" fontWeight="medium" mb={2}>
       店舗がありません
     </Heading>
@@ -18,7 +18,7 @@ const EmptyStoresState = () => (
 );
 
 const NoResultsState = ({ query }) => (
-  <Box bg="white" p={12} borderRadius="18px" textAlign="center" boxShadow="var(--shadow-sm)">
+  <Box bg="var(--card-bg, #FFFFFF)" p={12} borderRadius="18px" textAlign="center" boxShadow="var(--shadow-sm)">
     <Heading size="lg" color="var(--text-muted, #64748B)" fontWeight="medium" mb={2}>
       「{query}」に一致する店舗がありません
     </Heading>
