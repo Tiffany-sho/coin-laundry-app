@@ -62,7 +62,7 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
       <Box w="full" maxW="640px">
         <form ref={formRef}>
           <Box
-            bg="white"
+            bg="var(--card-bg, #FFFFFF)"
             borderRadius="2xl"
             boxShadow="var(--shadow-sm)"
             overflow="hidden"
@@ -232,7 +232,7 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
                                 position="absolute"
                                 top={4}
                                 right={4}
-                                bg="white"
+                                bg="var(--card-bg, #FFFFFF)"
                                 borderRadius="full"
                                 boxShadow="sm"
                                 _hover={{ bg: "cyan.50", transform: "scale(1.1)" }}
@@ -277,7 +277,7 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
                   borderRadius="lg"
                   border="1.5px solid"
                   borderColor="var(--divider, #F1F5F9)"
-                  bg="white"
+                  bg="var(--card-bg, #FFFFFF)"
                   color="var(--text-muted, #64748B)"
                   transition="all 0.2s"
                   _hover={{ bg: "var(--app-bg, #F0F9FF)", borderColor: "cyan.200" }}
