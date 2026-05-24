@@ -6,7 +6,7 @@ import {
 } from "@/app/api/supabaseFunctions/supabaseDatabase/profiles/action";
 import { showToast } from "@/functions/makeToast/toast";
 
-export function useUserProfile() {
+export function useUserProfile({ onSuccess } = {}) {
   const [loading, setLoading] = useState(true);
   const [fullname, setFullname] = useState(null);
   const [username, setUsername] = useState(null);
@@ -34,6 +34,7 @@ export function useUserProfile() {
       showToast("error", "プロフィールを更新に失敗しました");
     } else {
       await showToast("success", "プロフィールを更新しました");
+      onSuccess?.();
     }
     setLoading(false);
   };
