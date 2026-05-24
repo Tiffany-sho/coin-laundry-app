@@ -10,7 +10,7 @@ export const getProfile = async () => {
   const supabase = await createClient();
   const { data, error, status } = await supabase
     .from("profiles")
-    .select("full_name, username, role")
+    .select("full_name, username, role, collectMethod")
     .eq("id", user.id)
     .single();
 
@@ -95,6 +95,19 @@ export const updateCollectMethod = async (method) => {
   const { error } = await supabase
     .from("profiles")
     .update({ collectMethod })
+    .eq("id", user.id);
+
+  return { error };
+};
+
+export const setCollectMethod = async (value) => {
+  const { user } = await getUser();
+  if (!user) return { error: "ログインしてください" };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("profiles")
+    .update({ collectMethod: value })
     .eq("id", user.id);
 
   return { error };

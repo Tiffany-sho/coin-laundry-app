@@ -28,6 +28,9 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var m=localStorage.getItem('colorMode');if(m==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();` }} />
+      </head>
       <body>
         <SplashScreen />
         <SWRegistration />

@@ -42,6 +42,10 @@ import {
   LuSearch,
   LuMail,
   LuPencil,
+  LuSettings,
+  LuSun,
+  LuMoon,
+  LuBuilding2,
 } from "react-icons/lu";
 
 import { MdOutlineLocalLaundryService } from "react-icons/md";
@@ -103,4 +107,8 @@ export {
   LuSearch,
   LuMail,
   LuPencil,
+  LuSettings,
+  LuSun,
+  LuMoon,
+  LuBuilding2,
 };
