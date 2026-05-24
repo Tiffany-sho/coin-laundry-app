@@ -50,16 +50,16 @@ const CustomTooltip = ({ active, payload, label }) => {
   const amount = payload[0]?.value ?? 0;
   return (
     <div style={{
-      background: "white",
-      border: "1px solid #e2e8f0",
+      background: "var(--card-bg, white)",
+      border: "1px solid var(--divider, #e2e8f0)",
       borderRadius: 8,
       padding: "8px 14px",
       boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
     }}>
-      <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 4 }}>
+      <div style={{ fontSize: 12, color: "var(--text-faint, #94a3b8)", marginBottom: 4 }}>
         {year}年{month}月
       </div>
-      <div style={{ fontSize: 18, fontWeight: "bold", color: "#0f172a" }}>
+      <div style={{ fontSize: 18, fontWeight: "bold", color: "var(--text-main, #0f172a)" }}>
         ¥{amount.toLocaleString()}
       </div>
     </div>

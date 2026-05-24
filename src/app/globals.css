@@ -17,6 +17,8 @@
   --divider:     #F1F5F9;
   --shadow-sm:   0 2px 12px rgba(8, 145, 178, 0.08);
   --shadow-hero: 0 12px 40px rgba(14, 116, 144, 0.28);
+  --nav-bg:      rgba(240, 249, 255, 0.92);
+  --footer-nav-bg: rgba(255, 255, 255, 0.95);
 }
 
 @theme inline {
@@ -48,4 +50,6 @@ body {
   --teal-pale:   rgba(8, 145, 178, 0.15);
   --shadow-sm:   0 2px 12px rgba(0, 0, 0, 0.4);
   --shadow-hero: 0 12px 40px rgba(0, 0, 0, 0.6);
+  --nav-bg:      rgba(15, 23, 42, 0.92);
+  --footer-nav-bg: rgba(30, 41, 59, 0.95);
 }

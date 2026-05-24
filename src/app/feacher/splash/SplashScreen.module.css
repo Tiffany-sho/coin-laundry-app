@@ -7,7 +7,7 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  background: #F0F9FF;
+  background: var(--app-bg, #F0F9FF);
   transition: opacity 0.55s ease-in;
   pointer-events: none;
 }

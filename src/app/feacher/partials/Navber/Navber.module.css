@@ -2,7 +2,7 @@
   position: sticky;
   top: 0;
   z-index: 1300;
-  background-color: rgba(240, 249, 255, 0.92);
+  background-color: var(--nav-bg, rgba(240, 249, 255, 0.92));
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   color: var(--text-main, #1E3A5F);
