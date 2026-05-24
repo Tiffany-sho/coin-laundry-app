@@ -33,7 +33,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-[data-theme="dark"] {
+.dark {
   --background: #0F172A;
   --foreground: #E2E8F0;
   --app-bg:      #0F172A;
