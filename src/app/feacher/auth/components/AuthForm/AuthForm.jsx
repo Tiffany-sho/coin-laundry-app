@@ -58,7 +58,7 @@ export default function AuthForm({ mode, action }) {
             </Card.Description>
           </Card.Header>
 
-          <Card.Body py={8} px={6} bg="white">
+          <Card.Body py={8} px={6} bg="var(--card-bg, #FFFFFF)">
             <Stack gap="6" w="full">
               {state?.error && (
                 <Box
@@ -142,7 +142,7 @@ export default function AuthForm({ mode, action }) {
             </Stack>
           </Card.Body>
 
-          <Card.Footer flexDirection="column" gap={4} px={6} pb={6} bg="white">
+          <Card.Footer flexDirection="column" gap={4} px={6} pb={6} bg="var(--card-bg, #FFFFFF)">
             <Button
               type="submit"
               size="lg"

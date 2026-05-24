@@ -31,7 +31,7 @@ export default function SendEmail({ action }) {
       <Box w="full" maxW="28rem">
         <form action={formAction}>
           <Card.Root
-            bg="white"
+            bg="var(--card-bg, #FFFFFF)"
             borderRadius="2xl"
             boxShadow="0 12px 40px rgba(14, 116, 144, 0.18)"
             overflow="hidden"
@@ -107,7 +107,7 @@ export default function SendEmail({ action }) {
                     py={3}
                     px={4}
                     fontSize="md"
-                    bg="white"
+                    bg="var(--card-bg, #FFFFFF)"
                     color="var(--text-main, #1E3A5F)"
                     transition="all 0.2s"
                     _focus={{

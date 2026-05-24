@@ -28,7 +28,7 @@ export default function ChangePassword({ action }) {
       <Box w="full" maxW="28rem">
         <form>
           <Card.Root
-            bg="white"
+            bg="var(--card-bg, #FFFFFF)"
             borderRadius="2xl"
             boxShadow="0 12px 40px rgba(14, 116, 144, 0.18)"
             overflow="hidden"
@@ -100,7 +100,7 @@ export default function ChangePassword({ action }) {
                     px={4}
                     pr={12}
                     fontSize="md"
-                    bg="white"
+                    bg="var(--card-bg, #FFFFFF)"
                     color="var(--text-main, #1E3A5F)"
                     transition="all 0.2s"
                     _focus={{
