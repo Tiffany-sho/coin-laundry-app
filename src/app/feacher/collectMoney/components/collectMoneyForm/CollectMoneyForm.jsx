@@ -54,7 +54,7 @@ const CollectMoneyForm = ({ coinLaundry }) => {
   };
 
   return (
-    <VStack spacing={0} minH="100vh" bg="white">
+    <VStack spacing={0} minH="100vh" bg="var(--app-bg, #F0F9FF)">
       <CollectMoneyHeader storeName={coinLaundry.store} />
 
       <Box

@@ -83,7 +83,7 @@ const MachineAndMoney = ({ machinesAndFunds, setMachinesAndFunds }) => {
               borderWidth="1.5px"
               borderColor="cyan.200"
               color="var(--teal, #0891B2)"
-              bg="white"
+              bg="var(--card-bg, #FFFFFF)"
               onClick={(e) => hander(machineAndFunds.machine.name, "toggle", e)}
               _active={{ borderColor: "cyan.400", bg: "cyan.50", transform: "rotate(180deg)" }}
               transition="all 0.3s"

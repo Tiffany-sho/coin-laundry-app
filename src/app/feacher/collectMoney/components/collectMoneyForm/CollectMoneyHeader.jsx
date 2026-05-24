@@ -7,7 +7,7 @@ const CollectMoneyHeader = ({ storeName }) => {
       py={{ base: 4, md: 6 }}
       px={{ base: 4, md: 8 }}
       w="full"
-      bg="white"
+      bg="var(--card-bg, #FFFFFF)"
       position="fixed"
       top="0"
       zIndex="1400"
