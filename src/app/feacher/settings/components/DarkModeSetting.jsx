@@ -1,31 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Switch, HStack } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
+import { useColorMode } from "@/components/ui/color-mode";
 
 export default function DarkModeSetting() {
-  const [isDark, setIsDark] = useState(false);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("colorMode");
-    setIsDark(stored === "dark");
-  }, []);
-
-  const handleToggle = () => {
-    const next = !isDark;
-    setIsDark(next);
-    const theme = next ? "dark" : "light";
-    document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("colorMode", theme);
-  };
+  const { colorMode, toggleColorMode } = useColorMode();
+  const isDark = colorMode === "dark";
 
   return (
     <HStack gap={2}>
       <Icon.LuSun size={16} color="var(--text-muted)" />
       <Switch.Root
         checked={isDark}
-        onCheckedChange={handleToggle}
+        onCheckedChange={toggleColorMode}
         colorPalette="cyan"
         size="md"
       >
