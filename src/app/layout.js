@@ -6,13 +6,31 @@ import NavbarWrapper from "@/app/feacher/partials/Navber/NavbarWrapper";
 import FooterNavbarWrapper from "@/app/feacher/partials/FooterNavbar/FooterNavbarWrapper";
 import NavVisibilityWrapper from "@/app/feacher/partials/NavVisibilityWrapper";
 import SplashScreen from "@/app/feacher/splash/SplashScreen";
+import SWRegistration from "@/app/feacher/pwa/SWRegistration";
 import styles from "./layout.module.css";
+
+export const metadata = {
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Collecie",
+  },
+  icons: {
+    apple: "/icons/icon-192.png",
+  },
+};
+
+export const viewport = {
+  themeColor: "#0891B2",
+};
 
 export default function RootLayout({ children }) {
   return (
     <html suppressHydrationWarning>
       <body>
         <SplashScreen />
+        <SWRegistration />
         <Provider>
           <div className={styles.layoutContainer}>
             <NavVisibilityWrapper>
