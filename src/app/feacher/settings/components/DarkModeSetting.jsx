@@ -23,12 +23,17 @@ export default function DarkModeSetting() {
   return (
     <HStack gap={2}>
       <Icon.LuSun size={16} color="var(--text-muted)" />
-      <Switch
+      <Switch.Root
         checked={isDark}
         onCheckedChange={handleToggle}
         colorPalette="cyan"
         size="md"
-      />
+      >
+        <Switch.HiddenInput />
+        <Switch.Control>
+          <Switch.Thumb />
+        </Switch.Control>
+      </Switch.Root>
       <Icon.LuMoon size={16} color="var(--text-muted)" />
     </HStack>
   );
