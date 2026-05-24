@@ -16,7 +16,7 @@ const HaveMachines = ({ coinLaundry }) => {
     <Drawer.Root size={{ base: "xs", md: "md" }}>
       <Drawer.Trigger asChild>
         <Box
-          bg="white"
+          bg="var(--card-bg, #FFFFFF)"
           p={{ base: 5, md: 6 }}
           borderRadius="16px"
           border="2px solid"
@@ -91,7 +91,7 @@ const HaveMachines = ({ coinLaundry }) => {
                   <Box
                     key={machine.id}
                     p={4}
-                    bg="white"
+                    bg="var(--card-bg, #FFFFFF)"
                     borderRadius="14px"
                     borderLeft="4px solid"
                     borderColor="var(--teal, #0891B2)"

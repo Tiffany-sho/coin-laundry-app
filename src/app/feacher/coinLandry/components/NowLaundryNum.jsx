@@ -149,11 +149,11 @@ const NowLaundryNum = ({ id, onLoad, canEdit = true }) => {
           <Dialog.Content
             borderRadius="16px"
             maxW="md"
-            bg="white"
+            bg="var(--card-bg, #FFFFFF)"
             boxShadow="xl"
           >
             <Dialog.Header
-              bg="cyan.50"
+              bg="var(--teal-pale)"
               borderBottom="1px solid"
               borderColor="cyan.200"
               p={6}
@@ -194,7 +194,7 @@ const NowLaundryNum = ({ id, onLoad, canEdit = true }) => {
                           <Icon.LuMinus />
                         </IconButton>
                         <Box
-                          bg="white"
+                          bg="var(--card-bg, #FFFFFF)"
                           px={8}
                           py={4}
                           borderRadius="lg"
@@ -242,7 +242,7 @@ const NowLaundryNum = ({ id, onLoad, canEdit = true }) => {
                           <Icon.LuMinus />
                         </IconButton>
                         <Box
-                          bg="white"
+                          bg="var(--card-bg, #FFFFFF)"
                           px={8}
                           py={4}
                           borderRadius="lg"
