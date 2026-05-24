@@ -72,6 +72,7 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole }) => {
               size={{ base: "xl", md: "2xl" }}
               fontWeight="bold"
               letterSpacing="tight"
+              color="var(--teal-deeper)"
             >
               {valiant === "aStore" && `${coinLaundry.store}店`}
               {valiant === "manyStore" && `収益レポート`}
@@ -108,21 +109,27 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole }) => {
           <GridItem position="sticky" top="64px" alignSelf="start">
             <VStack align="stretch" gap={6}>
               {/* 集金総額カード */}
-              <Card.Root borderRadius="2xl" variant="elevated">
+              <Card.Root
+                bg="var(--card-bg, #FFFFFF)"
+                border="1px solid"
+                borderColor="cyan.100"
+                boxShadow="var(--shadow-sm)"
+                borderRadius="xl"
+              >
                 <Card.Body p={{ base: 4, md: 6 }}>
                   <VStack align="stretch" gap={3}>
                     <HStack justify="space-between" align="center">
                       <Text
                         fontSize="xs"
                         fontWeight="semibold"
-                        color="fg.muted"
+                        color="var(--text-muted)"
                         textTransform="uppercase"
                         letterSpacing="widest"
                       >
                         集金総額
                       </Text>
                       {data && data.length > 0 && (
-                        <Text fontSize="xs" color="fg.muted">
+                        <Text fontSize="xs" color="var(--text-muted)">
                           {createNowData(data[0].date)} 〜{" "}
                           {createNowData(data[data.length - 1].date)}
                         </Text>
@@ -133,7 +140,7 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole }) => {
                       <Text
                         fontSize={{ base: "xl", md: "2xl" }}
                         fontWeight="semibold"
-                        color="fg.muted"
+                        color="var(--text-muted)"
                       >
                         ¥
                       </Text>
@@ -152,7 +159,7 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole }) => {
                       <Text
                         fontSize={{ base: "lg", md: "xl" }}
                         fontWeight="medium"
-                        color="fg.muted"
+                        color="var(--text-muted)"
                         alignSelf="flex-end"
                         pb={1}
                       >
@@ -161,9 +168,9 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole }) => {
                     </HStack>
 
                     {data && (
-                      <Text fontSize="sm" color="fg.muted">
+                      <Text fontSize="sm" color="var(--text-muted)">
                         累計{" "}
-                        <Text as="span" fontWeight="bold" color="fg">
+                        <Text as="span" fontWeight="bold" color="var(--text-main)">
                           {data.length}
                         </Text>{" "}
                         回の集金
@@ -174,7 +181,13 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole }) => {
               </Card.Root>
 
               {/* 期間スライダー＋チャートカード */}
-              <Card.Root borderRadius="2xl" variant="elevated">
+              <Card.Root
+                bg="var(--card-bg, #FFFFFF)"
+                border="1px solid"
+                borderColor="cyan.100"
+                boxShadow="var(--shadow-sm)"
+                borderRadius="xl"
+              >
                 <Card.Body p={{ base: 4, md: 6 }}>
                   <VStack align="stretch" gap={4}>
                     <SegmentedPeriod />
@@ -190,7 +203,7 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole }) => {
           <GridItem>
             <VStack align="stretch" gap={4}>
               <HStack>
-                <Heading>売上履歴</Heading>
+                <Heading color="var(--teal-deeper)">売上履歴</Heading>
                 <OrderSelecter />
               </HStack>
 
