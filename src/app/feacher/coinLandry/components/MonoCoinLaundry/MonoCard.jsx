@@ -34,13 +34,13 @@ const MonoCard = ({ coinLaundry, myRole }) => {
             <Heading
               fontSize={{ base: "2xl", md: "3xl" }}
               fontWeight="bold"
-              color="fg"
+              color="var(--text-main)"
               letterSpacing="tight"
             >
               {coinLaundry.store}店
             </Heading>
 
-            <HStack color="fg.muted" fontSize="sm" fontWeight="semibold">
+            <HStack color="var(--text-muted)" fontSize="sm" fontWeight="semibold">
               <Icon.PiMapPin size={18} />
               <Text>{coinLaundry.location}</Text>
             </HStack>
@@ -49,7 +49,7 @@ const MonoCard = ({ coinLaundry, myRole }) => {
               <Text
                 fontSize="md"
                 lineHeight="tall"
-                color="fg.muted"
+                color="var(--text-muted)"
                 whiteSpace="pre-wrap"
               >
                 {coinLaundry.description}
