@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Table, Text, Box, HStack, VStack } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
-import { createNowData } from "@/functions/makeDate/date";
+import { createNowData, getYearMonth } from "@/functions/makeDate/date";
 import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
 import TableLoading from "@/app/feacher/partials/TableLoading";
 import TableError from "@/app/feacher/partials/TableError";
@@ -13,7 +13,7 @@ import { getOrgCollectFundsPaginated, getFundItemById } from "@/app/api/supabase
 const CoinManyDataTable = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [collapsedDates, setCollapsedDates] = useState(new Set());
+  const [collapsedMonths, setCollapsedMonths] = useState(new Set());
 
   const {
     PAGE_SIZE,
@@ -43,11 +43,7 @@ const CoinManyDataTable = () => {
         setError(initialError);
         setDisplayData(null);
       } else {
-        if (initialData.length < PAGE_SIZE) {
-          setDisplayBtn(false);
-        } else {
-          setDisplayBtn(true);
-        }
+        setDisplayBtn(initialData.length >= PAGE_SIZE);
         setDisplayData(initialData);
         setError(null);
       }
@@ -74,25 +70,30 @@ const CoinManyDataTable = () => {
     setIsFundsArrayLoading(false);
   };
 
-  const toggleDateCollapse = (date) => {
-    setCollapsedDates((prev) => {
+  const toggleMonthCollapse = (month) => {
+    setCollapsedMonths((prev) => {
       const newSet = new Set(prev);
-      if (newSet.has(date)) {
-        newSet.delete(date);
+      if (newSet.has(month)) {
+        newSet.delete(month);
       } else {
-        newSet.add(date);
+        newSet.add(month);
       }
       return newSet;
     });
   };
 
-  const groupByDate = (data) => {
+  const formatMonth = (yearMonthStr) => {
+    const [year, month] = yearMonthStr.split("-");
+    return `${year}年${parseInt(month)}月`;
+  };
+
+  const groupByMonth = (data) => {
     if (!data) return {};
     const grouped = {};
     data.forEach((item) => {
-      const dateKey = createNowData(item.date);
-      if (!grouped[dateKey]) grouped[dateKey] = [];
-      grouped[dateKey].push(item);
+      const monthKey = getYearMonth(item.date);
+      if (!grouped[monthKey]) grouped[monthKey] = [];
+      grouped[monthKey].push(item);
     });
     return grouped;
   };
@@ -182,23 +183,23 @@ const CoinManyDataTable = () => {
     );
   }
 
-  // 日付順のときは日付ごとにグループ化
-  const groupedData = groupByDate(displayData);
-  const dates = Object.keys(groupedData);
+  // 日付順のときは月ごとにグループ化
+  const groupedData = groupByMonth(displayData);
+  const months = Object.keys(groupedData);
 
   return (
     <VStack spacing={4} align="stretch">
-      {dates.map((date) => {
-        const items = groupedData[date];
-        const totalForDate = items.reduce(
+      {months.map((month) => {
+        const items = groupedData[month];
+        const totalForMonth = items.reduce(
           (sum, item) => sum + (item.totalFunds || 0),
           0
         );
-        const isCollapsed = collapsedDates.has(date);
+        const isCollapsed = collapsedMonths.has(month);
 
         return (
           <Box
-            key={date}
+            key={month}
             bg="var(--card-bg, #FFFFFF)"
             borderRadius="2xl"
             shadow="md"
@@ -208,7 +209,7 @@ const CoinManyDataTable = () => {
               bg="cyan.50"
               p={4}
               cursor="pointer"
-              onClick={() => toggleDateCollapse(date)}
+              onClick={() => toggleMonthCollapse(month)}
               transition="all 0.2s"
               _hover={{ bg: "cyan.100" }}
             >
@@ -225,10 +226,10 @@ const CoinManyDataTable = () => {
                   </Box>
                   <VStack align="flex-start" gap={0}>
                     <Text fontSize="lg" fontWeight="bold" color="gray.800">
-                      {date}
+                      {formatMonth(month)}
                     </Text>
                     <Text fontSize="sm" color="gray.600">
-                      {items.length}店舗
+                      {items.length}件
                     </Text>
                   </VStack>
                 </HStack>
@@ -239,7 +240,7 @@ const CoinManyDataTable = () => {
                       合計
                     </Text>
                     <Text fontSize="xl" fontWeight="bold" color="var(--teal, #0891B2)">
-                      ¥{totalForDate.toLocaleString()}
+                      ¥{totalForMonth.toLocaleString()}
                     </Text>
                   </VStack>
                   <Box color="gray.400" fontSize="xl">
