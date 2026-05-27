@@ -55,21 +55,32 @@ export async function POST(request) {
     );
     if (!orgId) return NextResponse.json({ received: true });
 
-    const planKey = getPlanFromPriceId(
-      subscription.items.data[0].price.id
-    );
-    const trialEnd = subscription.trial_end
-      ? new Date(subscription.trial_end * 1000).toISOString()
-      : null;
+    if (["past_due", "canceled", "unpaid"].includes(subscription.status)) {
+      await serviceSupabase
+        .from("organizations")
+        .update({
+          plan: "free",
+          stripe_subscription_id: null,
+          trial_ends_at: null,
+        })
+        .eq("id", orgId);
+    } else {
+      const planKey = getPlanFromPriceId(
+        subscription.items.data[0].price.id
+      );
+      const trialEnd = subscription.trial_end
+        ? new Date(subscription.trial_end * 1000).toISOString()
+        : null;
 
-    await serviceSupabase
-      .from("organizations")
-      .update({
-        plan: planKey,
-        stripe_subscription_id: subscription.id,
-        trial_ends_at: trialEnd,
-      })
-      .eq("id", orgId);
+      await serviceSupabase
+        .from("organizations")
+        .update({
+          plan: planKey,
+          stripe_subscription_id: subscription.id,
+          trial_ends_at: trialEnd,
+        })
+        .eq("id", orgId);
+    }
   }
 
   if (event.type === "customer.subscription.deleted") {
