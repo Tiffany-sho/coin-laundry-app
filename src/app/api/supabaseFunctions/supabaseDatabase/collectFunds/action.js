@@ -127,6 +127,11 @@ export async function createData(formData) {
     return { error: "集金データを登録する権限がありません" };
   }
 
+  const storeIds = await getOrgStoreIds();
+  if (!storeIds.includes(formData.storeId)) {
+    return { error: "指定された店舗へのアクセス権限がありません" };
+  }
+
   const serviceSupabase = createServiceClient();
   const { data, error } = await serviceSupabase
     .from("collect_funds")
@@ -161,7 +166,19 @@ export async function updateData(fundsArray, totalFunds, id) {
     return { error: { msg: "集金データを編集する権限がありません", status: 403 } };
   }
 
+  const storeIds = await getOrgStoreIds();
   const serviceSupabase = createServiceClient();
+
+  const { data: target } = await serviceSupabase
+    .from("collect_funds")
+    .select("laundryId")
+    .eq("id", id)
+    .single();
+
+  if (!target || !storeIds.includes(target.laundryId)) {
+    return { error: { msg: "アクセス権限がありません", status: 403 } };
+  }
+
   let query = serviceSupabase
     .from("collect_funds")
     .update({ fundsArray, totalFunds })
@@ -191,7 +208,19 @@ export async function updateDate(date, id) {
     return { error: { msg: "集金データを編集する権限がありません", status: 403 } };
   }
 
+  const storeIds = await getOrgStoreIds();
   const serviceSupabase = createServiceClient();
+
+  const { data: target } = await serviceSupabase
+    .from("collect_funds")
+    .select("laundryId")
+    .eq("id", id)
+    .single();
+
+  if (!target || !storeIds.includes(target.laundryId)) {
+    return { error: { msg: "アクセス権限がありません", status: 403 } };
+  }
+
   let dateQuery = serviceSupabase
     .from("collect_funds")
     .update({ date })
@@ -221,7 +250,19 @@ export async function deleteData(id) {
     return { error: { msg: "集金データを削除する権限がありません", status: 403 } };
   }
 
+  const storeIds = await getOrgStoreIds();
   const serviceSupabase = createServiceClient();
+
+  const { data: target } = await serviceSupabase
+    .from("collect_funds")
+    .select("laundryId")
+    .eq("id", id)
+    .single();
+
+  if (!target || !storeIds.includes(target.laundryId)) {
+    return { error: { msg: "アクセス権限がありません", status: 403 } };
+  }
+
   let query = serviceSupabase.from("collect_funds").delete().eq("id", id);
   if (member.role !== "admin") {
     query = query.eq("collecter", user.id);

@@ -185,10 +185,19 @@ export async function deleteInvitation(id) {
   if (!user) return { error: "ログインしてください" };
 
   const supabase = await createClient();
+  const { data: myMember, error: myError } = await supabase
+    .from("organization_members")
+    .select("org_id, role")
+    .eq("user_id", user.id)
+    .single();
+
+  if (myError || myMember.role !== "admin") return { error: "権限がありません" };
+
   const { error } = await supabase
     .from("organization_invitations")
     .delete()
-    .eq("id", id);
+    .eq("id", id)
+    .eq("org_id", myMember.org_id);
 
   if (error) return { error: "招待の削除に失敗しました" };
   return {};

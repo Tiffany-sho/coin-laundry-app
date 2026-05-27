@@ -38,6 +38,9 @@ export async function getAllLaundryStates() {
 }
 
 export async function getLaundryState(laundryId) {
+  const { user } = await getUser();
+  if (!user) return { error: "ログインしてください" };
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("laundry_state")
@@ -75,6 +78,9 @@ export async function updateMachinesState(laundryId, machines) {
   const role = await getMyRole(supabase, user.id);
   if (!role || role === "viewer") return { error: "設備状態を編集する権限がありません。" };
 
+  const storeIds = await getOrgStoreIds();
+  if (!storeIds.includes(laundryId)) return { error: "アクセス権限がありません。" };
+
   const { error } = await supabase
     .from("laundry_state")
     .update({ machines })
@@ -91,6 +97,9 @@ export async function updateStockState(laundryId, { detergent, softener }) {
   const supabase = await createClient();
   const role = await getMyRole(supabase, user.id);
   if (!role || role === "viewer") return { error: "在庫状態を編集する権限がありません。" };
+
+  const storeIds = await getOrgStoreIds();
+  if (!storeIds.includes(laundryId)) return { error: "アクセス権限がありません。" };
 
   const { error } = await supabase
     .from("laundry_state")
