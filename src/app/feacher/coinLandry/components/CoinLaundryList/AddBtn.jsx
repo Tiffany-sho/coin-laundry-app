@@ -2,7 +2,41 @@ import { Box, Button, Text } from "@chakra-ui/react";
 import Link from "next/link";
 import { LuPlus } from "@/app/feacher/Icon";
 
-const AddBtn = () => {
+const AddBtn = ({ atLimit = false }) => {
+  if (atLimit) {
+    return (
+      <Link href="/settings/plan">
+        <Button
+          position="fixed"
+          bottom={{ base: "15%", md: "5%" }}
+          right={{ base: "5%", md: "5%" }}
+          zIndex="1350"
+          display="flex"
+          flexDirection="column"
+          justifyContent="center"
+          alignItems="center"
+          gap={1}
+          bg="gray.400"
+          color="white"
+          w={{ base: "60px", md: "70px" }}
+          h={{ base: "60px", md: "70px" }}
+          borderRadius="full"
+          border="2px solid"
+          borderColor="gray.500"
+          boxShadow="0 4px 15px rgba(0,0,0,0.15)"
+          title="プランの上限に達しました"
+        >
+          <Box>
+            <LuPlus style={{ height: "28px", width: "28px", strokeWidth: "2.5" }} />
+          </Box>
+          <Text fontSize={{ base: "2xs", md: "xs" }} fontWeight="bold" letterSpacing="wide">
+            上限
+          </Text>
+        </Button>
+      </Link>
+    );
+  }
+
   return (
     <Link href={"/coinLaundry/new"}>
       <Button
@@ -27,24 +61,14 @@ const AddBtn = () => {
         _hover={{
           bg: "cyan.700",
           transform: "scale(1.1) translateY(-2px)",
-          boxShadow:
-            "0 6px 20px rgba(59, 130, 246, 0.4), 0 4px 12px rgba(0, 0, 0, 0.15)",
+          boxShadow: "0 6px 20px rgba(59, 130, 246, 0.4), 0 4px 12px rgba(0, 0, 0, 0.15)",
         }}
-        _active={{
-          transform: "scale(0.95)",
-          bg: "cyan.700",
-        }}
+        _active={{ transform: "scale(0.95)", bg: "cyan.700" }}
       >
         <Box>
-          <LuPlus
-            style={{ height: "28px", width: "28px", strokeWidth: "2.5" }}
-          />
+          <LuPlus style={{ height: "28px", width: "28px", strokeWidth: "2.5" }} />
         </Box>
-        <Text
-          fontSize={{ base: "2xs", md: "xs" }}
-          fontWeight="bold"
-          letterSpacing="wide"
-        >
+        <Text fontSize={{ base: "2xs", md: "xs" }} fontWeight="bold" letterSpacing="wide">
           追加
         </Text>
       </Button>
