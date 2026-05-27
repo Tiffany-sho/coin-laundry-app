@@ -37,11 +37,13 @@ src/
 │   │   ├── coinLandry/             # 店舗関連UI
 │   │   ├── collectMoney/           # 集金関連UI
 │   │   ├── dialog/                 # ダイアログ群
+│   │   ├── settings/               # 設定ページUI
 │   │   └── ...
 │   ├── coinLaundry/                # 店舗ページ（一覧・詳細・新規）
 │   ├── collectMoney/               # 集金ページ
-│   ├── auth/                       # 認証ページ
-│   └── account/                    # アカウントページ
+│   ├── settings/                   # 設定ページ（アカウント・組織・ログ）
+│   ├── account/                    # /settings へリダイレクト（旧アカウントページ）
+│   └── auth/                       # 認証ページ
 ├── components/
 │   └── ui/                         # 汎用UIコンポーネント（Chakra UI拡張）
 ├── functions/                      # ユーティリティ関数
@@ -52,14 +54,49 @@ src/
 
 ## DB_SQL
 
+- CREATE TABLE public.organizations (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  name text NOT NULL,
+  owner_id uuid NOT NULL,
+  CONSTRAINT organizations_pkey PRIMARY KEY (id),
+  CONSTRAINT organizations_owner_id_fkey FOREIGN KEY (owner_id) REFERENCES public.profiles(id)
+  );
+- CREATE TABLE public.organization_members (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  org_id uuid NOT NULL,
+  user_id uuid NOT NULL,
+  role text NOT NULL,  -- "admin" | "collecter" | "viewer"
+  joined_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT organization_members_pkey PRIMARY KEY (id),
+  CONSTRAINT organization_members_org_id_fkey FOREIGN KEY (org_id) REFERENCES public.organizations(id),
+  CONSTRAINT organization_members_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.profiles(id)
+  );
+- CREATE TABLE public.organization_invitations (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  org_id uuid NOT NULL,
+  email text,
+  role text NOT NULL,
+  invited_by uuid NOT NULL,
+  token uuid NOT NULL DEFAULT gen_random_uuid(),
+  expires_at timestamp with time zone NOT NULL,
+  accepted_at timestamp with time zone,
+  CONSTRAINT organization_invitations_pkey PRIMARY KEY (id),
+  CONSTRAINT organization_invitations_org_id_fkey FOREIGN KEY (org_id) REFERENCES public.organizations(id),
+  CONSTRAINT organization_invitations_invited_by_fkey FOREIGN KEY (invited_by) REFERENCES public.profiles(id)
+  );
 - CREATE TABLE public.action_message (
   id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   message text,
   date bigint,
   user uuid DEFAULT auth.uid(),
+  org_id uuid,
   CONSTRAINT action_message_pkey PRIMARY KEY (id),
-  CONSTRAINT action_message_user_fkey FOREIGN KEY (user) REFERENCES public.profiles(id)
+  CONSTRAINT action_message_user_fkey FOREIGN KEY (user) REFERENCES public.profiles(id),
+  CONSTRAINT action_message_org_id_fkey FOREIGN KEY (org_id) REFERENCES public.organizations(id)
   );
 - CREATE TABLE public.collect_funds (
   created_at timestamp with time zone NOT NULL DEFAULT now(),
@@ -77,7 +114,7 @@ src/
 - CREATE TABLE public.laundry_state (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   created_at timestamp with time zone NOT NULL DEFAULT now(),
-  laundryId uuid DEFAULT gen_random_uuid(),
+  laundryId uuid DEFAULT gen_random_uuid() UNIQUE,
   detergent bigint,
   softener bigint,
   machines jsonb,
@@ -96,8 +133,10 @@ src/
   machines jsonb DEFAULT '[]'::jsonb,
   images jsonb DEFAULT '[]'::jsonb,
   owner uuid NOT NULL DEFAULT auth.uid(),
+  organization_id uuid,
   CONSTRAINT laundry_store_pkey PRIMARY KEY (id),
-  CONSTRAINT laundry_store_owner_fkey FOREIGN KEY (owner) REFERENCES public.profiles(id)
+  CONSTRAINT laundry_store_owner_fkey FOREIGN KEY (owner) REFERENCES public.profiles(id),
+  CONSTRAINT laundry_store_organization_id_fkey FOREIGN KEY (organization_id) REFERENCES public.organizations(id)
   );
 - CREATE TABLE public.profiles (
   created_at timestamp with time zone NOT NULL DEFAULT now(),
@@ -117,6 +156,24 @@ src/
 
 - Supabase の CRUD は必ず `src/app/api/supabaseFunctions/` 配下に書く。ページや components 内に直書きしない。
 - RLS が有効なので、ポリシーを意識してクエリを書く。
+
+### セキュリティ（Server Actions）
+
+- **全ての Server Action は自前で認証・認可チェックを行う**。RLS は最終防衛線であり、アプリ層でのチェックが必須。
+- `createServiceClient()` は RLS を完全にバイパスするため、使用前に必ず以下を確認すること：
+  1. `getUser()` でログイン確認
+  2. `getOrgStoreIds()` または `organization_members` クエリで組織境界チェック
+- 書き込み・削除系 Action は対象レコードの `laundryId` や `org_id` が自分の組織に属するか事前確認すること。
+- `organization_members.role` が権限の正規ソース（`"admin"` / `"collecter"` / `"viewer"`）。`profiles.role` は認可判定に使わない。
+
+### 組織・ロール管理
+
+- ユーザーは1組織に所属する（`organization_members` テーブル）。
+- ロールごとの権限：
+  - `admin` — 全操作（店舗作成・削除・メンバー管理・集金データ全編集）
+  - `collecter` — 集金データの登録・自分のデータ編集・店舗閲覧
+  - `viewer` — 閲覧のみ（書き込み系 Action は全てブロック）
+- `getOrgStoreIds()` ヘルパーは `getStores()` 経由で組織の全店舗IDを返す。cross-org アクセス防止の基本パターン。
 
 ### スタイリング
 
@@ -228,12 +285,11 @@ git push origin main
 
 ## 今後の実装予定
 
-1. **役割・権限管理** — 管理者 / 集金担当者 / 閲覧者などのロール追加
-2. **サブスクリプション機能** — 有料プランによる機能制限
-3. **CSV / Excel エクスポート** — 集金データを経理・報告書作成用にエクスポート
-4. **集金サイクル管理** — 店舗ごとの集金スケジュール設定と未集金アラート
-5. **機器故障・メモ記録** — 集金時に気づいた不具合やメモを記録する機能
-6. **プッシュ通知 / リマインダー** — 集金タイミングの通知
+1. **サブスクリプション機能** — 有料プランによる機能制限
+2. **CSV / Excel エクスポート** — 集金データを経理・報告書作成用にエクスポート
+3. **集金サイクル管理** — 店舗ごとの集金スケジュール設定と未集金アラート
+4. **機器故障・メモ記録** — 集金時に気づいた不具合やメモを記録する機能
+5. **プッシュ通知 / リマインダー** — 集金タイミングの通知
 
 ---
 
