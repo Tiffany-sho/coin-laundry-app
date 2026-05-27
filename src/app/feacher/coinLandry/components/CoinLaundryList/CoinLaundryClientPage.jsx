@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Box, Container, Flex, Text, VStack, Heading } from "@chakra-ui/react";
+import { Box, Container, Flex, Text, VStack, Heading, Button } from "@chakra-ui/react";
+import Link from "next/link";
 import CoinLaundryList from "./CoinLaundryList";
 import AddBtn from "./AddBtn";
 import SearchBox from "../SearchBox";
@@ -28,8 +29,33 @@ const NoResultsState = ({ query }) => (
   </Box>
 );
 
-const CoinLaundryClientPage = ({ stores, myRole }) => {
+const PlanLimitBanner = ({ storeCount, storeLimit }) => (
+  <Box
+    bg="orange.50"
+    border="1px solid"
+    borderColor="orange.200"
+    borderRadius="lg"
+    p={4}
+  >
+    <Flex align="center" justify="space-between" gap={4} flexWrap="wrap">
+      <Text fontSize="sm" color="orange.800" fontWeight="medium">
+        店舗数が上限（{storeCount}/{storeLimit}）に達しています。アップグレードで追加登録できます。
+      </Text>
+      <Link href="/settings/plan">
+        <Button size="xs" colorPalette="orange" variant="outline">
+          プランを見る
+        </Button>
+      </Link>
+    </Flex>
+  </Box>
+);
+
+const CoinLaundryClientPage = ({ stores, myRole, planInfo }) => {
   const [searchQuery, setSearchQuery] = useState("");
+
+  const atLimit = planInfo !== null &&
+    planInfo.storeLimit !== null &&
+    planInfo.storeCount >= planInfo.storeLimit;
 
   const filteredStores = useMemo(() => {
     if (!searchQuery.trim()) return stores;
@@ -53,6 +79,12 @@ const CoinLaundryClientPage = ({ stores, myRole }) => {
       <Box minH="100vh" py={8}>
         <Container maxW="1400px" px={{ base: 4, md: 6 }}>
           <VStack gap={6} mb={8} align="stretch">
+            {atLimit && myRole === "admin" && (
+              <PlanLimitBanner
+                storeCount={planInfo.storeCount}
+                storeLimit={planInfo.storeLimit}
+              />
+            )}
             <Flex
               direction={{ base: "column", md: "row" }}
               justify="space-between"
@@ -98,7 +130,7 @@ const CoinLaundryClientPage = ({ stores, myRole }) => {
           </Box>
         </Container>
       </Box>
-      {myRole !== "viewer" && <AddBtn />}
+      {myRole !== "viewer" && <AddBtn atLimit={atLimit} />}
     </>
   );
 };
