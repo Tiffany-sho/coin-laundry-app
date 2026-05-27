@@ -46,6 +46,8 @@ import {
   LuSun,
   LuMoon,
   LuBuilding2,
+  LuZap,
+  LuCreditCard,
 } from "react-icons/lu";
 
 import { MdOutlineLocalLaundryService } from "react-icons/md";
@@ -111,4 +113,6 @@ export {
   LuSun,
   LuMoon,
   LuBuilding2,
+  LuZap,
+  LuCreditCard,
 };
