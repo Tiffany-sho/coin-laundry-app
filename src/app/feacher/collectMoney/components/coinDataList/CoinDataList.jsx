@@ -278,7 +278,7 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole }) => {
                                 )}
                               </HStack>
                             </Drawer.Header>
-                            <Drawer.Body p={6}>
+                            <Drawer.Body p={6} pb={{ base: "100px", md: "24px" }}>
                               <MoneyDataCard key={selectedItem._id} myRole={myRole} />
                             </Drawer.Body>
                             <Drawer.CloseTrigger asChild>
