@@ -33,7 +33,10 @@ export const getFundsData = async (id) => {
   const { user } = await getUser();
   if (!user) return { error: { msg: "ログインしてください", status: 401 } };
 
-  const supabase = await createClient();
+  const storeIds = await getOrgStoreIds();
+  if (!storeIds.includes(id)) return { error: { msg: "アクセス権限がありません", status: 403 } };
+
+  const supabase = createServiceClient();
   const { data: initialData, error: initialError } = await supabase
     .from("collect_funds")
     .select("*")

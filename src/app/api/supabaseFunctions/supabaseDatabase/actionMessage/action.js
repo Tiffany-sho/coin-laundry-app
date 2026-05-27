@@ -34,7 +34,22 @@ export async function getOrgMessages(orgId) {
     return { error: { msg: "組織IDが必要です", status: 400 } };
   }
 
+  const { user } = await getUser();
+  if (!user) return { error: { msg: "ログインしてください", status: 401 } };
+
   const supabase = await createClient();
+
+  const { data: myMember, error: memberError } = await supabase
+    .from("organization_members")
+    .select("org_id")
+    .eq("user_id", user.id)
+    .eq("org_id", orgId)
+    .single();
+
+  if (memberError || !myMember) {
+    return { error: { msg: "アクセス権限がありません", status: 403 } };
+  }
+
   try {
     const { data, error } = await supabase
       .from("action_message")

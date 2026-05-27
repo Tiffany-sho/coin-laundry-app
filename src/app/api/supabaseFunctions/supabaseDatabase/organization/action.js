@@ -229,6 +229,9 @@ export async function acceptInvitation(token) {
   if (invError || !invitation) return { error: "招待が見つかりません" };
   if (invitation.accepted_at) return { error: "この招待はすでに使用済みです" };
   if (new Date(invitation.expires_at) < new Date()) return { error: "招待の有効期限が切れています" };
+  if (invitation.email && user.email !== invitation.email) {
+    return { error: "この招待はあなた宛てではありません" };
+  }
 
   const { error: memberError } = await supabase
     .from("organization_members")
