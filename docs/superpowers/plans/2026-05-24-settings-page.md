@@ -2,11 +2,11 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** `/account` を `/settings` に置き換え、アカウント情報・組織情報の閲覧と編集、集金方法・ダークモード設定を提供するページ群を実装する。
+**Goal:** `/account` を `/settings` に置き換え、アカウント情報・組織情報の閲覧と編集、集金方法設定を提供するページ群を実装する。
 
-**Architecture:** `/settings` がメインの閲覧ページ（Server Component）で各情報カードを表示する。編集は `/settings/account/edit`・`/settings/organization/edit` のサブルートで行う。ダークモードは CSS 変数オーバーライドと `localStorage` で実現し、集金方法は既存 Supabase Server Action で即時更新する。旧 `/account` と `/account/log` はリダイレクトに変換する。
+**Architecture:** `/settings` がメインの閲覧ページ（Server Component）で各情報カードを表示する。編集は `/settings/account/edit`・`/settings/organization/edit` のサブルートで行う。集金方法は既存 Supabase Server Action で即時更新する。旧 `/account` と `/account/log` はリダイレクトに変換する。
 
-**Tech Stack:** Next.js App Router (RSC + Client Components), Chakra UI v3, Supabase Server Actions, localStorage for dark mode
+**Tech Stack:** Next.js App Router (RSC + Client Components), Chakra UI v3, Supabase Server Actions
 
 ---
 
@@ -20,17 +20,14 @@
 - `src/app/settings/log/page.jsx` — アクションログページ
 - `src/app/feacher/settings/components/AccountInfoCard.jsx` — アカウント情報表示カード
 - `src/app/feacher/settings/components/OrgInfoCard.jsx` — 組織情報表示カード
-- `src/app/feacher/settings/components/AppSettingsCard.jsx` — アプリ設定カード（集金方法・ダークモード）
+- `src/app/feacher/settings/components/AppSettingsCard.jsx` — アプリ設定カード（集金方法）
 - `src/app/feacher/settings/components/OtherActionsCard.jsx` — ログリンク・サインアウトカード
 - `src/app/feacher/settings/components/CollectMethodSetting.jsx` — 集金方法 Client Component
-- `src/app/feacher/settings/components/DarkModeSetting.jsx` — ダークモード Client Component
 - `src/app/feacher/settings/components/AccountEditForm.jsx` — アカウント編集フォーム Client Component
 
 ### 変更
-- `src/app/feacher/Icon.js` — 新アイコン追加（LuSettings, LuSun, LuMoon, LuBuilding2）
+- `src/app/feacher/Icon.js` — 新アイコン追加（LuSettings, LuBuilding2）
 - `src/app/api/supabaseFunctions/supabaseDatabase/profiles/action.js` — getProfile に collectMethod 追加、setCollectMethod 関数追加
-- `src/app/globals.css` — ダークモード CSS 変数追加
-- `src/app/layout.js` — フラッシュ防止インラインスクリプト追加
 - `src/app/feacher/account/components/accountForm/useUserProfile.js` — onSuccess コールバック対応
 - `src/app/account/page.jsx` — /settings へリダイレクト
 - `src/app/account/log/page.jsx` — /settings/log へリダイレクト
@@ -39,13 +36,11 @@
 
 ---
 
-### Task 1: Foundation — アイコン追加・DB アクション更新・ダークモード CSS
+### Task 1: Foundation — アイコン追加・DB アクション更新
 
 **Files:**
 - Modify: `src/app/feacher/Icon.js`
 - Modify: `src/app/api/supabaseFunctions/supabaseDatabase/profiles/action.js`
-- Modify: `src/app/globals.css`
-- Modify: `src/app/layout.js`
 
 - [ ] **Step 1: Icon.js に新アイコンを追加する**
 
@@ -54,14 +49,10 @@
 ```js
 // react-icons/lu import に追加（既存 LuPencil の後）
   LuSettings,
-  LuSun,
-  LuMoon,
   LuBuilding2,
 
 // export ブロックに追加
   LuSettings,
-  LuSun,
-  LuMoon,
   LuBuilding2,
 ```
 
@@ -88,49 +79,11 @@ export const setCollectMethod = async (value) => {
 };
 ```
 
-- [ ] **Step 3: globals.css にダークモード CSS 変数を追加する**
-
-`src/app/globals.css` の末尾に追加：
-
-```css
-[data-theme="dark"] {
-  --background: #0F172A;
-  --foreground: #E2E8F0;
-  --app-bg:      #0F172A;
-  --card-bg:     #1E293B;
-  --text-main:   #E2E8F0;
-  --text-muted:  #94A3B8;
-  --text-faint:  #475569;
-  --divider:     #334155;
-  --teal:        #22D3EE;
-  --teal-dark:   #06B6D4;
-  --teal-deeper: #67E8F9;
-  --teal-pale:   rgba(8, 145, 178, 0.15);
-  --shadow-sm:   0 2px 12px rgba(0, 0, 0, 0.4);
-  --shadow-hero: 0 12px 40px rgba(0, 0, 0, 0.6);
-}
-```
-
-- [ ] **Step 4: layout.js にフラッシュ防止スクリプトを追加する**
-
-`src/app/layout.js` の `<html>` の直後に `<head>` ブロックを追加する：
-
-```jsx
-<html suppressHydrationWarning>
-  <head>
-    <script dangerouslySetInnerHTML={{ __html: `(function(){try{var m=localStorage.getItem('colorMode');if(m==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();` }} />
-  </head>
-  <body>
-    {/* 既存の body の内容はそのまま */}
-  </body>
-</html>
-```
-
-- [ ] **Step 5: コミット**
+- [ ] **Step 3: コミット**
 
 ```bash
-git add src/app/feacher/Icon.js src/app/api/supabaseFunctions/supabaseDatabase/profiles/action.js src/app/globals.css src/app/layout.js
-git commit -m "feat(settings): foundation — icons, setCollectMethod action, dark mode CSS"
+git add src/app/feacher/Icon.js src/app/api/supabaseFunctions/supabaseDatabase/profiles/action.js
+git commit -m "feat(settings): foundation — icons, setCollectMethod action"
 ```
 
 ---
@@ -217,61 +170,7 @@ git commit -m "feat(settings): CollectMethodSetting client component"
 
 ---
 
-### Task 3: DarkModeSetting クライアントコンポーネント
-
-**Files:**
-- Create: `src/app/feacher/settings/components/DarkModeSetting.jsx`
-
-- [ ] **Step 1: ファイルを作成する**
-
-```jsx
-"use client";
-
-import { useEffect, useState } from "react";
-import { Switch, HStack } from "@chakra-ui/react";
-import * as Icon from "@/app/feacher/Icon";
-
-export default function DarkModeSetting() {
-  const [isDark, setIsDark] = useState(false);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("colorMode");
-    setIsDark(stored === "dark");
-  }, []);
-
-  const handleToggle = () => {
-    const next = !isDark;
-    setIsDark(next);
-    const theme = next ? "dark" : "light";
-    document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("colorMode", theme);
-  };
-
-  return (
-    <HStack gap={2}>
-      <Icon.LuSun size={16} color="var(--text-muted)" />
-      <Switch
-        checked={isDark}
-        onCheckedChange={handleToggle}
-        colorPalette="cyan"
-        size="md"
-      />
-      <Icon.LuMoon size={16} color="var(--text-muted)" />
-    </HStack>
-  );
-}
-```
-
-- [ ] **Step 2: コミット**
-
-```bash
-git add src/app/feacher/settings/components/DarkModeSetting.jsx
-git commit -m "feat(settings): DarkModeSetting client component"
-```
-
----
-
-### Task 4: AccountInfoCard コンポーネント（読み取り専用）
+### Task 3: AccountInfoCard コンポーネント（読み取り専用）
 
 **Files:**
 - Create: `src/app/feacher/settings/components/AccountInfoCard.jsx`
@@ -369,7 +268,7 @@ git commit -m "feat(settings): AccountInfoCard display component"
 
 ---
 
-### Task 5: OrgInfoCard コンポーネント（読み取り専用）
+### Task 4: OrgInfoCard コンポーネント（読み取り専用）
 
 **Files:**
 - Create: `src/app/feacher/settings/components/OrgInfoCard.jsx`
@@ -431,7 +330,7 @@ git commit -m "feat(settings): OrgInfoCard display component"
 
 ---
 
-### Task 6: AppSettingsCard コンポーネント
+### Task 5: AppSettingsCard コンポーネント
 
 **Files:**
 - Create: `src/app/feacher/settings/components/AppSettingsCard.jsx`
@@ -439,27 +338,9 @@ git commit -m "feat(settings): OrgInfoCard display component"
 - [ ] **Step 1: ファイルを作成する**
 
 ```jsx
-import { Card, VStack, HStack, Text, Box, Heading, Separator } from "@chakra-ui/react";
+import { Card, VStack, HStack, Text, Box, Heading } from "@chakra-ui/react";
 import CollectMethodSetting from "./CollectMethodSetting";
-import DarkModeSetting from "./DarkModeSetting";
 import * as Icon from "@/app/feacher/Icon";
-
-function SettingRow({ icon, label, description, control }) {
-  return (
-    <HStack justify="space-between" align="start" gap={4}>
-      <HStack gap={2.5} align="start" flex={1}>
-        <Box color="var(--teal)" pt={0.5} flexShrink={0}>{icon}</Box>
-        <Box>
-          <Text fontSize="sm" fontWeight="semibold" color="var(--text-main)">{label}</Text>
-          {description && (
-            <Text fontSize="xs" color="var(--text-muted)">{description}</Text>
-          )}
-        </Box>
-      </HStack>
-      {control && <Box flexShrink={0}>{control}</Box>}
-    </HStack>
-  );
-}
 
 export default function AppSettingsCard({ collectMethod }) {
   return (
@@ -469,22 +350,17 @@ export default function AppSettingsCard({ collectMethod }) {
         <Heading as="h2" fontSize="md" fontWeight="bold" color="var(--teal-deeper)" mb={5}>
           アプリ設定
         </Heading>
-        <VStack align="stretch" gap={5}>
-          <SettingRow
-            icon={<Icon.BiCoinStack size={16} />}
-            label="集金方法"
-            description="機械別に記録するか、まとめて記録するか"
-          />
+        <VStack align="stretch" gap={4}>
+          <HStack gap={2.5} align="start">
+            <Box color="var(--teal)" pt={0.5} flexShrink={0}>
+              <Icon.BiCoinStack size={16} />
+            </Box>
+            <Box>
+              <Text fontSize="sm" fontWeight="semibold" color="var(--text-main)">集金方法</Text>
+              <Text fontSize="xs" color="var(--text-muted)">機械別に記録するか、まとめて記録するか</Text>
+            </Box>
+          </HStack>
           <CollectMethodSetting defaultValue={collectMethod} />
-
-          <Separator borderColor="var(--divider)" />
-
-          <SettingRow
-            icon={<Icon.LuMoon size={16} />}
-            label="ダークモード"
-            description="画面の配色を暗くする"
-            control={<DarkModeSetting />}
-          />
         </VStack>
       </Card.Body>
     </Card.Root>
@@ -496,12 +372,12 @@ export default function AppSettingsCard({ collectMethod }) {
 
 ```bash
 git add src/app/feacher/settings/components/AppSettingsCard.jsx
-git commit -m "feat(settings): AppSettingsCard with collect method and dark mode"
+git commit -m "feat(settings): AppSettingsCard with collect method setting"
 ```
 
 ---
 
-### Task 7: OtherActionsCard コンポーネント
+### Task 6: OtherActionsCard コンポーネント
 
 **Files:**
 - Create: `src/app/feacher/settings/components/OtherActionsCard.jsx`
@@ -571,7 +447,7 @@ git commit -m "feat(settings): OtherActionsCard with log link and sign-out"
 
 ---
 
-### Task 8: メイン設定ページ
+### Task 7: メイン設定ページ
 
 **Files:**
 - Create: `src/app/settings/page.jsx`
@@ -648,7 +524,7 @@ git commit -m "feat(settings): main settings page assembling all cards"
 
 ---
 
-### Task 9: アカウント編集ページ
+### Task 8: アカウント編集ページ
 
 **Files:**
 - Modify: `src/app/feacher/account/components/accountForm/useUserProfile.js`
@@ -783,7 +659,7 @@ git commit -m "feat(settings): account edit page with redirect on success"
 
 ---
 
-### Task 10: 組織管理編集ページ
+### Task 9: 組織管理編集ページ
 
 **Files:**
 - Create: `src/app/settings/organization/edit/page.jsx`
@@ -847,7 +723,7 @@ git commit -m "feat(settings): organization edit page reusing OrganizationSettin
 
 ---
 
-### Task 11: ログページ + リダイレクト
+### Task 10: ログページ + リダイレクト
 
 **Files:**
 - Create: `src/app/settings/log/page.jsx`
@@ -927,7 +803,7 @@ git commit -m "feat(settings): log page and redirects from /account to /settings
 
 ---
 
-### Task 12: ナビゲーション更新
+### Task 11: ナビゲーション更新
 
 **Files:**
 - Modify: `src/app/feacher/partials/FooterNavbar/FooterNavber.jsx`
@@ -974,7 +850,6 @@ git commit -m "feat(settings): update navigation to /settings with settings icon
 - [ ] `/settings/organization/edit` で組織名編集・メンバー管理・招待ができる（admin のみ、非 admin は /settings にリダイレクト）
 - [ ] `/settings/log` でアクションログが表示され、「戻る」で `/settings` に戻る
 - [ ] 集金方法の変更が DB に即時保存される
-- [ ] ダークモード切替が機能し、ページ再読み込み後も維持される
 - [ ] `/account` と `/account/log` へのアクセスが自動的にリダイレクトされる
 - [ ] フッターナビゲーションの「設定」タブがアクティブ状態になる
 - [ ] PC ナビゲーションの「設定」リンクが機能する
