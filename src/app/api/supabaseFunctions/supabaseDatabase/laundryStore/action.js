@@ -4,6 +4,7 @@ import { cache } from "react";
 import { createClient } from "@/utils/supabase/server";
 import { createServiceClient } from "@/utils/supabase/service";
 import { getUser } from "../user/action";
+import { PLAN_LIMITS } from "@/functions/plans";
 
 async function getMyOrgId(supabase, userId) {
   const { data, error } = await supabase
@@ -82,6 +83,29 @@ export async function createStore(formData) {
 
   const serviceSupabase = createServiceClient();
   try {
+    // プラン上限チェック
+    const { data: orgData } = await serviceSupabase
+      .from("organizations")
+      .select("plan")
+      .eq("id", orgId)
+      .single();
+
+    const plan = orgData?.plan ?? "free";
+    const storeLimit = PLAN_LIMITS[plan];
+
+    if (storeLimit !== Infinity) {
+      const { count } = await serviceSupabase
+        .from("laundry_store")
+        .select("*", { count: "exact", head: true })
+        .eq("organization_id", orgId);
+
+      if (count >= storeLimit) {
+        return {
+          error: `プランの上限（${storeLimit}店舗）に達しています。アップグレードしてください。`,
+        };
+      }
+    }
+
     const { data, error: storeError } = await serviceSupabase
       .from("laundry_store")
       .insert({
