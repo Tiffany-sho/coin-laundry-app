@@ -3,6 +3,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { createServiceClient } from "@/utils/supabase/service";
 import { getUser } from "../user/action";
+import { PLAN_LIMITS } from "@/functions/plans";
 
 export async function getMyOrganization() {
   const { user } = await getUser();
@@ -245,4 +246,46 @@ export async function acceptInvitation(token) {
     .eq("token", token);
 
   return {};
+}
+
+export async function getOrgPlan() {
+  const { user } = await getUser();
+  if (!user) return { error: "ログインしてください" };
+
+  const supabase = await createClient();
+  const { data: member, error: memberError } = await supabase
+    .from("organization_members")
+    .select("org_id")
+    .eq("user_id", user.id)
+    .single();
+
+  if (memberError) return { error: "組織情報の取得に失敗しました" };
+
+  const serviceSupabase = createServiceClient();
+  const { data: org, error: orgError } = await serviceSupabase
+    .from("organizations")
+    .select("plan, stripe_customer_id, stripe_subscription_id, trial_ends_at")
+    .eq("id", member.org_id)
+    .single();
+
+  if (orgError) return { error: "プラン情報の取得に失敗しました" };
+
+  const { count } = await serviceSupabase
+    .from("laundry_store")
+    .select("*", { count: "exact", head: true })
+    .eq("organization_id", member.org_id);
+
+  const plan = org.plan ?? "free";
+  const rawLimit = PLAN_LIMITS[plan];
+
+  return {
+    data: {
+      plan,
+      storeCount: count ?? 0,
+      storeLimit: rawLimit === Infinity ? null : rawLimit,
+      trialEndsAt: org.trial_ends_at,
+      stripeCustomerId: org.stripe_customer_id,
+      orgId: member.org_id,
+    },
+  };
 }
