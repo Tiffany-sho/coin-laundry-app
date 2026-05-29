@@ -13,7 +13,7 @@ export const UploadPageProvider = ({ children }) => {
   const [orderAmount, setOrderAmount] = useState("date");
   const [upOrder, setUpOrder] = useState(false);
   const [page, setPage] = useState(1);
-  const [startEpoch, setStartEpoch] = useState(changeEpocFromNowYearMonth(-2));
+  const [startEpoch, setStartEpoch] = useState(changeEpocFromNowYearMonth(-6));
   const [endEpoch, setEndEpoch] = useState(null);
   const [data, setData] = useState(null);
 
