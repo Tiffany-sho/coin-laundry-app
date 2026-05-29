@@ -139,6 +139,33 @@ export default function AuthForm({ mode, action }) {
                   </Link>
                 </Text>
               )}
+
+              {!isLogin && (
+                <Box>
+                  <label style={{ display: "flex", alignItems: "flex-start", gap: "10px", cursor: "pointer" }}>
+                    <input
+                      type="checkbox"
+                      name="terms"
+                      required
+                      style={{ marginTop: "3px", accentColor: "var(--teal, #0891B2)", flexShrink: 0, width: "16px", height: "16px" }}
+                    />
+                    <Text fontSize="sm" color="var(--text-muted, #64748B)">
+                      <Link href="/terms" target="_blank">
+                        <Text as="span" color="var(--teal, #0891B2)" fontWeight="semibold" _hover={{ textDecoration: "underline" }}>
+                          利用規約
+                        </Text>
+                      </Link>
+                      および
+                      <Link href="/privacy" target="_blank">
+                        <Text as="span" color="var(--teal, #0891B2)" fontWeight="semibold" _hover={{ textDecoration: "underline" }}>
+                          プライバシーポリシー
+                        </Text>
+                      </Link>
+                      に同意する
+                    </Text>
+                  </label>
+                </Box>
+              )}
             </Stack>
           </Card.Body>
 
