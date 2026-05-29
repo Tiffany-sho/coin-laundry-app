@@ -20,16 +20,16 @@ import ChartEmpty from "@/app/feacher/partials/ChartEmpty";
 import { getOrgCollectFunds } from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
 
 const STORE_COLORS = [
-  "#3B82F6", // blue
-  "#10B981", // emerald
-  "#F59E0B", // amber
-  "#EF4444", // red
-  "#8B5CF6", // violet
-  "#06B6D4", // cyan
-  "#F97316", // orange
-  "#EC4899", // pink
-  "#84CC16", // lime
-  "#6366F1", // indigo
+  "#93C5FD", // blue-300
+  "#6EE7B7", // emerald-300
+  "#FCD34D", // amber-300
+  "#FCA5A5", // red-300
+  "#C4B5FD", // violet-300
+  "#67E8F9", // cyan-300
+  "#FDBA74", // orange-300
+  "#F9A8D4", // pink-300
+  "#BEF264", // lime-300
+  "#A5B4FC", // indigo-300
 ];
 
 const formatYAxis = (value) => {
