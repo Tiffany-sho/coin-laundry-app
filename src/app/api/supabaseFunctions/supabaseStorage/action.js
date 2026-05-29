@@ -1,5 +1,26 @@
 import { createClient } from "@/utils/supabase/client";
 
+export const uploadAvatar = async (file) => {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("ログインしてください");
+
+  const ext = file.name.split(".").pop().toLowerCase();
+  const path = `avatars/${user.id}.${ext}`;
+
+  const { error } = await supabase.storage
+    .from("Laundry-Images")
+    .upload(path, file, { upsert: true, contentType: file.type });
+
+  if (error) throw new Error("アバターのアップロードに失敗しました");
+
+  const { data } = supabase.storage
+    .from("Laundry-Images")
+    .getPublicUrl(path);
+
+  return data.publicUrl;
+};
+
 export const uploadImage = async (filename, file) => {
   const supabase = createClient();
   const { error } = await supabase.storage

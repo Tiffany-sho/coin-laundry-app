@@ -10,7 +10,7 @@ export const getProfile = async () => {
   const supabase = await createClient();
   const { data, error, status } = await supabase
     .from("profiles")
-    .select("full_name, username, role, collectMethod")
+    .select("full_name, username, role, collectMethod, avatar_url")
     .eq("id", user.id)
     .single();
 
@@ -31,6 +31,19 @@ export const updateProfile = async ({ fullname, username }) => {
     username,
     updated_at: new Date().toISOString(),
   });
+
+  return { error };
+};
+
+export const updateAvatarUrl = async (avatarUrl) => {
+  const { user } = await getUser();
+  if (!user) return { error: "ログインしてください" };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("profiles")
+    .update({ avatar_url: avatarUrl })
+    .eq("id", user.id);
 
   return { error };
 };

@@ -1,15 +1,82 @@
 "use client";
 
-import { Box, Button, Card, Field, Input, VStack, Heading, HStack, Text } from "@chakra-ui/react";
+import { useRef } from "react";
+import { Box, Button, Card, Field, Input, VStack, Heading, HStack, Text, Flex, Spinner } from "@chakra-ui/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useUserProfile } from "@/app/feacher/account/components/accountForm/useUserProfile";
 import * as Icon from "@/app/feacher/Icon";
 
+function AvatarUploader({ avatarUrl, avatarLoading, username, onFileChange }) {
+  const fileRef = useRef(null);
+  const initial = username ? username.charAt(0).toUpperCase() : "?";
+
+  return (
+    <Flex direction="column" align="center" gap={3}>
+      <Box position="relative" cursor="pointer" onClick={() => fileRef.current?.click()}>
+        <Flex
+          w="88px" h="88px"
+          borderRadius="full"
+          overflow="hidden"
+          border="3px solid"
+          borderColor="cyan.200"
+          bg="var(--teal-pale)"
+          align="center" justify="center"
+          color="var(--teal)"
+          fontSize="2xl" fontWeight="bold"
+          flexShrink={0}
+        >
+          {avatarLoading ? (
+            <Spinner size="md" color="var(--teal)" />
+          ) : avatarUrl ? (
+            <img
+              src={avatarUrl}
+              alt="avatar"
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
+          ) : (
+            <Text color="var(--teal-deeper)" fontSize="2xl" fontWeight="bold">{initial}</Text>
+          )}
+        </Flex>
+        <Flex
+          position="absolute" bottom="0" right="0"
+          w="26px" h="26px"
+          bg="var(--teal)" borderRadius="full"
+          align="center" justify="center"
+          border="2px solid white"
+        >
+          <Icon.LuCamera size={12} color="white" />
+        </Flex>
+      </Box>
+      <Text fontSize="xs" color="var(--text-muted)">クリックして写真を変更</Text>
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        style={{ display: "none" }}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) onFileChange(file);
+          e.target.value = "";
+        }}
+      />
+    </Flex>
+  );
+}
+
 export default function AccountEditForm() {
   const router = useRouter();
-  const { loading, fullname, username, setFullname, setUsername, handleUpdate } =
-    useUserProfile({ onSuccess: () => router.push("/settings") });
+  const {
+    loading,
+    fullname,
+    username,
+    avatarUrl,
+    avatarLoading,
+    setFullname,
+    setUsername,
+    handleUpdate,
+    handleAvatarChange,
+  } = useUserProfile({ onSuccess: () => router.push("/settings") });
 
   return (
     <Card.Root w="full" bg="var(--card-bg, #FFFFFF)" borderRadius="xl"
@@ -29,6 +96,13 @@ export default function AccountEditForm() {
         </HStack>
 
         <VStack align="stretch" gap={6}>
+          <AvatarUploader
+            avatarUrl={avatarUrl}
+            avatarLoading={avatarLoading}
+            username={username}
+            onFileChange={handleAvatarChange}
+          />
+
           <Field.Root>
             <Field.Label fontSize="sm" fontWeight="semibold" mb={2} color="var(--text-main)">
               氏名
@@ -38,7 +112,7 @@ export default function AccountEditForm() {
               onChange={(e) => setFullname(e.target.value)}
               border="1px solid" borderColor="cyan.100" borderRadius="lg"
               py={3} px={4} fontSize="md" transition="all 0.2s"
-              _focus={{ outline: "none", borderColor: "var(--teal)", boxShadow: "0 0 0 3px rgba(8,145,178,0.1)" }}
+              _focusVisible={{ borderColor: "var(--teal)", boxShadow: "0 0 0 3px rgba(8,145,178,0.1)" }}
             />
           </Field.Root>
 
@@ -51,7 +125,7 @@ export default function AccountEditForm() {
               onChange={(e) => setUsername(e.target.value)}
               border="1px solid" borderColor="cyan.100" borderRadius="lg"
               py={3} px={4} fontSize="md" transition="all 0.2s"
-              _focus={{ outline: "none", borderColor: "var(--teal)", boxShadow: "0 0 0 3px rgba(8,145,178,0.1)" }}
+              _focusVisible={{ borderColor: "var(--teal)", boxShadow: "0 0 0 3px rgba(8,145,178,0.1)" }}
             />
           </Field.Root>
 

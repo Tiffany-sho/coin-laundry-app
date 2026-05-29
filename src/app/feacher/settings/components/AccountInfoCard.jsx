@@ -1,4 +1,4 @@
-import { Card, HStack, Text, Box, Flex, Heading, Badge } from "@chakra-ui/react";
+import { Card, HStack, VStack, Text, Box, Flex, Heading, Badge } from "@chakra-ui/react";
 import Link from "next/link";
 import * as Icon from "@/app/feacher/Icon";
 import { PLAN_NAMES } from "@/functions/plans";
@@ -15,22 +15,39 @@ const PLAN_COLOR = {
   max:  { bg: "purple.50", color: "purple.700" },
 };
 
-function InfoCell({ icon, label, children }) {
+function Avatar({ avatarUrl, username }) {
+  const initial = username ? username.charAt(0).toUpperCase() : "?";
   return (
-    <Box flex={1} minW={0} textAlign="center">
-      <Flex
-        w="36px" h="36px"
-        bg="var(--teal-pale)"
-        borderRadius="lg"
-        align="center" justify="center"
-        color="var(--teal)"
-        mx="auto" mb={1.5}
-      >
-        {icon}
-      </Flex>
-      <Text fontSize="xs" color="var(--text-muted)" mb={1}>{label}</Text>
+    <Flex
+      w="64px" h="64px"
+      borderRadius="full"
+      overflow="hidden"
+      border="2px solid"
+      borderColor="cyan.200"
+      bg="var(--teal-pale)"
+      align="center" justify="center"
+      flexShrink={0}
+    >
+      {avatarUrl ? (
+        <img
+          src={avatarUrl}
+          alt="avatar"
+          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+        />
+      ) : (
+        <Text color="var(--teal-deeper)" fontSize="xl" fontWeight="bold">{initial}</Text>
+      )}
+    </Flex>
+  );
+}
+
+function InfoRow({ icon, label, children }) {
+  return (
+    <HStack gap={2.5} align="center">
+      <Box color="var(--text-muted)" flexShrink={0}>{icon}</Box>
+      <Text fontSize="xs" color="var(--text-muted)" flexShrink={0}>{label}:</Text>
       {children}
-    </Box>
+    </HStack>
   );
 }
 
@@ -43,7 +60,7 @@ export default function AccountInfoCard({ profile, myRole, plan }) {
     <Card.Root w="full" bg="var(--card-bg, #FFFFFF)" borderRadius="xl"
       boxShadow="var(--shadow-sm)" border="1px solid" borderColor="cyan.100">
       <Card.Body p={{ base: 5, md: 6 }}>
-        <HStack justify="space-between" mb={5}>
+        <HStack justify="space-between" mb={4}>
           <Heading as="h2" fontSize="md" fontWeight="bold" color="var(--teal-deeper)">
             アカウント
           </Heading>
@@ -61,34 +78,34 @@ export default function AccountInfoCard({ profile, myRole, plan }) {
           </Link>
         </HStack>
 
-        <HStack gap={4} align="start" justify="space-around"
+        <HStack gap={5} align="center"
           p={4} bg="var(--app-bg, #F0F9FF)" borderRadius="xl">
-          <InfoCell icon={<Icon.LuAtSign size={16} />} label="ユーザー名">
-            <Text fontSize="sm" fontWeight="semibold" color="var(--text-main)"
-              overflow="hidden" textOverflow="ellipsis" whiteSpace="nowrap">
-              {profile?.username || "—"}
-            </Text>
-          </InfoCell>
+          <Avatar avatarUrl={profile?.avatar_url} username={profile?.username} />
 
-          <Box w="1px" alignSelf="stretch" bg="var(--divider)" />
+          <VStack align="start" gap={2.5} flex={1} minW={0}>
+            <InfoRow icon={<Icon.LuAtSign size={14} />} label="ユーザー名">
+              <Text fontSize="sm" fontWeight="semibold" color="var(--text-main)"
+                overflow="hidden" textOverflow="ellipsis" whiteSpace="nowrap">
+                {profile?.username || "—"}
+              </Text>
+            </InfoRow>
 
-          <InfoCell icon={<Icon.LuCrown size={16} />} label="役割">
-            <Badge bg="var(--teal-pale)" color="var(--teal-deeper)"
-              px={2} py={0.5} borderRadius="md" fontSize="xs" fontWeight="semibold">
-              {ROLE_LABEL[myRole] ?? "閲覧者"}
-            </Badge>
-          </InfoCell>
+            <InfoRow icon={<Icon.LuCrown size={14} />} label="役割">
+              <Badge bg="var(--teal-pale)" color="var(--teal-deeper)"
+                px={2} py={0.5} borderRadius="md" fontSize="xs" fontWeight="semibold">
+                {ROLE_LABEL[myRole] ?? "閲覧者"}
+              </Badge>
+            </InfoRow>
 
-          <Box w="1px" alignSelf="stretch" bg="var(--divider)" />
-
-          <InfoCell icon={<Icon.LuZap size={16} />} label="プラン">
-            <Badge
-              bg={planColor.bg} color={planColor.color}
-              px={2} py={0.5} borderRadius="md" fontSize="xs" fontWeight="semibold"
-            >
-              {planName}
-            </Badge>
-          </InfoCell>
+            <InfoRow icon={<Icon.LuZap size={14} />} label="プラン">
+              <Badge
+                bg={planColor.bg} color={planColor.color}
+                px={2} py={0.5} borderRadius="md" fontSize="xs" fontWeight="semibold"
+              >
+                {planName}
+              </Badge>
+            </InfoRow>
+          </VStack>
         </HStack>
       </Card.Body>
     </Card.Root>

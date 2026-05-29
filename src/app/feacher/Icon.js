@@ -48,6 +48,7 @@ import {
   LuBuilding2,
   LuZap,
   LuCreditCard,
+  LuCamera,
 } from "react-icons/lu";
 
 import { MdOutlineLocalLaundryService } from "react-icons/md";
@@ -115,4 +116,5 @@ export {
   LuBuilding2,
   LuZap,
   LuCreditCard,
+  LuCamera,
 };

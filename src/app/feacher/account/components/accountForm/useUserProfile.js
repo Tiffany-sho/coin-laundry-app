@@ -1,15 +1,15 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
-import {
-  getProfile,
-  updateProfile,
-} from "@/app/api/supabaseFunctions/supabaseDatabase/profiles/action";
+import { getProfile, updateProfile, updateAvatarUrl } from "@/app/api/supabaseFunctions/supabaseDatabase/profiles/action";
+import { uploadAvatar } from "@/app/api/supabaseFunctions/supabaseStorage/action";
 import { showToast } from "@/functions/makeToast/toast";
 
 export function useUserProfile({ onSuccess } = {}) {
   const [loading, setLoading] = useState(true);
   const [fullname, setFullname] = useState(null);
   const [username, setUsername] = useState(null);
+  const [avatarUrl, setAvatarUrl] = useState(null);
+  const [avatarLoading, setAvatarLoading] = useState(false);
 
   const fetchProfile = useCallback(async () => {
     setLoading(true);
@@ -19,6 +19,7 @@ export function useUserProfile({ onSuccess } = {}) {
     } else if (data) {
       setFullname(data.full_name);
       setUsername(data.username);
+      setAvatarUrl(data.avatar_url ?? null);
     }
     setLoading(false);
   }, []);
@@ -39,5 +40,32 @@ export function useUserProfile({ onSuccess } = {}) {
     setLoading(false);
   };
 
-  return { loading, fullname, username, setFullname, setUsername, handleUpdate };
+  const handleAvatarChange = async (file) => {
+    setAvatarLoading(true);
+    try {
+      const url = await uploadAvatar(file);
+      const { error } = await updateAvatarUrl(url);
+      if (error) {
+        showToast("error", "アバターの更新に失敗しました");
+      } else {
+        setAvatarUrl(`${url}?t=${Date.now()}`);
+        showToast("success", "アバターを更新しました");
+      }
+    } catch (e) {
+      showToast("error", e.message ?? "アバターのアップロードに失敗しました");
+    }
+    setAvatarLoading(false);
+  };
+
+  return {
+    loading,
+    fullname,
+    username,
+    avatarUrl,
+    avatarLoading,
+    setFullname,
+    setUsername,
+    handleUpdate,
+    handleAvatarChange,
+  };
 }
