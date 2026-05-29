@@ -1,4 +1,4 @@
-import { Card, VStack, HStack, Text, Box, Flex, Heading, Badge } from "@chakra-ui/react";
+import { Card, HStack, Text, Box, Flex, Heading, Badge } from "@chakra-ui/react";
 import Link from "next/link";
 import * as Icon from "@/app/feacher/Icon";
 import { PLAN_NAMES } from "@/functions/plans";
@@ -15,28 +15,26 @@ const PLAN_COLOR = {
   max:  { bg: "purple.50", color: "purple.700" },
 };
 
-function InfoRow({ icon, label, children }) {
+function InfoCell({ icon, label, children }) {
   return (
-    <HStack gap={3} py={3} borderBottom="1px solid" borderColor="var(--divider)">
+    <Box flex={1} minW={0} textAlign="center">
       <Flex
         w="36px" h="36px"
         bg="var(--teal-pale)"
         borderRadius="lg"
         align="center" justify="center"
         color="var(--teal)"
-        flexShrink={0}
+        mx="auto" mb={1.5}
       >
         {icon}
       </Flex>
-      <Box flex={1} minW={0}>
-        <Text fontSize="xs" color="var(--text-muted)" mb={0.5}>{label}</Text>
-        {children}
-      </Box>
-    </HStack>
+      <Text fontSize="xs" color="var(--text-muted)" mb={1}>{label}</Text>
+      {children}
+    </Box>
   );
 }
 
-export default function AccountInfoCard({ user, profile, myRole, plan }) {
+export default function AccountInfoCard({ profile, myRole, plan }) {
   const planKey = plan ?? "free";
   const planName = PLAN_NAMES[planKey] ?? "Free";
   const planColor = PLAN_COLOR[planKey] ?? PLAN_COLOR.free;
@@ -63,43 +61,35 @@ export default function AccountInfoCard({ user, profile, myRole, plan }) {
           </Link>
         </HStack>
 
-        <VStack align="stretch" gap={0}>
-          <InfoRow icon={<Icon.LuAtSign size={16} />} label="ユーザー名">
+        <HStack gap={4} align="start" justify="space-around"
+          p={4} bg="var(--app-bg, #F0F9FF)" borderRadius="xl">
+          <InfoCell icon={<Icon.LuAtSign size={16} />} label="ユーザー名">
             <Text fontSize="sm" fontWeight="semibold" color="var(--text-main)"
               overflow="hidden" textOverflow="ellipsis" whiteSpace="nowrap">
               {profile?.username || "—"}
             </Text>
-          </InfoRow>
+          </InfoCell>
 
-          <InfoRow icon={<Icon.LuCrown size={16} />} label="役割">
+          <Box w="1px" alignSelf="stretch" bg="var(--divider)" />
+
+          <InfoCell icon={<Icon.LuCrown size={16} />} label="役割">
             <Badge bg="var(--teal-pale)" color="var(--teal-deeper)"
               px={2} py={0.5} borderRadius="md" fontSize="xs" fontWeight="semibold">
               {ROLE_LABEL[myRole] ?? "閲覧者"}
             </Badge>
-          </InfoRow>
+          </InfoCell>
 
-          <HStack gap={3} py={3}>
-            <Flex
-              w="36px" h="36px"
-              bg="var(--teal-pale)"
-              borderRadius="lg"
-              align="center" justify="center"
-              color="var(--teal)"
-              flexShrink={0}
+          <Box w="1px" alignSelf="stretch" bg="var(--divider)" />
+
+          <InfoCell icon={<Icon.LuZap size={16} />} label="プラン">
+            <Badge
+              bg={planColor.bg} color={planColor.color}
+              px={2} py={0.5} borderRadius="md" fontSize="xs" fontWeight="semibold"
             >
-              <Icon.LuZap size={16} />
-            </Flex>
-            <Box flex={1} minW={0}>
-              <Text fontSize="xs" color="var(--text-muted)" mb={0.5}>プラン</Text>
-              <Badge
-                bg={planColor.bg} color={planColor.color}
-                px={2} py={0.5} borderRadius="md" fontSize="xs" fontWeight="semibold"
-              >
-                {planName}
-              </Badge>
-            </Box>
-          </HStack>
-        </VStack>
+              {planName}
+            </Badge>
+          </InfoCell>
+        </HStack>
       </Card.Body>
     </Card.Root>
   );
