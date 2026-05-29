@@ -90,7 +90,7 @@ export async function updateMachinesState(laundryId, machines) {
   return {};
 }
 
-export async function updateStockState(laundryId, { detergent, softener }) {
+export async function updateStockState(laundryId, { detergent, softener, extra_stocks }) {
   const { user } = await getUser();
   if (!user) return { error: "ユーザーが認証されていません。" };
 
@@ -103,7 +103,7 @@ export async function updateStockState(laundryId, { detergent, softener }) {
 
   const { error } = await supabase
     .from("laundry_state")
-    .update({ detergent, softener })
+    .update({ detergent, softener, extra_stocks: extra_stocks ?? [] })
     .eq("laundryId", laundryId);
 
   if (error) return { error };
@@ -117,13 +117,16 @@ export async function getStockStates() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("laundry_state")
-    .select("detergent,softener,laundryId,laundryName")
+    .select("detergent,softener,extra_stocks,laundryId,laundryName")
     .in("laundryId", storeIds);
 
   if (error) return { error: error.message };
 
   const lowStockItems = data.filter(
-    (item) => item.detergent < 2 || item.softener < 2
+    (item) =>
+      item.detergent < 2 ||
+      item.softener < 2 ||
+      (item.extra_stocks ?? []).some((s) => s.count < 2)
   );
   return { data, lowStockItems };
 }

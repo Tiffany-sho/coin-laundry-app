@@ -7,6 +7,7 @@ import {
   Text,
   IconButton,
   Button,
+  Input,
   Dialog,
   Portal,
   CloseButton,
@@ -16,48 +17,100 @@ import * as Icon from "@/app/feacher/Icon";
 import { updateStockState } from "@/app/api/supabaseFunctions/supabaseDatabase/laundryState/action";
 import { showToast } from "@/functions/makeToast/toast";
 
-function StockControl({ label, value, onChange, canEdit }) {
+function CountControl({ value, onChange, canEdit }) {
+  if (!canEdit) {
+    return (
+      <Text fontSize="3xl" fontWeight="bold" color="cyan.900" textAlign="center">
+        {value}
+      </Text>
+    );
+  }
+  return (
+    <HStack justify="center" gap={4}>
+      <IconButton
+        variant="solid"
+        size="lg"
+        bg="gray.600"
+        borderRadius="full"
+        onClick={() => onChange(Math.max(0, value - 1))}
+        disabled={value <= 0}
+      >
+        <Icon.LuMinus />
+      </IconButton>
+      <Box
+        bg="var(--card-bg, #FFFFFF)"
+        px={8}
+        py={4}
+        borderRadius="lg"
+        border="2px solid"
+        borderColor="cyan.200"
+        minW="100px"
+        textAlign="center"
+      >
+        <Text fontSize="3xl" fontWeight="bold" color="cyan.900">{value}</Text>
+      </Box>
+      <IconButton
+        variant="solid"
+        size="lg"
+        bg="gray.600"
+        borderRadius="full"
+        onClick={() => onChange(value + 1)}
+      >
+        <Icon.LuPlus />
+      </IconButton>
+    </HStack>
+  );
+}
+
+function StockRow({ label, value, onChange, canEdit }) {
   return (
     <Box p={4} borderRadius="lg" border="1px solid" borderColor="cyan.100" w="full">
       <VStack gap={3} align="stretch">
         <Heading size="sm" color="cyan.900">{label}</Heading>
-        {canEdit ? (
-          <HStack justify="center" gap={4}>
+        <CountControl value={value} onChange={onChange} canEdit={canEdit} />
+      </VStack>
+    </Box>
+  );
+}
+
+function ExtraStockRow({ item, onChange, onRemove, canEdit }) {
+  return (
+    <Box p={4} borderRadius="lg" border="1px solid" borderColor="cyan.100" w="full">
+      <VStack gap={3} align="stretch">
+        <HStack gap={2}>
+          {canEdit ? (
+            <Input
+              value={item.name}
+              onChange={(e) => onChange({ ...item, name: e.target.value })}
+              placeholder="在庫名（例: 漂白剤）"
+              size="sm"
+              borderRadius="md"
+              focusBorderColor="cyan.400"
+              flex={1}
+            />
+          ) : (
+            <Heading size="sm" color="cyan.900" flex={1}>
+              {item.name || "（名前なし）"}
+            </Heading>
+          )}
+          {canEdit && (
             <IconButton
-              variant="solid"
-              size="lg"
-              bg="gray.600"
+              size="sm"
+              variant="ghost"
+              color="red.400"
               borderRadius="full"
-              onClick={() => onChange((prev) => Math.max(0, prev - 1))}
-              disabled={value <= 0}
+              onClick={onRemove}
+              aria-label="削除"
             >
-              <Icon.LuMinus />
+              <Icon.LuTrash2 />
             </IconButton>
-            <Box
-              bg="var(--card-bg, #FFFFFF)"
-              px={8}
-              py={4}
-              borderRadius="lg"
-              border="2px solid"
-              borderColor="cyan.200"
-              minW="100px"
-              textAlign="center"
-            >
-              <Text fontSize="3xl" fontWeight="bold" color="cyan.900">{value}</Text>
-            </Box>
-            <IconButton
-              variant="solid"
-              size="lg"
-              bg="gray.600"
-              borderRadius="full"
-              onClick={() => onChange((prev) => prev + 1)}
-            >
-              <Icon.LuPlus />
-            </IconButton>
-          </HStack>
-        ) : (
-          <Text fontSize="3xl" fontWeight="bold" color="cyan.900" textAlign="center">{value}</Text>
-        )}
+          )}
+        </HStack>
+        <CountControl
+          value={item.count}
+          onChange={(v) => onChange({ ...item, count: v })}
+          canEdit={canEdit}
+        />
       </VStack>
     </Box>
   );
@@ -66,15 +119,38 @@ function StockControl({ label, value, onChange, canEdit }) {
 export default function InventoryStoreCard({ stock, canEdit }) {
   const [detergent, setDetergent] = useState(stock.detergent ?? 0);
   const [softener, setSoftener] = useState(stock.softener ?? 0);
+  const [extraStocks, setExtraStocks] = useState(stock.extra_stocks ?? []);
+
   const [editDet, setEditDet] = useState(detergent);
   const [editSof, setEditSof] = useState(softener);
+  const [editExtras, setEditExtras] = useState([]);
+
   const [isSaving, setIsSaving] = useState(false);
 
-  const isLow = detergent < 2 || softener < 2;
+  const isLow =
+    detergent < 2 ||
+    softener < 2 ||
+    extraStocks.some((s) => s.count < 2);
 
   const handleOpen = () => {
     setEditDet(detergent);
     setEditSof(softener);
+    setEditExtras(extraStocks.map((s) => ({ ...s })));
+  };
+
+  const addExtraItem = () => {
+    setEditExtras((prev) => [
+      ...prev,
+      { id: crypto.randomUUID(), name: "", count: 0 },
+    ]);
+  };
+
+  const updateExtraItem = (updated) => {
+    setEditExtras((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
+  };
+
+  const removeExtraItem = (id) => {
+    setEditExtras((prev) => prev.filter((s) => s.id !== id));
   };
 
   const handleSave = async () => {
@@ -82,16 +158,28 @@ export default function InventoryStoreCard({ stock, canEdit }) {
     const { error } = await updateStockState(stock.laundryId, {
       detergent: editDet,
       softener: editSof,
+      extra_stocks: editExtras,
     });
     if (error) {
       showToast("error", `${stock.laundryName}店の在庫更新に失敗しました`);
     } else {
       setDetergent(editDet);
       setSoftener(editSof);
+      setExtraStocks(editExtras);
       showToast("success", `${stock.laundryName}店の在庫を更新しました`);
     }
     setIsSaving(false);
   };
+
+  const displayItems = [
+    { label: "洗剤", value: detergent, isLow: detergent < 2 },
+    { label: "柔軟剤", value: softener, isLow: softener < 2 },
+    ...extraStocks.map((s) => ({
+      label: s.name || "—",
+      value: s.count,
+      isLow: s.count < 2,
+    })),
+  ];
 
   return (
     <Dialog.Root onOpenChange={(e) => { if (e.open) handleOpen(); }}>
@@ -111,26 +199,22 @@ export default function InventoryStoreCard({ stock, canEdit }) {
           }}
         >
           <HStack justify="space-between" align="center">
-            <VStack align="start" gap={1}>
+            <VStack align="start" gap={1} flex={1} minW={0}>
               <Text fontWeight="bold" fontSize="sm" color="var(--text-main)">
                 {stock.laundryName}店
               </Text>
-              <HStack gap={3}>
-                <Text
-                  fontSize="xs"
-                  color={detergent < 2 ? "orange.600" : "cyan.700"}
-                  fontWeight="medium"
-                >
-                  洗剤: {detergent}
-                </Text>
-                <Text fontSize="xs" color="var(--text-faint)">/</Text>
-                <Text
-                  fontSize="xs"
-                  color={softener < 2 ? "orange.600" : "cyan.700"}
-                  fontWeight="medium"
-                >
-                  柔軟剤: {softener}
-                </Text>
+              <HStack gap={2} flexWrap="wrap">
+                {displayItems.map((item, i) => (
+                  <Text
+                    key={i}
+                    fontSize="xs"
+                    color={item.isLow ? "orange.600" : "cyan.700"}
+                    fontWeight="medium"
+                    whiteSpace="nowrap"
+                  >
+                    {item.label}: {item.value}
+                  </Text>
+                ))}
               </HStack>
             </VStack>
             <Box
@@ -138,6 +222,7 @@ export default function InventoryStoreCard({ stock, canEdit }) {
               color="white"
               borderRadius="full"
               p={1.5}
+              flexShrink={0}
             >
               {isLow ? <Icon.CiCircleAlert size={16} /> : <Icon.LuCheck size={16} />}
             </Box>
@@ -177,19 +262,55 @@ export default function InventoryStoreCard({ stock, canEdit }) {
             </Dialog.CloseTrigger>
 
             <Dialog.Body p={6}>
-              <VStack gap={6}>
-                <StockControl
+              <VStack gap={4}>
+                <StockRow
                   label="洗剤（ソープ）"
                   value={editDet}
                   onChange={setEditDet}
                   canEdit={canEdit}
                 />
-                <StockControl
+                <StockRow
                   label="柔軟剤（ソフター）"
                   value={editSof}
                   onChange={setEditSof}
                   canEdit={canEdit}
                 />
+
+                <Box w="full" borderTop="1px solid" borderColor="cyan.100" pt={2}>
+                  <Text fontSize="xs" color="var(--text-muted)" fontWeight="semibold" mb={3}>
+                    その他の在庫
+                  </Text>
+                  <VStack gap={4} align="stretch">
+                    {editExtras.map((item) => (
+                      <ExtraStockRow
+                        key={item.id}
+                        item={item}
+                        onChange={updateExtraItem}
+                        onRemove={() => removeExtraItem(item.id)}
+                        canEdit={canEdit}
+                      />
+                    ))}
+                    {canEdit && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        borderRadius="full"
+                        borderColor="cyan.300"
+                        color="cyan.600"
+                        onClick={addExtraItem}
+                        w="full"
+                      >
+                        <Icon.LuPlus size={14} />
+                        在庫を追加
+                      </Button>
+                    )}
+                    {!canEdit && editExtras.length === 0 && (
+                      <Text fontSize="xs" color="var(--text-faint)" textAlign="center">
+                        追加の在庫はありません
+                      </Text>
+                    )}
+                  </VStack>
+                </Box>
               </VStack>
             </Dialog.Body>
 

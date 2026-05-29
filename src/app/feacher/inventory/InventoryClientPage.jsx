@@ -5,7 +5,12 @@ import * as Icon from "@/app/feacher/Icon";
 import InventoryStoreCard from "./InventoryStoreCard";
 
 export default function InventoryClientPage({ stocks, canEdit }) {
-  const lowStockCount = stocks.filter((s) => s.detergent < 2 || s.softener < 2).length;
+  const lowStockCount = stocks.filter(
+    (s) =>
+      s.detergent < 2 ||
+      s.softener < 2 ||
+      (s.extra_stocks ?? []).some((e) => e.count < 2)
+  ).length;
 
   return (
     <VStack align="stretch" gap={5} maxW="600px" mx="auto">
@@ -27,7 +32,7 @@ export default function InventoryClientPage({ stocks, canEdit }) {
             >
               在庫管理
             </Heading>
-            <Text fontSize="xs" color="var(--text-muted)">全店舗の洗剤・柔軟剤在庫</Text>
+            <Text fontSize="xs" color="var(--text-muted)">全店舗の在庫状況</Text>
           </VStack>
         </HStack>
         <Link href="/equipment">
