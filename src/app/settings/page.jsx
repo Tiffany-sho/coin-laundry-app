@@ -34,7 +34,7 @@ export default async function SettingsPage({ searchParams }) {
 
       <VStack align="stretch" gap={4}>
         {checkoutSuccess && <CheckoutSuccessBanner />}
-        <AccountInfoCard user={user} profile={profile} myRole={org?.myRole} />
+        <AccountInfoCard user={user} profile={profile} myRole={org?.myRole} plan={planInfo?.plan} />
         {org?.myRole === "admin" && <OrgInfoCard org={org} />}
         {org?.myRole === "admin" && planInfo && <PlanCard planInfo={planInfo} />}
         <AppSettingsCard collectMethod={profile?.collectMethod} />
