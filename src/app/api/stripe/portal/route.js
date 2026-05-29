@@ -18,10 +18,15 @@ export async function POST() {
     return NextResponse.json({ error: "No Stripe customer found" }, { status: 404 });
   }
 
-  const session = await stripe.billingPortal.sessions.create({
-    customer: planInfo.stripeCustomerId,
-    return_url: `${process.env.NEXT_PUBLIC_APP_URL}/settings`,
-  });
+  let session;
+  try {
+    session = await stripe.billingPortal.sessions.create({
+      customer: planInfo.stripeCustomerId,
+      return_url: `${process.env.NEXT_PUBLIC_APP_URL}/settings`,
+    });
+  } catch (e) {
+    return NextResponse.json({ error: e.message }, { status: 500 });
+  }
 
   return NextResponse.json({ url: session.url });
 }

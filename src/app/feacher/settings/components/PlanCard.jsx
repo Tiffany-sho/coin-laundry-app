@@ -26,20 +26,40 @@ export default function PlanCard({ planInfo }) {
 
   const handleOpenPortal = async () => {
     setIsLoadingPortal(true);
-    const res = await fetch("/api/stripe/portal", { method: "POST" });
-    const { url } = await res.json();
-    window.location.href = url;
+    try {
+      const res = await fetch("/api/stripe/portal", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(`エラー: ${data.error ?? "ポータルを開けませんでした"}`);
+        setIsLoadingPortal(false);
+        return;
+      }
+      window.location.href = data.url;
+    } catch {
+      alert("通信エラーが発生しました");
+      setIsLoadingPortal(false);
+    }
   };
 
   const handleUpgrade = async (planKey) => {
     setIsLoadingCheckout(planKey);
-    const res = await fetch("/api/stripe/checkout", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ planKey }),
-    });
-    const { url } = await res.json();
-    window.location.href = url;
+    try {
+      const res = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ planKey }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(`エラー: ${data.error ?? "チェックアウトを開けませんでした"}`);
+        setIsLoadingCheckout(null);
+        return;
+      }
+      window.location.href = data.url;
+    } catch {
+      alert("通信エラーが発生しました");
+      setIsLoadingCheckout(null);
+    }
   };
 
   return (
