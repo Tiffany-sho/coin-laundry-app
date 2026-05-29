@@ -26,7 +26,6 @@ export default function SplashScreen() {
 
   return (
     <div className={`${styles.splash} ${leaving ? styles.leaving : ""}`}>
-      <p className={styles.company}>Biencasa</p>
       <p className={styles.appName}>Collecie</p>
     </div>
   );
