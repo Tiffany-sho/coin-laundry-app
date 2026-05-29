@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
+import { createServiceClient } from "@/utils/supabase/service";
 import { getUser } from "../user/action";
 
 export const getProfile = async () => {
@@ -33,6 +34,37 @@ export const updateProfile = async ({ fullname, username }) => {
   });
 
   return { error };
+};
+
+// アバターのアップロードとURL保存を一括処理（サービスクライアントでRLSを回避）
+export const uploadAndSetAvatar = async (formData) => {
+  const { user } = await getUser();
+  if (!user) return { error: "ログインしてください" };
+
+  const file = formData.get("file");
+  if (!file) return { error: "ファイルがありません" };
+
+  const ext = file.name.split(".").pop().toLowerCase();
+  const path = `avatars/${user.id}.${ext}`;
+
+  const supabase = createServiceClient();
+
+  const { error: uploadError } = await supabase.storage
+    .from("Laundry-Images")
+    .upload(path, file, { upsert: true, contentType: file.type });
+
+  if (uploadError) return { error: "アバターのアップロードに失敗しました" };
+
+  const { data } = supabase.storage.from("Laundry-Images").getPublicUrl(path);
+
+  const { error: updateError } = await supabase
+    .from("profiles")
+    .update({ avatar_url: data.publicUrl })
+    .eq("id", user.id);
+
+  if (updateError) return { error: "アバターURLの保存に失敗しました" };
+
+  return { url: data.publicUrl };
 };
 
 export const updateAvatarUrl = async (avatarUrl) => {
