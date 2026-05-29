@@ -17,6 +17,42 @@ import * as Icon from "@/app/feacher/Icon";
 import { updateStockState } from "@/app/api/supabaseFunctions/supabaseDatabase/laundryState/action";
 import { showToast } from "@/functions/makeToast/toast";
 
+function ThresholdControl({ value, onChange, canEdit }) {
+  return (
+    <HStack justify="space-between" align="center" pt={2} borderTop="1px solid" borderColor="gray.100">
+      <Text fontSize="xs" color="var(--text-muted)">警告ライン（以下で警告）</Text>
+      {canEdit ? (
+        <HStack gap={2}>
+          <IconButton
+            size="xs"
+            variant="outline"
+            borderRadius="full"
+            colorPalette="orange"
+            onClick={() => onChange(Math.max(0, value - 1))}
+            disabled={value <= 0}
+          >
+            <Icon.LuMinus />
+          </IconButton>
+          <Text fontSize="sm" fontWeight="bold" color="orange.500" minW="28px" textAlign="center">
+            {value}個
+          </Text>
+          <IconButton
+            size="xs"
+            variant="outline"
+            borderRadius="full"
+            colorPalette="orange"
+            onClick={() => onChange(value + 1)}
+          >
+            <Icon.LuPlus />
+          </IconButton>
+        </HStack>
+      ) : (
+        <Text fontSize="xs" color="orange.500" fontWeight="semibold">{value}個以下で警告</Text>
+      )}
+    </HStack>
+  );
+}
+
 function CountControl({ value, onChange, canEdit }) {
   if (!canEdit) {
     return (
@@ -62,12 +98,13 @@ function CountControl({ value, onChange, canEdit }) {
   );
 }
 
-function StockRow({ label, value, onChange, canEdit }) {
+function StockRow({ label, value, onChange, threshold, onThresholdChange, canEdit }) {
   return (
     <Box p={4} borderRadius="lg" border="1px solid" borderColor="cyan.100" w="full">
       <VStack gap={3} align="stretch">
         <Heading size="sm" color="cyan.900">{label}</Heading>
         <CountControl value={value} onChange={onChange} canEdit={canEdit} />
+        <ThresholdControl value={threshold} onChange={onThresholdChange} canEdit={canEdit} />
       </VStack>
     </Box>
   );
@@ -111,37 +148,50 @@ function ExtraStockRow({ item, onChange, onRemove, canEdit }) {
           onChange={(v) => onChange({ ...item, count: v })}
           canEdit={canEdit}
         />
+        <ThresholdControl
+          value={item.threshold ?? 1}
+          onChange={(v) => onChange({ ...item, threshold: v })}
+          canEdit={canEdit}
+        />
       </VStack>
     </Box>
   );
 }
 
 export default function InventoryStoreCard({ stock, canEdit }) {
+  const initThresholds = stock.stock_thresholds ?? {};
+
   const [detergent, setDetergent] = useState(stock.detergent ?? 0);
   const [softener, setSoftener] = useState(stock.softener ?? 0);
   const [extraStocks, setExtraStocks] = useState(stock.extra_stocks ?? []);
+  const [thresholds, setThresholds] = useState({
+    detergent: initThresholds.detergent ?? 1,
+    softener: initThresholds.softener ?? 1,
+  });
 
   const [editDet, setEditDet] = useState(detergent);
   const [editSof, setEditSof] = useState(softener);
   const [editExtras, setEditExtras] = useState([]);
+  const [editThresholds, setEditThresholds] = useState(thresholds);
 
   const [isSaving, setIsSaving] = useState(false);
 
   const isLow =
-    detergent < 2 ||
-    softener < 2 ||
-    extraStocks.some((s) => s.count < 2);
+    detergent <= thresholds.detergent ||
+    softener <= thresholds.softener ||
+    extraStocks.some((s) => s.count <= (s.threshold ?? 1));
 
   const handleOpen = () => {
     setEditDet(detergent);
     setEditSof(softener);
     setEditExtras(extraStocks.map((s) => ({ ...s })));
+    setEditThresholds({ ...thresholds });
   };
 
   const addExtraItem = () => {
     setEditExtras((prev) => [
       ...prev,
-      { id: crypto.randomUUID(), name: "", count: 0 },
+      { id: crypto.randomUUID(), name: "", count: 0, threshold: 1 },
     ]);
   };
 
@@ -159,6 +209,7 @@ export default function InventoryStoreCard({ stock, canEdit }) {
       detergent: editDet,
       softener: editSof,
       extra_stocks: editExtras,
+      stock_thresholds: editThresholds,
     });
     if (error) {
       showToast("error", `${stock.laundryName}店の在庫更新に失敗しました`);
@@ -166,18 +217,19 @@ export default function InventoryStoreCard({ stock, canEdit }) {
       setDetergent(editDet);
       setSoftener(editSof);
       setExtraStocks(editExtras);
+      setThresholds(editThresholds);
       showToast("success", `${stock.laundryName}店の在庫を更新しました`);
     }
     setIsSaving(false);
   };
 
   const displayItems = [
-    { label: "洗剤", value: detergent, isLow: detergent < 2 },
-    { label: "柔軟剤", value: softener, isLow: softener < 2 },
+    { label: "洗剤", value: detergent, isLow: detergent <= thresholds.detergent },
+    { label: "柔軟剤", value: softener, isLow: softener <= thresholds.softener },
     ...extraStocks.map((s) => ({
       label: s.name || "—",
       value: s.count,
-      isLow: s.count < 2,
+      isLow: s.count <= (s.threshold ?? 1),
     })),
   ];
 
@@ -267,12 +319,16 @@ export default function InventoryStoreCard({ stock, canEdit }) {
                   label="洗剤（ソープ）"
                   value={editDet}
                   onChange={setEditDet}
+                  threshold={editThresholds.detergent}
+                  onThresholdChange={(v) => setEditThresholds((t) => ({ ...t, detergent: v }))}
                   canEdit={canEdit}
                 />
                 <StockRow
                   label="柔軟剤（ソフター）"
                   value={editSof}
                   onChange={setEditSof}
+                  threshold={editThresholds.softener}
+                  onThresholdChange={(v) => setEditThresholds((t) => ({ ...t, softener: v }))}
                   canEdit={canEdit}
                 />
 

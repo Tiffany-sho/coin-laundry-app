@@ -90,7 +90,7 @@ export async function updateMachinesState(laundryId, machines) {
   return {};
 }
 
-export async function updateStockState(laundryId, { detergent, softener, extra_stocks }) {
+export async function updateStockState(laundryId, { detergent, softener, extra_stocks, stock_thresholds }) {
   const { user } = await getUser();
   if (!user) return { error: "ユーザーが認証されていません。" };
 
@@ -103,7 +103,12 @@ export async function updateStockState(laundryId, { detergent, softener, extra_s
 
   const { error } = await supabase
     .from("laundry_state")
-    .update({ detergent, softener, extra_stocks: extra_stocks ?? [] })
+    .update({
+      detergent,
+      softener,
+      extra_stocks: extra_stocks ?? [],
+      stock_thresholds: stock_thresholds ?? { detergent: 1, softener: 1 },
+    })
     .eq("laundryId", laundryId);
 
   if (error) return { error };
@@ -117,16 +122,20 @@ export async function getStockStates() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("laundry_state")
-    .select("detergent,softener,extra_stocks,laundryId,laundryName")
+    .select("detergent,softener,extra_stocks,stock_thresholds,laundryId,laundryName")
     .in("laundryId", storeIds);
 
   if (error) return { error: error.message };
 
-  const lowStockItems = data.filter(
-    (item) =>
-      item.detergent < 2 ||
-      item.softener < 2 ||
-      (item.extra_stocks ?? []).some((s) => s.count < 2)
-  );
+  const lowStockItems = data.filter((item) => {
+    const t = item.stock_thresholds ?? {};
+    const detThr = t.detergent ?? 1;
+    const sofThr = t.softener ?? 1;
+    return (
+      item.detergent <= detThr ||
+      item.softener <= sofThr ||
+      (item.extra_stocks ?? []).some((s) => s.count <= (s.threshold ?? 1))
+    );
+  });
   return { data, lowStockItems };
 }

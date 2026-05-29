@@ -5,12 +5,14 @@ import * as Icon from "@/app/feacher/Icon";
 import InventoryStoreCard from "./InventoryStoreCard";
 
 export default function InventoryClientPage({ stocks, canEdit }) {
-  const lowStockCount = stocks.filter(
-    (s) =>
-      s.detergent < 2 ||
-      s.softener < 2 ||
-      (s.extra_stocks ?? []).some((e) => e.count < 2)
-  ).length;
+  const lowStockCount = stocks.filter((s) => {
+    const t = s.stock_thresholds ?? {};
+    return (
+      s.detergent <= (t.detergent ?? 1) ||
+      s.softener <= (t.softener ?? 1) ||
+      (s.extra_stocks ?? []).some((e) => e.count <= (e.threshold ?? 1))
+    );
+  }).length;
 
   return (
     <VStack align="stretch" gap={5} maxW="600px" mx="auto">
