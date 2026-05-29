@@ -5,9 +5,10 @@ import {
   Heading,
   Grid,
   GridItem,
+  Text,
 } from "@chakra-ui/react";
-import NowMachinesState from "./NowMachinesState";
-import NowStockState from "./NowStockState";
+import Link from "next/link";
+import * as Icon from "@/app/feacher/Icon";
 import QuickAction from "./QuickAction";
 import SalesCard from "./SalesCard";
 import GreetingHeader from "./GreetingHeader";
@@ -43,10 +44,56 @@ const LoginUserHome = ({ id, username = "集金担当者", myRole }) => {
               gap={{ base: 3, md: 4 }}
             >
               <GridItem>
-                <NowMachinesState id={id} />
+                <Link href="/equipment">
+                  <Box
+                    bg="var(--teal-pale, #CFFAFE)"
+                    px={4} py={8}
+                    border="1px solid" borderRadius="xl"
+                    borderColor="cyan.200"
+                    cursor="pointer"
+                    _hover={{ bg: "cyan.50", borderColor: "cyan.300" }}
+                    transition="all 0.2s"
+                    textAlign="center"
+                  >
+                    <VStack align="center" gap={3}>
+                      <Box bg="var(--teal, #0891B2)" color="white" borderRadius="full" p={2}>
+                        <Icon.LuWrench size={18} />
+                      </Box>
+                      <Text fontSize="sm" fontWeight="semibold" color="var(--teal-deeper, #155E75)">
+                        設備状況
+                      </Text>
+                      <Text fontSize="xs" color="var(--text-muted, #64748B)">
+                        設備・故障状況を確認する →
+                      </Text>
+                    </VStack>
+                  </Box>
+                </Link>
               </GridItem>
               <GridItem>
-                <NowStockState id={id} />
+                <Link href="/inventory">
+                  <Box
+                    bg="var(--teal-pale, #CFFAFE)"
+                    px={4} py={8}
+                    border="1px solid" borderRadius="xl"
+                    borderColor="cyan.200"
+                    cursor="pointer"
+                    _hover={{ bg: "cyan.50", borderColor: "cyan.300" }}
+                    transition="all 0.2s"
+                    textAlign="center"
+                  >
+                    <VStack align="center" gap={3}>
+                      <Box bg="var(--teal, #0891B2)" color="white" borderRadius="full" p={2}>
+                        <Icon.LuPackage size={18} />
+                      </Box>
+                      <Text fontSize="sm" fontWeight="semibold" color="var(--teal-deeper, #155E75)">
+                        在庫状況
+                      </Text>
+                      <Text fontSize="xs" color="var(--text-muted, #64748B)">
+                        在庫・補充状況を確認する →
+                      </Text>
+                    </VStack>
+                  </Box>
+                </Link>
               </GridItem>
             </Grid>
           </Box>

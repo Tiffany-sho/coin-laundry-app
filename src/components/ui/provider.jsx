@@ -5,7 +5,7 @@ import { ColorModeProvider } from "@/components/ui/color-mode";
 
 export function Provider({ children }) {
   return (
-    <ColorModeProvider>
+    <ColorModeProvider forcedTheme="light">
       <ChakraProvider value={defaultSystem}>{children}</ChakraProvider>
     </ColorModeProvider>
   );

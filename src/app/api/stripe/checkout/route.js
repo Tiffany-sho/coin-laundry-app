@@ -31,10 +31,15 @@ export async function POST(request) {
   let customerId = planInfo.stripeCustomerId;
 
   if (!customerId) {
-    const customer = await stripe.customers.create({
-      email: user.email,
-      metadata: { org_id: planInfo.orgId },
-    });
+    let customer;
+    try {
+      customer = await stripe.customers.create({
+        email: user.email,
+        metadata: { org_id: planInfo.orgId },
+      });
+    } catch (e) {
+      return NextResponse.json({ error: e.message }, { status: 500 });
+    }
     customerId = customer.id;
     await serviceSupabase
       .from("organizations")
@@ -57,6 +62,11 @@ export async function POST(request) {
     };
   }
 
-  const session = await stripe.checkout.sessions.create(sessionParams);
+  let session;
+  try {
+    session = await stripe.checkout.sessions.create(sessionParams);
+  } catch (e) {
+    return NextResponse.json({ error: e.message }, { status: 500 });
+  }
   return NextResponse.json({ url: session.url });
 }

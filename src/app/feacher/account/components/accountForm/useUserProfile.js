@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
-import { getProfile, updateProfile, uploadAndSetAvatar } from "@/app/api/supabaseFunctions/supabaseDatabase/profiles/action";
+import { getProfile, updateProfile } from "@/app/api/supabaseFunctions/supabaseDatabase/profiles/action";
 import { showToast } from "@/functions/makeToast/toast";
 
 export function useUserProfile({ onSuccess } = {}) {
@@ -41,14 +41,19 @@ export function useUserProfile({ onSuccess } = {}) {
 
   const handleAvatarChange = async (file) => {
     setAvatarLoading(true);
-    const formData = new FormData();
-    formData.append("file", file);
-    const { url, error } = await uploadAndSetAvatar(formData);
-    if (error) {
-      showToast("error", error);
-    } else {
-      setAvatarUrl(`${url}?t=${Date.now()}`);
-      showToast("success", "アバターを更新しました");
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/upload/avatar", { method: "POST", body: formData });
+      const data = await res.json();
+      if (!res.ok) {
+        showToast("error", data.error ?? "アップロードに失敗しました");
+      } else {
+        setAvatarUrl(`${data.url}?t=${Date.now()}`);
+        showToast("success", "アバターを更新しました");
+      }
+    } catch {
+      showToast("error", "アップロードに失敗しました");
     }
     setAvatarLoading(false);
   };

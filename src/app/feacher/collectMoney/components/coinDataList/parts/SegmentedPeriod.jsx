@@ -90,7 +90,7 @@ const PeriodRangeSlider = () => {
       : "全期間";
   const appliedEndStr =
     appliedEndVal < MAX_MONTHS
-      ? epochToDateStr(sliderToEndDisplay(appliedEndVal))
+      ? epochToDateStr(sliderToEndDisplay(appliedEndVal - 1))
       : epochToDateStr(todayEpoch());
 
   const draftStartStr =
@@ -102,7 +102,9 @@ const PeriodRangeSlider = () => {
 
   const handleOpenChange = (e) => {
     if (e.open) {
-      setDraftVal([appliedStartVal, appliedEndVal]);
+      // endEpoch は「翌月の開始epoch」として保持されているため、スライダー値に戻す際に -1 補正が必要
+      const effectiveEndVal = endEpoch === null ? MAX_MONTHS : appliedEndVal - 1;
+      setDraftVal([appliedStartVal, effectiveEndVal]);
       setDraftStores(
         selectedStores.length > 0 ? [...selectedStores] : [...storeNames]
       );

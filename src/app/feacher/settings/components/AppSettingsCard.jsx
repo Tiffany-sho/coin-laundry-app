@@ -1,6 +1,5 @@
-import { Card, VStack, HStack, Text, Box, Heading, Separator } from "@chakra-ui/react";
+import { Card, VStack, HStack, Text, Box, Heading } from "@chakra-ui/react";
 import CollectMethodSetting from "./CollectMethodSetting";
-import DarkModeSetting from "./DarkModeSetting";
 import * as Icon from "@/app/feacher/Icon";
 
 function SettingRow({ icon, label, description, control }) {
@@ -35,15 +34,6 @@ export default function AppSettingsCard({ collectMethod }) {
             description="機械別に記録するか、まとめて記録するか"
           />
           <CollectMethodSetting defaultValue={collectMethod} />
-
-          <Separator borderColor="var(--divider)" />
-
-          <SettingRow
-            icon={<Icon.LuMoon size={16} />}
-            label="ダークモード"
-            description="画面の配色を暗くする"
-            control={<DarkModeSetting />}
-          />
         </VStack>
       </Card.Body>
     </Card.Root>
