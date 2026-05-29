@@ -37,12 +37,19 @@ src/
 │   │   ├── coinLandry/             # 店舗関連UI
 │   │   ├── collectMoney/           # 集金関連UI
 │   │   ├── dialog/                 # ダイアログ群
-│   │   ├── settings/               # 設定ページUI
+│   │   ├── inventory/              # 在庫管理UI（InventoryStoreCard, InventoryClientPage）
+│   │   ├── equipment/              # 設備管理UI（EquipmentStoreCard, EquipmentClientPage）
+│   │   ├── settings/               # 設定ページUI（PlanCard, PlanGrid, CheckoutSuccessBanner）
 │   │   └── ...
 │   ├── coinLaundry/                # 店舗ページ（一覧・詳細・新規）
 │   ├── collectMoney/               # 集金ページ
-│   ├── settings/                   # 設定ページ（アカウント・組織・ログ）
+│   ├── inventory/                  # 在庫管理ページ（全店舗の洗剤・柔軟剤・カスタム在庫）
+│   ├── equipment/                  # 設備管理ページ（全店舗の機器故障状況）
+│   ├── settings/                   # 設定ページ（アカウント・組織・プラン）
 │   ├── account/                    # /settings へリダイレクト（旧アカウントページ）
+│   ├── privacy/                    # プライバシーポリシーページ
+│   ├── terms/                      # 利用規約ページ
+│   ├── tokushoho/                  # 特定商取引法に基づく表記ページ
 │   └── auth/                       # 認証ページ
 ├── components/
 │   └── ui/                         # 汎用UIコンポーネント（Chakra UI拡張）
@@ -59,6 +66,10 @@ src/
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   name text NOT NULL,
   owner_id uuid NOT NULL,
+  plan text NOT NULL DEFAULT 'free',          -- 'free' | 'pro' | 'max'
+  stripe_customer_id text,
+  stripe_subscription_id text,
+  trial_ends_at timestamptz,
   CONSTRAINT organizations_pkey PRIMARY KEY (id),
   CONSTRAINT organizations_owner_id_fkey FOREIGN KEY (owner_id) REFERENCES public.profiles(id)
   );
@@ -118,6 +129,8 @@ src/
   detergent bigint,
   softener bigint,
   machines jsonb,
+  extra_stocks jsonb DEFAULT '[]'::jsonb,       -- カスタム在庫: [{id, name, count, threshold}]
+  stock_thresholds jsonb DEFAULT '{"detergent":1,"softener":1}'::jsonb,  -- 警告ライン設定
   stocker uuid DEFAULT auth.uid(),
   laundryName text,
   CONSTRAINT laundry_state_pkey PRIMARY KEY (id),
@@ -237,6 +250,12 @@ cyan.300 → ホバーボーダー
 cyan.900 → ダイアログ見出し
 ```
 
+#### Chakra UI v3 の注意点
+
+- `focusBorderColor` prop は廃止。代わりに `_focusVisible={{ borderColor: "cyan.400" }}` を使う。
+- `leftIcon` / `rightIcon` prop は廃止。アイコンはボタンの children に直接書く。
+- `Divider` は `Separator` に変更（またはBoxのborderTopで代替）。
+
 ---
 
 ### コンポーネント設計
@@ -285,7 +304,7 @@ git push origin main
 
 ## 今後の実装予定
 
-1. **サブスクリプション機能** — 有料プランによる機能制限
+1. ~~**サブスクリプション機能**~~ — 実装済み（Free/Pro/Max・Stripe連携・トライアル14日）
 2. **CSV / Excel エクスポート** — 集金データを経理・報告書作成用にエクスポート
 3. **集金サイクル管理** — 店舗ごとの集金スケジュール設定と未集金アラート
 4. **機器故障・メモ記録** — 集金時に気づいた不具合やメモを記録する機能
@@ -300,7 +319,20 @@ git push origin main
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://xxxxxxxxxxxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=aaabbbcccddddxxxxx.....
+SUPABASE_SERVICE_KEY=xxxx...          # サービスロールキー（RLSバイパス用・サーバーのみ）
+
+STRIPE_SECRET_KEY=sk_live_...         # 本番: sk_live_ / 開発: sk_test_
+STRIPE_WEBHOOK_SECRET=whsec_...       # Stripe Webhookシークレット
+STRIPE_PRO_PRICE_ID=price_...         # ProプランのPrice ID
+STRIPE_MAX_PRICE_ID=price_...         # MaxプランのPrice ID
+STRIPE_PRO_TRIAL_DAYS=14             # トライアル日数
+
+NEXT_PUBLIC_APP_URL=https://www.collecie.com  # 本番: 公開URL / 開発: http://localhost:3000
+
+RESEND_API_KEY=re_...                 # メール送信（招待メール等）
 ```
+
+**本番デプロイ時の注意**: `STRIPE_SECRET_KEY` は `sk_live_` キーを使用し、Stripeダッシュボードで本番用Webhookを `https://www.collecie.com/api/stripe/webhook` に登録すること。
 
 ---
 
