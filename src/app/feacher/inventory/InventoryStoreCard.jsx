@@ -85,7 +85,7 @@ function ExtraStockRow({ item, onChange, onRemove, canEdit }) {
               placeholder="在庫名（例: 漂白剤）"
               size="sm"
               borderRadius="md"
-              focusBorderColor="cyan.400"
+              _focusVisible={{ borderColor: "cyan.400", boxShadow: "0 0 0 1px var(--chakra-colors-cyan-400)" }}
               flex={1}
             />
           ) : (
