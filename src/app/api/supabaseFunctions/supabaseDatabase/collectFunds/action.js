@@ -308,7 +308,7 @@ export async function getOrgCollectFunds(startEpoch, endEpoch) {
   const supabase = createServiceClient();
   let query = supabase
     .from("collect_funds")
-    .select("date, totalFunds, laundryId")
+    .select("date, totalFunds, laundryId, laundryName")
     .in("laundryId", storeIds)
     .order("date", { ascending: true })
     .gt("date", startEpoch);
