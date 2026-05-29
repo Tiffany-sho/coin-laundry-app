@@ -1,104 +1,98 @@
-import {
-  Box,
-  Container,
-  Grid,
-  GridItem,
-  Heading,
-  Stack,
-  Text,
-  VStack,
-} from "@chakra-ui/react";
+import { Box, Container, Grid, GridItem, Heading, Text, VStack, Flex } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
-import React from "react";
+
+const features = [
+  {
+    icon: <Icon.PiHandCoinsLight size={26} />,
+    title: "集金記録",
+    description: "現金・電子マネー問わず素早く記録。日次・月次の売上データを自動集計します。",
+  },
+  {
+    icon: <Icon.LuPackage size={26} />,
+    title: "在庫管理",
+    description: "洗剤・柔軟剤の在庫を閾値アラート付きで管理。補充のし忘れを防ぎます。",
+  },
+  {
+    icon: <Icon.LuWrench size={26} />,
+    title: "機器状態",
+    description: "洗濯機・乾燥機の稼働・故障情報を一覧管理。メンテナンスを効率化します。",
+  },
+  {
+    icon: <Icon.VscGraphLine size={26} />,
+    title: "売上レポート",
+    description: "月次・年次の売上グラフでビジュアルに把握。経営判断をデータで支えます。",
+  },
+];
 
 const ExplainFunction = () => {
-  const features = [
-    {
-      icon: <Icon.PiHandCoinsLight />,
-      title: "集金記録",
-      description: "簡単に集金状況を記録・管理できます",
-    },
-    {
-      icon: <Icon.LuPackage />,
-      title: "在庫管理",
-      description: "洗剤・柔軟剤の在庫を一元管理",
-    },
-    {
-      icon: <Icon.LiaStoreSolid />,
-      title: "店舗一覧",
-      description: "複数店舗をまとめて管理できます",
-    },
-    {
-      icon: <Icon.VscGraphLine />,
-      title: "レポート",
-      description: "売上分析で経営を可視化します",
-    },
-  ];
-
   return (
-    <Box py={{ base: 16, md: 20 }} bg="var(--card-bg, #FFFFFF)">
+    <Box py={{ base: 20, md: 28 }} bg="white">
       <Container maxW="container.xl">
-        <VStack spacing={{ base: 12, md: 16 }}>
-          <VStack spacing={4} textAlign="center">
-            <Heading size={{ base: "lg", md: "xl" }} color="gray.800">
-              主な機能
+        <VStack gap={{ base: 12, md: 16 }}>
+          <VStack gap={3} textAlign="center">
+            <Text
+              fontSize="xs"
+              fontWeight="bold"
+              color="var(--teal)"
+              letterSpacing="0.12em"
+              textTransform="uppercase"
+            >
+              Features
+            </Text>
+            <Heading
+              fontSize={{ base: "2xl", md: "3xl" }}
+              color="var(--text-main)"
+              letterSpacing="-0.01em"
+            >
+              必要な機能がすべて揃っています
             </Heading>
-            <Text fontSize={{ base: "md", md: "lg" }} color="gray.600">
-              コインランドリー経営に必要な機能を全て搭載
+            <Text fontSize={{ base: "md", md: "lg" }} color="var(--text-muted)" maxW="xl">
+              コインランドリー経営に必要な機能を一元管理
             </Text>
           </VStack>
 
           <Grid
-            templateColumns={{
-              base: "repeat(1, 1fr)",
-              sm: "repeat(2, 1fr)",
-              lg: "repeat(4, 1fr)",
-            }}
+            templateColumns={{ base: "1fr", sm: "repeat(2, 1fr)", lg: "repeat(4, 1fr)" }}
             gap={{ base: 4, md: 6 }}
             w="full"
           >
-            {features.map((feature, index) => (
-              <GridItem key={index}>
-                <Stack
-                  align="center"
-                  p={{ base: 6, md: 8 }}
+            {features.map((feature, i) => (
+              <GridItem key={i}>
+                <VStack
+                  align="start"
+                  p={6}
                   borderRadius="xl"
-                  border="1px"
-                  borderColor="gray.200"
-                  bg="cyan.50"
-                  _hover={{
-                    borderColor: "cyan.300",
-                    boxShadow: "lg",
-                    transform: "translateY(-8px)",
-                    bg: "cyan.50",
-                  }}
-                  transition="all 0.3s"
+                  border="1px solid"
+                  borderColor="cyan.100"
+                  bg="white"
+                  boxShadow="var(--shadow-sm)"
+                  gap={4}
                   h="full"
-                  cursor="pointer"
+                  transition="all 0.2s"
+                  _hover={{
+                    transform: "translateY(-4px)",
+                    boxShadow: "0 8px 24px rgba(8,145,178,0.14)",
+                    borderColor: "cyan.200",
+                  }}
                 >
-                  <Text
-                    fontSize={{ base: "40px", md: "48px" }}
-                    color="cyan.600"
-                    mb={4}
+                  <Flex
+                    w="52px" h="52px"
+                    borderRadius="xl"
+                    bg="var(--teal-pale)"
+                    align="center"
+                    justify="center"
+                    color="var(--teal)"
+                    flexShrink={0}
                   >
                     {feature.icon}
-                  </Text>
-                  <Heading
-                    size={{ base: "sm", md: "md" }}
-                    mb={3}
-                    color="gray.800"
-                  >
-                    {feature.title}
-                  </Heading>
-                  <Text
-                    textAlign="center"
-                    color="gray.600"
-                    fontSize={{ base: "sm", md: "md" }}
-                    lineHeight="1.6"
-                  >
-                    {feature.description}
-                  </Text>
-                </Stack>
+                  </Flex>
+                  <VStack align="start" gap={1.5}>
+                    <Heading fontSize="md" color="var(--text-main)">{feature.title}</Heading>
+                    <Text fontSize="sm" color="var(--text-muted)" lineHeight="1.7">
+                      {feature.description}
+                    </Text>
+                  </VStack>
+                </VStack>
               </GridItem>
             ))}
           </Grid>

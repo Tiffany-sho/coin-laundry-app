@@ -1,49 +1,84 @@
-import {
-  Box,
-  Button,
-  Container,
-  Heading,
-  Text,
-  VStack,
-} from "@chakra-ui/react";
+import { Box, Container, Heading, Text, VStack, HStack } from "@chakra-ui/react";
 import Link from "next/link";
-import React from "react";
+import * as Icon from "@/app/feacher/Icon";
 
 const Subscribe = () => {
   return (
     <Box
-      py={20}
-      style={{ background: "linear-gradient(140deg, #0E7490 0%, #0891B2 60%, #06B6D4 100%)" }}
-      mb={10}
-      borderRadius={20}
+      py={{ base: 20, md: 28 }}
+      mx={{ base: 4, md: 8 }}
+      mb={12}
+      borderRadius="2xl"
+      position="relative"
+      overflow="hidden"
+      style={{ background: "linear-gradient(140deg, #0E7490 0%, #0891B2 55%, #06B6D4 100%)" }}
     >
-      <Container maxW="4xl">
-        <VStack spacing={8} textAlign="center">
-          <Heading size={{ base: "lg", md: "xl" }} color="white">
-            今すぐ始めて、業務効率を改善しましょう
-          </Heading>
-          <Text fontSize="xl" color="rgba(255,255,255,0.80)">
-            支払い不要・すぐに使い始められます
-          </Text>
+      <Box
+        position="absolute"
+        top="-70px" right="-70px"
+        w="240px" h="240px"
+        borderRadius="full"
+        bg="rgba(255,255,255,0.07)"
+        pointerEvents="none"
+      />
+      <Box
+        position="absolute"
+        bottom="-50px" left="-50px"
+        w="180px" h="180px"
+        borderRadius="full"
+        bg="rgba(255,255,255,0.06)"
+        pointerEvents="none"
+      />
+
+      <Container maxW="2xl" position="relative">
+        <VStack gap={8} textAlign="center">
+          <VStack gap={3}>
+            <Heading
+              fontSize={{ base: "2xl", md: "3xl" }}
+              color="white"
+              letterSpacing="-0.01em"
+            >
+              今すぐ始めましょう
+            </Heading>
+            <Text
+              fontSize={{ base: "md", md: "lg" }}
+              color="rgba(255,255,255,0.82)"
+              lineHeight="1.8"
+            >
+              14日間無料トライアル付き。<br />
+              クレジットカード不要でいますぐ試せます。
+            </Text>
+          </VStack>
+
           <Link href="/auth/login">
-            <Button
-              size="lg"
-              bg="var(--card-bg, #FFFFFF)"
-              color="var(--teal-deeper, #155E75)"
+            <Box
+              px={10} py={4}
+              bg="white"
+              color="var(--teal-deeper)"
+              borderRadius="xl"
+              fontSize="md"
               fontWeight="bold"
-              _hover={{
-                bg: "var(--teal-pale, #CFFAFE)",
-                transform: "translateY(-2px)",
-                boxShadow: "xl",
-              }}
-              boxShadow="0 4px 20px rgba(0,0,0,0.15)"
-              fontSize="lg"
-              px={10}
+              boxShadow="0 4px 24px rgba(0,0,0,0.18)"
+              cursor="pointer"
               transition="all 0.2s"
+              _hover={{
+                transform: "translateY(-2px)",
+                boxShadow: "0 8px 32px rgba(0,0,0,0.24)",
+                bg: "var(--teal-pale)",
+              }}
             >
               無料アカウントを作成
-            </Button>
+            </Box>
           </Link>
+
+          <HStack gap={{ base: 4, md: 8 }} flexWrap="wrap" justify="center">
+            {["3店舗まで永久無料", "14日間トライアル", "クレジットカード不要"].map((item) => (
+              <HStack key={item} gap={1.5}>
+                <Icon.LuCheck size={14} color="rgba(255,255,255,0.8)" />
+                <Text fontSize="sm" color="rgba(255,255,255,0.8)">{item}</Text>
+              </HStack>
+            ))}
+          </HStack>
         </VStack>
       </Container>
     </Box>
