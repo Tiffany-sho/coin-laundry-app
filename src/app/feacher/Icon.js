@@ -49,6 +49,7 @@ import {
   LuZap,
   LuCreditCard,
   LuCamera,
+  LuSlidersHorizontal,
 } from "react-icons/lu";
 
 import { MdOutlineLocalLaundryService } from "react-icons/md";
@@ -117,4 +118,5 @@ export {
   LuZap,
   LuCreditCard,
   LuCamera,
+  LuSlidersHorizontal,
 };
