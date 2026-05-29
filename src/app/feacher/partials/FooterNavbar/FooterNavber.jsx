@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { href: "/",             icon: <Icon.IoHomeOutline />,                label: "ホーム" },
   { href: "/coinLaundry",  icon: <Icon.MdOutlineLocalLaundryService />, label: "店舗" },
   { href: "/collectMoney", icon: <Icon.BiCoinStack />,                  label: "収益" },
+  { href: "/inventory",    icon: <Icon.LuPackage />,                    label: "管理" },
   { href: "/settings",     icon: <Icon.LuSettings />,                   label: "設定" },
 ];
 
@@ -39,6 +40,9 @@ const FooterNavbar = () => {
 
   const isActive = (href) => {
     if (href === "/") return pathname === "/";
+    if (href === "/inventory") {
+      return pathname.startsWith("/inventory") || pathname.startsWith("/equipment");
+    }
     return pathname.startsWith(href);
   };
 

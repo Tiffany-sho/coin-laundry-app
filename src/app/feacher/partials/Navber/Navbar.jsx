@@ -60,6 +60,16 @@ const Navbar = ({ user }) => {
                 </Link>
               </li>
               <li>
+                <Link href="/inventory" className={styles.navItem}>
+                  <span>在庫</span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/equipment" className={styles.navItem}>
+                  <span>設備</span>
+                </Link>
+              </li>
+              <li>
                 <Link href="/settings" className={styles.navItem}>
                   <span>設定</span>
                 </Link>
