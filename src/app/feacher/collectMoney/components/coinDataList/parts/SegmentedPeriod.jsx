@@ -4,6 +4,7 @@ import { useState } from "react";
 import {
   Box,
   Button,
+  Flex,
   HStack,
   Popover,
   Portal,
@@ -14,7 +15,7 @@ import {
 import {
   LuChevronLeft,
   LuChevronRight,
-  LuCalendar,
+  LuSlidersHorizontal,
 } from "@/app/feacher/Icon";
 import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
 import {
@@ -68,13 +69,19 @@ const todayEpoch = () => {
 };
 
 const PeriodRangeSlider = () => {
-  const { startEpoch, setStartEpoch, endEpoch, setEndEpoch } = useUploadPage();
+  const {
+    startEpoch, setStartEpoch,
+    endEpoch, setEndEpoch,
+    storeNames,
+    selectedStores, setSelectedStores,
+  } = useUploadPage();
 
   const appliedStartVal = epochToSliderVal(startEpoch > 0 ? startEpoch : 0);
   const appliedEndVal =
     endEpoch === null ? MAX_MONTHS : epochToSliderVal(endEpoch);
 
   const [draftVal, setDraftVal] = useState([appliedStartVal, appliedEndVal]);
+  const [draftStores, setDraftStores] = useState([]);
   const [open, setOpen] = useState(false);
 
   const appliedStartStr =
@@ -96,17 +103,37 @@ const PeriodRangeSlider = () => {
   const handleOpenChange = (e) => {
     if (e.open) {
       setDraftVal([appliedStartVal, appliedEndVal]);
+      setDraftStores(
+        selectedStores.length > 0 ? [...selectedStores] : [...storeNames]
+      );
     }
     setOpen(e.open);
   };
 
+  const toggleStore = (name) => {
+    setDraftStores((prev) => {
+      if (prev.includes(name)) {
+        if (prev.length <= 1) return prev; // 最後の1店舗は外せない
+        return prev.filter((n) => n !== name);
+      }
+      return [...prev, name];
+    });
+  };
+
+  const selectAll = () => setDraftStores([...storeNames]);
+
   const handleApply = () => {
     setStartEpoch(sliderToStart(draftVal[0]));
     setEndEpoch(sliderToEnd(draftVal[1]));
+    // 全店舗選択 or 空 → フィルタ解除
+    setSelectedStores(
+      draftStores.length === 0 || draftStores.length === storeNames.length
+        ? []
+        : draftStores
+    );
     setOpen(false);
   };
 
-  // 適用済み期間を直接シフト（コンテキストを即時更新）
   // endEpoch のエポック往復変換で +1 のズレが生じるため effectiveEndVal で補正する
   const shiftApplied = (direction) => {
     const effectiveEndVal = endEpoch === null ? MAX_MONTHS : appliedEndVal - 1;
@@ -125,16 +152,30 @@ const PeriodRangeSlider = () => {
 
   const canGoPrev = appliedStartVal > 0;
   const canGoNext = appliedEndVal < MAX_MONTHS;
+  const isFilterActive = selectedStores.length > 0;
+  const allDraftSelected = draftStores.length === storeNames.length;
 
   return (
     <Box w="100%">
-      {/* 1行目：期間設定ボタン＋適用済み期間テキスト */}
+      {/* 1行目：絞り込みボタン＋適用済み期間テキスト */}
       <HStack justify="center" align="center" gap={2} mb={2} flexWrap="wrap">
         <Popover.Root open={open} onOpenChange={handleOpenChange}>
           <Popover.Trigger asChild>
-            <Button size="sm" variant="subtle">
-              <LuCalendar />
-              期間設定
+            <Button size="sm" variant="subtle" position="relative">
+              <LuSlidersHorizontal />
+              絞り込み
+              {isFilterActive && (
+                <Box
+                  as="span"
+                  position="absolute"
+                  top="4px"
+                  right="4px"
+                  w="6px"
+                  h="6px"
+                  borderRadius="full"
+                  bg="cyan.500"
+                />
+              )}
             </Button>
           </Popover.Trigger>
           <Portal>
@@ -143,7 +184,11 @@ const PeriodRangeSlider = () => {
                 <Popover.Arrow />
                 <Popover.Body p={4}>
                   <VStack gap={4} align="stretch">
-                    {/* ドラフト期間表示 */}
+                    {/* 期間セクション */}
+                    <Text fontSize="xs" fontWeight="semibold" color="var(--text-muted)" letterSpacing="0.05em">
+                      期間
+                    </Text>
+
                     <HStack justify="center" gap={1} align="flex-end">
                       <VStack gap={0} align="flex-start">
                         <Text fontSize="2xs" color="var(--text-muted)">
@@ -166,7 +211,6 @@ const PeriodRangeSlider = () => {
                       </VStack>
                     </HStack>
 
-                    {/* 範囲スライダー */}
                     <Slider.Root
                       min={0}
                       max={MAX_MONTHS}
@@ -191,6 +235,59 @@ const PeriodRangeSlider = () => {
                         <Slider.Thumb index={1} />
                       </Slider.Control>
                     </Slider.Root>
+
+                    {/* 表示店舗セクション（データがある場合のみ） */}
+                    {storeNames.length > 0 && (
+                      <>
+                        <Box borderTop="1px solid" borderColor="var(--divider)" />
+                        <VStack gap={2} align="stretch">
+                          <HStack justify="space-between">
+                            <Text fontSize="xs" fontWeight="semibold" color="var(--text-muted)" letterSpacing="0.05em">
+                              表示店舗
+                            </Text>
+                            {!allDraftSelected && (
+                              <Text
+                                fontSize="xs"
+                                color="cyan.600"
+                                cursor="pointer"
+                                onClick={selectAll}
+                                _hover={{ textDecoration: "underline" }}
+                              >
+                                全て選択
+                              </Text>
+                            )}
+                          </HStack>
+                          <Flex gap={2} flexWrap="wrap">
+                            {storeNames.map((name) => {
+                              const isSelected = draftStores.includes(name);
+                              return (
+                                <Box
+                                  key={name}
+                                  px={3}
+                                  py={1}
+                                  borderRadius="full"
+                                  fontSize="xs"
+                                  cursor="pointer"
+                                  border="1.5px solid"
+                                  bg={isSelected ? "cyan.50" : "transparent"}
+                                  borderColor={isSelected ? "cyan.400" : "gray.200"}
+                                  color={isSelected ? "cyan.700" : "var(--text-muted)"}
+                                  onClick={() => toggleStore(name)}
+                                  transition="all 0.15s"
+                                  maxW="120px"
+                                  overflow="hidden"
+                                  textOverflow="ellipsis"
+                                  whiteSpace="nowrap"
+                                  userSelect="none"
+                                >
+                                  {name}
+                                </Box>
+                              );
+                            })}
+                          </Flex>
+                        </VStack>
+                      </>
+                    )}
 
                     {/* アクションボタン */}
                     <HStack justify="flex-end" gap={2} pt={1}>
@@ -228,6 +325,13 @@ const PeriodRangeSlider = () => {
             {appliedEndStr}
           </Text>
         </HStack>
+
+        {/* 店舗フィルター中の表示 */}
+        {isFilterActive && (
+          <Text fontSize="xs" color="cyan.600">
+            {selectedStores.length}店舗表示中
+          </Text>
+        )}
       </HStack>
 
       {/* 2行目：シフトボタン */}

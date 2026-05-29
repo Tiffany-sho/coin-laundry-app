@@ -102,11 +102,10 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 const ManyCoinDataChart = () => {
-  const { data, setData, startEpoch, endEpoch } = useUploadPage();
+  const { data, setData, startEpoch, endEpoch, storeNames, setStoreNames, selectedStores } = useUploadPage();
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [chartData, setChartData] = useState([]);
-  const [storeNames, setStoreNames] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -147,6 +146,11 @@ const ManyCoinDataChart = () => {
 
     setChartData(Object.values(byMonth));
   }, [data]);
+
+  // selectedStores が空 = 全店舗表示、それ以外は指定店舗のみ
+  const displayedStoreNames = selectedStores.length > 0
+    ? storeNames.filter((n) => selectedStores.includes(n))
+    : storeNames;
 
   const firstMonthsOfYear = useMemo(() => {
     const yearFirst = {};
@@ -189,27 +193,27 @@ const ManyCoinDataChart = () => {
             cursor={{ fill: "rgba(8,145,178,0.06)" }}
             content={<CustomTooltip />}
           />
-          {storeNames.map((name, i) => (
+          {displayedStoreNames.map((name, i) => (
             <Bar
               key={name}
               dataKey={name}
               stackId="stack"
-              fill={STORE_COLORS[i % STORE_COLORS.length]}
+              fill={STORE_COLORS[storeNames.indexOf(name) % STORE_COLORS.length]}
               isAnimationActive={false}
-              radius={i === storeNames.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
+              radius={i === displayedStoreNames.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
             />
           ))}
         </BarChart>
       </Chart.Root>
 
-      {storeNames.length > 0 && (
+      {displayedStoreNames.length > 0 && (
         <Flex gap={3} mt={3} flexWrap="wrap" justify="center">
-          {storeNames.map((name, i) => (
+          {displayedStoreNames.map((name) => (
             <HStack key={name} gap={1.5}>
               <Box
                 w="10px" h="10px"
                 borderRadius="2px"
-                bg={STORE_COLORS[i % STORE_COLORS.length]}
+                bg={STORE_COLORS[storeNames.indexOf(name) % STORE_COLORS.length]}
                 flexShrink={0}
               />
               <Text fontSize="xs" color="var(--text-muted)" maxW="80px" overflow="hidden" textOverflow="ellipsis" whiteSpace="nowrap">

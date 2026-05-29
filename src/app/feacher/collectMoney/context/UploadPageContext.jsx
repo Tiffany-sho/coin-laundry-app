@@ -16,8 +16,9 @@ export const UploadPageProvider = ({ children }) => {
   const [startEpoch, setStartEpoch] = useState(changeEpocFromNowYearMonth(-6));
   const [endEpoch, setEndEpoch] = useState(null);
   const [data, setData] = useState(null);
-
   const [displayData, setDisplayData] = useState([]);
+  const [storeNames, setStoreNames] = useState([]);
+  const [selectedStores, setSelectedStores] = useState([]);
 
   const PAGE_SIZE = 20;
 
@@ -45,6 +46,10 @@ export const UploadPageProvider = ({ children }) => {
     setEndEpoch,
     displayBtn,
     setDisplayBtn,
+    storeNames,
+    setStoreNames,
+    selectedStores,
+    setSelectedStores,
   };
 
   return (
