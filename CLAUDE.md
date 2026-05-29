@@ -309,6 +309,7 @@ git push origin main
 3. **集金サイクル管理** — 店舗ごとの集金スケジュール設定と未集金アラート
 4. **機器故障・メモ記録** — 集金時に気づいた不具合やメモを記録する機能
 5. **プッシュ通知 / リマインダー** — 集金タイミングの通知
+6. **累計サマリー統計（/collectMoney）** — 店舗別累計売上グラフ・最多集金店の表示。実装方針：全レコードfetchは避け、Supabase RPC（SQL の GROUP BY SUM）でDB側集計 → 店舗数N行のみ返す方式が最軽量。Server Action内集計でも可（laundryName + totalFunds の2カラムのみselectすれば体感差はほぼなし）。
 
 ---
 
