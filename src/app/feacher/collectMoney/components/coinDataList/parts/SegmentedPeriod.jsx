@@ -107,14 +107,16 @@ const PeriodRangeSlider = () => {
   };
 
   // 適用済み期間を直接シフト（コンテキストを即時更新）
+  // endEpoch のエポック往復変換で +1 のズレが生じるため effectiveEndVal で補正する
   const shiftApplied = (direction) => {
-    const span = appliedEndVal - appliedStartVal;
+    const effectiveEndVal = endEpoch === null ? MAX_MONTHS : appliedEndVal - 1;
+    const span = effectiveEndVal - appliedStartVal;
     let newStart, newEnd;
     if (direction === "prev") {
-      newStart = Math.max(0, appliedStartVal - span - 1);
+      newStart = Math.max(0, appliedStartVal - span);
       newEnd = newStart + span;
     } else {
-      newEnd = Math.min(MAX_MONTHS, appliedEndVal + span + 1);
+      newEnd = Math.min(MAX_MONTHS, effectiveEndVal + span);
       newStart = newEnd - span;
     }
     setStartEpoch(sliderToStart(newStart));
