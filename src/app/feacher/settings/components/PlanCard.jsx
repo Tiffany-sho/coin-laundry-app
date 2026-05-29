@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, HStack, VStack, Text, Box, Flex, Heading, Badge, Button } from "@chakra-ui/react";
 import Link from "next/link";
 import * as Icon from "@/app/feacher/Icon";
@@ -9,13 +9,19 @@ import { PLAN_NAMES } from "@/functions/plans";
 export default function PlanCard({ planInfo }) {
   const [isLoadingPortal, setIsLoadingPortal] = useState(false);
   const [isLoadingCheckout, setIsLoadingCheckout] = useState(null);
+  const [trialDaysLeft, setTrialDaysLeft] = useState(null);
 
   const { plan, storeCount, storeLimit, trialEndsAt, stripeCustomerId } = planInfo;
   const planName = PLAN_NAMES[plan] ?? "Free";
 
-  const trialDaysLeft = trialEndsAt
-    ? Math.max(0, Math.ceil((new Date(trialEndsAt) - Date.now()) / (1000 * 60 * 60 * 24)))
-    : null;
+  useEffect(() => {
+    if (trialEndsAt) {
+      setTrialDaysLeft(
+        Math.max(0, Math.ceil((new Date(trialEndsAt) - Date.now()) / (1000 * 60 * 60 * 24)))
+      );
+    }
+  }, [trialEndsAt]);
+
   const isOnTrial = trialDaysLeft !== null && trialDaysLeft > 0;
 
   const handleOpenPortal = async () => {

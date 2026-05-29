@@ -8,6 +8,7 @@ const PLANS = [
   {
     key: "free",
     name: "Free",
+    price: "¥0",
     storeLimit: "3店舗",
     features: ["集金記録", "在庫管理", "データ可視化"],
     trial: null,
@@ -15,6 +16,7 @@ const PLANS = [
   {
     key: "pro",
     name: "Pro",
+    price: "¥780",
     storeLimit: "5店舗",
     features: ["集金記録", "在庫管理", "データ可視化", "メンバー管理"],
     trial: "無料トライアルあり",
@@ -22,6 +24,7 @@ const PLANS = [
   {
     key: "max",
     name: "Max",
+    price: "¥2,980",
     storeLimit: "無制限",
     features: ["集金記録", "在庫管理", "データ可視化", "メンバー管理", "優先サポート"],
     trial: null,
@@ -86,7 +89,7 @@ export default function PlanGrid({ currentPlan, stripeCustomerId }) {
                     color="var(--teal)"
                     fontFamily="'Space Mono', monospace"
                   >
-                    ¥--
+                    {plan.price}
                     <Text as="span" fontSize="sm" color="var(--text-muted)" fontFamily="inherit">
                       /月
                     </Text>

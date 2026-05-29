@@ -121,6 +121,9 @@ export async function updateMemberRole(userId, role) {
 
   if (myError || myMember.role !== "admin") return { error: "権限がありません" };
 
+  const VALID_ROLES = ["admin", "collecter", "viewer"];
+  if (!VALID_ROLES.includes(role)) return { error: "無効なロールです" };
+
   const serviceSupabase = createServiceClient();
   const { error } = await serviceSupabase
     .from("organization_members")
@@ -144,6 +147,9 @@ export async function inviteMember(email, role) {
     .single();
 
   if (myError || myMember.role !== "admin") return { error: "権限がありません" };
+
+  const VALID_ROLES = ["admin", "collecter", "viewer"];
+  if (!VALID_ROLES.includes(role)) return { error: "無効なロールです" };
 
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
@@ -255,7 +261,7 @@ export async function getOrgPlan() {
   const supabase = await createClient();
   const { data: member, error: memberError } = await supabase
     .from("organization_members")
-    .select("org_id")
+    .select("org_id, role")
     .eq("user_id", user.id)
     .single();
 
@@ -286,6 +292,7 @@ export async function getOrgPlan() {
       trialEndsAt: org.trial_ends_at,
       stripeCustomerId: org.stripe_customer_id,
       orgId: member.org_id,
+      myRole: member.role,
     },
   };
 }

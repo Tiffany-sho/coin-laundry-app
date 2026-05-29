@@ -8,11 +8,14 @@ export async function POST() {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { data: planInfo, error } = await getOrgPlan();
-  if (error || !planInfo?.stripeCustomerId) {
-    return NextResponse.json(
-      { error: "No Stripe customer found" },
-      { status: 404 }
-    );
+  if (error || !planInfo) {
+    return NextResponse.json({ error: "Organization not found" }, { status: 404 });
+  }
+  if (planInfo.myRole !== "admin") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+  if (!planInfo.stripeCustomerId) {
+    return NextResponse.json({ error: "No Stripe customer found" }, { status: 404 });
   }
 
   const session = await stripe.billingPortal.sessions.create({

@@ -9,9 +9,13 @@ import OrgInfoCard from "@/app/feacher/settings/components/OrgInfoCard";
 import AppSettingsCard from "@/app/feacher/settings/components/AppSettingsCard";
 import OtherActionsCard from "@/app/feacher/settings/components/OtherActionsCard";
 import PlanCard from "@/app/feacher/settings/components/PlanCard";
+import CheckoutSuccessBanner from "@/app/feacher/settings/components/CheckoutSuccessBanner";
 import * as Icon from "@/app/feacher/Icon";
 
-export default async function SettingsPage() {
+export default async function SettingsPage({ searchParams }) {
+  const params = await searchParams;
+  const checkoutSuccess = params?.checkout === "success";
+
   const { user } = await getUser();
   const [{ data: profile }, { data: org }, { data: planInfo }] = await Promise.all([
     getProfile(),
@@ -29,6 +33,7 @@ export default async function SettingsPage() {
       </HStack>
 
       <VStack align="stretch" gap={4}>
+        {checkoutSuccess && <CheckoutSuccessBanner />}
         <AccountInfoCard user={user} profile={profile} myRole={org?.myRole} />
         {org?.myRole === "admin" && <OrgInfoCard org={org} />}
         {org?.myRole === "admin" && planInfo && <PlanCard planInfo={planInfo} />}
