@@ -36,20 +36,40 @@ export default function PlanGrid({ currentPlan, stripeCustomerId }) {
 
   const handleUpgrade = async (planKey) => {
     setLoadingPlan(planKey);
-    const res = await fetch("/api/stripe/checkout", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ planKey }),
-    });
-    const { url } = await res.json();
-    window.location.href = url;
+    try {
+      const res = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ planKey }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(`エラー: ${data.error ?? "チェックアウトを開けませんでした"}`);
+        setLoadingPlan(null);
+        return;
+      }
+      window.location.href = data.url;
+    } catch {
+      alert("通信エラーが発生しました");
+      setLoadingPlan(null);
+    }
   };
 
   const handlePortal = async () => {
     setLoadingPlan("portal");
-    const res = await fetch("/api/stripe/portal", { method: "POST" });
-    const { url } = await res.json();
-    window.location.href = url;
+    try {
+      const res = await fetch("/api/stripe/portal", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(`エラー: ${data.error ?? "ポータルを開けませんでした"}`);
+        setLoadingPlan(null);
+        return;
+      }
+      window.location.href = data.url;
+    } catch {
+      alert("通信エラーが発生しました");
+      setLoadingPlan(null);
+    }
   };
 
   return (
