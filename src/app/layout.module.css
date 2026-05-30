@@ -29,3 +29,14 @@
   }
 }
 
+/* フッター: スマホではボトムナビ分の余白を確保 */
+.footerWrapper {
+  /* nothing for desktop */
+}
+
+@media (max-width: 768px) {
+  .footerWrapper {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+  }
+}
+

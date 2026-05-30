@@ -34,3 +34,9 @@ body {
   font-family: 'Noto Sans JP', sans-serif;
   -webkit-font-smoothing: antialiased;
 }
+
+/* inputの背景をアプリ背景と区別できるよう白固定 */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+textarea {
+  background-color: #ffffff !important;
+}

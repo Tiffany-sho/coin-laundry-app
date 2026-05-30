@@ -59,7 +59,7 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole }) => {
   }, [data]);
 
   return (
-    <Box py={{ base: 6, md: 8 }} px={{ base: 4, md: 6 }}>
+    <Box py={{ base: 6, md: 8 }} px={{ base: 4, md: 6 }} overflowX="hidden">
       <VStack align="stretch" gap={6}>
         <Flex
           direction={{ base: "column", md: "row" }}

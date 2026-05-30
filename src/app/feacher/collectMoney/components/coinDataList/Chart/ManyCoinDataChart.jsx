@@ -13,7 +13,7 @@ import {
 } from "recharts";
 
 import { getYearMonth } from "@/functions/makeDate/date";
-import ChartLoading from "@/app/feacher/partials/ChartLoading";
+import BarChartSkeleton from "@/app/feacher/partials/BarChartSkeleton";
 import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
 import ChartError from "@/app/feacher/partials/ChartError";
 import ChartEmpty from "@/app/feacher/partials/ChartEmpty";
@@ -163,10 +163,10 @@ const ManyCoinDataChart = () => {
 
   const chart = useChart({ data: chartData, dataKey: "stores" });
 
-  if (loading) return <ChartLoading />;
+  if (loading) return <BarChartSkeleton />;
   if (error) return <ChartError message={error.message} />;
   if (!data || data.length === 0) return <ChartEmpty />;
-  if (chartData.length === 0) return <ChartLoading />;
+  if (chartData.length === 0) return <BarChartSkeleton />;
 
   return (
     <Box>

@@ -44,7 +44,9 @@ export default function RootLayout({ children }) {
               <Suspense fallback={null}>
                 <FooterNavbarWrapper />
               </Suspense>
-              <Footer />
+              <div className={styles.footerWrapper}>
+                <Footer />
+              </div>
             </NavVisibilityWrapper>
           </div>
         </Provider>
