@@ -322,6 +322,26 @@ export async function getOrgCollectFunds(startEpoch, endEpoch) {
   return { data };
 }
 
+// ホーム用：org全体の最新N件
+export async function getRecentCollectFunds(limit = 5) {
+  const { user } = await getUser();
+  if (!user) return { error: "ログインしてください" };
+
+  const storeIds = await getOrgStoreIds();
+  if (storeIds.length === 0) return { data: [] };
+
+  const supabase = createServiceClient();
+  const { data, error } = await supabase
+    .from("collect_funds")
+    .select("id, laundryName, date, totalFunds, profiles!collect_funds_collecter_fkey(username)")
+    .in("laundryId", storeIds)
+    .order("date", { ascending: false })
+    .limit(limit);
+
+  if (error) return { error: "集金データの取得に失敗しました" };
+  return { data };
+}
+
 // org 全体の集金データ（過去2か月・ページネーション付き）
 export async function getOrgCollectFundsPaginated(orderAmount, upOrder, from, to) {
   const { user } = await getUser();

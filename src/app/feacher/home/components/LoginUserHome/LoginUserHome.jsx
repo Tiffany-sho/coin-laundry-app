@@ -3,6 +3,7 @@ import QuickAction from "./QuickAction";
 import SalesCard from "./SalesCard";
 import GreetingHeader from "./GreetingHeader";
 import StatusSummaryCards from "./StatusSummaryCards";
+import RecentCollectList from "./RecentCollectList";
 
 const LoginUserHome = ({ id, username = "集金担当者", myRole }) => {
   return (
@@ -31,6 +32,10 @@ const LoginUserHome = ({ id, username = "集金担当者", myRole }) => {
               今日の対応状況
             </Heading>
             <StatusSummaryCards />
+          </Box>
+
+          <Box>
+            <RecentCollectList />
           </Box>
         </VStack>
       </Container>
