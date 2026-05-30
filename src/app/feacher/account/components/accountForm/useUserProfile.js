@@ -1,9 +1,11 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { getProfile, updateProfile } from "@/app/api/supabaseFunctions/supabaseDatabase/profiles/action";
 import { showToast } from "@/functions/makeToast/toast";
 
 export function useUserProfile({ onSuccess } = {}) {
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [fullname, setFullname] = useState(null);
   const [username, setUsername] = useState(null);
@@ -50,6 +52,7 @@ export function useUserProfile({ onSuccess } = {}) {
         showToast("error", data.error ?? "アップロードに失敗しました");
       } else {
         setAvatarUrl(`${data.url}?t=${Date.now()}`);
+        router.refresh();
         showToast("success", "アバターを更新しました");
       }
     } catch {
