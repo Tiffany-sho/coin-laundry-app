@@ -4,6 +4,7 @@ import SalesCard from "./SalesCard";
 import GreetingHeader from "./GreetingHeader";
 import StatusSummaryCards from "./StatusSummaryCards";
 import RecentCollectList from "./RecentCollectList";
+import CollectCountdown from "./CollectCountdown";
 
 const LoginUserHome = ({ id, username = "集金担当者", myRole }) => {
   return (
@@ -17,6 +18,8 @@ const LoginUserHome = ({ id, username = "集金担当者", myRole }) => {
           <Box>
             <GreetingHeader username={username} />
           </Box>
+
+          <CollectCountdown />
 
           <SalesCard id={id} />
 

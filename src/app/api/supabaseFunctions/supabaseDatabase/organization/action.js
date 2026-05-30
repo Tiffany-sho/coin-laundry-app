@@ -254,6 +254,60 @@ export async function acceptInvitation(token) {
   return {};
 }
 
+export async function getCollectSchedule() {
+  const { user } = await getUser();
+  if (!user) return { error: "ログインしてください" };
+
+  const supabase = await createClient();
+  const { data: member, error: memberError } = await supabase
+    .from("organization_members")
+    .select("org_id")
+    .eq("user_id", user.id)
+    .single();
+
+  if (memberError) return { error: "組織情報の取得に失敗しました" };
+
+  const serviceSupabase = createServiceClient();
+  const { data: org, error: orgError } = await serviceSupabase
+    .from("organizations")
+    .select("collect_schedule")
+    .eq("id", member.org_id)
+    .single();
+
+  if (orgError) return { error: "スケジュールの取得に失敗しました" };
+  return { data: org.collect_schedule ?? null };
+}
+
+export async function updateCollectSchedule(schedule) {
+  const { user } = await getUser();
+  if (!user) return { error: "ログインしてください" };
+
+  const supabase = await createClient();
+  const { data: member, error: memberError } = await supabase
+    .from("organization_members")
+    .select("org_id, role")
+    .eq("user_id", user.id)
+    .single();
+
+  if (memberError || member.role !== "admin") return { error: "権限がありません" };
+
+  if (schedule !== null) {
+    if (!["weekly", "monthly"].includes(schedule.type)) return { error: "無効なスケジュールタイプです" };
+    if (!Array.isArray(schedule.days) || schedule.days.length === 0) return { error: "集金日を選択してください" };
+    if (schedule.type === "weekly" && schedule.days.some((d) => d < 0 || d > 6)) return { error: "無効な曜日です" };
+    if (schedule.type === "monthly" && schedule.days.some((d) => d < 1 || d > 31)) return { error: "無効な日付です" };
+  }
+
+  const serviceSupabase = createServiceClient();
+  const { error } = await serviceSupabase
+    .from("organizations")
+    .update({ collect_schedule: schedule })
+    .eq("id", member.org_id);
+
+  if (error) return { error: "スケジュールの更新に失敗しました" };
+  return {};
+}
+
 export async function getOrgPlan() {
   const { user } = await getUser();
   if (!user) return { error: "ログインしてください" };

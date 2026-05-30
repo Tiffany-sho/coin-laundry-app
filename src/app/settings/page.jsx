@@ -3,13 +3,14 @@ export const dynamic = "force-dynamic";
 import { Box, VStack, HStack, Heading } from "@chakra-ui/react";
 import { getUser } from "@/app/api/supabaseFunctions/supabaseDatabase/user/action";
 import { getProfile } from "@/app/api/supabaseFunctions/supabaseDatabase/profiles/action";
-import { getMyOrganization, getOrgPlan } from "@/app/api/supabaseFunctions/supabaseDatabase/organization/action";
+import { getMyOrganization, getOrgPlan, getCollectSchedule } from "@/app/api/supabaseFunctions/supabaseDatabase/organization/action";
 import AccountInfoCard from "@/app/feacher/settings/components/AccountInfoCard";
 import OrgInfoCard from "@/app/feacher/settings/components/OrgInfoCard";
 import AppSettingsCard from "@/app/feacher/settings/components/AppSettingsCard";
 import OtherActionsCard from "@/app/feacher/settings/components/OtherActionsCard";
 import PlanCard from "@/app/feacher/settings/components/PlanCard";
 import CheckoutSuccessBanner from "@/app/feacher/settings/components/CheckoutSuccessBanner";
+import CollectScheduleCard from "@/app/feacher/settings/components/CollectScheduleCard";
 import * as Icon from "@/app/feacher/Icon";
 
 export default async function SettingsPage({ searchParams }) {
@@ -17,10 +18,11 @@ export default async function SettingsPage({ searchParams }) {
   const checkoutSuccess = params?.checkout === "success";
 
   const { user } = await getUser();
-  const [{ data: profile }, { data: org }, { data: planInfo }] = await Promise.all([
+  const [{ data: profile }, { data: org }, { data: planInfo }, { data: schedule }] = await Promise.all([
     getProfile(),
     getMyOrganization(),
     getOrgPlan(),
+    getCollectSchedule(),
   ]);
 
   return (
@@ -37,6 +39,7 @@ export default async function SettingsPage({ searchParams }) {
         <AccountInfoCard user={user} profile={profile} myRole={org?.myRole} plan={planInfo?.plan} />
         {org?.myRole === "admin" && <OrgInfoCard org={org} />}
         {org?.myRole === "admin" && planInfo && <PlanCard planInfo={planInfo} />}
+        {org?.myRole === "admin" && <CollectScheduleCard schedule={schedule} />}
         <AppSettingsCard collectMethod={profile?.collectMethod} />
         <OtherActionsCard />
       </VStack>

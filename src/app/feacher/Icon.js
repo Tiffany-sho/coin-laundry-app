@@ -48,6 +48,9 @@ import {
   LuCreditCard,
   LuCamera,
   LuSlidersHorizontal,
+  LuCalendarClock,
+  LuBell,
+  LuCalendarDays,
 } from "react-icons/lu";
 
 import { MdOutlineLocalLaundryService } from "react-icons/md";
@@ -115,4 +118,7 @@ export {
   LuCreditCard,
   LuCamera,
   LuSlidersHorizontal,
+  LuCalendarClock,
+  LuBell,
+  LuCalendarDays,
 };
