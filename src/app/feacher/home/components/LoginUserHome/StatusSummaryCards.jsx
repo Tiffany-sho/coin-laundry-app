@@ -10,13 +10,14 @@ function StatusCard({ href, icon, label, hasError, hasProblem, problemCount, sto
   return (
     <Link href={href} style={{ display: "block", height: "100%" }}>
       <Box
-        bg={isAlert ? "orange.50" : "var(--teal-pale, #CFFAFE)"}
-        border="1px solid"
-        borderColor={isAlert ? "orange.200" : "cyan.200"}
+        bg="var(--card-bg, #FFFFFF)"
+        border="1.5px solid"
+        borderColor={isAlert ? "orange.300" : "cyan.100"}
         borderRadius="xl"
         px={3}
         py={3}
         cursor="pointer"
+        boxShadow={isAlert ? "0 0 0 3px #FED7AA" : "var(--shadow-sm)"}
         _hover={{ opacity: 0.82 }}
         transition="all 0.2s"
         h="full"
