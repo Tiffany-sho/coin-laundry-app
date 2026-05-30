@@ -47,12 +47,11 @@ function StatusCard({ href, icon, label, hasError, hasProblem, problemCount, sto
                 <Text fontSize="sm" fontWeight="bold" color="orange.700" lineHeight={1.2}>
                   {problemCount}店舗 要対応
                 </Text>
-                {storeNames.length > 0 && (
-                  <Text fontSize="xs" color="orange.400" truncate>
-                    {storeNames.slice(0, 2).join("・")}
-                    {storeNames.length > 2 ? ` +${storeNames.length - 2}` : ""}
+                {storeNames.map((name, i) => (
+                  <Text key={i} fontSize="2xs" color="orange.400" lineHeight={1.4}>
+                    • {name}
                   </Text>
-                )}
+                ))}
               </>
             ) : (
               <Text fontSize="sm" fontWeight="bold" color="var(--teal-deeper, #155E75)" lineHeight={1.2}>
@@ -79,7 +78,7 @@ const StatusSummaryCards = async () => {
   const breakMachines = machinesResult.breakMachines ?? [];
 
   return (
-    <Grid templateColumns="repeat(2, 1fr)" gap={3}>
+    <Grid templateColumns="repeat(2, 1fr)" gap={3} alignItems="stretch">
       <GridItem>
         <StatusCard
           href="/equipment"
