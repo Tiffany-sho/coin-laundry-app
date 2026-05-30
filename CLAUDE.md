@@ -33,13 +33,15 @@ src/
 │   │       ├── supabaseDatabase/   # DB操作（CRUD）はここに集約
 │   │       └── supabaseStorage/    # ストレージ操作
 │   ├── feacher/                    # 機能別UIコンポーネント群
-│   │   ├── partials/               # レイアウト共通部品（Navbar, Footer等）
+│   │   ├── partials/               # レイアウト共通部品（Navbar, Footer, BarChartSkeleton等）
 │   │   ├── coinLandry/             # 店舗関連UI
 │   │   ├── collectMoney/           # 集金関連UI
 │   │   ├── dialog/                 # ダイアログ群
 │   │   ├── inventory/              # 在庫管理UI（InventoryStoreCard, InventoryClientPage）
 │   │   ├── equipment/              # 設備管理UI（EquipmentStoreCard, EquipmentClientPage）
-│   │   ├── settings/               # 設定ページUI（PlanCard, PlanGrid, CheckoutSuccessBanner）
+│   │   ├── settings/               # 設定ページUI（PlanCard, PlanGrid, CheckoutSuccessBanner, CollectScheduleCard）
+│   │   ├── home/
+│   │   │   └── components/LoginUserHome/  # CollectCountdown（集金カウントダウン）等
 │   │   └── ...
 │   ├── coinLaundry/                # 店舗ページ（一覧・詳細・新規）
 │   ├── collectMoney/               # 集金ページ
@@ -54,6 +56,8 @@ src/
 ├── components/
 │   └── ui/                         # 汎用UIコンポーネント（Chakra UI拡張）
 ├── functions/                      # ユーティリティ関数
+│   ├── makeDate/                   # 日付変換ユーティリティ
+│   └── collectSchedule.js          # 集金スケジュール計算（getNextCollectDate）
 └── seeds/                          # シードデータ
 ```
 
@@ -70,9 +74,14 @@ src/
   stripe_customer_id text,
   stripe_subscription_id text,
   trial_ends_at timestamptz,
+  collect_schedule jsonb,                     -- 集金スケジュール: {type:"weekly"|"monthly", days:[...]}
+                                              --   weekly: days は曜日番号の配列 (0=日〜6=土)
+                                              --   monthly: days は日付の配列 (1〜31)
   CONSTRAINT organizations_pkey PRIMARY KEY (id),
   CONSTRAINT organizations_owner_id_fkey FOREIGN KEY (owner_id) REFERENCES public.profiles(id)
   );
+  -- ※ collect_schedule カラムは後付けで追加:
+  -- ALTER TABLE public.organizations ADD COLUMN IF NOT EXISTS collect_schedule jsonb;
 - CREATE TABLE public.organization_members (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   created_at timestamp with time zone NOT NULL DEFAULT now(),
@@ -256,6 +265,11 @@ cyan.900 → ダイアログ見出し
 - `leftIcon` / `rightIcon` prop は廃止。アイコンはボタンの children に直接書く。
 - `Divider` は `Separator` に変更（またはBoxのborderTopで代替）。
 
+#### グローバルスタイルの注意点
+
+- `globals.css` で `input` / `textarea` の背景色を `#ffffff !important` に固定済み（アプリ背景 `#F0F9FF` との混同防止）。
+- スマホのボトムナビ（`position: fixed`）の下にコンテンツが隠れないよう、`layout.module.css` の `.footerWrapper` で `padding-bottom: calc(80px + env(safe-area-inset-bottom))` を付与している。
+
 ---
 
 ### コンポーネント設計
@@ -306,7 +320,7 @@ git push origin main
 
 1. ~~**サブスクリプション機能**~~ — 実装済み（Free/Pro/Max・Stripe連携・トライアル14日）
 2. **CSV / Excel エクスポート** — 集金データを経理・報告書作成用にエクスポート
-3. **集金サイクル管理** — 店舗ごとの集金スケジュール設定と未集金アラート
+3. **集金サイクル管理** — 組織単位のスケジュール設定（毎週曜日 / 毎月日付）とホーム画面カウントダウンは実装済み。未実装：店舗ごとの個別設定・未集金アラート通知
 4. **機器故障・メモ記録** — 集金時に気づいた不具合やメモを記録する機能
 5. **プッシュ通知 / リマインダー** — 集金タイミングの通知
 6. **累計サマリー統計（/collectMoney）** — 店舗別累計売上グラフ・最多集金店の表示。実装方針：全レコードfetchは避け、Supabase RPC（SQL の GROUP BY SUM）でDB側集計 → 店舗数N行のみ返す方式が最軽量。Server Action内集計でも可（laundryName + totalFunds の2カラムのみselectすれば体感差はほぼなし）。
