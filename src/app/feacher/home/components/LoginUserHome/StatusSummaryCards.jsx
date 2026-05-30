@@ -1,10 +1,10 @@
 import { getStockStates } from "@/app/api/supabaseFunctions/supabaseDatabase/laundryState/action";
 import { getMachinesStates } from "@/app/api/supabaseFunctions/supabaseDatabase/laundryState/action";
-import { Box, Grid, GridItem, VStack, Text, Badge } from "@chakra-ui/react";
+import { Box, Grid, GridItem, HStack, VStack, Text } from "@chakra-ui/react";
 import Link from "next/link";
 import * as Icon from "@/app/feacher/Icon";
 
-function StatusCard({ href, icon, label, hasError, hasProblem, problemBadge, problemCount, storeNames }) {
+function StatusCard({ href, icon, label, hasError, hasProblem, problemCount, storeNames }) {
   const isAlert = hasError || hasProblem;
 
   return (
@@ -15,73 +15,54 @@ function StatusCard({ href, icon, label, hasError, hasProblem, problemBadge, pro
         borderColor={isAlert ? "orange.200" : "cyan.200"}
         borderRadius="xl"
         px={3}
-        py={5}
+        py={3}
         cursor="pointer"
         _hover={{ opacity: 0.82 }}
         transition="all 0.2s"
-        textAlign="center"
         h="full"
-        minH="140px"
       >
-        <VStack align="center" gap={2}>
+        <HStack gap={2} align="center">
           <Box
             bg={isAlert ? "orange.400" : "var(--teal, #0891B2)"}
             color="white"
             borderRadius="full"
-            p={2}
+            p={1.5}
+            flexShrink={0}
           >
             {icon}
           </Box>
-          <Text
-            fontSize="sm"
-            fontWeight="semibold"
-            color={isAlert ? "orange.700" : "var(--teal-deeper, #155E75)"}
-          >
-            {label}
-          </Text>
-
-          {hasError ? (
-            <Text fontSize="xs" color="red.500" fontWeight="semibold">
-              取得失敗
+          <VStack align="start" gap={0.5} flex={1} overflow="hidden">
+            <Text
+              fontSize="xs"
+              fontWeight="semibold"
+              color={isAlert ? "orange.500" : "var(--text-muted, #64748B)"}
+            >
+              {label}
             </Text>
-          ) : hasProblem ? (
-            <>
-              <Badge
-                bg="orange.400"
-                color="white"
-                borderRadius="full"
-                px={2}
-                py={0.5}
-                fontSize="xs"
-                fontWeight="bold"
-              >
-                {problemBadge}
-              </Badge>
-              <Text fontSize="sm" fontWeight="bold" color="orange.700">
-                {problemCount}店舗
-              </Text>
-              {storeNames.length > 0 && (
-                <Text fontSize="xs" color="orange.500" noOfLines={2}>
-                  {storeNames.slice(0, 2).join("・")}
-                  {storeNames.length > 2 ? ` 他${storeNames.length - 2}店舗` : ""}
+            {hasError ? (
+              <Text fontSize="xs" color="red.500" fontWeight="bold">取得失敗</Text>
+            ) : hasProblem ? (
+              <>
+                <Text fontSize="sm" fontWeight="bold" color="orange.700" lineHeight={1.2}>
+                  {problemCount}店舗 要対応
                 </Text>
-              )}
-            </>
-          ) : (
-            <>
-              <Box color="var(--teal, #0891B2)">
-                <Icon.LuCheck size={16} />
-              </Box>
-              <Text fontSize="sm" fontWeight="bold" color="var(--teal-deeper, #155E75)">
+                {storeNames.length > 0 && (
+                  <Text fontSize="xs" color="orange.400" truncate>
+                    {storeNames.slice(0, 2).join("・")}
+                    {storeNames.length > 2 ? ` +${storeNames.length - 2}` : ""}
+                  </Text>
+                )}
+              </>
+            ) : (
+              <Text fontSize="sm" fontWeight="bold" color="var(--teal-deeper, #155E75)" lineHeight={1.2}>
                 問題なし
               </Text>
-            </>
-          )}
-
-          <Text fontSize="xs" color="var(--text-muted, #64748B)" mt={1}>
-            詳細を見る →
-          </Text>
-        </VStack>
+            )}
+          </VStack>
+          <Box color={isAlert ? "orange.300" : "cyan.300"} flexShrink={0}>
+            <Icon.LuChevronRight size={14} />
+          </Box>
+        </HStack>
       </Box>
     </Link>
   );
@@ -101,11 +82,10 @@ const StatusSummaryCards = async () => {
       <GridItem>
         <StatusCard
           href="/equipment"
-          icon={<Icon.LuWrench size={18} />}
+          icon={<Icon.LuWrench size={16} />}
           label="設備状況"
           hasError={!!machinesResult.error}
           hasProblem={breakMachines.length > 0}
-          problemBadge="故障発生中"
           problemCount={breakMachines.length}
           storeNames={breakMachines.map((s) => s.laundryName).filter(Boolean)}
         />
@@ -113,11 +93,10 @@ const StatusSummaryCards = async () => {
       <GridItem>
         <StatusCard
           href="/inventory"
-          icon={<Icon.LuPackage size={18} />}
+          icon={<Icon.LuPackage size={16} />}
           label="在庫状況"
           hasError={!!stockResult.error}
           hasProblem={lowStockItems.length > 0}
-          problemBadge="在庫不足"
           problemCount={lowStockItems.length}
           storeNames={lowStockItems.map((s) => s.laundryName).filter(Boolean)}
         />
