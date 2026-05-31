@@ -10,7 +10,6 @@ import {
   YAxis,
 } from "recharts";
 import { getYearMonth } from "@/functions/makeDate/date";
-import ChartLoading from "@/app/feacher/partials/ChartLoading";
 import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
 import { createClient } from "@/utils/supabase/client";
 import ChartError from "@/app/feacher/partials/ChartError";
@@ -71,6 +70,7 @@ const MonoCoinDataChart = ({ id, myRole }) => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [chartData, setChartData] = useState([]);
+  const [chartKey, setChartKey] = useState(0);
 
   const { startEpoch, endEpoch } = useUploadPage();
 
@@ -157,6 +157,7 @@ const MonoCoinDataChart = ({ id, myRole }) => {
       return acc;
     }, []);
     setChartData(dataList);
+    setChartKey((k) => k + 1);
   }, [data]);
 
   const firstMonthsOfYear = useMemo(() => {
@@ -173,17 +174,13 @@ const MonoCoinDataChart = ({ id, myRole }) => {
     dataKey: "coinData",
   });
 
-  if (loading) return <ChartLoading />;
+  if (loading) return <Box h="260px" />;
   if (error) return <ChartError message={error} />;
-
-  if (!data || data.length === 0) {
-    return <ChartEmpty />;
-  }
-  if (chartData.length === 0) {
-    return <ChartLoading />;
-  }
+  if (!data || data.length === 0) return <ChartEmpty />;
+  if (chartData.length === 0) return <Box h="260px" />;
 
   return (
+    <Box key={chartKey} style={{ animation: "fadeSlideUp 0.45s ease both" }}>
     <Chart.Root h="100%" chart={chart}>
       <LineChart data={chart.data} margin={{ left: -16, right: 24, top: 24, bottom: 8 }}>
         <CartesianGrid
@@ -223,6 +220,7 @@ const MonoCoinDataChart = ({ id, myRole }) => {
         />
       </LineChart>
     </Chart.Root>
+    </Box>
   );
 };
 

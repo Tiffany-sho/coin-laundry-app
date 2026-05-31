@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import {
   Box,
   Card,
@@ -29,6 +30,7 @@ export default function CollectScheduleCard({ schedule: initialSchedule }) {
   const [type, setType] = useState(initialSchedule?.type ?? null);
   const [days, setDays] = useState(initialSchedule?.days ?? []);
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   const toggleDay = (d) => {
     setDays((prev) =>
@@ -49,6 +51,7 @@ export default function CollectScheduleCard({ schedule: initialSchedule }) {
         toaster.create({ title: error, type: "error" });
       } else {
         toaster.create({ title: "集金スケジュールを保存しました", type: "success" });
+        router.push("/settings");
       }
     });
   };

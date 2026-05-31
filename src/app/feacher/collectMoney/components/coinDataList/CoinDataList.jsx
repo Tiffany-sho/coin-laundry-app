@@ -10,6 +10,7 @@ import {
   Flex,
   CloseButton,
   Drawer,
+  Dialog,
   Portal,
   VStack,
   HStack,
@@ -19,7 +20,7 @@ import {
   Grid,
   GridItem,
 } from "@chakra-ui/react";
-import { LuPlus } from "@/app/feacher/Icon";
+import { LuPlus, LuDownload } from "@/app/feacher/Icon";
 import { useUploadPage } from "../../context/UploadPageContext";
 import { toaster } from "@/components/ui/toaster";
 import MoneyDataCard from "./DrawerContext/CoinDataCard";
@@ -79,7 +80,56 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
               {valiant === "aStore" && `${coinLaundry.store}店`}
               {valiant === "manyStore" && `収益レポート`}
             </Heading>
-            <ChangeStores />
+            <HStack gap={2}>
+              <ChangeStores />
+              <Dialog.Root placement="center" scrollBehavior="inside">
+                <Dialog.Trigger asChild>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    colorPalette="cyan"
+                    borderRadius="full"
+                    fontWeight="semibold"
+                    fontSize={{ base: "xs", md: "sm" }}
+                  >
+                    <LuDownload size={14} />
+                    <Box as="span" display={{ base: "none", md: "inline" }}>収益データダウンロード</Box>
+                    <Box as="span" display={{ base: "inline", md: "none" }}>DL</Box>
+                  </Button>
+                </Dialog.Trigger>
+                <Portal>
+                  <Dialog.Backdrop bg="blackAlpha.600" />
+                  <Dialog.Positioner>
+                    <Dialog.Content
+                      borderRadius="xl"
+                      maxW={{ base: "92%", md: "480px" }}
+                      bg="var(--app-bg, #F0F9FF)"
+                      boxShadow="2xl"
+                    >
+                      <Dialog.CloseTrigger asChild>
+                        <CloseButton
+                          size="sm"
+                          position="absolute"
+                          top={3}
+                          right={3}
+                          bg="var(--card-bg, #FFFFFF)"
+                          borderRadius="full"
+                          boxShadow="sm"
+                          _hover={{ bg: "cyan.50", transform: "scale(1.1)" }}
+                          transition="all 0.2s"
+                        />
+                      </Dialog.CloseTrigger>
+                      <Dialog.Body p={{ base: 4, md: 5 }} pt={{ base: 10, md: 10 }}>
+                        <ExportPanel
+                          plan={plan}
+                          storeId={valiant === "aStore" ? coinLaundry.id : null}
+                        />
+                      </Dialog.Body>
+                    </Dialog.Content>
+                  </Dialog.Positioner>
+                </Portal>
+              </Dialog.Root>
+            </HStack>
           </HStack>
 
           {valiant === "aStore" && (
@@ -188,11 +238,6 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
                   </VStack>
                 </Card.Body>
               </Card.Root>
-
-              <ExportPanel
-                plan={plan}
-                storeId={valiant === "aStore" ? coinLaundry.id : null}
-              />
 
               <MonthlySummaryCard
                 storeId={valiant === "aStore" ? coinLaundry.id : null}

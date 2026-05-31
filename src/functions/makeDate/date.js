@@ -20,7 +20,7 @@ export const getYearMonth = (data) => {
 
 export const changeEpocFromNowYearMonth = (ago) => {
   const data = Date.now();
-  const nowData = new Date(data);
+  const nowData = new Date(data + EPOCH_ERROR);
   const year = nowData.getFullYear();
   const month = nowData.getMonth() + 1;
 

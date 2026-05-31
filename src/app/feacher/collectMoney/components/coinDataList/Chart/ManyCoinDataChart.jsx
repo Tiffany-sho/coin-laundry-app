@@ -13,7 +13,6 @@ import {
 } from "recharts";
 
 import { getYearMonth } from "@/functions/makeDate/date";
-import BarChartSkeleton from "@/app/feacher/partials/BarChartSkeleton";
 import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
 import ChartError from "@/app/feacher/partials/ChartError";
 import ChartEmpty from "@/app/feacher/partials/ChartEmpty";
@@ -106,6 +105,7 @@ const ManyCoinDataChart = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [chartData, setChartData] = useState([]);
+  const [chartKey, setChartKey] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -145,6 +145,7 @@ const ManyCoinDataChart = () => {
     });
 
     setChartData(Object.values(byMonth));
+    setChartKey((k) => k + 1);
   }, [data]);
 
   // selectedStores が空 = 全店舗表示、それ以外は指定店舗のみ
@@ -163,13 +164,13 @@ const ManyCoinDataChart = () => {
 
   const chart = useChart({ data: chartData, dataKey: "stores" });
 
-  if (loading) return <BarChartSkeleton />;
+  if (loading) return <Box h="260px" />;
   if (error) return <ChartError message={error.message} />;
   if (!data || data.length === 0) return <ChartEmpty />;
-  if (chartData.length === 0) return <BarChartSkeleton />;
+  if (chartData.length === 0) return <Box h="260px" />;
 
   return (
-    <Box>
+    <Box key={chartKey} style={{ animation: "fadeSlideUp 0.45s ease both" }}>
       <Chart.Root h="260px" chart={chart}>
         <BarChart data={chartData} margin={{ left: -16, right: 24, top: 16, bottom: 8 }}>
           <CartesianGrid stroke={chart.color("border")} strokeDasharray="3 3" vertical={false} />
