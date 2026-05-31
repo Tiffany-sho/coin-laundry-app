@@ -1,15 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@chakra-ui/react";
+import { Button, Tooltip } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
 import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
 
-export default function ExportCsvButton() {
+export default function ExportCsvButton({ plan = "free" }) {
   const [loading, setLoading] = useState(false);
   const { startEpoch, endEpoch } = useUploadPage();
 
+  const isPro = plan === "pro" || plan === "max";
+
   const handleExport = async () => {
+    if (!isPro) return;
     setLoading(true);
     try {
       const res = await fetch("/api/export/collect-csv", {
@@ -41,6 +44,25 @@ export default function ExportCsvButton() {
       setLoading(false);
     }
   };
+
+  if (!isPro) {
+    return (
+      <Tooltip content="ProプランにアップグレードするとCSVエクスポートが利用できます">
+        <Button
+          size="sm"
+          variant="outline"
+          colorPalette="gray"
+          borderRadius="full"
+          disabled
+          opacity={0.5}
+          cursor="not-allowed"
+        >
+          <Icon.LuFileText />
+          CSV
+        </Button>
+      </Tooltip>
+    );
+  }
 
   return (
     <Button

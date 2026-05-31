@@ -35,7 +35,7 @@ import ChangeStores from "./parts/ChangeStore";
 import ExportCsvButton from "./parts/ExportCsvButton";
 import { createNowData } from "@/functions/makeDate/date";
 
-const MoneyDataList = ({ valiant, coinLaundry, myRole }) => {
+const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
   const { selectedItem, open, setOpen, data, isFundsArrayLoading } = useUploadPage();
 
   const [totalRevenue, setTotalRevenue] = useState(null);
@@ -79,7 +79,7 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole }) => {
               {valiant === "manyStore" && `収益レポート`}
             </Heading>
             <HStack gap={2}>
-              <ExportCsvButton />
+              <ExportCsvButton plan={plan} />
               <ChangeStores />
             </HStack>
           </HStack>
