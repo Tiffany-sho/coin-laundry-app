@@ -39,8 +39,8 @@ const OrderSelecter = () => {
     <Select.Root
       collection={frameworks}
       size="sm"
-      width="200px"
-      ml="auto"
+      width={{ base: "full", sm: "200px" }}
+      ml={{ base: 0, sm: "auto" }}
       defaultValue={["newer"]}
       onValueChange={(e) => setOrder(e.value)}
     >

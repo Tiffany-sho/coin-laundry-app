@@ -61,7 +61,7 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
   }, [data]);
 
   return (
-    <Box py={{ base: 6, md: 8 }} px={{ base: 4, md: 6 }} overflowX="hidden">
+    <Box py={{ base: 6, md: 8 }} px={{ base: 4, md: 6 }} overflow="hidden" maxW="100%">
       <VStack align="stretch" gap={6}>
         <Flex
           direction={{ base: "column", md: "row" }}
@@ -108,7 +108,12 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
           alignItems="start"
         >
           {/* 左列：集金総額カード＋チャート（PC時 sticky） */}
-          <GridItem position="sticky" top="64px" alignSelf="start">
+          <GridItem
+            minW={0}
+            position={{ base: "static", md: "sticky" }}
+            top="64px"
+            alignSelf="start"
+          >
             <VStack align="stretch" gap={6}>
               {/* 集金総額＋期間スライダー＋チャートカード */}
               <Card.Root
@@ -198,9 +203,9 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
           </GridItem>
 
           {/* 右列：売上履歴（スクロール） */}
-          <GridItem>
+          <GridItem minW={0}>
             <VStack align="stretch" gap={4}>
-              <HStack>
+              <HStack wrap="wrap" gap={2}>
                 <Heading color="var(--teal-deeper)">売上履歴</Heading>
                 <OrderSelecter />
               </HStack>
