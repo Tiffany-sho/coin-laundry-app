@@ -452,6 +452,24 @@ export async function getCollectMonthlySummary(storeId = null) {
   return { data };
 }
 
+// 全期間の店舗別売上合計用：totalFunds, laundryName, laundryId を全件取得（fundsArray 除外）
+export async function getStoreRevenueSummary() {
+  const { user } = await getUser();
+  if (!user) return { error: "ログインしてください" };
+
+  const orgStoreIds = await getOrgStoreIds();
+  if (orgStoreIds.length === 0) return { data: [] };
+
+  const supabase = createServiceClient();
+  const { data, error } = await supabase
+    .from("collect_funds")
+    .select("totalFunds, laundryName, laundryId")
+    .in("laundryId", orgStoreIds);
+
+  if (error) return { error: "集金データの取得に失敗しました" };
+  return { data };
+}
+
 // org 全体の指定月集金合計（ホーム画面グラフ用）
 export async function getMonthFundsByOffset(monthOffset) {
   const storeIds = await getOrgStoreIds();

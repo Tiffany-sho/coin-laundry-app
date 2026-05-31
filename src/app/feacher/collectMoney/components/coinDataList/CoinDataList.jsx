@@ -34,6 +34,7 @@ import { PeriodFilterButton, PeriodNav } from "./parts/SegmentedPeriod";
 import ChangeStores from "./parts/ChangeStore";
 import ExportPanel from "./parts/ExportPanel";
 import MonthlySummaryCard from "./parts/MonthlySummaryCard";
+import StoreRevenueChart from "./parts/StoreRevenueChart";
 
 const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
   const { selectedItem, open, setOpen, data, isFundsArrayLoading } = useUploadPage();
@@ -191,6 +192,8 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
               <MonthlySummaryCard
                 storeId={valiant === "aStore" ? coinLaundry.id : null}
               />
+
+              {valiant === "manyStore" && <StoreRevenueChart />}
             </VStack>
           </GridItem>
 
