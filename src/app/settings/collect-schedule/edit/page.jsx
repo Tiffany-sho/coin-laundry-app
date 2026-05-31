@@ -15,7 +15,7 @@ export default async function CollectScheduleEditPage() {
       <HStack mb={6}>
         <Link href="/settings">
           <Button variant="ghost" size="sm" colorPalette="cyan" borderRadius="full">
-            <Icon.LuArrowLeft size={14} />
+            <Icon.LuChevronLeft size={14} />
             設定に戻る
           </Button>
         </Link>
