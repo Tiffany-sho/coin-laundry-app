@@ -110,79 +110,7 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
           {/* 左列：集金総額カード＋チャート（PC時 sticky） */}
           <GridItem position="sticky" top="64px" alignSelf="start">
             <VStack align="stretch" gap={6}>
-              {/* 集金総額カード */}
-              <Card.Root
-                bg="var(--card-bg, #FFFFFF)"
-                border="1px solid"
-                borderColor="cyan.100"
-                boxShadow="var(--shadow-sm)"
-                borderRadius="xl"
-              >
-                <Card.Body p={{ base: 4, md: 6 }}>
-                  <VStack align="stretch" gap={3}>
-                    <HStack justify="space-between" align="center">
-                      <Text
-                        fontSize="xs"
-                        fontWeight="semibold"
-                        color="var(--text-muted)"
-                        textTransform="uppercase"
-                        letterSpacing="widest"
-                      >
-                        集金総額
-                      </Text>
-                      {data && data.length > 0 && (
-                        <Text fontSize="xs" color="var(--text-muted)">
-                          {createNowData(data[0].date)} 〜{" "}
-                          {createNowData(data[data.length - 1].date)}
-                        </Text>
-                      )}
-                    </HStack>
-
-                    <HStack align="baseline" gap={1}>
-                      <Text
-                        fontSize={{ base: "xl", md: "2xl" }}
-                        fontWeight="semibold"
-                        color="var(--text-muted)"
-                      >
-                        ¥
-                      </Text>
-                      {totalRevenue !== null ? (
-                        <Text
-                          fontSize={{ base: "5xl", md: "7xl" }}
-                          fontWeight="black"
-                          lineHeight="1"
-                          letterSpacing="tight"
-                        >
-                          {totalRevenue.toLocaleString()}
-                        </Text>
-                      ) : (
-                        <Skeleton height="14" width="40%" borderRadius="lg" />
-                      )}
-                      <Text
-                        fontSize={{ base: "lg", md: "xl" }}
-                        fontWeight="medium"
-                        color="var(--text-muted)"
-                        alignSelf="flex-end"
-                        pb={1}
-                      >
-                        円
-                      </Text>
-                    </HStack>
-
-                    {data && (
-                      <Text fontSize="sm" color="var(--text-muted)">
-                        累計{" "}
-                        <Text as="span" fontWeight="bold" color="var(--text-main)">
-                          {data.length}
-                        </Text>{" "}
-                        回の集金
-                      </Text>
-                    )}
-                  </VStack>
-                </Card.Body>
-              </Card.Root>
-
-              {/* 期間スライダー＋チャートカード */}
+              {/* 集金総額＋期間スライダー＋チャートカード */}
               <Card.Root
                 bg="var(--card-bg, #FFFFFF)"
                 border="1px solid"
@@ -192,6 +120,67 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
               >
                 <Card.Body p={{ base: 4, md: 6 }}>
                   <VStack align="stretch" gap={4}>
+                    {/* 集金総額 */}
+                    <VStack align="stretch" gap={2}>
+                      <HStack justify="space-between" align="center">
+                        <Text
+                          fontSize="xs"
+                          fontWeight="semibold"
+                          color="var(--text-muted)"
+                          textTransform="uppercase"
+                          letterSpacing="widest"
+                        >
+                          集金総額
+                        </Text>
+                        {data && data.length > 0 && (
+                          <Text fontSize="xs" color="var(--text-muted)">
+                            {createNowData(data[0].date)} 〜{" "}
+                            {createNowData(data[data.length - 1].date)}
+                          </Text>
+                        )}
+                      </HStack>
+
+                      <HStack align="baseline" gap={1}>
+                        <Text
+                          fontSize={{ base: "lg", md: "xl" }}
+                          fontWeight="semibold"
+                          color="var(--text-muted)"
+                        >
+                          ¥
+                        </Text>
+                        {totalRevenue !== null ? (
+                          <Text
+                            fontSize={{ base: "4xl", md: "5xl" }}
+                            fontWeight="black"
+                            lineHeight="1"
+                            letterSpacing="tight"
+                          >
+                            {totalRevenue.toLocaleString()}
+                          </Text>
+                        ) : (
+                          <Skeleton height="10" width="40%" borderRadius="lg" />
+                        )}
+                        <Text
+                          fontSize={{ base: "md", md: "lg" }}
+                          fontWeight="medium"
+                          color="var(--text-muted)"
+                          alignSelf="flex-end"
+                          pb={0.5}
+                        >
+                          円
+                        </Text>
+                        {data && (
+                          <Text fontSize="xs" color="var(--text-muted)" alignSelf="flex-end" pb={1}>
+                            累計{" "}
+                            <Text as="span" fontWeight="bold" color="var(--text-main)">
+                              {data.length}
+                            </Text>{" "}
+                            回
+                          </Text>
+                        )}
+                      </HStack>
+                    </VStack>
+
                     <SegmentedPeriod />
                     {valiant === "aStore" && <MonoCoinDataChart id={coinLaundry.id} myRole={myRole} />}
                     {valiant === "manyStore" && <ManyCoinDataChart />}
