@@ -211,7 +211,9 @@ const MonoCoinDataChart = ({ id, myRole }) => {
           content={<CustomTooltip />}
         />
         <Line
-          isAnimationActive={false}
+          isAnimationActive={true}
+          animationDuration={900}
+          animationEasing="ease-out"
           dot={{ r: 3, fill: "var(--chakra-colors-teal-500)" }}
           activeDot={{ r: 6 }}
           dataKey={chart.key("uv")}

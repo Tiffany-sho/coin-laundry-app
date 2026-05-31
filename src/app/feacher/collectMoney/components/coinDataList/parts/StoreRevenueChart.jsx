@@ -146,7 +146,15 @@ export default function StoreRevenueChart() {
                   tickLine={false}
                 />
                 <Tooltip content={<CustomTooltip />} cursor={{ fill: "#F0F9FF" }} />
-                <Bar dataKey="total" radius={[0, 6, 6, 0]} maxBarSize={28}>
+                <Bar
+                  dataKey="total"
+                  radius={[0, 6, 6, 0]}
+                  maxBarSize={28}
+                  isAnimationActive={true}
+                  animationBegin={0}
+                  animationDuration={700}
+                  animationEasing="ease-out"
+                >
                   {stores.map((_, i) => (
                     <Cell key={i} fill={COLORS[i % COLORS.length]} />
                   ))}

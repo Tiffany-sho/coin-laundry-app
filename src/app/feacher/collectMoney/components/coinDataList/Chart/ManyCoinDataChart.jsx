@@ -199,7 +199,10 @@ const ManyCoinDataChart = () => {
               dataKey={name}
               stackId="stack"
               fill={STORE_COLORS[storeNames.indexOf(name) % STORE_COLORS.length]}
-              isAnimationActive={false}
+              isAnimationActive={true}
+              animationBegin={0}
+              animationDuration={700}
+              animationEasing="ease-out"
               radius={i === displayedStoreNames.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
             />
           ))}
