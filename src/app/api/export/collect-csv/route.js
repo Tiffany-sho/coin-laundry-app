@@ -35,14 +35,22 @@ export async function POST(request) {
   if (error) return NextResponse.json({ error }, { status: 400 });
 
   const BOM = "﻿";
-  const header = "日付,店舗名,合計金額,担当者\n";
+  const header = "日付,店舗名,設備名,設備売上,合計金額,担当者\n";
   const rows = data
-    .map((row) => {
+    .flatMap((row) => {
       const date = epochToDateStr(row.date);
       const store = `${row.laundryName}店`;
-      const amount = row.totalFunds ?? 0;
+      const total = row.totalFunds ?? 0;
       const collector = row.profiles?.username ?? "";
-      return `${date},${store},${amount},${collector}`;
+      const machines = Array.isArray(row.fundsArray) ? row.fundsArray : [];
+
+      if (machines.length === 0) {
+        return [`${date},${store},,,${total},${collector}`];
+      }
+      return machines.map((m) => {
+        const machineAmount = (m.funds ?? 0) * 100;
+        return `${date},${store},${m.name},${machineAmount},${total},${collector}`;
+      });
     })
     .join("\n");
 
