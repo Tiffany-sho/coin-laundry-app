@@ -7,9 +7,9 @@ const EPOCH_OFFSET = 32400000;
 function epochToDateStr(epoch) {
   const d = new Date(epoch + EPOCH_OFFSET);
   const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${year}/${month}/${day}`;
+  const month = d.getMonth() + 1;
+  const day = d.getDate();
+  return `${year}年${month}月${day}日`;
 }
 
 function buildFilename() {
