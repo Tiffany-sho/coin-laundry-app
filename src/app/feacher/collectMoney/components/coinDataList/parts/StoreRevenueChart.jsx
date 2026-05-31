@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Box, HStack, Skeleton, Text, VStack } from "@chakra-ui/react";
+import { Box, HStack, Text, VStack } from "@chakra-ui/react";
 import {
   Bar,
   BarChart,
@@ -109,18 +109,16 @@ export default function StoreRevenueChart() {
           </Text>
         </HStack>
 
-        {loading ? (
-          <VStack gap={2}>
-            {[...Array(4)].map((_, i) => (
-              <Skeleton key={i} height="36px" borderRadius="md" />
-            ))}
-          </VStack>
-        ) : !stores || stores.length === 0 ? (
+        {!loading && (!stores || stores.length === 0) && (
           <Text color="var(--text-faint)" fontSize="sm">
             データがありません
           </Text>
-        ) : (
-          <Box h={`${chartHeight}px`}>
+        )}
+        {!loading && stores && stores.length > 0 && (
+          <Box
+            h={`${chartHeight}px`}
+            style={{ animation: "fadeSlideUp 0.45s ease both" }}
+          >
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
                 data={stores}
