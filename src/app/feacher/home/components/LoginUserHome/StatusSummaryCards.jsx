@@ -11,21 +11,21 @@ function StatusCard({ href, icon, label, hasError, hasProblem, problemCount, sto
     <Link href={href} style={{ display: "block", height: "100%" }}>
       <Box
         bg="var(--card-bg, #FFFFFF)"
-        border="1.5px solid"
-        borderColor={isAlert ? "orange.300" : "cyan.100"}
+        border={isAlert ? "none" : "1.5px solid"}
+        borderColor="cyan.100"
         borderRadius="xl"
         px={3}
         py={3}
         cursor="pointer"
-        boxShadow={isAlert ? "0 0 0 3px #FED7AA" : "var(--shadow-sm)"}
+        boxShadow="var(--shadow-sm)"
         _hover={{ opacity: 0.82 }}
         transition="all 0.2s"
         h="full"
       >
         <HStack gap={2} align="center">
           <Box
-            bg={isAlert ? "orange.400" : "var(--teal, #0891B2)"}
-            color="white"
+            bg={isAlert ? "orange.100" : "var(--teal, #0891B2)"}
+            color={isAlert ? "orange.500" : "white"}
             borderRadius="full"
             p={1.5}
             flexShrink={0}
@@ -36,19 +36,19 @@ function StatusCard({ href, icon, label, hasError, hasProblem, problemCount, sto
             <Text
               fontSize="xs"
               fontWeight="semibold"
-              color={isAlert ? "orange.500" : "var(--text-muted, #64748B)"}
+              color="var(--text-muted, #64748B)"
             >
               {label}
             </Text>
             {hasError ? (
-              <Text fontSize="xs" color="red.500" fontWeight="bold">取得失敗</Text>
+              <Text fontSize="xs" color="red.400" fontWeight="bold">取得失敗</Text>
             ) : hasProblem ? (
               <>
-                <Text fontSize="sm" fontWeight="bold" color="orange.700" lineHeight={1.2}>
+                <Text fontSize="sm" fontWeight="bold" color="orange.500" lineHeight={1.2}>
                   {problemCount}店舗 要対応
                 </Text>
                 {storeNames.map((name, i) => (
-                  <Text key={i} fontSize="2xs" color="orange.400" lineHeight={1.4}>
+                  <Text key={i} fontSize="2xs" color="orange.300" lineHeight={1.4}>
                     • {name}
                   </Text>
                 ))}
@@ -59,7 +59,7 @@ function StatusCard({ href, icon, label, hasError, hasProblem, problemCount, sto
               </Text>
             )}
           </VStack>
-          <Box color={isAlert ? "orange.300" : "cyan.300"} flexShrink={0}>
+          <Box color={isAlert ? "orange.200" : "cyan.300"} flexShrink={0}>
             <Icon.LuChevronRight size={14} />
           </Box>
         </HStack>
