@@ -20,7 +20,7 @@ import {
   Grid,
   GridItem,
 } from "@chakra-ui/react";
-import { LuPlus, LuDownload } from "@/app/feacher/Icon";
+import { LuPlus, LuDownload, LuCalendarDays } from "@/app/feacher/Icon";
 import { useUploadPage } from "../../context/UploadPageContext";
 import { toaster } from "@/components/ui/toaster";
 import MoneyDataCard from "./DrawerContext/CoinDataCard";
@@ -160,7 +160,14 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
           gap={6}
           alignItems="start"
         >
-          {/* 月別グラフカード（集金総額 + 期間フィルタ + チャート） */}
+          {/* 店舗別グラフ（manyStore のみ） */}
+          {valiant === "manyStore" && (
+            <GridItem minW={0}>
+              <StoreRevenueChart />
+            </GridItem>
+          )}
+
+          {/* 月別グラフカード（月別売上ヘッダー + 集金総額 + 期間フィルタ + チャート） */}
           <GridItem minW={0}>
             <Card.Root
               bg="var(--card-bg, #FFFFFF)"
@@ -171,6 +178,16 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
             >
               <Card.Body p={{ base: 4, md: 6 }}>
                 <VStack align="stretch" gap={4}>
+                  {/* ヘッダー */}
+                  <HStack gap={2}>
+                    <Box color="var(--teal)">
+                      <LuCalendarDays size={15} />
+                    </Box>
+                    <Text fontWeight="semibold" color="var(--text-main)" fontSize="sm">
+                      月別売上
+                    </Text>
+                  </HStack>
+
                   <VStack align="stretch" gap={2}>
                     <HStack justify="space-between" align="center">
                       <Text
@@ -234,13 +251,6 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
               </Card.Body>
             </Card.Root>
           </GridItem>
-
-          {/* 店舗別グラフ（manyStore のみ） */}
-          {valiant === "manyStore" && (
-            <GridItem minW={0}>
-              <StoreRevenueChart />
-            </GridItem>
-          )}
         </Grid>
 
         {/* ── Row 2: 月次サマリー | 売上履歴 ── */}
