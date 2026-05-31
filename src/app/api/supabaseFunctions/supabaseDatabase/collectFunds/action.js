@@ -418,6 +418,40 @@ export async function getMonthFunds() {
   return { data };
 }
 
+// 月次サマリー用：過去2年分の date, totalFunds のみ取得（fundsArray 除外で軽量）
+// storeId 指定時はその店舗のみ、null の場合は org 全体
+export async function getCollectMonthlySummary(storeId = null) {
+  const { user } = await getUser();
+  if (!user) return { error: "ログインしてください" };
+
+  const orgStoreIds = await getOrgStoreIds();
+  if (orgStoreIds.length === 0) return { data: [] };
+
+  let targetIds;
+  if (storeId) {
+    if (!orgStoreIds.includes(storeId)) return { error: "アクセス権限がありません" };
+    targetIds = [storeId];
+  } else {
+    targetIds = orgStoreIds;
+  }
+
+  // 前年同月比のため過去2年分を取得
+  const cutoff = new Date();
+  cutoff.setFullYear(cutoff.getFullYear() - 2);
+  cutoff.setDate(1);
+  const cutoffEpoch = cutoff.getTime();
+
+  const supabase = createServiceClient();
+  const { data, error } = await supabase
+    .from("collect_funds")
+    .select("date, totalFunds")
+    .in("laundryId", targetIds)
+    .gt("date", cutoffEpoch);
+
+  if (error) return { error: "集金データの取得に失敗しました" };
+  return { data };
+}
+
 // org 全体の指定月集金合計（ホーム画面グラフ用）
 export async function getMonthFundsByOffset(monthOffset) {
   const storeIds = await getOrgStoreIds();

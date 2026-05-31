@@ -33,6 +33,7 @@ import DataClipBoard from "./parts/DataClipBoard";
 import SegmentedPeriod from "./parts/SegmentedPeriod";
 import ChangeStores from "./parts/ChangeStore";
 import ExportPanel from "./parts/ExportPanel";
+import MonthlySummaryCard from "./parts/MonthlySummaryCard";
 import { createNowData } from "@/functions/makeDate/date";
 
 const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
@@ -200,6 +201,10 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
 
               <ExportPanel
                 plan={plan}
+                storeId={valiant === "aStore" ? coinLaundry.id : null}
+              />
+
+              <MonthlySummaryCard
                 storeId={valiant === "aStore" ? coinLaundry.id : null}
               />
             </VStack>
