@@ -30,7 +30,7 @@ import CoinMonoDataTable from "./Table/CoinMonoDataTable";
 import AddDataBtn from "./parts/AddDataBtn";
 import OrderSelecter from "./parts/OrderSelecter";
 import DataClipBoard from "./parts/DataClipBoard";
-import SegmentedPeriod from "./parts/SegmentedPeriod";
+import { PeriodFilterButton, PeriodNav } from "./parts/SegmentedPeriod";
 import ChangeStores from "./parts/ChangeStore";
 import ExportPanel from "./parts/ExportPanel";
 import MonthlySummaryCard from "./parts/MonthlySummaryCard";
@@ -121,15 +121,18 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
                   <VStack align="stretch" gap={4}>
                     {/* 集金総額 */}
                     <VStack align="stretch" gap={2}>
-                      <Text
-                        fontSize="xs"
-                        fontWeight="semibold"
-                        color="var(--text-muted)"
-                        textTransform="uppercase"
-                        letterSpacing="widest"
-                      >
-                        集金総額
-                      </Text>
+                      <HStack justify="space-between" align="center">
+                        <Text
+                          fontSize="xs"
+                          fontWeight="semibold"
+                          color="var(--text-muted)"
+                          textTransform="uppercase"
+                          letterSpacing="widest"
+                        >
+                          集金総額
+                        </Text>
+                        <PeriodFilterButton />
+                      </HStack>
 
                       <HStack align="baseline" gap={1}>
                         <Text
@@ -171,7 +174,7 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
                         )}
                       </HStack>
 
-                      <SegmentedPeriod />
+                      <PeriodNav />
                     </VStack>
 
                     {valiant === "aStore" && <MonoCoinDataChart id={coinLaundry.id} myRole={myRole} />}
