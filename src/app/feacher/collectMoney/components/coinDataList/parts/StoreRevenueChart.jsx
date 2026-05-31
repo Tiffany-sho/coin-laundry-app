@@ -14,25 +14,27 @@ import {
 } from "recharts";
 import { VscGraphLine } from "@/app/feacher/Icon";
 import { getStoreRevenueSummary } from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
+import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
 
-const COLORS = [
-  "#0891B2",
-  "#06B6D4",
-  "#0E7490",
-  "#67E8F9",
+// ManyCoinDataChart と同じパレット
+const STORE_COLORS = [
   "#93C5FD",
   "#6EE7B7",
   "#FCD34D",
   "#FCA5A5",
   "#C4B5FD",
+  "#67E8F9",
   "#FDBA74",
+  "#F9A8D4",
+  "#BEF264",
+  "#A5B4FC",
 ];
 
 function groupByStore(records) {
   const map = new Map();
   records.forEach(({ totalFunds, laundryName, laundryId }) => {
     if (!map.has(laundryId)) {
-      map.set(laundryId, { name: `${laundryName}店`, total: 0 });
+      map.set(laundryId, { name: `${laundryName}店`, rawName: laundryName, total: 0 });
     }
     map.get(laundryId).total += totalFunds;
   });
@@ -72,6 +74,7 @@ function CustomTooltip({ active, payload, label }) {
 }
 
 export default function StoreRevenueChart() {
+  const { storeNames } = useUploadPage();
   const [stores, setStores] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -90,6 +93,15 @@ export default function StoreRevenueChart() {
     ? Math.max(160, stores.length * 44 + 40)
     : 160;
 
+  const totalAmount = stores
+    ? stores.reduce((sum, s) => sum + s.total, 0)
+    : 0;
+
+  const maxNameLen = stores?.length
+    ? Math.max(...stores.map((s) => s.name.length))
+    : 6;
+  const yAxisWidth = Math.min(160, Math.max(80, maxNameLen * 13 + 20));
+
   return (
     <Box
       bg="var(--card-bg, #FFFFFF)"
@@ -100,6 +112,7 @@ export default function StoreRevenueChart() {
       p={{ base: 4, md: 6 }}
     >
       <VStack align="stretch" gap={4}>
+        {/* ヘッダー */}
         <HStack gap={2}>
           <Box color="var(--teal)">
             <VscGraphLine size={15} />
@@ -109,11 +122,37 @@ export default function StoreRevenueChart() {
           </Text>
         </HStack>
 
+        {/* 全店舗合計 */}
+        {!loading && stores && stores.length > 0 && (
+          <VStack align="stretch" gap={0}>
+            <Text fontSize="xs" fontWeight="semibold" color="var(--text-muted)" textTransform="uppercase" letterSpacing="widest">
+              全店舗累計
+            </Text>
+            <HStack align="baseline" gap={1}>
+              <Text fontSize="lg" fontWeight="semibold" color="var(--text-muted)">¥</Text>
+              <Text
+                fontSize="3xl"
+                fontWeight="black"
+                lineHeight="1"
+                letterSpacing="tight"
+                fontFamily="'Space Mono', monospace"
+                color="var(--text-main)"
+              >
+                {totalAmount.toLocaleString()}
+              </Text>
+              <Text fontSize="sm" fontWeight="medium" color="var(--text-muted)" alignSelf="flex-end" pb={0.5}>
+                円
+              </Text>
+            </HStack>
+          </VStack>
+        )}
+
         {!loading && (!stores || stores.length === 0) && (
           <Text color="var(--text-faint)" fontSize="sm">
             データがありません
           </Text>
         )}
+
         {!loading && stores && stores.length > 0 && (
           <Box
             h={`${chartHeight}px`}
@@ -123,7 +162,7 @@ export default function StoreRevenueChart() {
               <BarChart
                 data={stores}
                 layout="vertical"
-                margin={{ top: 0, right: 16, bottom: 0, left: 0 }}
+                margin={{ top: 0, right: 16, bottom: 0, left: 8 }}
               >
                 <CartesianGrid
                   strokeDasharray="3 3"
@@ -140,7 +179,7 @@ export default function StoreRevenueChart() {
                 <YAxis
                   type="category"
                   dataKey="name"
-                  width={Math.min(140, Math.max(72, Math.max(...stores.map((s) => s.name.length)) * 12 + 8))}
+                  width={yAxisWidth}
                   tick={{ fontSize: 11, fill: "#1E3A5F" }}
                   axisLine={false}
                   tickLine={false}
@@ -155,9 +194,13 @@ export default function StoreRevenueChart() {
                   animationDuration={700}
                   animationEasing="ease-out"
                 >
-                  {stores.map((_, i) => (
-                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                  ))}
+                  {stores.map((store, i) => {
+                    const contextIdx = storeNames.indexOf(store.rawName);
+                    const colorIdx = contextIdx >= 0 ? contextIdx : i;
+                    return (
+                      <Cell key={i} fill={STORE_COLORS[colorIdx % STORE_COLORS.length]} />
+                    );
+                  })}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
