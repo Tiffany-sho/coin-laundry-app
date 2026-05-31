@@ -9,7 +9,6 @@ import { getStores } from "@/app/api/supabaseFunctions/supabaseDatabase/laundryS
 // ── CSV generation (client-side) ──────────────────────────────────────────────
 
 const BOM = "﻿";
-const CSV_HEADER = "日付,店舗名,設備名,合計,集金担当者\n";
 const EPOCH_OFFSET = 32400000; // JST +9h in ms
 
 function epochToDateStr(epoch) {
@@ -29,21 +28,45 @@ function dateToEpoch(dateStr) {
   return new Date(dateStr + "T00:00:00").getTime();
 }
 
+// グループ内の全設備名を列として横展開し、1集金履歴 = 1行に変換する
 function recordsToCsv(records) {
+  // グループ内に登場する全設備名を出現順で収集
+  const machineNames = [];
+  const seen = new Set();
+  records.forEach((row) => {
+    if (Array.isArray(row.fundsArray)) {
+      row.fundsArray.forEach((m) => {
+        if (m.name && !seen.has(m.name)) {
+          seen.add(m.name);
+          machineNames.push(m.name);
+        }
+      });
+    }
+  });
+
+  const header = ["日付", "店舗名", ...machineNames, "合計", "集金担当者"].join(",") + "\n";
+
   const rows = records
-    .flatMap((row) => {
+    .map((row) => {
       const date = epochToDateStr(row.date);
       const store = `${row.laundryName}店`;
       const total = row.totalFunds ?? 0;
       const collector = row.profiles?.username ?? "";
-      const machines = Array.isArray(row.fundsArray) ? row.fundsArray : [];
-      if (machines.length === 0) {
-        return [`${date},${store},,,${total},${collector}`];
+
+      // 設備ごとの売上マップ（funds * 100 = 円）
+      const machineMap = {};
+      if (Array.isArray(row.fundsArray)) {
+        row.fundsArray.forEach((m) => {
+          if (m.name) machineMap[m.name] = (m.funds ?? 0) * 100;
+        });
       }
-      return machines.map((m) => `${date},${store},${m.name ?? ""},${total},${collector}`);
+
+      const machineValues = machineNames.map((name) => machineMap[name] ?? "");
+      return [date, store, ...machineValues, total, collector].join(",");
     })
     .join("\n");
-  return BOM + CSV_HEADER + rows;
+
+  return BOM + header + rows;
 }
 
 async function downloadFiles(files) {
