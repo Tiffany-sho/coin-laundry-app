@@ -124,23 +124,39 @@ export default function StoreRevenueChart() {
 
         {/* 全店舗合計 */}
         {!loading && stores && stores.length > 0 && (
-          <VStack align="stretch" gap={0}>
-            <Text fontSize="xs" fontWeight="semibold" color="var(--text-muted)" textTransform="uppercase" letterSpacing="widest">
+          <VStack align="stretch" gap={2}>
+            <Text
+              fontSize="xs"
+              fontWeight="semibold"
+              color="var(--text-muted)"
+              textTransform="uppercase"
+              letterSpacing="widest"
+            >
               全店舗累計
             </Text>
             <HStack align="baseline" gap={1}>
-              <Text fontSize="lg" fontWeight="semibold" color="var(--text-muted)">¥</Text>
               <Text
-                fontSize="3xl"
+                fontSize={{ base: "lg", md: "xl" }}
+                fontWeight="semibold"
+                color="var(--text-muted)"
+              >
+                ¥
+              </Text>
+              <Text
+                fontSize={{ base: "4xl", md: "5xl" }}
                 fontWeight="black"
                 lineHeight="1"
                 letterSpacing="tight"
-                fontFamily="'Space Mono', monospace"
-                color="var(--text-main)"
               >
                 {totalAmount.toLocaleString()}
               </Text>
-              <Text fontSize="sm" fontWeight="medium" color="var(--text-muted)" alignSelf="flex-end" pb={0.5}>
+              <Text
+                fontSize={{ base: "md", md: "lg" }}
+                fontWeight="medium"
+                color="var(--text-muted)"
+                alignSelf="flex-end"
+                pb={0.5}
+              >
                 円
               </Text>
             </HStack>
@@ -154,57 +170,95 @@ export default function StoreRevenueChart() {
         )}
 
         {!loading && stores && stores.length > 0 && (
-          <Box
-            h={`${chartHeight}px`}
-            style={{ animation: "fadeSlideUp 0.45s ease both" }}
-          >
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={stores}
-                layout="vertical"
-                margin={{ top: 0, right: 16, bottom: 0, left: 8 }}
-              >
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  horizontal={false}
-                  stroke="#F1F5F9"
-                />
-                <XAxis
-                  type="number"
-                  tickFormatter={formatAxis}
-                  tick={{ fontSize: 11, fill: "#64748B" }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis
-                  type="category"
-                  dataKey="name"
-                  width={yAxisWidth}
-                  tick={{ fontSize: 11, fill: "#1E3A5F" }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <Tooltip content={<CustomTooltip />} cursor={{ fill: "#F0F9FF" }} />
-                <Bar
-                  dataKey="total"
-                  radius={[0, 6, 6, 0]}
-                  maxBarSize={28}
-                  isAnimationActive={true}
-                  animationBegin={0}
-                  animationDuration={700}
-                  animationEasing="ease-out"
+          <>
+            <Box
+              h={`${chartHeight}px`}
+              style={{ animation: "fadeSlideUp 0.45s ease both" }}
+            >
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={stores}
+                  layout="vertical"
+                  margin={{ top: 0, right: 16, bottom: 0, left: 8 }}
                 >
-                  {stores.map((store, i) => {
-                    const contextIdx = storeNames.indexOf(store.rawName);
-                    const colorIdx = contextIdx >= 0 ? contextIdx : i;
-                    return (
-                      <Cell key={i} fill={STORE_COLORS[colorIdx % STORE_COLORS.length]} />
-                    );
-                  })}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </Box>
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    horizontal={false}
+                    stroke="#F1F5F9"
+                  />
+                  <XAxis
+                    type="number"
+                    tickFormatter={formatAxis}
+                    tick={{ fontSize: 11, fill: "#64748B" }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    type="category"
+                    dataKey="name"
+                    width={yAxisWidth}
+                    tick={{ fontSize: 11, fill: "#1E3A5F" }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip content={<CustomTooltip />} cursor={{ fill: "#F0F9FF" }} />
+                  <Bar
+                    dataKey="total"
+                    radius={[0, 6, 6, 0]}
+                    maxBarSize={28}
+                    isAnimationActive={true}
+                    animationBegin={0}
+                    animationDuration={700}
+                    animationEasing="ease-out"
+                  >
+                    {stores.map((store, i) => {
+                      const contextIdx = storeNames.indexOf(store.rawName);
+                      const colorIdx = contextIdx >= 0 ? contextIdx : i;
+                      return (
+                        <Cell key={i} fill={STORE_COLORS[colorIdx % STORE_COLORS.length]} />
+                      );
+                    })}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </Box>
+
+            {/* 店舗別シェア */}
+            <VStack align="stretch" gap={1.5} pt={1}>
+              {stores.map((store, i) => {
+                const contextIdx = storeNames.indexOf(store.rawName);
+                const colorIdx = contextIdx >= 0 ? contextIdx : i;
+                const pct = totalAmount > 0
+                  ? ((store.total / totalAmount) * 100).toFixed(1)
+                  : "0.0";
+                return (
+                  <HStack key={i} justify="space-between" gap={2}>
+                    <HStack gap={1.5} minW={0} flex="1">
+                      <Box
+                        w="8px"
+                        h="8px"
+                        borderRadius="2px"
+                        flexShrink={0}
+                        bg={STORE_COLORS[colorIdx % STORE_COLORS.length]}
+                      />
+                      <Text
+                        fontSize="xs"
+                        color="var(--text-muted)"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                        whiteSpace="nowrap"
+                      >
+                        {store.name}
+                      </Text>
+                    </HStack>
+                    <Text fontSize="xs" fontWeight="semibold" color="var(--text-main)" flexShrink={0}>
+                      {pct}%
+                    </Text>
+                  </HStack>
+                );
+              })}
+            </VStack>
+          </>
         )}
       </VStack>
     </Box>
