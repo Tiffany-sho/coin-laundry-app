@@ -269,8 +269,41 @@ cyan.900 → ダイアログ見出し
 
 - `globals.css` で `input` / `textarea` の背景色を `#ffffff !important` に固定済み（アプリ背景 `#F0F9FF` との混同防止）。
 - スマホのボトムナビ（`position: fixed`）の下にコンテンツが隠れないよう、`layout.module.css` の `.footerWrapper` で `padding-bottom: calc(80px + env(safe-area-inset-bottom))` を付与している。
+- `@keyframes fadeSlideUp`（`opacity: 0 + translateY(10px)` → 表示）を `globals.css` に定義済み。チャートなどのフェードイン表示に使う：`style={{ animation: "fadeSlideUp 0.45s ease both" }}`。
 
 ---
+
+### モバイルレイアウトの注意点
+
+#### Grid / Flex 子要素のオーバーフロー
+
+- `Grid` / `Flex` の子要素はデフォルトで `min-width: auto` のため、内容物の幅まで膨張してはみ出すことがある。**Grid/Flex 直下の子要素には必ず `minW={0}` を付ける**。
+
+  ```jsx
+  <GridItem minW={0}>...</GridItem>
+  <Box flex="1" minW={0}>...</Box>
+  ```
+
+- 外側コンテナに `overflow="hidden"` を使う場合、内側の `overflow="auto"` なテーブル等も親に合わせてクリップされる点に注意。
+
+#### `position: sticky` と `overflow: hidden` の競合
+
+- CSS の仕様上、**祖先要素に `overflow: hidden/auto/scroll` があると `position: sticky` は効かない**（`position: relative` と同じ挙動になる）。
+- モバイルでは sticky は不要なことが多い。`position={{ base: "static", md: "sticky" }}` でスマホのみ外すのが安全。
+
+#### Recharts の注意点
+
+- **`ResponsiveContainer`** は親要素の幅を測定する。親に明示的な幅がないと誤計算が起こる。`width="100%"` かつ `minW={0}` の親で囲むこと。
+- **アニメーション**: `isAnimationActive={false}` は原則使わない。棒・折れ線グラフともに 0 から伸びるアニメーションを有効にする標準設定：
+
+  ```jsx
+  // Bar
+  <Bar isAnimationActive={true} animationBegin={0} animationDuration={700} animationEasing="ease-out" />
+  // Line
+  <Line isAnimationActive={true} animationDuration={900} animationEasing="ease-out" />
+  ```
+
+- **縦棒グラフの YAxis 幅**: 日本語ラベルは 1 文字 ≈ 11〜12px。`Math.min(140, Math.max(72, maxLabelLen * 12 + 8))` のように上限をキャップしてモバイルで棒領域を確保する。
 
 ### コンポーネント設計
 
@@ -319,11 +352,11 @@ git push origin main
 ## 今後の実装予定
 
 1. ~~**サブスクリプション機能**~~ — 実装済み（Free/Pro/Max・Stripe連携・トライアル14日）
-2. **CSV / Excel エクスポート** — 集金データを経理・報告書作成用にエクスポート
+2. ~~**CSV / Excel エクスポート**~~ — 実装済み（Pro以上・期間/店舗フィルタ・月別/店舗別ファイル分割）
 3. **集金サイクル管理** — 組織単位のスケジュール設定（毎週曜日 / 毎月日付）とホーム画面カウントダウンは実装済み。未実装：店舗ごとの個別設定・未集金アラート通知
 4. **機器故障・メモ記録** — 集金時に気づいた不具合やメモを記録する機能
 5. **プッシュ通知 / リマインダー** — 集金タイミングの通知
-6. **累計サマリー統計（/collectMoney）** — 店舗別累計売上グラフ・最多集金店の表示。実装方針：全レコードfetchは避け、Supabase RPC（SQL の GROUP BY SUM）でDB側集計 → 店舗数N行のみ返す方式が最軽量。Server Action内集計でも可（laundryName + totalFunds の2カラムのみselectすれば体感差はほぼなし）。
+6. ~~**累計サマリー統計（/collectMoney）**~~ — 実装済み。`StoreRevenueChart`（店舗別累計横棒グラフ）・`MonthlySummaryCard`（月次前月比/前年比テーブル）を `feacher/collectMoney/components/coinDataList/parts/` に追加。データは `getStoreRevenueSummary()`（`totalFunds, laundryName, laundryId` の3カラムのみfetch）でクライアント集計。
 
 ---
 
