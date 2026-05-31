@@ -44,7 +44,6 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
   useEffect(() => {
     setTimeout(() => {
       const toastInfo = sessionStorage.getItem("toast");
-
       if (toastInfo) {
         const toastInfoStr = JSON.parse(toastInfo);
         toaster.create(toastInfoStr);
@@ -55,15 +54,15 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
 
   useEffect(() => {
     if (!data) return;
-    const totalRevenue = data.reduce((accumulator, current) => {
-      return accumulator + current.totalFunds;
-    }, 0);
-    setTotalRevenue(totalRevenue);
+    const total = data.reduce((acc, cur) => acc + cur.totalFunds, 0);
+    setTotalRevenue(total);
   }, [data]);
 
   return (
     <Box py={{ base: 6, md: 8 }} px={{ base: 4, md: 6 }} overflow="hidden" maxW="100%">
       <VStack align="stretch" gap={6}>
+
+        {/* ── ヘッダー ── */}
         <Flex
           direction={{ base: "column", md: "row" }}
           justify="space-between"
@@ -152,102 +151,112 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
           )}
         </Flex>
 
+        {/* ── Row 1: グラフ横並び（PC）/ 縦並び（mobile） ── */}
         <Grid
-          templateColumns={{ base: "1fr", md: "3fr 2fr" }}
+          templateColumns={{
+            base: "1fr",
+            md: valiant === "manyStore" ? "1fr 1fr" : "1fr",
+          }}
           gap={6}
           alignItems="start"
         >
-          {/* 左列：集金総額カード＋チャート（PC時 sticky） */}
-          <GridItem
-            minW={0}
-            position={{ base: "static", md: "sticky" }}
-            top="64px"
-            alignSelf="start"
-          >
-            <VStack align="stretch" gap={6}>
-              {/* 集金総額＋期間スライダー＋チャートカード */}
-              <Card.Root
-                bg="var(--card-bg, #FFFFFF)"
-                border="1px solid"
-                borderColor="cyan.100"
-                boxShadow="var(--shadow-sm)"
-                borderRadius="xl"
-              >
-                <Card.Body p={{ base: 4, md: 6 }}>
-                  <VStack align="stretch" gap={4}>
-                    {/* 集金総額 */}
-                    <VStack align="stretch" gap={2}>
-                      <HStack justify="space-between" align="center">
-                        <Text
-                          fontSize="xs"
-                          fontWeight="semibold"
-                          color="var(--text-muted)"
-                          textTransform="uppercase"
-                          letterSpacing="widest"
-                        >
-                          集金総額
-                        </Text>
-                        <PeriodFilterButton />
-                      </HStack>
+          {/* 月別グラフカード（集金総額 + 期間フィルタ + チャート） */}
+          <GridItem minW={0}>
+            <Card.Root
+              bg="var(--card-bg, #FFFFFF)"
+              border="1px solid"
+              borderColor="cyan.100"
+              boxShadow="var(--shadow-sm)"
+              borderRadius="xl"
+            >
+              <Card.Body p={{ base: 4, md: 6 }}>
+                <VStack align="stretch" gap={4}>
+                  <VStack align="stretch" gap={2}>
+                    <HStack justify="space-between" align="center">
+                      <Text
+                        fontSize="xs"
+                        fontWeight="semibold"
+                        color="var(--text-muted)"
+                        textTransform="uppercase"
+                        letterSpacing="widest"
+                      >
+                        集金総額
+                      </Text>
+                      <PeriodFilterButton />
+                    </HStack>
 
-                      <HStack align="baseline" gap={1}>
+                    <HStack align="baseline" gap={1}>
+                      <Text
+                        fontSize={{ base: "lg", md: "xl" }}
+                        fontWeight="semibold"
+                        color="var(--text-muted)"
+                      >
+                        ¥
+                      </Text>
+                      {totalRevenue !== null ? (
                         <Text
-                          fontSize={{ base: "lg", md: "xl" }}
-                          fontWeight="semibold"
-                          color="var(--text-muted)"
+                          fontSize={{ base: "4xl", md: "5xl" }}
+                          fontWeight="black"
+                          lineHeight="1"
+                          letterSpacing="tight"
                         >
-                          ¥
+                          {totalRevenue.toLocaleString()}
                         </Text>
-                        {totalRevenue !== null ? (
-                          <Text
-                            fontSize={{ base: "4xl", md: "5xl" }}
-                            fontWeight="black"
-                            lineHeight="1"
-                            letterSpacing="tight"
-                          >
-                            {totalRevenue.toLocaleString()}
-                          </Text>
-                        ) : (
-                          <Skeleton height="10" width="40%" borderRadius="lg" />
-                        )}
-                        <Text
-                          fontSize={{ base: "md", md: "lg" }}
-                          fontWeight="medium"
-                          color="var(--text-muted)"
-                          alignSelf="flex-end"
-                          pb={0.5}
-                        >
-                          円
+                      ) : (
+                        <Skeleton height="10" width="40%" borderRadius="lg" />
+                      )}
+                      <Text
+                        fontSize={{ base: "md", md: "lg" }}
+                        fontWeight="medium"
+                        color="var(--text-muted)"
+                        alignSelf="flex-end"
+                        pb={0.5}
+                      >
+                        円
+                      </Text>
+                      {data && (
+                        <Text fontSize="xs" color="var(--text-muted)" alignSelf="flex-end" pb={1}>
+                          累計{" "}
+                          <Text as="span" fontWeight="bold" color="var(--text-main)">
+                            {data.length}
+                          </Text>{" "}
+                          回
                         </Text>
-                        {data && (
-                          <Text fontSize="xs" color="var(--text-muted)" alignSelf="flex-end" pb={1}>
-                            累計{" "}
-                            <Text as="span" fontWeight="bold" color="var(--text-main)">
-                              {data.length}
-                            </Text>{" "}
-                            回
-                          </Text>
-                        )}
-                      </HStack>
+                      )}
+                    </HStack>
 
-                      <PeriodNav />
-                    </VStack>
-
-                    {valiant === "aStore" && <MonoCoinDataChart id={coinLaundry.id} myRole={myRole} />}
-                    {valiant === "manyStore" && <ManyCoinDataChart />}
+                    <PeriodNav />
                   </VStack>
-                </Card.Body>
-              </Card.Root>
 
-              <MonthlySummaryCard
-                storeId={valiant === "aStore" ? coinLaundry.id : null}
-              />
-
-              {valiant === "manyStore" && <StoreRevenueChart />}
-            </VStack>
+                  {valiant === "aStore" && <MonoCoinDataChart id={coinLaundry.id} myRole={myRole} />}
+                  {valiant === "manyStore" && <ManyCoinDataChart />}
+                </VStack>
+              </Card.Body>
+            </Card.Root>
           </GridItem>
 
-          {/* 右列：売上履歴（スクロール） */}
+          {/* 店舗別グラフ（manyStore のみ） */}
+          {valiant === "manyStore" && (
+            <GridItem minW={0}>
+              <StoreRevenueChart />
+            </GridItem>
+          )}
+        </Grid>
+
+        {/* ── Row 2: 月次サマリー | 売上履歴 ── */}
+        <Grid
+          templateColumns={{ base: "1fr", md: "1fr 1fr" }}
+          gap={6}
+          alignItems="start"
+        >
+          {/* 月次サマリー */}
+          <GridItem minW={0}>
+            <MonthlySummaryCard
+              storeId={valiant === "aStore" ? coinLaundry.id : null}
+            />
+          </GridItem>
+
+          {/* 売上履歴 */}
           <GridItem minW={0}>
             <VStack align="stretch" gap={4}>
               <HStack wrap="wrap" gap={2}>
@@ -354,6 +363,7 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
             </VStack>
           </GridItem>
         </Grid>
+
       </VStack>
     </Box>
   );
