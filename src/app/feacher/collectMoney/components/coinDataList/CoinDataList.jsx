@@ -32,6 +32,7 @@ import OrderSelecter from "./parts/OrderSelecter";
 import DataClipBoard from "./parts/DataClipBoard";
 import SegmentedPeriod from "./parts/SegmentedPeriod";
 import ChangeStores from "./parts/ChangeStore";
+import ExportCsvButton from "./parts/ExportCsvButton";
 import { createNowData } from "@/functions/makeDate/date";
 
 const MoneyDataList = ({ valiant, coinLaundry, myRole }) => {
@@ -77,7 +78,10 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole }) => {
               {valiant === "aStore" && `${coinLaundry.store}店`}
               {valiant === "manyStore" && `収益レポート`}
             </Heading>
-            <ChangeStores />
+            <HStack gap={2}>
+              <ExportCsvButton />
+              <ChangeStores />
+            </HStack>
           </HStack>
 
           {valiant === "aStore" && (

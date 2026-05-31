@@ -365,6 +365,31 @@ export async function getOrgCollectFundsPaginated(orderAmount, upOrder, from, to
   return { data };
 }
 
+// CSV エクスポート用：org 全体の集金データ全件（ページネーションなし）
+export async function getCollectFundsForExport(startEpoch, endEpoch) {
+  const { user } = await getUser();
+  if (!user) return { error: "ログインしてください" };
+
+  const storeIds = await getOrgStoreIds();
+  if (storeIds.length === 0) return { data: [] };
+
+  const supabase = createServiceClient();
+  let query = supabase
+    .from("collect_funds")
+    .select("date, totalFunds, laundryName, profiles!collect_funds_collecter_fkey(username)")
+    .in("laundryId", storeIds)
+    .order("date", { ascending: true })
+    .gt("date", startEpoch);
+
+  if (endEpoch !== null) {
+    query = query.lt("date", endEpoch);
+  }
+
+  const { data, error } = await query;
+  if (error) return { error: "集金データの取得に失敗しました" };
+  return { data };
+}
+
 // org 全体の当月集金合計（ホーム画面用）
 export async function getMonthFunds() {
   const storeIds = await getOrgStoreIds();
