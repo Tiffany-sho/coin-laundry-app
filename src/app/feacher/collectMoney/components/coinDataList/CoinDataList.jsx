@@ -34,7 +34,6 @@ import SegmentedPeriod from "./parts/SegmentedPeriod";
 import ChangeStores from "./parts/ChangeStore";
 import ExportPanel from "./parts/ExportPanel";
 import MonthlySummaryCard from "./parts/MonthlySummaryCard";
-import { createNowData } from "@/functions/makeDate/date";
 
 const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
   const { selectedItem, open, setOpen, data, isFundsArrayLoading } = useUploadPage();
@@ -132,12 +131,7 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
                         >
                           集金総額
                         </Text>
-                        {data && data.length > 0 && (
-                          <Text fontSize="xs" color="var(--text-muted)">
-                            {createNowData(data[0].date)} 〜{" "}
-                            {createNowData(data[data.length - 1].date)}
-                          </Text>
-                        )}
+                        <SegmentedPeriod />
                       </HStack>
 
                       <HStack align="baseline" gap={1}>
@@ -181,7 +175,6 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
                       </HStack>
                     </VStack>
 
-                    <SegmentedPeriod />
                     {valiant === "aStore" && <MonoCoinDataChart id={coinLaundry.id} myRole={myRole} />}
                     {valiant === "manyStore" && <ManyCoinDataChart />}
                   </VStack>
