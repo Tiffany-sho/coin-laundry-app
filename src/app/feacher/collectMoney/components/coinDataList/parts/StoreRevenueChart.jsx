@@ -142,7 +142,7 @@ export default function StoreRevenueChart() {
                 <YAxis
                   type="category"
                   dataKey="name"
-                  width={72}
+                  width={Math.max(80, Math.max(...stores.map((s) => s.name.length)) * 13 + 16)}
                   tick={{ fontSize: 12, fill: "#1E3A5F" }}
                   axisLine={false}
                   tickLine={false}
