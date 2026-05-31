@@ -12,7 +12,7 @@ function epochToLabel(epoch) {
   return createNowData(epoch);
 }
 
-export default function ExportCsvButton({ plan = "free" }) {
+export default function ExportCsvButton({ plan = "free", storeName = "全店舗" }) {
   const [loading, setLoading] = useState(false);
   const { startEpoch, endEpoch } = useUploadPage();
   const isPro = plan === "pro" || plan === "max";
@@ -64,9 +64,14 @@ export default function ExportCsvButton({ plan = "free" }) {
       <Box color="var(--teal, #0891B2)" display="flex">
         <Icon.LuFileText size={13} />
       </Box>
-      <Text fontSize="xs" color="var(--text-muted, #64748B)" whiteSpace="nowrap">
-        {epochToLabel(startEpoch)} 〜 {epochToLabel(endEpoch)}
-      </Text>
+      <Box>
+        <Text fontSize="xs" color="var(--text-muted, #64748B)" whiteSpace="nowrap">
+          {storeName}
+        </Text>
+        <Text fontSize="xs" color="var(--text-muted, #64748B)" whiteSpace="nowrap">
+          {epochToLabel(startEpoch)} 〜 {epochToLabel(endEpoch)}
+        </Text>
+      </Box>
       {isPro ? (
         <Tooltip content="CSVをダウンロード">
           <IconButton

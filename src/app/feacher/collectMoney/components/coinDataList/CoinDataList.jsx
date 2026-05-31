@@ -79,7 +79,10 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
               {valiant === "manyStore" && `収益レポート`}
             </Heading>
             <HStack gap={2}>
-              <ExportCsvButton plan={plan} />
+              <ExportCsvButton
+                plan={plan}
+                storeName={valiant === "aStore" ? `${coinLaundry.store}店` : "全店舗"}
+              />
               <ChangeStores />
             </HStack>
           </HStack>
