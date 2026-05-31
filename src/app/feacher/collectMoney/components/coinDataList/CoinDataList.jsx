@@ -32,7 +32,7 @@ import OrderSelecter from "./parts/OrderSelecter";
 import DataClipBoard from "./parts/DataClipBoard";
 import SegmentedPeriod from "./parts/SegmentedPeriod";
 import ChangeStores from "./parts/ChangeStore";
-import ExportCsvButton from "./parts/ExportCsvButton";
+import ExportPanel from "./parts/ExportPanel";
 import { createNowData } from "@/functions/makeDate/date";
 
 const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
@@ -78,13 +78,7 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
               {valiant === "aStore" && `${coinLaundry.store}店`}
               {valiant === "manyStore" && `収益レポート`}
             </Heading>
-            <HStack gap={2}>
-              <ExportCsvButton
-                plan={plan}
-                storeName={valiant === "aStore" ? `${coinLaundry.store}店` : "全店舗"}
-              />
-              <ChangeStores />
-            </HStack>
+            <ChangeStores />
           </HStack>
 
           {valiant === "aStore" && (
@@ -203,6 +197,11 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
                   </VStack>
                 </Card.Body>
               </Card.Root>
+
+              <ExportPanel
+                plan={plan}
+                storeId={valiant === "aStore" ? coinLaundry.id : null}
+              />
             </VStack>
           </GridItem>
 

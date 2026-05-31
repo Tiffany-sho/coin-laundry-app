@@ -366,22 +366,30 @@ export async function getOrgCollectFundsPaginated(orderAmount, upOrder, from, to
 }
 
 // CSV エクスポート用：org 全体の集金データ全件（ページネーションなし）
-export async function getCollectFundsForExport(startEpoch, endEpoch) {
+// filterStoreIds: 指定した場合、org store IDs との積集合で絞り込む（セキュリティ保証）
+export async function getCollectFundsForExport(startEpoch, endEpoch, filterStoreIds = null) {
   const { user } = await getUser();
   if (!user) return { error: "ログインしてください" };
 
-  const storeIds = await getOrgStoreIds();
-  if (storeIds.length === 0) return { data: [] };
+  const orgStoreIds = await getOrgStoreIds();
+  if (orgStoreIds.length === 0) return { data: [] };
+
+  const effectiveStoreIds = filterStoreIds
+    ? orgStoreIds.filter((id) => filterStoreIds.includes(id))
+    : orgStoreIds;
+  if (effectiveStoreIds.length === 0) return { data: [] };
 
   const supabase = createServiceClient();
   let query = supabase
     .from("collect_funds")
     .select("date, totalFunds, laundryName, fundsArray, profiles!collect_funds_collecter_fkey(username)")
-    .in("laundryId", storeIds)
-    .order("date", { ascending: true })
-    .gt("date", startEpoch);
+    .in("laundryId", effectiveStoreIds)
+    .order("date", { ascending: true });
 
-  if (endEpoch !== null) {
+  if (startEpoch !== null && startEpoch !== undefined) {
+    query = query.gt("date", startEpoch);
+  }
+  if (endEpoch !== null && endEpoch !== undefined) {
     query = query.lt("date", endEpoch);
   }
 

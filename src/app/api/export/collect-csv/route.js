@@ -6,9 +6,9 @@ const EPOCH_OFFSET = 32400000;
 
 function epochToDateStr(epoch) {
   const d = new Date(epoch + EPOCH_OFFSET);
-  const year = d.getFullYear();
-  const month = d.getMonth() + 1;
-  const day = d.getDate();
+  const year = d.getUTCFullYear();
+  const month = d.getUTCMonth() + 1;
+  const day = d.getUTCDate();
   return `${year}年${month}月${day}日`;
 }
 
@@ -26,16 +26,23 @@ export async function POST(request) {
     return NextResponse.json({ error: "プラン情報を取得できませんでした" }, { status: 401 });
   }
   if (planInfo.plan === "free") {
-    return NextResponse.json({ error: "CSVエクスポートはProプラン以上でご利用いただけます" }, { status: 403 });
+    return NextResponse.json(
+      { error: "CSVエクスポートはProプラン以上でご利用いただけます" },
+      { status: 403 }
+    );
   }
 
-  const { startEpoch, endEpoch } = await request.json();
+  const { startEpoch, endEpoch, storeIds } = await request.json();
 
-  const { data, error } = await getCollectFundsForExport(startEpoch, endEpoch ?? null);
+  const { data, error } = await getCollectFundsForExport(
+    startEpoch ?? null,
+    endEpoch ?? null,
+    storeIds ?? null
+  );
   if (error) return NextResponse.json({ error }, { status: 400 });
 
   const BOM = "﻿";
-  const header = "日付,店舗名,設備名,設備売上,合計金額,担当者\n";
+  const header = "日付,店舗名,設備名,合計,集金担当者\n";
   const rows = data
     .flatMap((row) => {
       const date = epochToDateStr(row.date);
@@ -47,10 +54,7 @@ export async function POST(request) {
       if (machines.length === 0) {
         return [`${date},${store},,,${total},${collector}`];
       }
-      return machines.map((m) => {
-        const machineAmount = (m.funds ?? 0) * 100;
-        return `${date},${store},${m.name},${machineAmount},${total},${collector}`;
-      });
+      return machines.map((m) => `${date},${store},${m.name ?? ""},${total},${collector}`);
     })
     .join("\n");
 
