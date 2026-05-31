@@ -5,7 +5,7 @@ import styles from "./Navber.module.css";
 import { Image } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 
-const Navbar = ({ user }) => {
+const Navbar = ({ user, hasOrg = true }) => {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
 
@@ -48,33 +48,41 @@ const Navbar = ({ user }) => {
         {/* PC用ナビゲーション */}
         <ul className={styles.navLinks}>
           {user ? (
-            <>
-              <li>
-                <Link href="/coinLaundry" className={styles.navItem}>
-                  <span>店舗</span>
-                </Link>
-              </li>
-              <li>
-                <Link href="/collectMoney" className={styles.navItem}>
-                  <span>収益</span>
-                </Link>
-              </li>
-              <li>
-                <Link href="/inventory" className={styles.navItem}>
-                  <span>在庫</span>
-                </Link>
-              </li>
-              <li>
-                <Link href="/equipment" className={styles.navItem}>
-                  <span>設備</span>
-                </Link>
-              </li>
+            hasOrg ? (
+              <>
+                <li>
+                  <Link href="/coinLaundry" className={styles.navItem}>
+                    <span>店舗</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/collectMoney" className={styles.navItem}>
+                    <span>収益</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/inventory" className={styles.navItem}>
+                    <span>在庫</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/equipment" className={styles.navItem}>
+                    <span>設備</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/settings" className={styles.navItem}>
+                    <span>設定</span>
+                  </Link>
+                </li>
+              </>
+            ) : (
               <li>
                 <Link href="/settings" className={styles.navItem}>
                   <span>設定</span>
                 </Link>
               </li>
-            </>
+            )
           ) : (
             <>
               <li>

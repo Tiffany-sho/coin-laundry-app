@@ -4,6 +4,7 @@ import { createClient } from "@/utils/supabase/server";
 import { createServiceClient } from "@/utils/supabase/service";
 import { getUser } from "../user/action";
 import { PLAN_LIMITS } from "@/functions/plans";
+import { Resend } from "resend";
 
 export async function getMyOrganization() {
   const { user } = await getUser();
@@ -307,6 +308,137 @@ export async function updateCollectSchedule(schedule) {
   if (error) return { error: "スケジュールの更新に失敗しました" };
   return {};
 }
+
+// ─── 参加パスワード ───────────────────────────────────────────
+
+export async function getOrgJoinPassword() {
+  const { user } = await getUser();
+  if (!user) return { error: "ログインしてください" };
+
+  const supabase = await createClient();
+  const { data: member, error: memberError } = await supabase
+    .from("organization_members")
+    .select("org_id, role")
+    .eq("user_id", user.id)
+    .single();
+
+  if (memberError || member.role !== "admin") return { error: "権限がありません" };
+
+  const serviceSupabase = createServiceClient();
+  const { data: org, error: orgError } = await serviceSupabase
+    .from("organizations")
+    .select("join_password")
+    .eq("id", member.org_id)
+    .single();
+
+  if (orgError) return { error: "取得に失敗しました" };
+  return { data: org.join_password ?? null };
+}
+
+export async function setOrgJoinPassword(password) {
+  const { user } = await getUser();
+  if (!user) return { error: "ログインしてください" };
+
+  const supabase = await createClient();
+  const { data: member, error: memberError } = await supabase
+    .from("organization_members")
+    .select("org_id, role")
+    .eq("user_id", user.id)
+    .single();
+
+  if (memberError || member.role !== "admin") return { error: "権限がありません" };
+
+  const value = password && password.trim() !== "" ? password.trim() : null;
+
+  const serviceSupabase = createServiceClient();
+  const { error } = await serviceSupabase
+    .from("organizations")
+    .update({ join_password: value })
+    .eq("id", member.org_id);
+
+  if (error) return { error: "更新に失敗しました" };
+  return {};
+}
+
+export async function requestJoinOrg(adminEmail, joinPassword) {
+  const { user } = await getUser();
+  if (!user) return { error: "ログインしてください" };
+
+  const supabase = await createClient();
+
+  // すでに組織に所属していないか確認
+  const { data: existing } = await supabase
+    .from("organization_members")
+    .select("org_id")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (existing) return { error: "すでに組織に所属しています" };
+
+  const serviceSupabase = createServiceClient();
+
+  // 管理者メールアドレスからユーザーを探す
+  const { data: usersData, error: listError } = await serviceSupabase.auth.admin.listUsers({ page: 1, perPage: 1000 });
+  if (listError) return { error: "ユーザーの検索に失敗しました" };
+
+  const adminAuthUser = usersData?.users?.find((u) => u.email === adminEmail);
+  if (!adminAuthUser) return { error: "メールアドレスまたはパスワードが正しくありません" };
+
+  // 管理者の組織と参加パスワードを確認
+  const { data: membership, error: memberError } = await serviceSupabase
+    .from("organization_members")
+    .select("org_id, organizations!inner(id, name, join_password)")
+    .eq("user_id", adminAuthUser.id)
+    .eq("role", "admin")
+    .single();
+
+  if (memberError || !membership) return { error: "メールアドレスまたはパスワードが正しくありません" };
+
+  const org = membership.organizations;
+  if (!org.join_password || org.join_password !== joinPassword) {
+    return { error: "メールアドレスまたはパスワードが正しくありません" };
+  }
+
+  // 組織に集金担当者として追加
+  const { error: addError } = await serviceSupabase
+    .from("organization_members")
+    .insert({ org_id: org.id, user_id: user.id, role: "collecter" });
+
+  if (addError) return { error: "組織への参加に失敗しました。すでにメンバーの可能性があります。" };
+
+  // 管理者にメール通知
+  try {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("username, full_name")
+      .eq("id", user.id)
+      .single();
+    const displayName = profile?.full_name || profile?.username || user.email;
+
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    await resend.emails.send({
+      from: "Collecie <noreply@collecie.com>",
+      to: adminEmail,
+      subject: `【Collecie】${displayName} さんが ${org.name} に参加しました`,
+      html: `
+        <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; background: #f9fafb; border-radius: 12px;">
+          <h1 style="font-size: 20px; font-weight: bold; color: #1a202c; margin-bottom: 8px;">新しいメンバーが参加しました</h1>
+          <p style="color: #4a5568; margin-bottom: 16px;">
+            <strong>${displayName}</strong> さんが <strong>${org.name}</strong> に集金担当者として参加しました。
+          </p>
+          <p style="font-size: 13px; color: #a0aec0; margin-top: 24px;">
+            Collecie の設定ページからロールの変更や管理ができます。
+          </p>
+        </div>
+      `,
+    });
+  } catch (_) {
+    // メール失敗は参加成功をブロックしない
+  }
+
+  return {};
+}
+
+// ─────────────────────────────────────────────────────────────
 
 export async function getOrgPlan() {
   const { user } = await getUser();

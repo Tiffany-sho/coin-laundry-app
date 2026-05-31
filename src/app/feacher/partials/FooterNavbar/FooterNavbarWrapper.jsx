@@ -1,14 +1,13 @@
 import { getUser } from "@/app/api/supabaseFunctions/supabaseDatabase/user/action";
+import { getOrgMembership } from "@/utils/orgGuard";
 import FooterNavbar from "./FooterNavber";
 
 const FooterNavbarWrapper = async () => {
   const { user } = await getUser();
+  if (!user) return null;
 
-  if (!user) {
-    return;
-  }
-
-  return <FooterNavbar />;
+  const { hasOrg } = await getOrgMembership();
+  return <FooterNavbar hasOrg={hasOrg} />;
 };
 
 export default FooterNavbarWrapper;

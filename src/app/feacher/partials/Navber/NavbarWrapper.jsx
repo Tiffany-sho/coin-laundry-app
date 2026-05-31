@@ -1,15 +1,13 @@
-import { createClient } from "@/utils/supabase/server";
 import Navbar from "./Navbar";
 import { getUser } from "@/app/api/supabaseFunctions/supabaseDatabase/user/action";
+import { getOrgMembership } from "@/utils/orgGuard";
 
 const NavbarWrapper = async () => {
   const { user, authError } = await getUser();
+  if (authError) return null;
 
-  if (authError) {
-    return;
-  }
-
-  return <Navbar user={user} />;
+  const { hasOrg } = user ? await getOrgMembership() : { hasOrg: false };
+  return <Navbar user={user} hasOrg={hasOrg} />;
 };
 
 export default NavbarWrapper;

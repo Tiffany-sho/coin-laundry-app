@@ -6,7 +6,7 @@ import * as Icon from "@/app/feacher/Icon";
 import styles from "./FooterNavber.module.css";
 import { useEffect, useState } from "react";
 
-const NAV_ITEMS = [
+const ALL_NAV_ITEMS = [
   { href: "/",             icon: <Icon.IoHomeOutline />,                label: "ホーム" },
   { href: "/coinLaundry",  icon: <Icon.MdOutlineLocalLaundryService />, label: "店舗" },
   { href: "/collectMoney", icon: <Icon.BiCoinStack />,                  label: "収益" },
@@ -14,7 +14,13 @@ const NAV_ITEMS = [
   { href: "/settings",     icon: <Icon.LuSettings />,                   label: "設定" },
 ];
 
-const FooterNavbar = () => {
+const RESTRICTED_NAV_ITEMS = [
+  { href: "/",         icon: <Icon.IoHomeOutline />, label: "ホーム" },
+  { href: "/settings", icon: <Icon.LuSettings />,    label: "設定" },
+];
+
+const FooterNavbar = ({ hasOrg = true }) => {
+  const NAV_ITEMS = hasOrg ? ALL_NAV_ITEMS : RESTRICTED_NAV_ITEMS;
   const pathname = usePathname();
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);

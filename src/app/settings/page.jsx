@@ -11,6 +11,9 @@ import OtherActionsCard from "@/app/feacher/settings/components/OtherActionsCard
 import PlanCard from "@/app/feacher/settings/components/PlanCard";
 import CheckoutSuccessBanner from "@/app/feacher/settings/components/CheckoutSuccessBanner";
 import CollectScheduleDisplay from "@/app/feacher/settings/components/CollectScheduleDisplay";
+import JoinOrgForm from "@/app/feacher/settings/components/JoinOrgForm";
+import OrgJoinPasswordCard from "@/app/feacher/settings/components/OrgJoinPasswordCard";
+import { getOrgJoinPassword } from "@/app/api/supabaseFunctions/supabaseDatabase/organization/action";
 import * as Icon from "@/app/feacher/Icon";
 
 export default async function SettingsPage({ searchParams }) {
@@ -25,6 +28,12 @@ export default async function SettingsPage({ searchParams }) {
     getCollectSchedule(),
   ]);
 
+  const hasOrg = !!org?.id;
+  const isAdmin = org?.myRole === "admin";
+
+  // 管理者のみ join_password を取得
+  const { data: joinPassword } = isAdmin ? await getOrgJoinPassword() : { data: null };
+
   return (
     <Box maxW="600px" mx="auto" p={{ base: 4, md: 8 }}>
       <HStack gap={3} mb={6}>
@@ -37,9 +46,16 @@ export default async function SettingsPage({ searchParams }) {
       <VStack align="stretch" gap={4}>
         {checkoutSuccess && <CheckoutSuccessBanner />}
         <AccountInfoCard user={user} profile={profile} myRole={org?.myRole} plan={planInfo?.plan} />
-        {org?.myRole === "admin" && <OrgInfoCard org={org} />}
-        {org?.myRole === "admin" && planInfo && <PlanCard planInfo={planInfo} />}
-        {org?.myRole === "admin" && <CollectScheduleDisplay schedule={schedule} />}
+
+        {/* 組織未所属ユーザー向け参加フォーム */}
+        {!hasOrg && <JoinOrgForm />}
+
+        {/* 管理者向け組織管理 */}
+        {isAdmin && <OrgInfoCard org={org} />}
+        {isAdmin && planInfo && <PlanCard planInfo={planInfo} />}
+        {isAdmin && <CollectScheduleDisplay schedule={schedule} />}
+        {isAdmin && <OrgJoinPasswordCard currentPassword={joinPassword} />}
+
         <AppSettingsCard collectMethod={profile?.collectMethod} />
         <OtherActionsCard />
       </VStack>

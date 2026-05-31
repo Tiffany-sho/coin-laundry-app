@@ -1,7 +1,8 @@
+export const dynamic = "force-dynamic";
+import { requireOrg } from "@/utils/orgGuard";
 import { UploadPageProvider } from "@/app/feacher/collectMoney/context/UploadPageContext";
 
-const layout = ({ children }) => {
+export default async function CollectMoneyLayout({ children }) {
+  await requireOrg();
   return <UploadPageProvider>{children}</UploadPageProvider>;
-};
-
-export default layout;
+}
