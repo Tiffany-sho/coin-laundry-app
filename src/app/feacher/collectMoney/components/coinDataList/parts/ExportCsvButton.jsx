@@ -2,14 +2,14 @@
 
 import { useState } from "react";
 import {
-  Button,
-  Dialog,
-  Portal,
-  CloseButton,
+  Box,
   HStack,
   VStack,
-  Box,
   Text,
+  IconButton,
+  Popover,
+  Portal,
+  Separator,
 } from "@chakra-ui/react";
 import { Tooltip } from "@/components/ui/tooltip";
 import * as Icon from "@/app/feacher/Icon";
@@ -21,11 +21,25 @@ function epochToLabel(epoch) {
   return createNowData(epoch);
 }
 
+function FilterRow({ icon, label, value }) {
+  return (
+    <HStack gap={3} align="center">
+      <Box color="var(--teal, #0891B2)" flexShrink={0}>
+        {icon}
+      </Box>
+      <Text fontSize="xs" color="var(--text-muted, #64748B)" flexShrink={0}>
+        {label}
+      </Text>
+      <Text fontSize="sm" fontWeight="semibold" color="var(--text-main, #1E3A5F)">
+        {value}
+      </Text>
+    </HStack>
+  );
+}
+
 export default function ExportCsvButton({ plan = "free" }) {
-  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const { startEpoch, endEpoch } = useUploadPage();
-
   const isPro = plan === "pro" || plan === "max";
 
   const handleDownload = async () => {
@@ -36,13 +50,11 @@ export default function ExportCsvButton({ plan = "free" }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ startEpoch, endEpoch }),
       });
-
       if (!res.ok) {
         const { error } = await res.json();
         alert(`エラー: ${error ?? "エクスポートに失敗しました"}`);
         return;
       }
-
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -54,7 +66,6 @@ export default function ExportCsvButton({ plan = "free" }) {
       a.download = `collecie_${y}${m}${d}.csv`;
       a.click();
       URL.revokeObjectURL(url);
-      setOpen(false);
     } catch {
       alert("通信エラーが発生しました");
     } finally {
@@ -65,159 +76,111 @@ export default function ExportCsvButton({ plan = "free" }) {
   if (!isPro) {
     return (
       <Tooltip content="ProプランにアップグレードするとCSVエクスポートが利用できます">
-        <Button
+        <IconButton
           size="sm"
           variant="outline"
           colorPalette="gray"
           borderRadius="full"
           disabled
           opacity={0.5}
-          cursor="not-allowed"
+          aria-label="CSVエクスポート"
         >
           <Icon.LuFileText />
-          CSV
-        </Button>
+        </IconButton>
       </Tooltip>
     );
   }
 
   return (
-    <Dialog.Root
-      open={open}
-      onOpenChange={(e) => setOpen(e.open)}
-      placement="center"
-      motionPreset="slide-in-bottom"
-    >
-      <Dialog.Trigger asChild>
-        <Button
+    <Popover.Root modal={false}>
+      <Popover.Trigger asChild>
+        <IconButton
           size="sm"
           variant="outline"
           colorPalette="cyan"
           borderRadius="full"
+          aria-label="CSVエクスポート"
         >
           <Icon.LuFileText />
-          CSV
-        </Button>
-      </Dialog.Trigger>
+        </IconButton>
+      </Popover.Trigger>
 
       <Portal>
-        <Dialog.Backdrop bg="blackAlpha.600" backdropFilter="blur(4px)" />
-        <Dialog.Positioner>
-          <Dialog.Content
+        <Popover.Positioner>
+          <Popover.Content
             bg="var(--card-bg, #FFFFFF)"
-            borderRadius="20px"
-            boxShadow="0 12px 40px rgba(14,116,144,0.18)"
-            maxW="400px"
-            w="calc(100vw - 32px)"
+            borderRadius="xl"
+            boxShadow="var(--shadow-hero)"
+            border="1px solid"
+            borderColor="cyan.100"
+            w="260px"
+            p={0}
+            overflow="hidden"
           >
-            <Dialog.Header
+            {/* ヘッダー */}
+            <Box
+              px={4}
+              py={3}
               style={{ background: "linear-gradient(135deg, #0891B2 0%, #0E7490 100%)" }}
-              color="white"
-              py={4}
-              px={5}
-              borderRadius="20px 20px 0 0"
             >
-              <HStack gap={2}>
-                <Icon.LuFileText size={18} />
-                <Dialog.Title fontSize="lg" fontWeight="bold">
-                  CSVエクスポートの確認
-                </Dialog.Title>
+              <HStack justify="space-between" align="center">
+                <HStack gap={2} color="white">
+                  <Icon.LuFileText size={14} />
+                  <Text fontSize="sm" fontWeight="bold" color="white">
+                    CSVエクスポート
+                  </Text>
+                </HStack>
+                <Popover.CloseTrigger asChild>
+                  <Box color="white" cursor="pointer" opacity={0.8} _hover={{ opacity: 1 }} fontSize="lg" lineHeight={1}>
+                    ×
+                  </Box>
+                </Popover.CloseTrigger>
               </HStack>
-            </Dialog.Header>
+            </Box>
 
-            <Dialog.Body p={5}>
-              <VStack align="stretch" gap={3}>
-                <Text fontSize="sm" color="var(--text-muted, #64748B)">
-                  以下の条件でエクスポートします。
-                </Text>
-                <Box
-                  p={4}
-                  bg="var(--app-bg, #F0F9FF)"
-                  borderRadius="xl"
-                  border="1px solid"
-                  borderColor="cyan.100"
-                >
-                  <VStack align="stretch" gap={2}>
-                    <HStack gap={2}>
-                      <Box color="var(--teal, #0891B2)">
-                        <Icon.LuCalendar size={14} />
-                      </Box>
-                      <Text
-                        fontSize="xs"
-                        fontWeight="semibold"
-                        color="var(--text-muted, #64748B)"
-                        textTransform="uppercase"
-                        letterSpacing="wide"
-                      >
-                        対象期間
-                      </Text>
-                    </HStack>
-                    <Text fontSize="md" fontWeight="bold" color="var(--text-main, #1E3A5F)" pl={5}>
-                      {epochToLabel(startEpoch)} 〜 {epochToLabel(endEpoch)}
-                    </Text>
-                  </VStack>
-                </Box>
-                <Text fontSize="xs" color="var(--text-faint, #94A3B8)">
-                  ※ 期間は画面上の絞り込みと連動しています
-                </Text>
-              </VStack>
-            </Dialog.Body>
-
-            <Dialog.Footer
-              py={4}
-              px={5}
-              bg="var(--app-bg, #F0F9FF)"
-              borderTop="1px solid"
-              borderColor="var(--divider, #F1F5F9)"
-              gap={3}
-              justifyContent="flex-end"
-              borderRadius="0 0 20px 20px"
-            >
-              <Dialog.ActionTrigger asChild>
-                <Button
-                  variant="outline"
-                  bg="var(--card-bg, #FFFFFF)"
-                  color="var(--text-muted, #64748B)"
-                  borderRadius="lg"
-                  fontWeight="semibold"
-                  px={5}
-                  disabled={loading}
-                  _hover={{ bg: "gray.50", borderColor: "cyan.200" }}
-                >
-                  キャンセル
-                </Button>
-              </Dialog.ActionTrigger>
-              <Button
-                onClick={handleDownload}
-                fontWeight="semibold"
+            {/* フィルター条件 */}
+            <VStack align="stretch" gap={3} px={4} py={4}>
+              <Text fontSize="xs" fontWeight="semibold" color="var(--text-muted, #64748B)" textTransform="uppercase" letterSpacing="wide">
+                絞り込み条件
+              </Text>
+              <Box
+                p={3}
+                bg="var(--app-bg, #F0F9FF)"
                 borderRadius="lg"
-                px={6}
-                color="white"
-                style={{ background: "linear-gradient(135deg, #0891B2 0%, #0E7490 100%)" }}
-                boxShadow="0 4px 14px rgba(8,145,178,0.28)"
-                _hover={{ transform: "translateY(-1px)", boxShadow: "0 6px 18px rgba(8,145,178,0.36)" }}
-                transition="all 0.2s"
-                loading={loading}
-                loadingText="出力中..."
+                border="1px solid"
+                borderColor="cyan.100"
               >
-                ダウンロード
-              </Button>
-            </Dialog.Footer>
+                <FilterRow
+                  icon={<Icon.LuCalendar size={13} />}
+                  label="期間"
+                  value={`${epochToLabel(startEpoch)} 〜 ${epochToLabel(endEpoch)}`}
+                />
+              </Box>
 
-            <Dialog.CloseTrigger asChild>
-              <CloseButton
-                size="sm"
-                position="absolute"
-                top={4}
-                right={4}
-                color="white"
-                disabled={loading}
-                _hover={{ bg: "whiteAlpha.300" }}
-              />
-            </Dialog.CloseTrigger>
-          </Dialog.Content>
-        </Dialog.Positioner>
+              <Separator borderColor="var(--divider, #F1F5F9)" />
+
+              {/* ダウンロードボタン */}
+              <HStack justify="flex-end">
+                <Tooltip content="CSVをダウンロード">
+                  <IconButton
+                    size="md"
+                    colorPalette="cyan"
+                    borderRadius="full"
+                    onClick={handleDownload}
+                    loading={loading}
+                    aria-label="CSVをダウンロード"
+                    boxShadow="0 4px 14px rgba(8,145,178,0.28)"
+                    _hover={{ transform: "translateY(-1px)", boxShadow: "0 6px 18px rgba(8,145,178,0.36)" }}
+                    transition="all 0.2s"
+                  >
+                    <Icon.LuDownload />
+                  </IconButton>
+                </Tooltip>
+              </HStack>
+            </VStack>
+          </Popover.Content>
+        </Popover.Positioner>
       </Portal>
-    </Dialog.Root>
+    </Popover.Root>
   );
 }
