@@ -28,6 +28,20 @@ function dateToEpoch(dateStr) {
   return new Date(dateStr + "T00:00:00").getTime();
 }
 
+function toDateInputValue(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function defaultDateRange() {
+  const end = new Date();
+  const start = new Date(end);
+  start.setMonth(start.getMonth() - 1);
+  return { start: toDateInputValue(start), end: toDateInputValue(end) };
+}
+
 // グループ内の全設備名を列として横展開し、1集金履歴 = 1行に変換する
 function recordsToCsv(records) {
   // グループ内に登場する全設備名を出現順で収集
@@ -96,8 +110,9 @@ const dateInputStyle = {
 
 export default function ExportPanel({ plan = "free", storeId = null }) {
   const [splitMethod, setSplitMethod] = useState("period"); // "period" | "store"
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const { start: defaultStart, end: defaultEnd } = defaultDateRange();
+  const [startDate, setStartDate] = useState(defaultStart);
+  const [endDate, setEndDate] = useState(defaultEnd);
   const [stores, setStores] = useState([]);
   const [selectedStoreIds, setSelectedStoreIds] = useState([]);
   const [loading, setLoading] = useState(false);
