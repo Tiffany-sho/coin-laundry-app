@@ -121,18 +121,15 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
                   <VStack align="stretch" gap={4}>
                     {/* 集金総額 */}
                     <VStack align="stretch" gap={2}>
-                      <HStack justify="space-between" align="center">
-                        <Text
-                          fontSize="xs"
-                          fontWeight="semibold"
-                          color="var(--text-muted)"
-                          textTransform="uppercase"
-                          letterSpacing="widest"
-                        >
-                          集金総額
-                        </Text>
-                        <SegmentedPeriod />
-                      </HStack>
+                      <Text
+                        fontSize="xs"
+                        fontWeight="semibold"
+                        color="var(--text-muted)"
+                        textTransform="uppercase"
+                        letterSpacing="widest"
+                      >
+                        集金総額
+                      </Text>
 
                       <HStack align="baseline" gap={1}>
                         <Text
@@ -173,6 +170,8 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
                           </Text>
                         )}
                       </HStack>
+
+                      <SegmentedPeriod />
                     </VStack>
 
                     {valiant === "aStore" && <MonoCoinDataChart id={coinLaundry.id} myRole={myRole} />}
