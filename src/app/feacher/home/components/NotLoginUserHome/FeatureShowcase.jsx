@@ -17,6 +17,7 @@ const features = [
     alt: "集金入力画面",
     imgW: 694,
     imgH: 1361,
+    blobColor: "radial-gradient(circle, rgba(8,145,178,0.18) 0%, rgba(6,182,212,0.08) 60%, transparent 100%)",
     reverse: false,
   },
   {
@@ -33,6 +34,7 @@ const features = [
     alt: "在庫管理画面",
     imgW: 704,
     imgH: 1524,
+    blobColor: "radial-gradient(circle, rgba(14,116,144,0.16) 0%, rgba(8,145,178,0.06) 60%, transparent 100%)",
     reverse: true,
   },
   {
@@ -49,6 +51,7 @@ const features = [
     alt: "設備管理画面",
     imgW: 704,
     imgH: 1524,
+    blobColor: "radial-gradient(circle, rgba(8,145,178,0.18) 0%, rgba(6,182,212,0.08) 60%, transparent 100%)",
     reverse: false,
   },
   {
@@ -66,11 +69,12 @@ const features = [
     alt: "月別売上画面",
     imgW: 704,
     imgH: 1524,
+    blobColor: "radial-gradient(circle, rgba(14,116,144,0.16) 0%, rgba(8,145,178,0.06) 60%, transparent 100%)",
     reverse: true,
   },
 ];
 
-const FeatureRow = ({ tag, title, description, points, src, alt, imgW, imgH, reverse }) => (
+const FeatureRow = ({ tag, title, description, points, src, alt, imgW, imgH, blobColor, reverse }) => (
   <Flex
     direction={{ base: "column", md: reverse ? "row-reverse" : "row" }}
     gap={{ base: 8, md: 14 }}
@@ -121,21 +125,43 @@ const FeatureRow = ({ tag, title, description, points, src, alt, imgW, imgH, rev
       </VStack>
     </VStack>
 
-    {/* スクリーンショット */}
+    {/* スクリーンショット＋背景ブロブ */}
     <Box
       flex={1}
       minW={0}
       maxW={{ base: "260px", md: "300px" }}
       mx={{ base: "auto", md: 0 }}
-      filter="drop-shadow(0 24px 56px rgba(0,0,0,0.28))"
+      position="relative"
     >
-      <Image
-        src={src}
-        alt={alt}
-        width={imgW}
-        height={imgH}
-        style={{ width: "100%", height: "auto", display: "block" }}
+      {/* 背景ブロブ（円形グラデーション） */}
+      <Box
+        position="absolute"
+        top="50%"
+        left="50%"
+        style={{
+          transform: "translate(-50%, -50%)",
+          background: blobColor,
+          width: "140%",
+          height: "140%",
+          borderRadius: "50%",
+          zIndex: 0,
+          pointerEvents: "none",
+        }}
       />
+      {/* 画像本体 */}
+      <Box
+        position="relative"
+        zIndex={1}
+        filter="drop-shadow(0 24px 56px rgba(0,0,0,0.26))"
+      >
+        <Image
+          src={src}
+          alt={alt}
+          width={imgW}
+          height={imgH}
+          style={{ width: "100%", height: "auto", display: "block" }}
+        />
+      </Box>
     </Box>
   </Flex>
 );

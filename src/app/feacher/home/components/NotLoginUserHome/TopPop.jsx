@@ -120,12 +120,46 @@ const TopPop = () => {
             position="relative"
             style={{ animation: "fadeSlideUp 0.8s ease both 0.25s" }}
           >
-            {/* PC 収益レポート画面 */}
+            {/* PC 収益レポート画面（ブラウザウィンドウ風フレーム付き） */}
             <Box
               borderRadius="2xl"
               overflow="hidden"
               boxShadow="0 24px 64px rgba(0,0,0,0.45)"
             >
+              {/* ブラウザツールバー */}
+              <Box
+                bg="#1a2332"
+                px={4}
+                py="10px"
+                display="flex"
+                alignItems="center"
+                gap={3}
+              >
+                {/* トラフィックライトドット */}
+                <Box display="flex" gap="6px" flexShrink={0}>
+                  <Box w="10px" h="10px" borderRadius="full" bg="#FF5F57" />
+                  <Box w="10px" h="10px" borderRadius="full" bg="#FFBD2E" />
+                  <Box w="10px" h="10px" borderRadius="full" bg="#28CA42" />
+                </Box>
+                {/* URL バー */}
+                <Box
+                  flex={1}
+                  bg="rgba(255,255,255,0.1)"
+                  borderRadius="md"
+                  py="3px"
+                  px={3}
+                >
+                  <Text
+                    fontSize="11px"
+                    color="rgba(255,255,255,0.55)"
+                    fontFamily="monospace"
+                    lineHeight="1.6"
+                  >
+                    collecie.com
+                  </Text>
+                </Box>
+              </Box>
+              {/* スクリーンショット本体 */}
               <Image
                 src="/screenshots/revenue-report-pc.png"
                 alt="Collecie 収益レポート画面"
