@@ -1,4 +1,6 @@
-import { Button, HStack, RadioCard, Stack, VStack } from "@chakra-ui/react";
+"use client";
+
+import { Button, HStack, RadioCard, Stack, VStack, Text } from "@chakra-ui/react";
 import { useUploadProfiles } from "../context/UploadProfilesContext";
 
 const items = [
@@ -19,40 +21,27 @@ const AuthorityChoose = () => {
 
   return (
     <VStack align="stretch" gap={6} w="full">
-      <RadioCard.Root
-        value={role}
-        onValueChange={(e) => setRole(e.value)}
-        size="lg"
-      >
-        <RadioCard.Label
-          fontSize="lg"
-          fontWeight="semibold"
-          color="gray.800"
-          mb={4}
-        >
+      <RadioCard.Root value={role} onValueChange={(e) => setRole(e.value)} size="lg">
+        <RadioCard.Label fontSize="sm" fontWeight="semibold" color="var(--text-main)" mb={4}>
           あなたは店舗管理者ですか？
         </RadioCard.Label>
-        <Stack
-          justify="center"
-          gap={1}
-          flexDirection={{ base: "column", md: "row" }}
-        >
+        <Stack justify="center" gap={3} flexDirection={{ base: "column", md: "row" }}>
           {items.map((item) => (
             <RadioCard.Item
               key={item.value}
               value={item.value}
               display="flex"
-              p={1}
+              p={4}
               borderRadius="xl"
               border="2px solid"
-              borderColor={role === item.value ? "blue.500" : "gray.200"}
-              bg={role === item.value ? "blue.50" : "white"}
+              borderColor={role === item.value ? "cyan.400" : "var(--divider)"}
+              bg={role === item.value ? "cyan.50" : "white"}
               cursor="pointer"
               transition="all 0.2s"
               _hover={{
-                borderColor: role === item.value ? "blue.600" : "gray.300",
+                borderColor: role === item.value ? "cyan.500" : "cyan.200",
                 transform: "translateY(-2px)",
-                boxShadow: "md",
+                boxShadow: "var(--shadow-sm)",
               }}
             >
               <RadioCard.ItemHiddenInput />
@@ -61,79 +50,56 @@ const AuthorityChoose = () => {
                   <RadioCard.ItemText
                     fontSize="md"
                     fontWeight="bold"
-                    color={role === item.value ? "blue.900" : "gray.800"}
-                    mb={2}
+                    color={role === item.value ? "cyan.900" : "var(--text-main)"}
+                    mb={1}
                   >
                     {item.title}
                   </RadioCard.ItemText>
                   <RadioCard.ItemDescription
                     fontSize="sm"
-                    color={role === item.value ? "blue.700" : "gray.600"}
+                    color={role === item.value ? "cyan.700" : "var(--text-muted)"}
                     lineHeight="1.5"
                   >
                     {item.description}
                   </RadioCard.ItemDescription>
                 </RadioCard.ItemContent>
-                <RadioCard.ItemIndicator
-                  position="absolute"
-                  top={0}
-                  right={0}
-                />
+                <RadioCard.ItemIndicator position="absolute" top={0} right={0} />
               </RadioCard.ItemControl>
             </RadioCard.Item>
           ))}
         </Stack>
       </RadioCard.Root>
 
-      <HStack gap={3} w="full" mt={4}>
+      <HStack gap={3} w="full" mt={2}>
         <Button
           flex={1}
           size="lg"
           variant="outline"
-          borderColor="gray.300"
-          color="gray.700"
+          borderColor="var(--divider)"
+          color="var(--text-muted)"
           fontWeight="semibold"
-          borderRadius="lg"
+          borderRadius="xl"
           py={6}
           onClick={handleBack}
-          border="2px solid"
-          _hover={{
-            bg: "gray.50",
-            borderColor: "gray.400",
-          }}
-          _disabled={{
-            opacity: 0.6,
-            cursor: "not-allowed",
-          }}
+          _hover={{ bg: "gray.50", borderColor: "gray.300" }}
         >
           戻る
         </Button>
-
         <Button
           flex={1}
           size="lg"
-          bg="blue.500"
+          style={{ background: "linear-gradient(135deg, #0891B2 0%, #0E7490 100%)" }}
           color="white"
-          fontWeight="semibold"
-          borderRadius="lg"
+          fontWeight="bold"
+          borderRadius="xl"
           py={6}
           onClick={handleNext}
-          _hover={{
-            bg: "blue.600",
-            transform: "translateY(-2px)",
-            boxShadow: "lg",
-          }}
-          _active={{
-            transform: "translateY(0)",
-          }}
-          _disabled={{
-            opacity: 0.6,
-            cursor: "not-allowed",
-            transform: "none",
-          }}
+          boxShadow="0 4px 14px rgba(8,145,178,0.3)"
+          _hover={{ transform: "translateY(-2px)", boxShadow: "0 6px 20px rgba(8,145,178,0.5)" }}
+          _active={{ transform: "translateY(0)" }}
           transition="all 0.2s"
         >
-          登録確認へ
+          次へ
         </Button>
       </HStack>
     </VStack>
