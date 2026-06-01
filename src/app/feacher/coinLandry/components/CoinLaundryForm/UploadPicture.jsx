@@ -7,10 +7,13 @@ import {
   Flex,
   IconButton,
   Image,
+  Text,
   VStack,
 } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
 import { useCoinLaundryForm } from "@/app/feacher/coinLandry/context/CoinlaundryForm/CoinLaundryFormContext";
+
+const MAX_PHOTOS = 5;
 
 const FileUploadList = () => {
   const { state, dispatch } = useCoinLaundryForm();
@@ -66,9 +69,12 @@ const FileUploadList = () => {
 };
 
 const UploadPicture = () => {
-  const { dispatch } = useCoinLaundryForm();
+  const { state, dispatch } = useCoinLaundryForm();
+  const totalPhotos = state.existingPictures.length + state.newPictures.length;
+  const isAtLimit = totalPhotos >= MAX_PHOTOS;
 
   const changeHander = (e) => {
+    if (isAtLimit) return;
     const file = e.acceptedFiles[0];
     if (!file) return;
     const fileUrl = URL.createObjectURL(file);
@@ -77,41 +83,44 @@ const UploadPicture = () => {
       url: fileUrl,
       file: file,
     };
-
     dispatch({ type: "ADD_NEW_PICTURE", payload: { newFileItem } });
   };
 
   return (
     <Box w="full">
-      <FileUpload.Root accept="image/*" onFileChange={changeHander}>
+      <FileUpload.Root accept="image/*" onFileChange={changeHander} disabled={isAtLimit}>
         <VStack align="stretch" gap={4}>
           <FileUpload.HiddenInput />
-          <FileUpload.Trigger asChild>
-            <Button
-              type="button"
-              w={{ base: "full", md: "auto" }}
-              display="inline-flex"
-              alignItems="center"
-              gap={2}
-              py={2.5}
-              px={5}
-              bg="var(--card-bg, #FFFFFF)"
-              color="gray.700"
-              fontWeight="semibold"
-              border="2px solid"
-              borderColor="gray.200"
-              borderRadius="lg"
-              transition="all 0.2s"
-              justifyContent={{ base: "center", md: "flex-start" }}
-              _hover={{
-                bg: "gray.50",
-                borderColor: "gray.300",
-              }}
-            >
-              <Icon.LuFileImage size={18} />
-              画像をアップロード
-            </Button>
-          </FileUpload.Trigger>
+          <Flex align="center" gap={3} flexWrap="wrap">
+            <FileUpload.Trigger asChild>
+              <Button
+                type="button"
+                w={{ base: "full", md: "auto" }}
+                display="inline-flex"
+                alignItems="center"
+                gap={2}
+                py={2.5}
+                px={5}
+                bg="var(--card-bg, #FFFFFF)"
+                color={isAtLimit ? "gray.400" : "gray.700"}
+                fontWeight="semibold"
+                border="2px solid"
+                borderColor={isAtLimit ? "gray.100" : "gray.200"}
+                borderRadius="lg"
+                transition="all 0.2s"
+                justifyContent={{ base: "center", md: "flex-start" }}
+                disabled={isAtLimit}
+                cursor={isAtLimit ? "not-allowed" : "pointer"}
+                _hover={isAtLimit ? {} : { bg: "gray.50", borderColor: "gray.300" }}
+              >
+                <Icon.LuFileImage size={18} />
+                画像をアップロード
+              </Button>
+            </FileUpload.Trigger>
+            <Text fontSize="xs" color={isAtLimit ? "red.400" : "var(--text-faint)"} fontWeight="medium">
+              {totalPhotos} / {MAX_PHOTOS} 枚
+            </Text>
+          </Flex>
           <FileUploadList />
         </VStack>
       </FileUpload.Root>
