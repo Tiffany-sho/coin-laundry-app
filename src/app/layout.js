@@ -18,7 +18,7 @@ export const metadata = {
   metadataBase: new URL(siteUrl),
   manifest: "/manifest.json",
   title: {
-    default: `${siteName} | コインランドリー集金・管理アプリ`,
+    default: `${siteName} | コインランドリー集金アプリ - 無料で始める`,
     template: `%s | ${siteName}`,
   },
   description: siteDescription,
@@ -51,20 +51,20 @@ export const metadata = {
     locale: "ja_JP",
     url: siteUrl,
     siteName,
-    title: `${siteName} | コインランドリー集金・管理アプリ`,
+    title: `${siteName} | コインランドリー集金アプリ - 無料で始める`,
     description: siteDescription,
     images: [
       {
         url: "/screenshots/revenue-report-pc.png",
         width: 1200,
         height: 630,
-        alt: "Collecie - コインランドリー集金・管理アプリ",
+        alt: "Collecie - コインランドリー集金アプリ - 無料で始める",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: `${siteName} | コインランドリー集金・管理アプリ`,
+    title: `${siteName} | コインランドリー集金アプリ - 無料で始める`,
     description: siteDescription,
     images: ["/screenshots/revenue-report-pc.png"],
   },

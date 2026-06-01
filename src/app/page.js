@@ -10,7 +10,7 @@ import { getMyOrganization } from "./api/supabaseFunctions/supabaseDatabase/orga
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Collecie | コインランドリー集金・管理アプリ",
+  title: "コインランドリー集金アプリ | 無料で始める - Collecie",
   description:
     "コインランドリーの集金記録・売上管理・在庫管理・機器状態をスマホでかんたん一元管理。月次レポートの自動生成やCSV/Excelエクスポートにも対応。3店舗まで永久無料。",
   alternates: {
