@@ -6,7 +6,7 @@ export async function middleware(request) {
 
   const { pathname } = request.nextUrl;
 
-  const protectedPaths = ["/account", "/coinLaundry", "/collectMoney"];
+  const protectedPaths = ["/account", "/coinLaundry", "/collectMoney", "/settings", "/inventory", "/equipment"];
   const publicAuthPaths = ["/auth/invite"];
 
   if (!user && protectedPaths.some((path) => pathname.startsWith(path)) && !publicAuthPaths.some((path) => pathname.startsWith(path))) {
