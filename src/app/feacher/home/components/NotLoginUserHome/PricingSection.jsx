@@ -54,8 +54,7 @@ const plans = [
     name: "Max",
     price: "¥2,980",
     period: "/月（税込）",
-    trial: "6か月無料トライアル",
-    cta: "6か月無料で試す",
+    cta: "今すぐ始める",
     ctaHref: "/auth/login",
     featured: false,
     rows: [
@@ -247,7 +246,7 @@ const PricingSection = () => {
 
           {/* 補足 */}
           <Text fontSize="sm" color="var(--text-muted)" textAlign="center">
-            すべてのプランに6か月無料トライアル付き。クレジットカード不要で試せます。
+            Proプランは6か月無料トライアル付き。クレジットカード不要で試せます。
           </Text>
         </VStack>
       </Container>
