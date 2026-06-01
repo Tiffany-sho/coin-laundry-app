@@ -1,10 +1,10 @@
 "use client";
 import { redirect } from "next/navigation";
 import {
-  getImage,
-  uploadImage,
-  deleteImage,
-} from "@/app/api/supabaseFunctions/supabaseStorage/action";
+  uploadStoreImage,
+  deleteStoreImage,
+} from "@/app/api/supabaseFunctions/supabaseStorage/serverAction";
+import { getImage } from "@/app/api/supabaseFunctions/supabaseStorage/action";
 import {
   createStore,
   updateStore,
@@ -47,9 +47,13 @@ export function useStoreSubmit({ storeId, images, method, formRef, dialogRef }) 
         const uploadPromises = filesToUpload.map((item) => {
           const fileName = `${Date.now()}_${item.file.name}`;
           return (async () => {
-            await uploadImage(fileName, item.file);
-            const data = getImage(fileName);
-            return { path: fileName, url: data.publicUrl };
+            const fd = new FormData();
+            fd.append("file", item.file);
+            fd.append("filename", fileName);
+            const { url, error } = await uploadStoreImage(fd);
+            if (error) throw new Error(error);
+            const imageData = getImage(fileName);
+            return { path: fileName, url: url ?? imageData.publicUrl };
           })();
         });
         newImageObjects = await Promise.all(uploadPromises);
@@ -93,8 +97,7 @@ export function useStoreSubmit({ storeId, images, method, formRef, dialogRef }) 
       if (dialogRef.current) dialogRef.current.click();
 
       if (newImageObjects.length > 0) {
-        console.warn("Rollback: Deleting newly uploaded images...");
-        Promise.all(newImageObjects.map((img) => deleteImage(img.path))).catch(
+        Promise.all(newImageObjects.map((img) => deleteStoreImage(img.path))).catch(
           (err) => console.error("Rollback delete failed:", err)
         );
       }
@@ -107,7 +110,7 @@ export function useStoreSubmit({ storeId, images, method, formRef, dialogRef }) 
       .filter((path) => !finalImagePaths.has(path));
 
     if (pathsToDelete.length > 0) {
-      Promise.all(pathsToDelete.map((path) => deleteImage(path)))
+      Promise.all(pathsToDelete.map((path) => deleteStoreImage(path)))
         .then(() => console.log("Old images cleaned up."))
         .catch((err) => console.error("Cleanup deletion failed:", err));
     }
