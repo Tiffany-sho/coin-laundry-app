@@ -1,4 +1,5 @@
 import { Box, Container, Flex, Grid, Heading, Text, VStack } from "@chakra-ui/react";
+import PhoneFrame from "./PhoneFrame";
 
 const STORE_COLORS = ["#818CF8", "#34D399", "#FCD34D", "#F9A8D4", "#C4B5FD", "#67E8F9"];
 
@@ -391,7 +392,7 @@ const features = [
       "月次・年次グラフでトレンドを把握",
       "CSV / Excel エクスポート対応",
     ],
-    mock: <CollectMock />,
+    mock: <PhoneFrame><CollectMock /></PhoneFrame>,
     reverse: false,
   },
   {
@@ -404,7 +405,7 @@ const features = [
       "閾値アラートで補充タイミングを通知",
       "全店舗の在庫を一覧で確認",
     ],
-    mock: <InventoryMock />,
+    mock: <PhoneFrame><InventoryMock /></PhoneFrame>,
     reverse: true,
   },
   {
@@ -417,7 +418,7 @@ const features = [
       "全店舗の機器を一覧で比較",
       "故障中の機器を店舗名付きで一目確認",
     ],
-    mock: <MachineMock />,
+    mock: <PhoneFrame><MachineMock /></PhoneFrame>,
     reverse: false,
   },
   {
@@ -431,7 +432,7 @@ const features = [
       "前月比・前年比の自動計算",
       "期間・店舗指定でエクスポート",
     ],
-    mock: <ReportMock />,
+    mock: <PhoneFrame maxH="620px"><ReportMock /></PhoneFrame>,
     reverse: true,
   },
 ];

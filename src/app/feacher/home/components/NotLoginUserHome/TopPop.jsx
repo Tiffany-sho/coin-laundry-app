@@ -1,5 +1,6 @@
 import { Box, Container, Flex, Grid, Heading, HStack, Text, VStack } from "@chakra-ui/react";
 import Link from "next/link";
+import PhoneFrame from "./PhoneFrame";
 
 /* 店舗ごとの色（実際のアプリのグラフ配色） */
 const STORE_COLORS = ["#818CF8", "#34D399", "#FCD34D", "#F9A8D4", "#C4B5FD", "#67E8F9"];
@@ -144,68 +145,81 @@ const DashboardMock = () => (
       </Grid>
     </Box>
 
-    {/* スマホモック（右下に重ねる）— 集金入力画面 */}
-    <Box
-      position="absolute"
-      bottom={0}
-      right={0}
-      bg="var(--app-bg)"
-      borderRadius="2xl"
-      p={3}
-      boxShadow="0 8px 32px rgba(0,0,0,0.4)"
-      w="118px"
-      border="1px solid"
-      borderColor="cyan.100"
-    >
-      {/* 店舗ヘッダー */}
-      <Flex align="center" gap={2} mb={2}>
-        <Box
-          w="22px" h="22px"
-          borderRadius="lg"
-          bg="var(--teal)"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          fontSize="10px"
-          flexShrink={0}
-        >
-          🪙
-        </Box>
-        <Box>
-          <Text fontSize="8px" fontWeight="bold" color="var(--text-main)" lineHeight={1}>銀座一丁目</Text>
-          <Text fontSize="7px" color="var(--teal)">集金中</Text>
-        </Box>
-      </Flex>
+    {/* スマホモック（右下に重ねる）— 集金入力画面 + iPhoneフレーム */}
+    <Box position="absolute" bottom={0} right={0} w="130px">
+      {/* iPhone外枠（ミニ版） */}
+      <Box
+        bg="#1C1C1E"
+        borderRadius="28px"
+        p="6px"
+        boxShadow="0 0 0 1px #3A3A3A, 0 12px 32px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.1)"
+      >
+        {/* サイドボタン */}
+        <Box position="absolute" left="-2px" top="60px" w="2px" h="18px" bg="#2A2A2A" borderRadius="1px 0 0 1px" />
+        <Box position="absolute" left="-2px" top="84px" w="2px" h="18px" bg="#2A2A2A" borderRadius="1px 0 0 1px" />
+        <Box position="absolute" right="-2px" top="72px" w="2px" h="28px" bg="#2A2A2A" borderRadius="0 1px 1px 0" />
 
-      {/* 機種別金額 */}
-      <Text fontSize="7.5px" fontWeight="bold" color="var(--text-muted)" mb={1.5}>機種別金額</Text>
-      <Box bg="white" borderRadius="md" p={2} mb={1.5} border="1px solid" borderColor="cyan.100">
-        <Text fontSize="7px" color="var(--text-main)" mb={1}>洗濯乾燥機</Text>
-        <Flex align="center" gap={1} mb={1}>
-          <Box bg="var(--app-bg)" px={1.5} py={0.5} borderRadius="sm">
-            <Text fontSize="7px" color="var(--text-muted)">枚</Text>
+        {/* 画面 */}
+        <Box bg="var(--app-bg)" borderRadius="23px" overflow="hidden">
+          {/* ステータスバー */}
+          <Box bg="white" px={3} pt={2} pb={0.5} position="relative">
+            <Flex justify="space-between" align="center">
+              <Text fontSize="7px" fontWeight="bold" color="#1A1A1A" fontFamily="'Space Mono', monospace">12:42</Text>
+              <Box
+                bg="#1C1C1E"
+                position="absolute"
+                left="50%"
+                top={0}
+                transform="translateX(-50%)"
+                w="44px"
+                h="10px"
+                borderRadius="0 0 8px 8px"
+              />
+              <Text fontSize="6px" color="#1A1A1A">●● ▲ 93</Text>
+            </Flex>
           </Box>
-          <Text fontSize="9px" fontWeight="bold" color="var(--text-main)">1250</Text>
-        </Flex>
-        <Text fontSize="7px" color="var(--teal)" fontWeight="semibold">合計: ¥125,000</Text>
-      </Box>
-      <Box bg="white" borderRadius="md" p={2} mb={2} border="1px solid" borderColor="cyan.100">
-        <Text fontSize="7px" color="var(--text-main)" mb={1}>乾燥機</Text>
-        <Flex align="center" gap={1} mb={1}>
-          <Box bg="var(--app-bg)" px={1.5} py={0.5} borderRadius="sm">
-            <Text fontSize="7px" color="var(--text-muted)">枚</Text>
-          </Box>
-          <Text fontSize="9px" fontWeight="bold" color="var(--text-main)">254</Text>
-        </Flex>
-        <Text fontSize="7px" color="var(--teal)" fontWeight="semibold">合計: ¥25,400</Text>
-      </Box>
 
-      {/* 合計 */}
-      <Box borderTop="1px solid" borderColor="cyan.100" pt={1.5}>
-        <Text fontSize="7px" color="var(--text-muted)">合計収益額</Text>
-        <Text fontSize="11px" fontWeight="800" color="var(--teal)" fontFamily="'Space Mono', monospace">
-          ¥163,200
-        </Text>
+          {/* 店舗ヘッダー */}
+          <Box bg="white" px={2.5} py={2} borderBottom="1px solid" borderColor="gray.100">
+            <Flex align="center" gap={1.5}>
+              <Box w="16px" h="16px" borderRadius="md" bg="var(--teal)" display="flex" alignItems="center" justifyContent="center" fontSize="8px" flexShrink={0}>🪙</Box>
+              <Box>
+                <Text fontSize="7px" fontWeight="bold" color="var(--text-main)" lineHeight={1.2}>銀座一丁目</Text>
+                <Text fontSize="6px" color="var(--teal)">集金中</Text>
+              </Box>
+            </Flex>
+          </Box>
+
+          {/* コンテンツ */}
+          <Box px={2.5} py={2}>
+            <Text fontSize="6.5px" fontWeight="bold" color="var(--text-muted)" mb={1}>機種別金額</Text>
+            <Box bg="white" borderRadius="md" p={1.5} mb={1} border="1px solid" borderColor="cyan.100">
+              <Text fontSize="6.5px" color="var(--text-main)" mb={0.5}>洗濯乾燥機</Text>
+              <Flex align="center" gap={1} mb={0.5}>
+                <Box bg="var(--app-bg)" px={1} py={0.5} borderRadius="sm"><Text fontSize="6px" color="var(--text-muted)">枚</Text></Box>
+                <Text fontSize="8px" fontWeight="bold" color="var(--text-main)">1250</Text>
+              </Flex>
+              <Text fontSize="6px" color="var(--teal)" fontWeight="semibold">合計: ¥125,000</Text>
+            </Box>
+            <Box bg="white" borderRadius="md" p={1.5} mb={1.5} border="1px solid" borderColor="cyan.100">
+              <Text fontSize="6.5px" color="var(--text-main)" mb={0.5}>乾燥機</Text>
+              <Flex align="center" gap={1} mb={0.5}>
+                <Box bg="var(--app-bg)" px={1} py={0.5} borderRadius="sm"><Text fontSize="6px" color="var(--text-muted)">枚</Text></Box>
+                <Text fontSize="8px" fontWeight="bold" color="var(--text-main)">254</Text>
+              </Flex>
+              <Text fontSize="6px" color="var(--teal)" fontWeight="semibold">合計: ¥25,400</Text>
+            </Box>
+            <Box borderTop="1px solid" borderColor="cyan.100" pt={1.5}>
+              <Text fontSize="6px" color="var(--text-muted)">合計収益額</Text>
+              <Text fontSize="10px" fontWeight="800" color="var(--teal)" fontFamily="'Space Mono', monospace">¥163,200</Text>
+            </Box>
+          </Box>
+
+          {/* ホームインジケーター */}
+          <Box bg="white" py={1.5} display="flex" justifyContent="center">
+            <Box w="24px" h="3px" bg="#D1D5DB" borderRadius="full" />
+          </Box>
+        </Box>
       </Box>
     </Box>
   </Box>
