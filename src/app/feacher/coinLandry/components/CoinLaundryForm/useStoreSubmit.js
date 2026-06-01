@@ -45,7 +45,8 @@ export function useStoreSubmit({ storeId, images, method, formRef, dialogRef }) 
     if (filesToUpload.length > 0) {
       try {
         const uploadPromises = filesToUpload.map((item) => {
-          const fileName = `${Date.now()}_${item.file.name}`;
+          const ext = item.file.name.split(".").pop().toLowerCase() || "jpg";
+          const fileName = `${Date.now()}_${crypto.randomUUID()}.${ext}`;
           return (async () => {
             const fd = new FormData();
             fd.append("file", item.file);
