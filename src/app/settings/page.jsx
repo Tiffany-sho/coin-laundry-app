@@ -8,7 +8,6 @@ import AccountInfoCard from "@/app/feacher/settings/components/AccountInfoCard";
 import OrgInfoCard from "@/app/feacher/settings/components/OrgInfoCard";
 import AppSettingsCard from "@/app/feacher/settings/components/AppSettingsCard";
 import OtherActionsCard from "@/app/feacher/settings/components/OtherActionsCard";
-import FeedbackCard from "@/app/feacher/settings/components/FeedbackCard";
 import PlanCard from "@/app/feacher/settings/components/PlanCard";
 import CheckoutSuccessBanner from "@/app/feacher/settings/components/CheckoutSuccessBanner";
 import CollectScheduleDisplay from "@/app/feacher/settings/components/CollectScheduleDisplay";
@@ -52,7 +51,6 @@ export default async function SettingsPage({ searchParams }) {
         {isAdmin && <CollectScheduleDisplay schedule={schedule} />}
 
         <AppSettingsCard collectMethod={profile?.collectMethod} />
-        <FeedbackCard />
         <OtherActionsCard />
       </VStack>
     </Box>
