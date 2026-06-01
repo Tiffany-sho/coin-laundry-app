@@ -28,7 +28,7 @@ const plans = [
   },
   {
     name: "Pro",
-    price: "¥1,980",
+    price: "¥780",
     period: "/月（税込）",
     badge: "おすすめ",
     trial: "6か月無料トライアル",
@@ -36,7 +36,7 @@ const plans = [
     ctaHref: "/auth/login",
     featured: true,
     rows: [
-      { label: "店舗数", value: "10店舗まで", ok: true },
+      { label: "店舗数", value: "5店舗まで", ok: true },
       { label: "集金記録", value: "", ok: true },
       { label: "在庫管理", value: "", ok: true },
       { label: "機器状態管理", value: "", ok: true },
@@ -47,7 +47,7 @@ const plans = [
   },
   {
     name: "Max",
-    price: "¥3,980",
+    price: "¥2,980",
     period: "/月（税込）",
     trial: "6か月無料トライアル",
     cta: "6か月無料で試す",
