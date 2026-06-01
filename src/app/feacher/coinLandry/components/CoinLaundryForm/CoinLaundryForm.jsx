@@ -60,6 +60,13 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
       bg="var(--app-bg, #F0F9FF)"
     >
       <Box w="full" maxW="640px">
+        <Link href={method === "POST" ? "/coinLaundry" : `/coinLaundry/${storeId}`}>
+          <HStack gap={1.5} color="var(--text-muted)" fontSize="sm" mb={4} cursor="pointer"
+            _hover={{ color: "var(--teal)" }} transition="color 0.15s">
+            <Icon.LuChevronLeft size={16} />
+            <Text>{method === "POST" ? "店舗一覧に戻る" : "店舗詳細に戻る"}</Text>
+          </HStack>
+        </Link>
         <form ref={formRef}>
           <Box
             bg="var(--card-bg, #FFFFFF)"

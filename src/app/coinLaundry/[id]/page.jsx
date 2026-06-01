@@ -3,12 +3,14 @@ import {
   getStores,
 } from "@/app/api/supabaseFunctions/supabaseDatabase/laundryStore/action";
 import { getMyOrganization } from "@/app/api/supabaseFunctions/supabaseDatabase/organization/action";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 import { SearchBox } from "@/app/feacher/coinLandry/components/CoinLaundryList";
 import MonoCard from "@/app/feacher/coinLandry/components/MonoCoinLaundry/MonoCard";
 import ErrorPage from "@/app/feacher/jumpPage/ErrorPage/ErrorPage";
 import { Box, Container, Flex, Text, VStack } from "@chakra-ui/react";
+import * as Icon from "@/app/feacher/Icon";
 
 const CoinLaundry = async ({ params }) => {
   const { id } = await params;
@@ -36,6 +38,13 @@ const CoinLaundry = async ({ params }) => {
           align={{ base: "stretch", md: "center" }}
           gap={4}
         >
+          <Link href="/coinLaundry">
+            <Flex gap={1} align="center" color="var(--text-muted)" fontSize="sm"
+              cursor="pointer" _hover={{ color: "var(--text-main)" }}>
+              <Icon.LuChevronLeft size={16} />
+              <Text>店舗一覧</Text>
+            </Flex>
+          </Link>
           {stores.length > 0 && <SearchBox selectItems={selectItems} />}
         </Flex>
       </VStack>

@@ -1,4 +1,6 @@
-import { Box, VStack, Heading, Text, List } from "@chakra-ui/react";
+import { Box, VStack, Heading, Text, List, HStack } from "@chakra-ui/react";
+import Link from "next/link";
+import { LuChevronLeft } from "react-icons/lu";
 
 export const metadata = {
   title: "利用規約 | Collecie",
@@ -30,15 +32,23 @@ export default function TermsPage() {
     <Box maxW="800px" mx="auto" p={{ base: 4, md: 8 }} pb={16}>
       <VStack align="stretch" gap={8}>
         <Box>
-          <Heading
-            as="h1"
-            fontSize={{ base: "xl", md: "2xl" }}
-            fontWeight="bold"
-            color="var(--teal-deeper)"
-            mb={2}
-          >
-            利用規約
-          </Heading>
+          <HStack justify="space-between" align="start" mb={2}>
+            <Heading
+              as="h1"
+              fontSize={{ base: "xl", md: "2xl" }}
+              fontWeight="bold"
+              color="var(--teal-deeper)"
+            >
+              利用規約
+            </Heading>
+            <Link href="/settings">
+              <HStack gap={1} color="var(--text-muted)" fontSize="sm" cursor="pointer"
+                _hover={{ color: "var(--text-main)" }} flexShrink={0}>
+                <LuChevronLeft size={16} />
+                <Text>戻る</Text>
+              </HStack>
+            </Link>
+          </HStack>
           <Text fontSize="sm" color="var(--text-muted)">
             本利用規約（以下「本規約」）は、上田 将生（以下「当方」）が提供するCollecie（以下「本サービス」）の利用条件を定めるものです。本サービスを利用された場合、本規約に同意したものとみなします。
           </Text>

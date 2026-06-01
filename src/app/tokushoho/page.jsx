@@ -1,4 +1,6 @@
-import { Box, VStack, Heading, Text, Table } from "@chakra-ui/react";
+import { Box, VStack, Heading, Text, Table, HStack } from "@chakra-ui/react";
+import Link from "next/link";
+import { LuChevronLeft } from "react-icons/lu";
 
 export const metadata = {
   title: "特定商取引法に基づく表記 | Collecie",
@@ -35,15 +37,23 @@ export default function TokushohoPage() {
     <Box maxW="800px" mx="auto" p={{ base: 4, md: 8 }} pb={16}>
       <VStack align="stretch" gap={6}>
         <Box>
-          <Heading
-            as="h1"
-            fontSize={{ base: "xl", md: "2xl" }}
-            fontWeight="bold"
-            color="var(--teal-deeper)"
-            mb={2}
-          >
-            特定商取引法に基づく表記
-          </Heading>
+          <HStack justify="space-between" align="start" mb={2}>
+            <Heading
+              as="h1"
+              fontSize={{ base: "xl", md: "2xl" }}
+              fontWeight="bold"
+              color="var(--teal-deeper)"
+            >
+              特定商取引法に基づく表記
+            </Heading>
+            <Link href="/settings">
+              <HStack gap={1} color="var(--text-muted)" fontSize="sm" cursor="pointer"
+                _hover={{ color: "var(--text-main)" }} flexShrink={0}>
+                <LuChevronLeft size={16} />
+                <Text>戻る</Text>
+              </HStack>
+            </Link>
+          </HStack>
           <Text fontSize="sm" color="var(--text-muted)">
             特定商取引に関する法律第11条に基づき、以下の事項を表示します。
           </Text>

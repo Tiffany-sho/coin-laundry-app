@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
-import { Box, HStack, Heading } from "@chakra-ui/react";
+import { Box, HStack, Heading, Text } from "@chakra-ui/react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getMyOrganization, getOrgPlan } from "@/app/api/supabaseFunctions/supabaseDatabase/organization/action";
 import PlanGrid from "@/app/feacher/settings/components/PlanGrid";
@@ -16,11 +17,20 @@ export default async function PlanPage() {
 
   return (
     <Box maxW="860px" mx="auto" p={{ base: 4, md: 8 }}>
-      <HStack gap={3} mb={8}>
-        <Icon.LuCreditCard size={24} color="var(--teal)" />
-        <Heading as="h1" fontSize={{ base: "xl", md: "2xl" }} fontWeight="bold" color="var(--teal-deeper)">
-          プラン選択
-        </Heading>
+      <HStack justify="space-between" mb={8}>
+        <HStack gap={3}>
+          <Icon.LuCreditCard size={24} color="var(--teal)" />
+          <Heading as="h1" fontSize={{ base: "xl", md: "2xl" }} fontWeight="bold" color="var(--teal-deeper)">
+            プラン選択
+          </Heading>
+        </HStack>
+        <Link href="/settings">
+          <HStack gap={1} color="var(--text-muted)" fontSize="sm" cursor="pointer"
+            _hover={{ color: "var(--text-main)" }}>
+            <Icon.LuChevronLeft size={16} />
+            <Text>戻る</Text>
+          </HStack>
+        </Link>
       </HStack>
 
       <PlanGrid

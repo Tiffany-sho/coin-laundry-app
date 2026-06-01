@@ -1,4 +1,5 @@
-import { Box, HStack, VStack, Heading, Text } from "@chakra-ui/react";
+import { Box, HStack, VStack, Heading, Text, Flex } from "@chakra-ui/react";
+import Link from "next/link";
 import * as Icon from "@/app/feacher/Icon";
 import ChangeStores from "./parts/ChangeStores";
 
@@ -17,7 +18,17 @@ const CollectMoneyHeader = ({ storeName }) => {
       shadow="sm"
     >
       <HStack justify="space-between" maxW="1200px" mx="auto">
-        <HStack gap={3}>
+        <HStack gap={2}>
+          <Link href="/collectMoney">
+            <Flex
+              w="34px" h="34px" align="center" justify="center"
+              borderRadius="lg" color="var(--text-muted)"
+              transition="all 0.2s"
+              _hover={{ bg: "var(--teal-pale)", color: "var(--teal)" }}
+            >
+              <Icon.LuChevronLeft size={20} />
+            </Flex>
+          </Link>
           <Box
             style={{ background: "linear-gradient(135deg, #0891B2 0%, #0E7490 100%)" }}
             color="white"

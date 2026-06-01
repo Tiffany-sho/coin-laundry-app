@@ -129,12 +129,21 @@ export default function HelpPage() {
       <Box maxW="800px" mx="auto" px={{ base: 4, md: 6 }} py={{ base: 6, md: 10 }}>
 
         {/* ヘッダー */}
-        <VStack align="start" gap={2} mb={8}>
-          <HStack gap={2}>
-            <Box color="var(--teal)"><Icon.LuInfo size={20} /></Box>
-            <Text fontSize={{ base: "xl", md: "2xl" }} fontWeight="bold" color="var(--teal-deeper)">
-              ヘルプ・使い方ガイド
-            </Text>
+        <VStack align="stretch" gap={2} mb={8}>
+          <HStack justify="space-between" align="center">
+            <HStack gap={2}>
+              <Box color="var(--teal)"><Icon.LuInfo size={20} /></Box>
+              <Text fontSize={{ base: "xl", md: "2xl" }} fontWeight="bold" color="var(--teal-deeper)">
+                ヘルプ・使い方ガイド
+              </Text>
+            </HStack>
+            <Link href="/settings">
+              <HStack gap={1} color="var(--text-muted)" fontSize="sm" cursor="pointer"
+                _hover={{ color: "var(--text-main)" }} flexShrink={0}>
+                <Icon.LuChevronLeft size={16} />
+                <Text>戻る</Text>
+              </HStack>
+            </Link>
           </HStack>
           <Text fontSize="sm" color="var(--text-muted)">
             Collecie の各ページの説明と操作手順をまとめています。
