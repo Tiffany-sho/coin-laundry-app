@@ -45,7 +45,7 @@ const Subscribe = () => {
               color="rgba(255,255,255,0.82)"
               lineHeight="1.8"
             >
-              14日間無料トライアル付き。<br />
+              6か月無料トライアル付き。<br />
               クレジットカード不要でいますぐ試せます。
             </Text>
           </VStack>
@@ -72,7 +72,7 @@ const Subscribe = () => {
           </Link>
 
           <HStack gap={{ base: 4, md: 8 }} flexWrap="wrap" justify="center">
-            {["3店舗まで永久無料", "14日間トライアル", "クレジットカード不要"].map((item) => (
+            {["3店舗まで永久無料", "6か月トライアル", "クレジットカード不要"].map((item) => (
               <HStack key={item} gap={1.5}>
                 <Icon.LuCheck size={14} color="rgba(255,255,255,0.8)" />
                 <Text fontSize="sm" color="rgba(255,255,255,0.8)">{item}</Text>

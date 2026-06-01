@@ -6,7 +6,7 @@ const steps = [
     number: "01",
     icon: <Icon.LuUser size={24} />,
     title: "アカウント登録",
-    description: "メールアドレスで簡単に無料登録。14日間のトライアルがすぐに始まります。",
+    description: "メールアドレスで簡単に無料登録。6か月のトライアルがすぐに始まります。",
   },
   {
     number: "02",
