@@ -6,6 +6,12 @@ const Footer = () => {
     <Box bg="gray.900" color="gray.300" zIndex="1200" position="relative" p={3}>
       <Box borderTop="1px" borderColor="gray.800" pt={2}>
         <HStack justify="center" gap={4} mb={1} flexWrap="wrap">
+          <Link href="/help">
+            <Text fontSize="xs" color="gray.500" _hover={{ color: "gray.300" }} transition="color 0.2s">
+              ヘルプ
+            </Text>
+          </Link>
+          <Text fontSize="xs" color="gray.700">|</Text>
           <Link href="/terms">
             <Text fontSize="xs" color="gray.500" _hover={{ color: "gray.300" }} transition="color 0.2s">
               利用規約
