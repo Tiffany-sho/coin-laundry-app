@@ -139,7 +139,7 @@ const TopPop = () => {
 
             {/* スマホ（月次売上）— 右下に重ねる */}
             <Box
-              borderRadius="3xl"
+              borderRadius="2xl"
               overflow="hidden"
               position="absolute"
               bottom="-20px"
