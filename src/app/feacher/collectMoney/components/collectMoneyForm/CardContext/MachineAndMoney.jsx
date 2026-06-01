@@ -103,7 +103,7 @@ const MachineAndMoney = ({ machinesAndFunds, setMachinesAndFunds }) => {
               <NumberInput.Control />
               <InputGroup
                 startAddon={
-                  <Box px={4} fontWeight="semibold" color="var(--teal-deeper, #155E75)" bg="cyan.50">
+                  <Box px={4} fontWeight="semibold" color="var(--teal-deeper, #155E75)" bg="cyan.100">
                     g
                   </Box>
                 }
@@ -112,7 +112,7 @@ const MachineAndMoney = ({ machinesAndFunds, setMachinesAndFunds }) => {
                   placeholder="100円玉の質量を入力"
                   size="lg"
                   fontSize="16px"
-                  bg="cyan.50"
+                  bg="white"
                   borderWidth="1.5px"
                   borderColor="cyan.200"
                   _focus={{
@@ -135,7 +135,7 @@ const MachineAndMoney = ({ machinesAndFunds, setMachinesAndFunds }) => {
               <NumberInput.Control />
               <InputGroup
                 startAddon={
-                  <Box fontWeight="semibold" color="var(--teal-deeper, #155E75)" bg="cyan.50">
+                  <Box fontWeight="semibold" color="var(--teal-deeper, #155E75)" bg="cyan.100">
                     枚
                   </Box>
                 }
@@ -144,7 +144,7 @@ const MachineAndMoney = ({ machinesAndFunds, setMachinesAndFunds }) => {
                   placeholder="100円玉の枚数を入力"
                   size="lg"
                   fontSize="16px"
-                  bg="cyan.50"
+                  bg="white"
                   borderWidth="1.5px"
                   borderColor="cyan.200"
                   _focus={{

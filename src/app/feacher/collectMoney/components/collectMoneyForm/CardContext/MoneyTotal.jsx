@@ -17,7 +17,7 @@ const MoneyTotal = ({ moneyTotal, setMoneyTotal }) => {
               fontWeight="bold"
               fontSize="lg"
               color="var(--teal-deeper, #155E75)"
-              bg="cyan.50"
+              bg="cyan.100"
             >
               ¥
             </Box>
@@ -28,7 +28,7 @@ const MoneyTotal = ({ moneyTotal, setMoneyTotal }) => {
             size="lg"
             fontSize="16px"
             fontWeight="semibold"
-            bg="cyan.50"
+            bg="white"
             borderWidth="2px"
             borderColor="cyan.200"
             _focus={{
