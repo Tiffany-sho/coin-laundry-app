@@ -202,14 +202,7 @@ export default function ExportPanel({ plan = "free", storeId = null }) {
   };
 
   return (
-    <Box
-      bg="var(--card-bg, #FFFFFF)"
-      border="1px solid"
-      borderColor="cyan.100"
-      borderRadius="xl"
-      boxShadow="var(--shadow-sm)"
-      p={{ base: 4, md: 6 }}
-    >
+    <Box>
       <VStack align="stretch" gap={5}>
         {/* Header */}
         <HStack justify="space-between">
