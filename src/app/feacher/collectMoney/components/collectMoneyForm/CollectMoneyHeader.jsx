@@ -1,10 +1,11 @@
-import { Box, HStack, Heading } from "@chakra-ui/react";
+import { Box, HStack, VStack, Heading, Text } from "@chakra-ui/react";
+import * as Icon from "@/app/feacher/Icon";
 import ChangeStores from "./parts/ChangeStores";
 
 const CollectMoneyHeader = ({ storeName }) => {
   return (
     <Box
-      py={{ base: 4, md: 6 }}
+      py={{ base: 3, md: 4 }}
       px={{ base: 4, md: 8 }}
       w="full"
       bg="var(--card-bg, #FFFFFF)"
@@ -16,13 +17,26 @@ const CollectMoneyHeader = ({ storeName }) => {
       shadow="sm"
     >
       <HStack justify="space-between" maxW="1200px" mx="auto">
-        <Heading
-          fontSize={{ base: "xl", md: "2xl" }}
-          fontWeight="bold"
-          color="var(--text-main, #1E3A5F)"
-        >
-          {storeName}店
-        </Heading>
+        <HStack gap={3}>
+          <Box
+            style={{ background: "linear-gradient(135deg, #0891B2 0%, #0E7490 100%)" }}
+            color="white"
+            borderRadius="xl"
+            p={2}
+          >
+            <Icon.PiHandCoinsLight size={22} />
+          </Box>
+          <VStack align="start" gap={0}>
+            <Heading
+              fontSize={{ base: "lg", md: "xl" }}
+              fontWeight="bold"
+              color="var(--teal-deeper, #155E75)"
+            >
+              {storeName}店
+            </Heading>
+            <Text fontSize="xs" color="var(--text-muted, #64748B)">集金中</Text>
+          </VStack>
+        </HStack>
         <ChangeStores />
       </HStack>
     </Box>
