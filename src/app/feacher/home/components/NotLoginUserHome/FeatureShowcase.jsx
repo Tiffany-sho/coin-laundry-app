@@ -1,5 +1,6 @@
 import { Box, Container, Flex, Heading, Text, VStack } from "@chakra-ui/react";
 import Image from "next/image";
+import * as Icon from "@/app/feacher/Icon";
 
 const features = [
   {
@@ -116,8 +117,9 @@ const FeatureRow = ({ tag, title, description, points, src, alt, imgW, imgH, blo
               alignItems="center"
               justifyContent="center"
               flexShrink={0}
+              color="var(--teal)"
             >
-              <Text fontSize="9px" color="var(--teal)" fontWeight="bold">✓</Text>
+              <Icon.LuCheck size={11} />
             </Box>
             <Text fontSize="sm" color="var(--text-main)">{p}</Text>
           </Flex>

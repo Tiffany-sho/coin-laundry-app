@@ -1,11 +1,16 @@
 import { Box, Container, Flex, Heading, Text, VStack } from "@chakra-ui/react";
 import Link from "next/link";
+import * as Icon from "@/app/feacher/Icon";
 
 const checkMark = (ok) =>
   ok ? (
-    <Text as="span" color="var(--teal)" fontWeight="bold" mr={2}>✓</Text>
+    <Box color="var(--teal)" mr={2} flexShrink={0} display="inline-flex" alignItems="center">
+      <Icon.LuCheck size={15} />
+    </Box>
   ) : (
-    <Text as="span" color="var(--text-faint)" mr={2}>—</Text>
+    <Box color="var(--text-faint)" mr={2} flexShrink={0} display="inline-flex" alignItems="center">
+      <Icon.LuMinus size={15} />
+    </Box>
   );
 
 const plans = [
@@ -107,8 +112,8 @@ const PlanCard = ({ plan }) => {
           {rows.map((r) => (
             <Flex key={r.label} align="center" py={2} borderBottom="1px solid" borderColor="rgba(255,255,255,0.15)">
               {r.ok
-                ? <Text as="span" color="white" fontWeight="bold" mr={2}>✓</Text>
-                : <Text as="span" color="rgba(255,255,255,0.4)" mr={2}>—</Text>
+                ? <Box color="white" mr={2} flexShrink={0} display="inline-flex" alignItems="center"><Icon.LuCheck size={15} /></Box>
+                : <Box color="rgba(255,255,255,0.4)" mr={2} flexShrink={0} display="inline-flex" alignItems="center"><Icon.LuMinus size={15} /></Box>
               }
               <Text fontSize="sm" color={r.ok ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.45)"} flex={1}>
                 {r.label}
