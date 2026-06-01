@@ -6,7 +6,6 @@ const MoneyTotal = ({ moneyTotal, setMoneyTotal }) => {
       <NumberInput.Root
         min={0}
         w="full"
-        borderRadius="md"
         value={moneyTotal}
         onValueChange={(e) => setMoneyTotal(e.value)}
       >
@@ -17,7 +16,7 @@ const MoneyTotal = ({ moneyTotal, setMoneyTotal }) => {
               fontWeight="bold"
               fontSize="lg"
               color="var(--teal-deeper, #155E75)"
-              bg="cyan.100"
+              bg="var(--teal-pale, #CFFAFE)"
             >
               ¥
             </Box>
@@ -28,16 +27,15 @@ const MoneyTotal = ({ moneyTotal, setMoneyTotal }) => {
             size="lg"
             fontSize="16px"
             fontWeight="semibold"
-            bg="white"
             borderWidth="2px"
-            borderColor="cyan.200"
+            borderColor="var(--divider, #F1F5F9)"
             _focus={{
               borderColor: "var(--teal, #0891B2)",
               boxShadow: "0 0 0 3px rgba(8, 145, 178, 0.15)",
               outline: "none",
             }}
             _hover={{
-              borderColor: "cyan.400",
+              borderColor: "cyan.300",
             }}
           />
         </InputGroup>

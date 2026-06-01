@@ -51,10 +51,8 @@ const ChangeStores = () => {
             w="full"
             border="1px solid"
             borderRadius="full"
-            color="white"
-            style={{ background: "linear-gradient(135deg, #0891B2 0%, #0E7490 100%)" }}
+            bg="blue.500"
             boxShadow="sm"
-            _hover={{ opacity: 0.9 }}
           >
             <Text fontSize={{ base: "xs", md: "sm" }} fontWeight="semibold">
               {methodArray.btnTitle}
@@ -73,14 +71,14 @@ const ChangeStores = () => {
             overflow="hidden"
           >
             <Dialog.Header
-              bg="cyan.50"
+              bg="blue.50"
               borderBottom="1px solid"
-              borderColor="cyan.100"
+              borderColor="blue.100"
               p={{ base: 4, md: 6 }}
             >
               <Heading
                 size={{ base: "md", md: "lg" }}
-                color="cyan.900"
+                color="blue.900"
                 fontWeight="bold"
               >
                 {methodArray.dialogTitle}
@@ -96,7 +94,7 @@ const ChangeStores = () => {
                 bg="var(--card-bg, #FFFFFF)"
                 borderRadius="full"
                 boxShadow="sm"
-                _hover={{ bg: "cyan.50", transform: "scale(1.1)" }}
+                _hover={{ bg: "blue.50", transform: "scale(1.1)" }}
                 transition="all 0.2s"
               />
             </Dialog.CloseTrigger>
@@ -128,8 +126,8 @@ const ChangeStores = () => {
                           cursor="pointer"
                           transition="all 0.2s"
                           _hover={{
-                            bg: "cyan.50",
-                            borderColor: "cyan.300",
+                            bg: "blue.50",
+                            borderColor: "blue.300",
                             transform: "translateX(4px)",
                             boxShadow: "md",
                           }}

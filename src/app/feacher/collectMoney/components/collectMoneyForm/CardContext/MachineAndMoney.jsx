@@ -96,14 +96,13 @@ const MachineAndMoney = ({ machinesAndFunds, setMachinesAndFunds }) => {
             <NumberInput.Root
               min={0}
               w="full"
-              borderRadius="md"
               value={machineAndFunds.weight ? machineAndFunds.weight : ""}
               onValueChange={(e) => hander(machineAndFunds.machine.name, "inputWeight", e)}
             >
               <NumberInput.Control />
               <InputGroup
                 startAddon={
-                  <Box px={4} fontWeight="semibold" color="var(--teal-deeper, #155E75)" bg="cyan.100">
+                  <Box px={4} fontWeight="semibold" color="var(--teal-deeper, #155E75)" bg="var(--teal-pale, #CFFAFE)">
                     g
                   </Box>
                 }
@@ -112,15 +111,14 @@ const MachineAndMoney = ({ machinesAndFunds, setMachinesAndFunds }) => {
                   placeholder="100円玉の質量を入力"
                   size="lg"
                   fontSize="16px"
-                  bg="white"
                   borderWidth="1.5px"
-                  borderColor="cyan.200"
+                  borderColor="var(--divider, #F1F5F9)"
                   _focus={{
                     borderColor: "var(--teal, #0891B2)",
                     boxShadow: "0 0 0 3px rgba(8, 145, 178, 0.15)",
                     outline: "none",
                   }}
-                  _hover={{ borderColor: "cyan.400" }}
+                  _hover={{ borderColor: "cyan.300" }}
                 />
               </InputGroup>
             </NumberInput.Root>
@@ -128,14 +126,13 @@ const MachineAndMoney = ({ machinesAndFunds, setMachinesAndFunds }) => {
             <NumberInput.Root
               min={0}
               w="full"
-              borderRadius="md"
               value={machineAndFunds.funds ? machineAndFunds.funds : ""}
               onValueChange={(e) => hander(machineAndFunds.machine.name, "inputCoin", e)}
             >
               <NumberInput.Control />
               <InputGroup
                 startAddon={
-                  <Box fontWeight="semibold" color="var(--teal-deeper, #155E75)" bg="cyan.100">
+                  <Box fontWeight="semibold" color="var(--teal-deeper, #155E75)" bg="var(--teal-pale, #CFFAFE)">
                     枚
                   </Box>
                 }
@@ -144,15 +141,14 @@ const MachineAndMoney = ({ machinesAndFunds, setMachinesAndFunds }) => {
                   placeholder="100円玉の枚数を入力"
                   size="lg"
                   fontSize="16px"
-                  bg="white"
                   borderWidth="1.5px"
-                  borderColor="cyan.200"
+                  borderColor="var(--divider, #F1F5F9)"
                   _focus={{
                     borderColor: "var(--teal, #0891B2)",
                     boxShadow: "0 0 0 3px rgba(8, 145, 178, 0.15)",
                     outline: "none",
                   }}
-                  _hover={{ borderColor: "cyan.400" }}
+                  _hover={{ borderColor: "cyan.300" }}
                 />
               </InputGroup>
             </NumberInput.Root>
