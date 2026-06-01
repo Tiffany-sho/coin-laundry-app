@@ -42,6 +42,7 @@ const getData = async () => {
       data: profileResult.data[0],
       user: user,
       myRole: orgResult.data?.myRole ?? "viewer",
+      hasOrg: !!orgResult.data,
     };
   } catch (err) {
     return {
@@ -53,11 +54,11 @@ const getData = async () => {
 };
 
 const Home = async () => {
-  const { data, error, user, myRole } = await getData();
+  const { data, error, user, myRole, hasOrg } = await getData();
   if (error) return <ErrorPage title={error.msg} status={error.status} />;
   if (!user) return <NotLoginUserHome />;
   if (!data) return <WelcomeHome user={user} />;
-  return <LoginUserHome id={data.id} username={data.username} myRole={myRole} />;
+  return <LoginUserHome id={data.id} username={data.username} myRole={myRole} hasOrg={hasOrg} />;
 };
 
 export default Home;

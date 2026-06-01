@@ -7,6 +7,7 @@ const FooterNavbarWrapper = async () => {
   if (!user) return null;
 
   const { hasOrg } = await getOrgMembership();
+  if (!hasOrg) return null;
   return <FooterNavbar hasOrg={hasOrg} />;
 };
 
