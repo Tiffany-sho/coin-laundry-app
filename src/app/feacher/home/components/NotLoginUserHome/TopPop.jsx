@@ -21,7 +21,8 @@ const TopPop = () => {
           align="center"
           justify="space-between"
           gap={{ base: 14, lg: 12 }}
-          py={{ base: 20, lg: 28 }}
+          pt={{ base: 20, lg: 28 }}
+          pb={{ base: 28, lg: 28 }}
           minH={{ base: "auto", lg: "100vh" }}
         >
           {/* 左：テキスト */}
@@ -113,21 +114,19 @@ const TopPop = () => {
 
           {/* 右：実際のスクリーンショット */}
           <Box
-            display={{ base: "none", lg: "block" }}
             flex={1}
-            maxW="540px"
+            maxW={{ base: "420px", lg: "540px" }}
             w="full"
             position="relative"
+            alignSelf={{ base: "center", lg: "auto" }}
             style={{ animation: "fadeSlideUp 0.8s ease both 0.25s" }}
           >
-            {/* PC 収益レポート画面（ブラウザウィンドウ風フレーム付き） */}
+            {/* PC 収益レポート画面 */}
             <Box
               borderRadius="2xl"
               overflow="hidden"
               boxShadow="0 24px 64px rgba(0,0,0,0.45)"
             >
-          
-              {/* スクリーンショット本体 */}
               <Image
                 src="/screenshots/revenue-report-pc.png"
                 alt="Collecie 収益レポート画面"
@@ -138,15 +137,14 @@ const TopPop = () => {
               />
             </Box>
 
-            {/* スマホ（集金入力）— 右下に重ねる
-                PC画像(540×254px)に対してスマホ(162×317px)が上39px/下20px飛び出すバランス */}
+            {/* スマホ（月次売上）— 右下に重ねる */}
             <Box
               borderRadius="3xl"
               overflow="hidden"
               position="absolute"
               bottom="-20px"
-              right="-16px"
-              w="140px"
+              right={{ base: "-8px", lg: "-16px" }}
+              w={{ base: "100px", lg: "140px" }}
               filter="drop-shadow(0 20px 48px rgba(0,0,0,0.55))"
             >
               <Image
