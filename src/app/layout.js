@@ -9,12 +9,72 @@ import SplashScreen from "@/app/feacher/splash/SplashScreen";
 import SWRegistration from "@/app/feacher/pwa/SWRegistration";
 import styles from "./layout.module.css";
 
+const siteUrl = "https://www.collecie.com";
+const siteName = "Collecie";
+const siteDescription =
+  "コインランドリーの集金記録・売上管理・在庫管理・機器状態をスマホでかんたん一元管理。月次レポートの自動生成やCSV/Excelエクスポートにも対応。3店舗まで永久無料の集金管理アプリ。";
+
 export const metadata = {
+  metadataBase: new URL(siteUrl),
   manifest: "/manifest.json",
+  title: {
+    default: `${siteName} | コインランドリー集金・管理アプリ`,
+    template: `%s | ${siteName}`,
+  },
+  description: siteDescription,
+  keywords: [
+    "コインランドリー",
+    "集金",
+    "集金管理",
+    "集金アプリ",
+    "コインランドリー管理",
+    "コインランドリーアプリ",
+    "売上管理",
+    "在庫管理",
+    "機器管理",
+    "コインランドリー集金システム",
+    "ランドリー管理",
+    "集金記録",
+    "売上グラフ",
+    "Collecie",
+  ],
+  authors: [{ name: siteName }],
+  creator: siteName,
+  publisher: siteName,
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
+  },
+  openGraph: {
+    type: "website",
+    locale: "ja_JP",
+    url: siteUrl,
+    siteName,
+    title: `${siteName} | コインランドリー集金・管理アプリ`,
+    description: siteDescription,
+    images: [
+      {
+        url: "/screenshots/revenue-report-pc.png",
+        width: 1200,
+        height: 630,
+        alt: "Collecie - コインランドリー集金・管理アプリ",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${siteName} | コインランドリー集金・管理アプリ`,
+    description: siteDescription,
+    images: ["/screenshots/revenue-report-pc.png"],
+  },
+  alternates: {
+    canonical: siteUrl,
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Collecie",
+    title: siteName,
   },
   icons: {
     apple: "/icons/icon-192.png",
