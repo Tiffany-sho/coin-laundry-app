@@ -150,6 +150,8 @@ const FeatureRow = ({ tag, title, description, points, src, alt, imgW, imgH, blo
       />
       {/* 画像本体 */}
       <Box
+        borderRadius="10%"
+        overflow="hidden"
         position="relative"
         zIndex={1}
         filter="drop-shadow(0 24px 56px rgba(0,0,0,0.26))"

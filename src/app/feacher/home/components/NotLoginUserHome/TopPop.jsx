@@ -126,39 +126,7 @@ const TopPop = () => {
               overflow="hidden"
               boxShadow="0 24px 64px rgba(0,0,0,0.45)"
             >
-              {/* ブラウザツールバー */}
-              <Box
-                bg="#1a2332"
-                px={4}
-                py="10px"
-                display="flex"
-                alignItems="center"
-                gap={3}
-              >
-                {/* トラフィックライトドット */}
-                <Box display="flex" gap="6px" flexShrink={0}>
-                  <Box w="10px" h="10px" borderRadius="full" bg="#FF5F57" />
-                  <Box w="10px" h="10px" borderRadius="full" bg="#FFBD2E" />
-                  <Box w="10px" h="10px" borderRadius="full" bg="#28CA42" />
-                </Box>
-                {/* URL バー */}
-                <Box
-                  flex={1}
-                  bg="rgba(255,255,255,0.1)"
-                  borderRadius="md"
-                  py="3px"
-                  px={3}
-                >
-                  <Text
-                    fontSize="11px"
-                    color="rgba(255,255,255,0.55)"
-                    fontFamily="monospace"
-                    lineHeight="1.6"
-                  >
-                    collecie.com
-                  </Text>
-                </Box>
-              </Box>
+          
               {/* スクリーンショット本体 */}
               <Image
                 src="/screenshots/revenue-report-pc.png"
@@ -173,14 +141,16 @@ const TopPop = () => {
             {/* スマホ（集金入力）— 右下に重ねる
                 PC画像(540×254px)に対してスマホ(162×317px)が上39px/下20px飛び出すバランス */}
             <Box
+              borderRadius="3xl"
+              overflow="hidden"
               position="absolute"
               bottom="-20px"
               right="-16px"
-              w="162px"
+              w="140px"
               filter="drop-shadow(0 20px 48px rgba(0,0,0,0.55))"
             >
               <Image
-                src="/screenshots/collect-input.png"
+                src="/screenshots/monthly-sales.png"
                 alt="Collecie 集金入力画面"
                 width={694}
                 height={1361}
