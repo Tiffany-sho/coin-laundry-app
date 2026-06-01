@@ -25,8 +25,8 @@ export async function createOrganization(name) {
   const { user } = await getUser();
   if (!user) return { error: "ログインしてください" };
 
-  const supabase = await createClient();
-  const { data: org, error: orgError } = await supabase
+  const serviceSupabase = createServiceClient();
+  const { data: org, error: orgError } = await serviceSupabase
     .from("organizations")
     .insert({ name, owner_id: user.id })
     .select("id")
@@ -34,7 +34,7 @@ export async function createOrganization(name) {
 
   if (orgError) return { error: "組織の作成に失敗しました" };
 
-  const { error: memberError } = await supabase
+  const { error: memberError } = await serviceSupabase
     .from("organization_members")
     .insert({ org_id: org.id, user_id: user.id, role: "admin" });
 

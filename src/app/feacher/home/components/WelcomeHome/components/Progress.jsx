@@ -10,30 +10,21 @@ import CheckProfiles from "./CheckProfiles";
 import OrgSetupForm from "./OrgSetupForm";
 import FinishPage from "./FinishPage";
 
-const stepTitle = (step, role) => {
-  switch (step) {
-    case 1: return "ようこそ！";
-    case 2: return "ユーザの情報登録";
-    case 3: return "集金方法を設定";
-    case 4: return "権限設定";
-    case 5: return "設定内容確認";
-    case 6: return role === "admin" ? "組織の作成" : null;
-    default: return "初期設定が完了しました！";
-  }
-};
-
-const stepSubtitle = (step, totalSteps) => {
-  if (step === 1) return "";
-  if (step <= totalSteps) return `ステップ ${step - 1} / ${totalSteps - 1}`;
-  return "complete!";
+const getTitle = (step, role) => {
+  if (step === 1) return "ようこそ！";
+  if (step === 2) return "ユーザの情報登録";
+  if (step === 3) return "集金方法を設定";
+  if (step === 4) return "権限設定";
+  if (step === 5) return role === "admin" ? "組織の作成" : "設定内容確認";
+  if (step === 6 && role === "admin") return "設定内容確認";
+  return "初期設定が完了しました！";
 };
 
 const Progress = ({ user }) => {
-  const { totalSteps, step, role } = useUploadProfiles();
+  const { step, role } = useUploadProfiles();
 
   const isFinished = role === "admin" ? step > 6 : step > 5;
-  const title = isFinished ? "初期設定が完了しました！" : stepTitle(step, role);
-  const subtitle = isFinished ? "complete!" : stepSubtitle(step, totalSteps);
+  const title = isFinished ? "初期設定が完了しました！" : getTitle(step, role);
 
   return (
     <Box minH="100vh" bg="gray.50" position="relative" zIndex="3000">
@@ -61,11 +52,6 @@ const Progress = ({ user }) => {
             >
               {title}
             </Text>
-            {subtitle && (
-              <Text fontSize="md" color="gray.600">
-                {subtitle}
-              </Text>
-            )}
           </Box>
 
           <Box p={6} bg="blue.50" borderRadius="xl" w="full" textAlign="center">
@@ -73,8 +59,9 @@ const Progress = ({ user }) => {
             {step === 2 && <UserUploadForm />}
             {step === 3 && <CollectMethodChoose />}
             {step === 4 && <AuthorityChoose />}
-            {step === 5 && <CheckProfiles user={user} />}
-            {step === 6 && role === "admin" && <OrgSetupForm />}
+            {step === 5 && role === "admin" && <OrgSetupForm />}
+            {step === 5 && role !== "admin" && <CheckProfiles user={user} />}
+            {step === 6 && role === "admin" && <CheckProfiles user={user} />}
             {isFinished && <FinishPage />}
           </Box>
         </VStack>
