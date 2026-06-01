@@ -12,8 +12,6 @@ import PlanCard from "@/app/feacher/settings/components/PlanCard";
 import CheckoutSuccessBanner from "@/app/feacher/settings/components/CheckoutSuccessBanner";
 import CollectScheduleDisplay from "@/app/feacher/settings/components/CollectScheduleDisplay";
 import JoinOrgForm from "@/app/feacher/settings/components/JoinOrgForm";
-import OrgJoinPasswordCard from "@/app/feacher/settings/components/OrgJoinPasswordCard";
-import { getOrgJoinPassword } from "@/app/api/supabaseFunctions/supabaseDatabase/organization/action";
 import * as Icon from "@/app/feacher/Icon";
 
 export default async function SettingsPage({ searchParams }) {
@@ -30,9 +28,6 @@ export default async function SettingsPage({ searchParams }) {
 
   const hasOrg = !!org?.id;
   const isAdmin = org?.myRole === "admin";
-
-  // 管理者のみ join_password を取得
-  const { data: joinPassword } = isAdmin ? await getOrgJoinPassword() : { data: null };
 
   return (
     <Box maxW="600px" mx="auto" p={{ base: 4, md: 8 }}>
@@ -54,7 +49,6 @@ export default async function SettingsPage({ searchParams }) {
         {isAdmin && <OrgInfoCard org={org} />}
         {isAdmin && planInfo && <PlanCard planInfo={planInfo} />}
         {isAdmin && <CollectScheduleDisplay schedule={schedule} />}
-        {isAdmin && <OrgJoinPasswordCard currentPassword={joinPassword} />}
 
         <AppSettingsCard collectMethod={profile?.collectMethod} />
         <OtherActionsCard />
