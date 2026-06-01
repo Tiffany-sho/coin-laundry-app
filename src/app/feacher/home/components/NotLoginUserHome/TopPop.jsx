@@ -180,7 +180,7 @@ const TopPop = () => {
               filter="drop-shadow(0 20px 48px rgba(0,0,0,0.55))"
             >
               <Image
-                src="/screenshots/collect-input.jpeg"
+                src="/screenshots/collect-input.png"
                 alt="Collecie 集金入力画面"
                 width={694}
                 height={1361}

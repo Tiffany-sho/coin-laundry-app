@@ -13,7 +13,7 @@ const features = [
       "月次・年次グラフでトレンドを把握",
       "CSV / Excel エクスポート対応",
     ],
-    src: "/screenshots/collect-input.jpeg",
+    src: "/screenshots/collect-input.png",
     alt: "集金入力画面",
     imgW: 694,
     imgH: 1361,
