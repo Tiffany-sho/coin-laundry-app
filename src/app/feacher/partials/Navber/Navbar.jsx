@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import styles from "./Navber.module.css";
-import { Image } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 
 const Navbar = ({ user, hasOrg = true }) => {
@@ -35,13 +34,6 @@ const Navbar = ({ user, hasOrg = true }) => {
     <nav className={`${styles.navbar} ${!isVisible ? styles.hidden : ""}`}>
       <div className={styles.container}>
         <Link href="/" className={styles.logo}>
-          <Image
-            src="https://hhdipgftsrsmmuqyifgt.supabase.co/storage/v1/object/public/Laundry-Images/public/logo.png"
-            boxSize="40px"
-            borderRadius="full"
-            fit="cover"
-            alt="Collecie Logo"
-          />
           <span className={styles.logoText}>Collecie</span>
         </Link>
 
