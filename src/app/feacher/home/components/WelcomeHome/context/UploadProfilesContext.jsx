@@ -12,6 +12,7 @@ export const UploadProfilesProvider = ({ children }) => {
   const [username, setUsername] = useState("");
   const [collectMethod, setCollectMethod] = useState("machines");
   const [role, setRole] = useState("admin");
+  const [orgName, setOrgName] = useState("");
 
   const handleNext = () => {
     if (step < totalSteps) {
@@ -44,6 +45,8 @@ export const UploadProfilesProvider = ({ children }) => {
     setCollectMethod,
     role,
     setRole,
+    orgName,
+    setOrgName,
   };
 
   return (
