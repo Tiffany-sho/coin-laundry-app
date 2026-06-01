@@ -19,11 +19,11 @@ export async function middleware(request) {
     return NextResponse.redirect(url);
   }
 
-  // 初期設定未完了（プロフィールなし）は保護ページにアクセス不可 → ホームへ
+  // プロフィールなし・admin以外でorgなし → ホームのみ許可
   if (user && isProtected) {
     const { data: profile } = await supabase
       .from("profiles")
-      .select("id")
+      .select("id, role")
       .eq("id", user.id)
       .maybeSingle();
 
@@ -31,6 +31,20 @@ export async function middleware(request) {
       const url = request.nextUrl.clone();
       url.pathname = "/";
       return NextResponse.redirect(url);
+    }
+
+    if (profile.role !== "admin") {
+      const { data: membership } = await supabase
+        .from("organization_members")
+        .select("id")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (!membership) {
+        const url = request.nextUrl.clone();
+        url.pathname = "/";
+        return NextResponse.redirect(url);
+      }
     }
   }
 
