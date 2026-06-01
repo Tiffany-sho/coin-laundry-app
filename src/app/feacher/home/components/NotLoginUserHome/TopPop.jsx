@@ -136,13 +136,14 @@ const TopPop = () => {
               />
             </Box>
 
-            {/* スマホ（集金入力）— 右下に重ねる */}
+            {/* スマホ（集金入力）— 右下に重ねる
+                PC画像(540×254px)に対してスマホ(162×317px)が上39px/下20px飛び出すバランス */}
             <Box
               position="absolute"
-              bottom="-24px"
-              right="-20px"
-              w="180px"
-              filter="drop-shadow(0 16px 40px rgba(0,0,0,0.5))"
+              bottom="-20px"
+              right="-16px"
+              w="162px"
+              filter="drop-shadow(0 20px 48px rgba(0,0,0,0.55))"
             >
               <Image
                 src="/screenshots/collect-input.jpeg"

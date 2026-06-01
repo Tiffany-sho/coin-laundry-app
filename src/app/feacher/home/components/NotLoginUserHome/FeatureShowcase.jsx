@@ -15,6 +15,8 @@ const features = [
     ],
     src: "/screenshots/collect-input.jpeg",
     alt: "集金入力画面",
+    imgW: 694,
+    imgH: 1361,
     reverse: false,
   },
   {
@@ -29,6 +31,8 @@ const features = [
     ],
     src: "/screenshots/inventory.png",
     alt: "在庫管理画面",
+    imgW: 704,
+    imgH: 1524,
     reverse: true,
   },
   {
@@ -43,6 +47,8 @@ const features = [
     ],
     src: "/screenshots/equipment.png",
     alt: "設備管理画面",
+    imgW: 704,
+    imgH: 1524,
     reverse: false,
   },
   {
@@ -58,11 +64,13 @@ const features = [
     ],
     src: "/screenshots/monthly-sales.png",
     alt: "月別売上画面",
+    imgW: 704,
+    imgH: 1524,
     reverse: true,
   },
 ];
 
-const FeatureRow = ({ tag, title, description, points, src, alt, reverse }) => (
+const FeatureRow = ({ tag, title, description, points, src, alt, imgW, imgH, reverse }) => (
   <Flex
     direction={{ base: "column", md: reverse ? "row-reverse" : "row" }}
     gap={{ base: 8, md: 14 }}
@@ -113,19 +121,19 @@ const FeatureRow = ({ tag, title, description, points, src, alt, reverse }) => (
       </VStack>
     </VStack>
 
-    {/* スクリーンショット（iPhoneフレーム込みのまま） */}
+    {/* スクリーンショット */}
     <Box
       flex={1}
       minW={0}
-      maxW={{ base: "280px", md: "320px" }}
+      maxW={{ base: "260px", md: "300px" }}
       mx={{ base: "auto", md: 0 }}
-      filter="drop-shadow(0 20px 48px rgba(0,0,0,0.22))"
+      filter="drop-shadow(0 24px 56px rgba(0,0,0,0.28))"
     >
       <Image
         src={src}
         alt={alt}
-        width={704}
-        height={1524}
+        width={imgW}
+        height={imgH}
         style={{ width: "100%", height: "auto", display: "block" }}
       />
     </Box>
