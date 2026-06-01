@@ -55,9 +55,9 @@ export default function TokushohoPage() {
           boxShadow="var(--shadow-sm)"
           border="1px solid"
           borderColor="cyan.100"
-          overflow="hidden"
+          overflowX="auto"
         >
-          <Table.Root>
+          <Table.Root minW="480px">
             <Table.Body>
               {rows.map(({ label, value }) => (
                 <Table.Row key={label}>
