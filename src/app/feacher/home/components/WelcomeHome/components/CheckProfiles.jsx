@@ -6,20 +6,28 @@ import * as Icon from "@/app/feacher/Icon";
 import { useState } from "react";
 import { showToast } from "@/functions/makeToast/toast";
 import { registerProfile } from "@/app/api/supabaseFunctions/supabaseDatabase/profiles/action";
+import { createOrganization } from "@/app/api/supabaseFunctions/supabaseDatabase/organization/action";
 
 const CheckProfiles = () => {
-  const { handleNext, handleBack, fullname, username, collectMethod, role } = useUploadProfiles();
+  const { handleNext, handleBack, fullname, username, collectMethod, role, orgName } = useUploadProfiles();
   const [loading, setLoading] = useState(false);
 
-  const UploadProfiles = async () => {
+  const handleRegister = async () => {
     try {
       setLoading(true);
-      const { error } = await registerProfile({ fullname, username, collectMethod, role });
-      if (error) throw error;
+
+      const { error: profileError } = await registerProfile({ fullname, username, collectMethod, role });
+      if (profileError) throw new Error(typeof profileError === "string" ? profileError : "ユーザ登録に失敗しました");
+
+      if (role === "admin") {
+        const { error: orgError } = await createOrganization(orgName);
+        if (orgError) throw new Error(orgError);
+      }
+
+      showToast("success", "登録が完了しました");
       handleNext();
-      showToast("success", "ユーザ登録完了しました");
-    } catch (error) {
-      showToast("error", "ユーザ登録に失敗しました");
+    } catch (e) {
+      showToast("error", e.message || "登録に失敗しました");
     } finally {
       setLoading(false);
     }
@@ -28,11 +36,11 @@ const CheckProfiles = () => {
   const getRoleInfo = (role) => {
     switch (role) {
       case "admin":
-        return { label: "店舗管理者", color: "cyan", icon: <Icon.LuCrown /> };
+        return { label: "店舗管理者", icon: <Icon.LuCrown /> };
       case "collecter":
-        return { label: "集金担当者", color: "cyan", icon: <Icon.LuUserCheck /> };
+        return { label: "集金担当者", icon: <Icon.LuUserCheck /> };
       default:
-        return { label: "閲覧者", color: "gray", icon: <Icon.LuEye /> };
+        return { label: "閲覧者", icon: <Icon.LuEye /> };
     }
   };
 
@@ -89,11 +97,7 @@ const CheckProfiles = () => {
           <Badge
             bg={collectMethod === "machines" ? "cyan.100" : "teal.100"}
             color={collectMethod === "machines" ? "cyan.800" : "teal.800"}
-            px={3}
-            py={1}
-            borderRadius="full"
-            fontSize="xs"
-            fontWeight="semibold"
+            px={3} py={1} borderRadius="full" fontSize="xs" fontWeight="semibold"
           >
             {collectMethod === "machines" ? "詳細" : "簡易"}
           </Badge>
@@ -104,19 +108,14 @@ const CheckProfiles = () => {
         label="役割"
         value={roleInfo.label}
         badge={
-          <Badge
-            bg="cyan.100"
-            color="cyan.800"
-            px={3}
-            py={1}
-            borderRadius="full"
-            fontSize="xs"
-            fontWeight="semibold"
-          >
+          <Badge bg="cyan.100" color="cyan.800" px={3} py={1} borderRadius="full" fontSize="xs" fontWeight="semibold">
             {roleInfo.label}
           </Badge>
         }
       />
+      {role === "admin" && (
+        <InfoItem icon={<Icon.LuBuilding2 />} label="組織名" value={orgName} />
+      )}
 
       <HStack gap={3} w="full" mt={2}>
         <Button
@@ -141,7 +140,7 @@ const CheckProfiles = () => {
           fontWeight="bold"
           borderRadius="xl"
           py={6}
-          onClick={UploadProfiles}
+          onClick={handleRegister}
           disabled={loading}
           boxShadow="0 4px 14px rgba(8,145,178,0.3)"
           _hover={{ transform: "translateY(-2px)", boxShadow: "0 6px 20px rgba(8,145,178,0.5)" }}
