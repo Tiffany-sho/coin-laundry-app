@@ -31,8 +31,8 @@ const plans = [
     price: "¥1,980",
     period: "/月（税込）",
     badge: "おすすめ",
-    trial: "14日間無料トライアル",
-    cta: "14日間無料で試す",
+    trial: "6か月無料トライアル",
+    cta: "6か月無料で試す",
     ctaHref: "/auth/login",
     featured: true,
     rows: [
@@ -49,8 +49,8 @@ const plans = [
     name: "Max",
     price: "¥3,980",
     period: "/月（税込）",
-    trial: "14日間無料トライアル",
-    cta: "14日間無料で試す",
+    trial: "6か月無料トライアル",
+    cta: "6か月無料で試す",
     ctaHref: "/auth/login",
     featured: false,
     rows: [
@@ -242,7 +242,7 @@ const PricingSection = () => {
 
           {/* 補足 */}
           <Text fontSize="sm" color="var(--text-muted)" textAlign="center">
-            すべてのプランに14日間無料トライアル付き。クレジットカード不要で試せます。
+            すべてのプランに6か月無料トライアル付き。クレジットカード不要で試せます。
           </Text>
         </VStack>
       </Container>

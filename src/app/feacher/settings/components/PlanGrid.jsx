@@ -19,7 +19,7 @@ const PLANS = [
     price: "¥780",
     storeLimit: "5店舗",
     features: ["集金記録", "在庫管理", "データ可視化", "メンバー管理"],
-    trial: "無料トライアルあり",
+    trial: "6か月無料トライアル",
   },
   {
     key: "max",
