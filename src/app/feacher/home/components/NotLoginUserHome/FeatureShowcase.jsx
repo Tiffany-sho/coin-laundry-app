@@ -13,7 +13,7 @@ const features = [
       "月次・年次グラフでトレンドを把握",
       "CSV / Excel エクスポート対応",
     ],
-    src: "/screenshots/collect-input.png",
+    src: "/screenshots/collect-input.jpeg",
     alt: "集金入力画面",
     imgW: 694,
     imgH: 1361,
@@ -30,7 +30,7 @@ const features = [
       "閾値アラートで補充タイミングを通知",
       "全店舗の在庫を一覧で確認",
     ],
-    src: "/screenshots/inventory.png",
+    src: "/screenshots/inventory.jpeg",
     alt: "在庫管理画面",
     imgW: 704,
     imgH: 1524,
@@ -47,7 +47,7 @@ const features = [
       "全店舗の機器を一覧で比較",
       "故障中の機器を店舗名付きで一目確認",
     ],
-    src: "/screenshots/equipment.png",
+    src: "/screenshots/equipment.jpeg",
     alt: "設備管理画面",
     imgW: 704,
     imgH: 1524,
@@ -65,7 +65,7 @@ const features = [
       "前月比・前年比の自動計算",
       "期間・店舗指定でエクスポート",
     ],
-    src: "/screenshots/monthly-sales.png",
+    src: "/screenshots/monthly-sales.jpeg",
     alt: "月別売上画面",
     imgW: 704,
     imgH: 1524,
@@ -150,7 +150,7 @@ const FeatureRow = ({ tag, title, description, points, src, alt, imgW, imgH, blo
       />
       {/* 画像本体 */}
       <Box
-        borderRadius="10%"
+        borderRadius="8%"
         overflow="hidden"
         position="relative"
         zIndex={1}
