@@ -1,9 +1,10 @@
 "use client";
 
-import { Button, Card, Field, Input, Stack, Box, Text } from "@chakra-ui/react";
+import { Button, Card, Field, Input, Stack, Box, Text, HStack } from "@chakra-ui/react";
 import { PasswordInput } from "@/components/ui/password-input";
 import { useActionState } from "react";
 import Link from "next/link";
+import { LuChevronLeft } from "react-icons/lu";
 import ProviderForm from "../ProviderForm/ProviderForm";
 
 export default function AuthForm({ mode, action }) {
@@ -34,7 +35,15 @@ export default function AuthForm({ mode, action }) {
       bg="var(--app-bg, #F0F9FF)"
       px={4}
     >
-      <form action={formAction}>
+      <Box w="full" maxW="md">
+        <Link href="/">
+          <HStack gap={1} color="var(--text-muted)" fontSize="sm" mb={4} cursor="pointer"
+            _hover={{ color: "var(--text-main)" }}>
+            <LuChevronLeft size={16} />
+            <Text>トップに戻る</Text>
+          </HStack>
+        </Link>
+        <form action={formAction}>
         <Card.Root
           maxW="md"
           w="full"
@@ -208,7 +217,8 @@ export default function AuthForm({ mode, action }) {
             <ProviderForm title={title} />
           </Card.Footer>
         </Card.Root>
-      </form>
+        </form>
+      </Box>
     </Box>
   );
 }
