@@ -19,7 +19,7 @@ export const uploadStoreImage = async (formData) => {
 
   if (error) {
     console.error("Storage upload error:", error);
-    return { error: "画像のアップロードに失敗しました" };
+    return { error: `画像アップロードエラー: ${error.message} (${error.statusCode ?? error.error ?? ""})` };
   }
 
   const { data } = supabase.storage
