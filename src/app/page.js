@@ -4,6 +4,7 @@ import ErrorPage from "./feacher/jumpPage/ErrorPage/ErrorPage";
 import NotLoginUserHome from "./feacher/home/components/NotLoginUserHome/NotLoginUserHome";
 import LoginUserHome from "./feacher/home/components/LoginUserHome/LoginUserHome";
 import WelcomeHome from "./feacher/home/components/WelcomeHome/WelcomeHome";
+import JoinOrganizationHome from "./feacher/home/components/JoinOrganizationHome/JoinOrganizationHome";
 import { getUser } from "./api/supabaseFunctions/supabaseDatabase/user/action";
 import { getMyOrganization } from "./api/supabaseFunctions/supabaseDatabase/organization/action";
 
@@ -123,6 +124,9 @@ const Home = async () => {
       </>
     );
   if (!data) return <WelcomeHome user={user} />;
+  if (!hasOrg && data.role !== "admin") {
+    return <JoinOrganizationHome username={data.username} role={data.role} />;
+  }
   return <LoginUserHome id={data.id} username={data.username} myRole={myRole} hasOrg={hasOrg} />;
 };
 
