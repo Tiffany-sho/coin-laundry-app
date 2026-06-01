@@ -323,20 +323,23 @@ export async function getOrgCollectFunds(startEpoch, endEpoch) {
 }
 
 // ホーム用：org全体の最新N件
-export async function getRecentCollectFunds(limit = 5) {
+export async function getRecentCollectFunds() {
   const { user } = await getUser();
   if (!user) return { error: "ログインしてください" };
 
   const storeIds = await getOrgStoreIds();
   if (storeIds.length === 0) return { data: [] };
 
+  const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
+
   const supabase = createServiceClient();
   const { data, error } = await supabase
     .from("collect_funds")
     .select("id, laundryName, date, totalFunds, profiles!collect_funds_collecter_fkey(username)")
     .in("laundryId", storeIds)
+    .gte("date", thirtyDaysAgo)
     .order("date", { ascending: false })
-    .limit(limit);
+    .limit(30);
 
   if (error) return { error: "集金データの取得に失敗しました" };
   return { data };

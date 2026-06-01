@@ -5,7 +5,7 @@ import { createNowData } from "@/functions/makeDate/date";
 import * as Icon from "@/app/feacher/Icon";
 
 const RecentCollectList = async () => {
-  const { data, error } = await getRecentCollectFunds(5);
+  const { data, error } = await getRecentCollectFunds();
 
   return (
     <Box
@@ -27,7 +27,7 @@ const RecentCollectList = async () => {
             <Icon.LuHistory size={15} />
           </Box>
           <Text fontSize="sm" fontWeight="bold" color="var(--teal-deeper, #155E75)">
-            直近の集金記録
+            過去1ヶ月の集金記録
           </Text>
         </HStack>
         <Link href="/collectMoney">
@@ -41,7 +41,7 @@ const RecentCollectList = async () => {
         </Box>
       ) : !data || data.length === 0 ? (
         <Box px={4} py={6} textAlign="center">
-          <Text fontSize="sm" color="var(--text-muted, #64748B)">集金記録がありません</Text>
+          <Text fontSize="sm" color="var(--text-muted, #64748B)">過去1ヶ月の集金記録はありません</Text>
         </Box>
       ) : (
         <VStack align="stretch" gap={0}>
