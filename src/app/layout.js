@@ -5,7 +5,6 @@ import { Toaster } from "@/components/ui/toaster";
 import NavbarWrapper from "@/app/feacher/partials/Navber/NavbarWrapper";
 import FooterNavbarWrapper from "@/app/feacher/partials/FooterNavbar/FooterNavbarWrapper";
 import NavVisibilityWrapper from "@/app/feacher/partials/NavVisibilityWrapper";
-import FeedbackButton from "@/app/feacher/partials/FeedbackButton";
 import SplashScreen from "@/app/feacher/splash/SplashScreen";
 import SWRegistration from "@/app/feacher/pwa/SWRegistration";
 import styles from "./layout.module.css";
@@ -101,7 +100,6 @@ export default function RootLayout({ children }) {
             </NavVisibilityWrapper>
             <main className={styles.mainContent}>{children}</main>
             <Toaster />
-            <FeedbackButton />
             <NavVisibilityWrapper>
               <Suspense fallback={null}>
                 <FooterNavbarWrapper />
