@@ -25,17 +25,33 @@ export async function login(preState, formData) {
 export async function signup(preState, formData) {
   const supabase = await createClient();
 
-  const data = {
-    email: formData.get("email"),
-    password: formData.get("password"),
-  };
+  const email = formData.get("email");
+  const password = formData.get("password");
 
-  const { error } = await supabase.auth.signUp(data);
+  if (!password || password.length < 8) {
+    return { error: "パスワードは8文字以上で入力してください。" };
+  }
+  if (!/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
+    return { error: "パスワードは英字と数字を両方含めてください。" };
+  }
+
+  const { error } = await supabase.auth.signUp({ email, password });
 
   if (error) {
-    return {
-      error: "エラーが発生しました。もう一度お願いします。",
-    };
+    const msg = error.message?.toLowerCase() ?? "";
+    if (msg.includes("already registered") || msg.includes("user already exists")) {
+      return { error: "このメールアドレスはすでに登録されています。ログインページからログインしてください。" };
+    }
+    if (msg.includes("rate limit") || msg.includes("email rate")) {
+      return { error: "しばらく時間をおいてから再度お試しください。" };
+    }
+    if (msg.includes("invalid email") || msg.includes("valid email")) {
+      return { error: "有効なメールアドレスを入力してください。" };
+    }
+    if (msg.includes("password")) {
+      return { error: "パスワードは英数字を含む8文字以上で入力してください。" };
+    }
+    return { error: "エラーが発生しました。もう一度お試しください。" };
   }
 
   revalidatePath("/", "layout");

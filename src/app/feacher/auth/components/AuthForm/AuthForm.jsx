@@ -2,7 +2,7 @@
 
 import { Button, Card, Field, Input, Stack, Box, Text, HStack } from "@chakra-ui/react";
 import { PasswordInput } from "@/components/ui/password-input";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import Link from "next/link";
 import { LuChevronLeft } from "react-icons/lu";
 import ProviderForm from "../ProviderForm/ProviderForm";
@@ -14,6 +14,7 @@ export default function AuthForm({ mode, action }) {
   };
 
   const [state, formAction] = useActionState(action, initState);
+  const [clientError, setClientError] = useState(null);
   const isLogin = mode === "login";
   const title = isLogin ? "ログイン" : "新規登録";
   const buttonText = isLogin ? "ログイン" : "新規登録";
@@ -25,6 +26,29 @@ export default function AuthForm({ mode, action }) {
     : "既にアカウントをお持ちの方";
   const linkHref = isLogin ? "/auth/signup" : "/auth/login";
   const linkLabel = isLogin ? "新規登録" : "ログイン";
+
+  const handleSubmit = (e) => {
+    if (isLogin) return;
+    setClientError(null);
+    const form = e.currentTarget;
+    const password = form.password.value;
+    const confirm = form.confirmPassword.value;
+    if (password.length < 8) {
+      e.preventDefault();
+      setClientError("パスワードは8文字以上で入力してください。");
+      return;
+    }
+    if (!/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
+      e.preventDefault();
+      setClientError("パスワードは英字と数字を両方含めてください。");
+      return;
+    }
+    if (password !== confirm) {
+      e.preventDefault();
+      setClientError("パスワードが一致しません。");
+      return;
+    }
+  };
 
   return (
     <Box
@@ -43,7 +67,7 @@ export default function AuthForm({ mode, action }) {
             <Text>トップに戻る</Text>
           </HStack>
         </Link>
-        <form action={formAction}>
+        <form action={formAction} onSubmit={handleSubmit}>
         <Card.Root
           maxW="md"
           w="full"
@@ -69,7 +93,7 @@ export default function AuthForm({ mode, action }) {
 
           <Card.Body py={8} px={6} bg="var(--card-bg, #FFFFFF)">
             <Stack gap="6" w="full">
-              {state?.error && (
+              {(clientError || state?.error) && (
                 <Box
                   p={3}
                   bg="red.50"
@@ -78,7 +102,7 @@ export default function AuthForm({ mode, action }) {
                   borderRadius="md"
                 >
                   <Text color="red.700" fontSize="sm" fontWeight="medium">
-                    {state.error}
+                    {clientError || state.error}
                   </Text>
                 </Box>
               )}
@@ -130,6 +154,38 @@ export default function AuthForm({ mode, action }) {
                   }}
                 />
               </Field.Root>
+
+              {!isLogin && (
+                <Text fontSize="xs" color="var(--text-faint)" mt={-3}>
+                  英字と数字を含む8文字以上
+                </Text>
+              )}
+
+              {!isLogin && (
+                <Field.Root>
+                  <Field.Label
+                    htmlFor="confirmPassword"
+                    fontSize="sm"
+                    fontWeight="semibold"
+                    color="var(--text-main, #1E3A5F)"
+                  >
+                    パスワード（確認）
+                  </Field.Label>
+                  <PasswordInput
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    placeholder="パスワードを再入力"
+                    required
+                    size="lg"
+                    borderRadius="lg"
+                    borderColor="var(--divider, #F1F5F9)"
+                    _focus={{
+                      borderColor: "cyan.500",
+                      boxShadow: "0 0 0 2px rgba(8, 145, 178, 0.20)",
+                    }}
+                  />
+                </Field.Root>
+              )}
 
               {isLogin && (
                 <Text fontSize="sm" color="var(--text-muted, #64748B)">
