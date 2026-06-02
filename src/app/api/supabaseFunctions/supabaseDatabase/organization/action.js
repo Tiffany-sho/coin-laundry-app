@@ -153,6 +153,12 @@ export async function inviteMember(email, role) {
   const VALID_ROLES = ["collecter", "viewer"];
   if (!VALID_ROLES.includes(role)) return { error: "無効なロールです" };
 
+  // Collecieに登録済みのユーザーかチェック
+  const serviceSupabase = createServiceClient();
+  const { data: usersData } = await serviceSupabase.auth.admin.listUsers({ page: 1, perPage: 1000 });
+  const userExists = usersData?.users?.some((u) => u.email === email);
+  if (!userExists) return { error: "このメールアドレスはCollecieに登録されていません。先にアカウントを作成してもらってください。" };
+
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
   const { data, error } = await supabase
