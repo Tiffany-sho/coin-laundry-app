@@ -15,8 +15,8 @@ export default function AuthForm({ mode, action }) {
 
   const [state, formAction] = useActionState(action, initState);
   const isLogin = mode === "login";
-  const title = isLogin ? "ログイン" : "サインアップ";
-  const buttonText = isLogin ? "ログイン" : "サインアップ";
+  const title = isLogin ? "ログイン" : "新規登録";
+  const buttonText = isLogin ? "ログイン" : "新規登録";
   const description = isLogin
     ? "アカウント情報を入力してログインしてください"
     : "新しいアカウントを作成するために情報を入力してください";
@@ -24,7 +24,7 @@ export default function AuthForm({ mode, action }) {
     ? "アカウントをお持ちでない方"
     : "既にアカウントをお持ちの方";
   const linkHref = isLogin ? "/auth/signup" : "/auth/login";
-  const linkLabel = isLogin ? "サインアップ" : "ログイン";
+  const linkLabel = isLogin ? "新規登録" : "ログイン";
 
   return (
     <Box
