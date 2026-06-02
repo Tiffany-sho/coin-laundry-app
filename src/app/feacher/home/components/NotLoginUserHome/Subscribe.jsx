@@ -38,15 +38,15 @@ const Subscribe = () => {
               color="white"
               letterSpacing="-0.01em"
             >
-              今すぐ始めましょう
+              まずは無料で試してみませんか
             </Heading>
             <Text
               fontSize={{ base: "md", md: "lg" }}
               color="rgba(255,255,255,0.82)"
               lineHeight="1.8"
             >
-              6か月無料トライアル付き。<br />
-              クレジットカード不要でいますぐ試せます。
+              3店舗まで永久無料。クレジットカード不要で今すぐ始められます。<br />
+              Proプランは6か月間、費用ゼロでお試しいただけます。
             </Text>
           </VStack>
 

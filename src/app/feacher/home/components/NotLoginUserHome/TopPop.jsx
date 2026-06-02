@@ -52,9 +52,9 @@ const TopPop = () => {
               fontWeight="bold"
               letterSpacing="-0.02em"
             >
-              集金管理を、
+              集金ノートを、
               <br />
-              もっとスマートに。
+              卒業しませんか。
             </Heading>
 
             <Text
@@ -63,9 +63,9 @@ const TopPop = () => {
               lineHeight="1.9"
               maxW="460px"
             >
-              面倒な集金作業をデジタル化。
+              機種ごとの枚数を入力するだけで、売上を自動集計。
               <br />
-              売上管理から在庫・機器状態まで、これひとつで完結します。
+              在庫管理から機器状態まで、スマホひとつでまとめて管理できます。
             </Text>
 
             <HStack gap={3} flexWrap="wrap">
@@ -103,7 +103,7 @@ const TopPop = () => {
             </HStack>
 
             <HStack gap={{ base: 4, md: 6 }} flexWrap="wrap">
-              {["6か月無料トライアル", "クレジットカード不要", "3店舗まで永久無料"].map((label) => (
+              {["Proプランは6か月無料", "クレジットカード不要", "3店舗まで永久無料"].map((label) => (
                 <HStack key={label} gap={2}>
                   <Box w="6px" h="6px" borderRadius="full" bg="rgba(255,255,255,0.65)" flexShrink={0} />
                   <Text fontSize="sm" color="rgba(255,255,255,0.82)">{label}</Text>

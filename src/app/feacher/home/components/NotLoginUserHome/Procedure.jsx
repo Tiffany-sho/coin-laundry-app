@@ -6,19 +6,19 @@ const steps = [
     number: "01",
     icon: <Icon.LuUser size={24} />,
     title: "アカウント登録",
-    description: "メールアドレスで簡単に無料登録。6か月のトライアルがすぐに始まります。",
+    description: "メールアドレスだけで30秒登録完了。クレジットカード不要で、Proプランの6か月トライアルがすぐに始まります。",
   },
   {
     number: "02",
     icon: <Icon.LiaStoreSolid size={24} />,
     title: "店舗情報を登録",
-    description: "店舗名・所在地・機器情報を入力するだけ。複数店舗もまとめて登録できます。",
+    description: "店舗名・住所・設置機器を入力するだけ。複数店舗も一括登録でき、そのまま集金記録を開始できます。",
   },
   {
     number: "03",
     icon: <Icon.PiHandCoinsLight size={24} />,
     title: "集金データを記録",
-    description: "現場でスマートフォンから素早く記録。履歴は自動で蓄積・グラフ化されます。",
+    description: "現場でスマホから機種別の枚数を入力するだけ。売上データはクラウドに自動保存され、いつでもグラフで確認できます。",
   },
 ];
 
@@ -45,7 +45,7 @@ const Procedure = () => {
               3ステップで始められます
             </Heading>
             <Text fontSize={{ base: "md", md: "lg" }} color="var(--text-muted)">
-              セットアップは最短5分。すぐに使い始められます。
+              難しい設定は一切なし。最短5分で集金記録を始められます。
             </Text>
           </VStack>
 
