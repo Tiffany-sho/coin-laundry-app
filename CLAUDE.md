@@ -358,6 +358,24 @@ git push origin main
 5. **プッシュ通知 / リマインダー** — 集金タイミングの通知
 6. ~~**累計サマリー統計（/collectMoney）**~~ — 実装済み。`StoreRevenueChart`（店舗別累計横棒グラフ）・`MonthlySummaryCard`（月次前月比/前年比テーブル）を `feacher/collectMoney/components/coinDataList/parts/` に追加。データは `getStoreRevenueSummary()`（`totalFunds, laundryName, laundryId` の3カラムのみfetch）でクライアント集計。
 
+## 実装済み機能メモ（最近の変更）
+
+### 招待制限
+- `inviteMember` で `admin` ロールへの招待はブロック（クライアント + サーバー両方で二重チェック）。
+- 招待メール送信前に `auth.admin.listUsers` でCollecieアカウント存在確認。未登録メールアドレスには送信不可。
+
+### 役割リセットページ（/settings/reset-role）
+- 誤って店舗管理者で登録したユーザ向け。組織・全店舗データ・メンバー情報を一括削除。
+- `getMyOrgOwnerDetails()` / `deleteMyOrganization()` — `organization/action.js` に追加。
+- FK制約を考慮した削除順: `laundry_state` → `collect_funds` → `action_message` → `laundry_store` → `organization_invitations` → `organization_members` → `organizations`。
+
+### 設定ページの注意カード（DangerActionsCard）
+- 管理者かつアカウント作成から3日以内のみ表示。`user.created_at` で判定（追加DBクエリ不要）。
+
+### 売上履歴の全期間表示
+- `/coinLaundry/[id]/coinDataList` の売上履歴テーブルは過去2か月制限を撤廃（全期間表示）。
+- `getStoreFundsPaginated` から日付フィルタを削除。「さらに表示」も `getStoreFundsPaginated` サーバーアクション経由に統一（旧: RLSクライアント + collecter=自分 でフィルタしていた）。
+
 ---
 
 ## 環境変数

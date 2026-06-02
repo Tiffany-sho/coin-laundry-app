@@ -1,12 +1,9 @@
 import { Button } from "@chakra-ui/react";
 import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
 import { useState } from "react";
-import { createClient } from "@/utils/supabase/client";
-import { getUser } from "@/app/api/supabaseFunctions/supabaseDatabase/user/action";
-import { getOrgCollectFundsPaginated } from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
+import { getStoreFundsPaginated, getOrgCollectFundsPaginated } from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
 
 const AddDataBtn = ({ id = "" }) => {
-  const supabase = createClient();
   const [isLoading, setIsLoading] = useState(false);
   const {
     PAGE_SIZE,
@@ -27,17 +24,14 @@ const AddDataBtn = ({ id = "" }) => {
       const to = from + PAGE_SIZE - 1;
 
       if (id) {
-        // aStore: ブラウザクライアントで自分の集金データを追加取得
-        const { user } = await getUser();
-        if (!user) return;
-
-        const { data: nextData, error: nextError } = await supabase
-          .from("collect_funds")
-          .select("id, laundryId, laundryName, date, totalFunds, collecter, profiles!collect_funds_collecter_fkey(username)")
-          .eq("collecter", user.id)
-          .eq("laundryId", id)
-          .order(orderAmount, { ascending: upOrder })
-          .range(from, to);
+        // aStore: サーバーアクションで組織の集金データを追加取得（全期間）
+        const { data: nextData, error: nextError } = await getStoreFundsPaginated(
+          id,
+          orderAmount,
+          upOrder,
+          from,
+          to
+        );
 
         if (nextError) {
           setDisplayData(null);

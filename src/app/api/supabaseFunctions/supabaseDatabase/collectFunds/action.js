@@ -71,7 +71,7 @@ export async function getStoreFundsForChart(id, startEpoch, endEpoch) {
   return { data };
 }
 
-// 店舗の集金データ取得（過去2か月・ページネーション付き、RLS回避）
+// 店舗の集金データ取得（全期間・ページネーション付き、RLS回避）
 // 管理者・集金担当者・閲覧者全員が参照可能
 export async function getStoreFundsPaginated(id, orderAmount, upOrder, from, to) {
   const { user } = await getUser();
@@ -80,14 +80,11 @@ export async function getStoreFundsPaginated(id, orderAmount, upOrder, from, to)
   const storeIds = await getOrgStoreIds();
   if (!storeIds.includes(id)) return { error: "アクセス権限がありません" };
 
-  const startEpoch = changeEpocFromNowYearMonth(-2);
-
   const supabase = createServiceClient();
   const { data, error } = await supabase
     .from("collect_funds")
     .select("id, laundryId, laundryName, date, totalFunds, collecter, profiles!collect_funds_collecter_fkey(username)")
     .eq("laundryId", id)
-    .gte("date", startEpoch)
     .order(orderAmount, { ascending: upOrder })
     .range(from, to);
 
