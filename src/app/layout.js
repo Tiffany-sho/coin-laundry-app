@@ -77,6 +77,11 @@ export const metadata = {
     title: siteName,
   },
   icons: {
+    icon: [
+      { url: "/icons/icon-192.png", type: "image/png", sizes: "192x192" },
+      { url: "/icons/icon-512.png", type: "image/png", sizes: "512x512" },
+    ],
+    shortcut: "/icons/icon-192.png",
     apple: "/icons/icon-192.png",
   },
 };
