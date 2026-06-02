@@ -29,6 +29,9 @@ export default async function SettingsPage({ searchParams }) {
 
   const hasOrg = !!org?.id;
   const isAdmin = org?.myRole === "admin";
+  const isWithinThreeDays =
+    user?.created_at &&
+    Date.now() - new Date(user.created_at).getTime() < 3 * 24 * 60 * 60 * 1000;
 
   return (
     <Box maxW="600px" mx="auto" p={{ base: 4, md: 8 }}>
@@ -54,8 +57,8 @@ export default async function SettingsPage({ searchParams }) {
         <AppSettingsCard collectMethod={profile?.collectMethod} />
         <OtherActionsCard />
 
-        {/* 管理者向け：注意が必要な操作 */}
-        {isAdmin && <DangerActionsCard />}
+        {/* 管理者向け：注意が必要な操作（登録から3日以内のみ表示） */}
+        {isAdmin && isWithinThreeDays && <DangerActionsCard />}
       </VStack>
     </Box>
   );
