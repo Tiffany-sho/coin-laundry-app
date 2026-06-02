@@ -7,14 +7,14 @@ import TopPop from "./TopPop";
 
 const NotLoginUserHome = () => {
   return (
-    <>
+    <div style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif" }}>
       <TopPop />
       <BeforeAfter />
       <FeatureShowcase />
       <Procedure />
       <PricingSection />
       <Subscribe />
-    </>
+    </div>
   );
 };
 
