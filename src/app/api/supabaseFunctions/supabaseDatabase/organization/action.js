@@ -483,3 +483,103 @@ export async function getOrgPlan() {
     },
   };
 }
+
+// ─── 組織削除（オーナー専用） ──────────────────────────────────
+
+export async function getMyOrgOwnerDetails() {
+  const { user } = await getUser();
+  if (!user) return { error: "ログインしてください" };
+
+  const supabase = await createClient();
+  const { data: myMember, error: myError } = await supabase
+    .from("organization_members")
+    .select("org_id, role")
+    .eq("user_id", user.id)
+    .single();
+
+  if (myError || !myMember) return { error: "組織に所属していません" };
+  if (myMember.role !== "admin") return { error: "権限がありません" };
+
+  const serviceSupabase = createServiceClient();
+  const { data: org, error: orgError } = await serviceSupabase
+    .from("organizations")
+    .select("id, name, owner_id")
+    .eq("id", myMember.org_id)
+    .single();
+
+  if (orgError || !org) return { error: "組織情報の取得に失敗しました" };
+  if (org.owner_id !== user.id) return { error: "オーナーのみアクセスできます" };
+
+  const { count: storeCount } = await serviceSupabase
+    .from("laundry_store")
+    .select("*", { count: "exact", head: true })
+    .eq("organization_id", org.id);
+
+  const { count: memberCount } = await serviceSupabase
+    .from("organization_members")
+    .select("*", { count: "exact", head: true })
+    .eq("org_id", org.id);
+
+  return {
+    data: {
+      orgName: org.name,
+      storeCount: storeCount ?? 0,
+      memberCount: memberCount ?? 0,
+    },
+  };
+}
+
+export async function deleteMyOrganization() {
+  const { user } = await getUser();
+  if (!user) return { error: "ログインしてください" };
+
+  const supabase = await createClient();
+  const { data: myMember, error: myError } = await supabase
+    .from("organization_members")
+    .select("org_id, role")
+    .eq("user_id", user.id)
+    .single();
+
+  if (myError || !myMember) return { error: "組織に所属していません" };
+  if (myMember.role !== "admin") return { error: "権限がありません" };
+
+  const serviceSupabase = createServiceClient();
+  const { data: org, error: orgError } = await serviceSupabase
+    .from("organizations")
+    .select("id, owner_id")
+    .eq("id", myMember.org_id)
+    .single();
+
+  if (orgError || !org) return { error: "組織情報の取得に失敗しました" };
+  if (org.owner_id !== user.id) return { error: "オーナーのみ組織を削除できます" };
+
+  const orgId = myMember.org_id;
+
+  // 店舗IDを取得
+  const { data: stores } = await serviceSupabase
+    .from("laundry_store")
+    .select("id")
+    .eq("organization_id", orgId);
+
+  const storeIds = (stores ?? []).map((s) => s.id);
+
+  // 店舗関連データを削除（FK順）
+  if (storeIds.length > 0) {
+    await serviceSupabase.from("laundry_state").delete().in("laundryId", storeIds);
+    await serviceSupabase.from("collect_funds").delete().in("laundryId", storeIds);
+    await serviceSupabase.from("laundry_store").delete().in("id", storeIds);
+  }
+
+  // 組織関連データを削除
+  await serviceSupabase.from("action_message").delete().eq("org_id", orgId);
+  await serviceSupabase.from("organization_invitations").delete().eq("org_id", orgId);
+  await serviceSupabase.from("organization_members").delete().eq("org_id", orgId);
+
+  const { error: deleteOrgError } = await serviceSupabase
+    .from("organizations")
+    .delete()
+    .eq("id", orgId);
+
+  if (deleteOrgError) return { error: "組織の削除に失敗しました" };
+  return {};
+}

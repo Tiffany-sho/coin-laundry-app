@@ -12,6 +12,7 @@ import PlanCard from "@/app/feacher/settings/components/PlanCard";
 import CheckoutSuccessBanner from "@/app/feacher/settings/components/CheckoutSuccessBanner";
 import CollectScheduleDisplay from "@/app/feacher/settings/components/CollectScheduleDisplay";
 import JoinOrgForm from "@/app/feacher/settings/components/JoinOrgForm";
+import DangerActionsCard from "@/app/feacher/settings/components/DangerActionsCard";
 import * as Icon from "@/app/feacher/Icon";
 
 export default async function SettingsPage({ searchParams }) {
@@ -52,6 +53,9 @@ export default async function SettingsPage({ searchParams }) {
 
         <AppSettingsCard collectMethod={profile?.collectMethod} />
         <OtherActionsCard />
+
+        {/* 管理者向け：注意が必要な操作 */}
+        {isAdmin && <DangerActionsCard />}
       </VStack>
     </Box>
   );
