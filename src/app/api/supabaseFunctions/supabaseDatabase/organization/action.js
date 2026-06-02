@@ -149,7 +149,8 @@ export async function inviteMember(email, role) {
 
   if (myError || myMember.role !== "admin") return { error: "権限がありません" };
 
-  const VALID_ROLES = ["admin", "collecter", "viewer"];
+  if (role === "admin") return { error: "店舗管理者は招待できません。集金担当者または閲覧者を選択してください。" };
+  const VALID_ROLES = ["collecter", "viewer"];
   if (!VALID_ROLES.includes(role)) return { error: "無効なロールです" };
 
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();

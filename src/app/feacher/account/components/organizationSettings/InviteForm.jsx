@@ -23,6 +23,10 @@ export default function InviteForm({ orgName, inviterName, onInvited }) {
 
   const handleInvite = async () => {
     if (!email) return;
+    if (role === "admin") {
+      showToast("error", "店舗管理者は招待できません。集金担当者または閲覧者を選択してください。");
+      return;
+    }
     setLoading(true);
 
     const { data, error } = await inviteMember(email, role);
@@ -85,6 +89,7 @@ export default function InviteForm({ orgName, inviterName, onInvited }) {
               borderRadius="lg"
               fontSize="sm"
             >
+              <option value="admin">店舗管理者</option>
               <option value="collecter">集金担当者</option>
               <option value="viewer">閲覧者</option>
             </NativeSelect.Field>
