@@ -9,7 +9,8 @@ import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageCont
 import TableLoading from "@/app/feacher/partials/TableLoading";
 import TableError from "@/app/feacher/partials/TableError";
 import TableEmpty from "@/app/feacher/partials/TableEmpty";
-import { getStoreFundsPaginated, getFundItemById } from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
+import { getStoreFundsInPeriod, getFundItemById } from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
+import { changeEpocFromNowYearMonth } from "@/functions/makeDate/date";
 
 const CoinMonoDataTable = ({ id, myRole }) => {
   const [error, setError] = useState(null);
@@ -20,7 +21,6 @@ const CoinMonoDataTable = ({ id, myRole }) => {
   const channelRef = useRef(null);
 
   const {
-    PAGE_SIZE,
     orderAmount,
     upOrder,
     selectedItem,
@@ -32,6 +32,7 @@ const CoinMonoDataTable = ({ id, myRole }) => {
     displayData,
     setDisplayData,
     setDisplayBtn,
+    setTableMonthsBack,
   } = useUploadPage();
 
   const selectedItemId = selectedItem?.id;
@@ -61,20 +62,22 @@ const CoinMonoDataTable = ({ id, myRole }) => {
 
     const fetchData = async () => {
       setLoading(true);
-      const { data: initialData, error: initialError } = await getStoreFundsPaginated(
+      const startEpoch = changeEpocFromNowYearMonth(-2);
+      const { data: initialData, error: initialError } = await getStoreFundsInPeriod(
         id,
+        startEpoch,
+        null,
         orderAmount,
-        upOrder,
-        0,
-        PAGE_SIZE - 1
+        upOrder
       );
 
       if (initialError) {
         setError(initialError);
         setDisplayData(null);
       } else {
-        setDisplayBtn(initialData.length >= PAGE_SIZE);
+        setDisplayBtn(initialData.length > 0);
         setDisplayData(initialData);
+        setTableMonthsBack(2);
         setError(null);
       }
       setLoading(false);

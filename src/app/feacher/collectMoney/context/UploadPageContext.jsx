@@ -12,7 +12,7 @@ export const UploadPageProvider = ({ children }) => {
   const [displayBtn, setDisplayBtn] = useState(true);
   const [orderAmount, setOrderAmount] = useState("date");
   const [upOrder, setUpOrder] = useState(false);
-  const [page, setPage] = useState(1);
+  const [tableMonthsBack, setTableMonthsBack] = useState(2);
   const [startEpoch, setStartEpoch] = useState(changeEpocFromNowYearMonth(-6));
   const [endEpoch, setEndEpoch] = useState(null);
   const [data, setData] = useState(null);
@@ -34,8 +34,8 @@ export const UploadPageProvider = ({ children }) => {
     setOrderAmount,
     upOrder,
     setUpOrder,
-    page,
-    setPage,
+    tableMonthsBack,
+    setTableMonthsBack,
     data,
     setData,
     displayData,

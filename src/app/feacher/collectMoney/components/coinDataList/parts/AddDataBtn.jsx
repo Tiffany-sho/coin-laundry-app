@@ -1,14 +1,14 @@
 import { Button } from "@chakra-ui/react";
 import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
 import { useState } from "react";
-import { getStoreFundsPaginated, getOrgCollectFundsPaginated } from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
+import { getStoreFundsInPeriod, getOrgCollectFundsInPeriod } from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
+import { changeEpocFromNowYearMonth } from "@/functions/makeDate/date";
 
 const AddDataBtn = ({ id = "" }) => {
   const [isLoading, setIsLoading] = useState(false);
   const {
-    PAGE_SIZE,
-    page,
-    setPage,
+    tableMonthsBack,
+    setTableMonthsBack,
     orderAmount,
     upOrder,
     setDisplayData,
@@ -20,47 +20,39 @@ const AddDataBtn = ({ id = "" }) => {
     setIsLoading(true);
 
     try {
-      const from = page * PAGE_SIZE;
-      const to = from + PAGE_SIZE - 1;
+      const startEpoch = changeEpocFromNowYearMonth(-(tableMonthsBack + 2));
+      const endEpoch = changeEpocFromNowYearMonth(-tableMonthsBack);
+
+      let nextData;
+      let nextError;
 
       if (id) {
-        // aStore: サーバーアクションで組織の集金データを追加取得（全期間）
-        const { data: nextData, error: nextError } = await getStoreFundsPaginated(
+        ({ data: nextData, error: nextError } = await getStoreFundsInPeriod(
           id,
+          startEpoch,
+          endEpoch,
           orderAmount,
-          upOrder,
-          from,
-          to
-        );
-
-        if (nextError) {
-          setDisplayData(null);
-        } else {
-          if (nextData.length < PAGE_SIZE) {
-            setDisplayBtn(false);
-          }
-          setDisplayData((prev) => [...prev, ...nextData]);
-        }
+          upOrder
+        ));
       } else {
-        // manyStore: サーバーアクションで組織全体の集金データを追加取得
-        const { data: nextData, error: nextError } = await getOrgCollectFundsPaginated(
+        ({ data: nextData, error: nextError } = await getOrgCollectFundsInPeriod(
+          startEpoch,
+          endEpoch,
           orderAmount,
-          upOrder,
-          from,
-          to
-        );
-
-        if (nextError) {
-          setDisplayData(null);
-        } else {
-          if (nextData.length < PAGE_SIZE) {
-            setDisplayBtn(false);
-          }
-          setDisplayData((prev) => [...prev, ...nextData]);
-        }
+          upOrder
+        ));
       }
 
-      setPage((prev) => prev + 1);
+      if (nextError) {
+        setDisplayData(null);
+      } else {
+        if (nextData.length === 0) {
+          setDisplayBtn(false);
+        } else {
+          setDisplayData((prev) => [...prev, ...nextData]);
+          setTableMonthsBack((prev) => prev + 2);
+        }
+      }
     } catch (error) {
       console.error("Error adding data:", error);
     } finally {
@@ -74,10 +66,10 @@ const AddDataBtn = ({ id = "" }) => {
         variant="outline"
         color="var(--teal, #0891B2)"
         border="none"
-        onClick={() => addData(id)}
+        onClick={() => addData()}
         disabled={isLoading}
       >
-        {isLoading ? "読み込み中..." : "さらに表示"}
+        {isLoading ? "読み込み中..." : "さらに表示（2か月分）"}
       </Button>
     )
   );

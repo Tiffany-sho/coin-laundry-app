@@ -8,7 +8,8 @@ import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageCont
 import TableLoading from "@/app/feacher/partials/TableLoading";
 import TableError from "@/app/feacher/partials/TableError";
 import TableEmpty from "@/app/feacher/partials/TableEmpty";
-import { getOrgCollectFundsPaginated, getFundItemById } from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
+import { getOrgCollectFundsInPeriod, getFundItemById } from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
+import { changeEpocFromNowYearMonth } from "@/functions/makeDate/date";
 
 const CoinManyDataTable = () => {
   const [error, setError] = useState(null);
@@ -16,7 +17,6 @@ const CoinManyDataTable = () => {
   const [collapsedMonths, setCollapsedMonths] = useState(new Set());
 
   const {
-    PAGE_SIZE,
     orderAmount,
     upOrder,
     selectedItem,
@@ -27,24 +27,27 @@ const CoinManyDataTable = () => {
     displayData,
     setDisplayData,
     setDisplayBtn,
+    setTableMonthsBack,
   } = useUploadPage();
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      const { data: initialData, error: initialError } = await getOrgCollectFundsPaginated(
+      const startEpoch = changeEpocFromNowYearMonth(-2);
+      const { data: initialData, error: initialError } = await getOrgCollectFundsInPeriod(
+        startEpoch,
+        null,
         orderAmount,
-        upOrder,
-        0,
-        PAGE_SIZE - 1
+        upOrder
       );
 
       if (initialError) {
         setError(initialError);
         setDisplayData(null);
       } else {
-        setDisplayBtn(initialData.length >= PAGE_SIZE);
+        setDisplayBtn(initialData.length > 0);
         setDisplayData(initialData);
+        setTableMonthsBack(2);
         setError(null);
       }
       setLoading(false);

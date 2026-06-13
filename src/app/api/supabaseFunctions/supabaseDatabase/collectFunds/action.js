@@ -92,6 +92,56 @@ export async function getStoreFundsPaginated(id, orderAmount, upOrder, from, to)
   return { data };
 }
 
+// 店舗の集金データ取得（期間指定・全件、RLS回避）
+export async function getStoreFundsInPeriod(id, startEpoch, endEpoch, orderAmount, upOrder) {
+  const { user } = await getUser();
+  if (!user) return { error: "ログインしてください" };
+
+  const storeIds = await getOrgStoreIds();
+  if (!storeIds.includes(id)) return { error: "アクセス権限がありません" };
+
+  const supabase = createServiceClient();
+  let query = supabase
+    .from("collect_funds")
+    .select("id, laundryId, laundryName, date, totalFunds, collecter, profiles!collect_funds_collecter_fkey(username)")
+    .eq("laundryId", id)
+    .gte("date", startEpoch)
+    .order(orderAmount, { ascending: upOrder });
+
+  if (endEpoch !== null) {
+    query = query.lt("date", endEpoch);
+  }
+
+  const { data, error } = await query;
+  if (error) return { error: "集金データの取得に失敗しました" };
+  return { data };
+}
+
+// org全体の集金データ取得（期間指定・全件、RLS回避）
+export async function getOrgCollectFundsInPeriod(startEpoch, endEpoch, orderAmount, upOrder) {
+  const { user } = await getUser();
+  if (!user) return { error: "ログインしてください" };
+
+  const storeIds = await getOrgStoreIds();
+  if (storeIds.length === 0) return { data: [] };
+
+  const supabase = createServiceClient();
+  let query = supabase
+    .from("collect_funds")
+    .select("id, laundryId, laundryName, date, totalFunds, collecter, profiles!collect_funds_collecter_fkey(username)")
+    .in("laundryId", storeIds)
+    .gte("date", startEpoch)
+    .order(orderAmount, { ascending: upOrder });
+
+  if (endEpoch !== null) {
+    query = query.lt("date", endEpoch);
+  }
+
+  const { data, error } = await query;
+  if (error) return { error: "集金データの取得に失敗しました" };
+  return { data };
+}
+
 // 単一集金レコードのfundsArrayをon-demand取得
 export async function getFundItemById(id) {
   const { user } = await getUser();
