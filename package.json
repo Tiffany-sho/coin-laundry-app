@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build --turbopack",
-    "start": "next start"
+    "start": "next start",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@chakra-ui/charts": "^3.28.0",
@@ -23,5 +25,8 @@
     "recharts": "^3.3.0",
     "resend": "^6.12.2",
     "stripe": "^22.1.1"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.10"
   }
 }
