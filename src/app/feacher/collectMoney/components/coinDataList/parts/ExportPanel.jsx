@@ -5,25 +5,25 @@ import { Box, VStack, HStack, Text, Button } from "@chakra-ui/react";
 import { Tooltip } from "@/components/ui/tooltip";
 import * as Icon from "@/app/feacher/Icon";
 import { getStores } from "@/app/api/supabaseFunctions/supabaseDatabase/laundryStore/action";
-import {
-  buildCsvFiles,
-  dateToEpoch,
-  defaultDateRange,
-  formatDateSuffix,
-} from "@/functions/csvExport";
+import { buildCsvFiles } from "@/functions/csvExport";
+import { dateToEpoch, defaultDateRange, formatDateSuffix } from "@/functions/exportData";
 
-// ── CSV download (client-side) ────────────────────────────────────────────────
+// ── download helpers (client-side) ────────────────────────────────────────────
 
+function saveBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// CSV は分割数だけ連続ダウンロードするため、ブラウザに弾かれないよう間隔を空ける
 async function downloadFiles(files) {
   for (let i = 0; i < files.length; i++) {
     if (i > 0) await new Promise((resolve) => setTimeout(resolve, 400));
-    const blob = new Blob([files[i].csv], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = files[i].name;
-    a.click();
-    URL.revokeObjectURL(url);
+    saveBlob(new Blob([files[i].csv], { type: "text/csv;charset=utf-8" }), files[i].name);
   }
 }
 
@@ -40,6 +40,7 @@ const dateInputStyle = {
 };
 
 export default function ExportPanel({ plan = "free", storeId = null }) {
+  const [fileFormat, setFileFormat] = useState("csv"); // "csv" | "xlsx"
   const [splitMethod, setSplitMethod] = useState("period"); // "period" | "store"
   const { start: defaultStart, end: defaultEnd } = defaultDateRange();
   const [startDate, setStartDate] = useState(defaultStart);
@@ -70,33 +71,39 @@ export default function ExportPanel({ plan = "free", storeId = null }) {
     if (!isPro) return;
     setLoading(true);
     try {
-      const res = await fetch("/api/export/collect-csv", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          startEpoch: dateToEpoch(startDate),
-          endEpoch: dateToEpoch(endDate),
-          storeIds: selectedStoreIds.length > 0 ? selectedStoreIds : null,
-        }),
+      const isXlsx = fileFormat === "xlsx";
+      const body = JSON.stringify({
+        startEpoch: dateToEpoch(startDate),
+        endEpoch: dateToEpoch(endDate),
+        storeIds: selectedStoreIds.length > 0 ? selectedStoreIds : null,
+        ...(isXlsx ? { splitMethod } : {}),
       });
+
+      const res = await fetch(
+        isXlsx ? "/api/export/collect-xlsx" : "/api/export/collect-csv",
+        { method: "POST", headers: { "Content-Type": "application/json" }, body }
+      );
       if (!res.ok) {
         const { error } = await res.json();
         alert(`エラー: ${error ?? "エクスポートに失敗しました"}`);
         return;
       }
-      const { data } = await res.json();
 
+      // Excel はサーバーで1ブックに組み立て済みなので、そのまま保存する
+      if (isXlsx) {
+        saveBlob(await res.blob(), `collecie_${formatDateSuffix()}.xlsx`);
+        return;
+      }
+
+      const { data } = await res.json();
       if (!data || data.length === 0) {
         alert("ダウンロードするデータがありません");
         return;
       }
 
-      const files = buildCsvFiles(data, {
-        splitMethod,
-        dateSuffix: formatDateSuffix(),
-      });
-
-      await downloadFiles(files);
+      await downloadFiles(
+        buildCsvFiles(data, { splitMethod, dateSuffix: formatDateSuffix() })
+      );
     } catch {
       alert("通信エラーが発生しました");
     } finally {
@@ -114,7 +121,7 @@ export default function ExportPanel({ plan = "free", storeId = null }) {
               <Icon.LuFileText size={15} />
             </Box>
             <Text fontWeight="semibold" color="var(--text-main)" fontSize="sm">
-              CSVエクスポート
+              データエクスポート
             </Text>
           </HStack>
           {!isPro && (
@@ -214,10 +221,37 @@ export default function ExportPanel({ plan = "free", storeId = null }) {
           )}
         </Box>
 
+        {/* File format */}
+        <Box>
+          <Text fontSize="xs" color="var(--text-muted)" fontWeight="semibold" mb={2}>
+            ファイル形式
+          </Text>
+          <HStack gap={2}>
+            <Button
+              size="sm"
+              variant={fileFormat === "csv" ? "solid" : "outline"}
+              colorPalette="cyan"
+              borderRadius="full"
+              onClick={() => setFileFormat("csv")}
+            >
+              CSV
+            </Button>
+            <Button
+              size="sm"
+              variant={fileFormat === "xlsx" ? "solid" : "outline"}
+              colorPalette="cyan"
+              borderRadius="full"
+              onClick={() => setFileFormat("xlsx")}
+            >
+              Excel
+            </Button>
+          </HStack>
+        </Box>
+
         {/* Split method */}
         <Box>
           <Text fontSize="xs" color="var(--text-muted)" fontWeight="semibold" mb={2}>
-            ファイル分割
+            {fileFormat === "xlsx" ? "シート分割" : "ファイル分割"}
           </Text>
           <HStack gap={2}>
             <Button
@@ -239,12 +273,23 @@ export default function ExportPanel({ plan = "free", storeId = null }) {
               店舗ごと
             </Button>
           </HStack>
+          <Text fontSize="xs" color="var(--text-faint)" mt={2}>
+            {fileFormat === "xlsx"
+              ? `1つのExcelファイルにまとめ、${splitMethod === "period" ? "月" : "店舗"}ごとにシートを分けます`
+              : `${splitMethod === "period" ? "月" : "店舗"}ごとに別々のCSVファイルをダウンロードします`}
+          </Text>
         </Box>
 
         {/* Download */}
         <HStack justify="flex-end">
           {isPro ? (
-            <Tooltip content={`${splitMethod === "period" ? "月ごと" : "店舗ごと"}にCSVをダウンロード`}>
+            <Tooltip
+              content={
+                fileFormat === "xlsx"
+                  ? `${splitMethod === "period" ? "月" : "店舗"}ごとのシートを含むExcelファイルをダウンロード`
+                  : `${splitMethod === "period" ? "月ごと" : "店舗ごと"}にCSVをダウンロード`
+              }
+            >
               <Button
                 size="sm"
                 colorPalette="cyan"

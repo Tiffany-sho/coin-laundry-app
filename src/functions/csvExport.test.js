@@ -1,89 +1,15 @@
-import { describe, it, expect, afterEach, vi } from "vitest";
-import {
-  CSV_BOM,
-  csvCell,
-  epochToDateStr,
-  epochToYearMonth,
-  dateToEpoch,
-  toDateInputValue,
-  defaultDateRange,
-  formatDateSuffix,
-  recordsToCsv,
-  buildCsvFiles,
-} from "./csvExport";
+import { describe, it, expect } from "vitest";
+import { CSV_BOM, csvCell, recordsToCsv, buildCsvFiles } from "./csvExport";
 import { getEpochTimeInSeconds } from "./makeDate/date";
 
 const epoch = (y, m, d) => getEpochTimeInSeconds(y, m, d);
 
-// テスト用の集金レコード（Supabase の collect_funds 行を模したもの）
 const record = ({ y, m, d, store, machines = [], total = 0, user = null }) => ({
   date: epoch(y, m, d),
   laundryName: store,
   totalFunds: total,
   fundsArray: machines,
   profiles: user ? { username: user } : null,
-});
-
-describe("epochToDateStr", () => {
-  it("epochを日本語の日付表記に変換する", () => {
-    expect(epochToDateStr(epoch(2026, 7, 27))).toBe("2026年7月27日");
-    expect(epochToDateStr(epoch(2026, 1, 5))).toBe("2026年1月5日");
-  });
-});
-
-describe("epochToYearMonth", () => {
-  it("ソート用キーと表示用ラベルを返す", () => {
-    expect(epochToYearMonth(epoch(2026, 7, 27))).toEqual({
-      key: "2026-07",
-      label: "2026年7月",
-    });
-  });
-
-  it("キーはゼロ埋めされ辞書順ソートで時系列になる", () => {
-    const keys = [epoch(2026, 12, 1), epoch(2026, 2, 1), epoch(2025, 11, 1)]
-      .map((e) => epochToYearMonth(e).key)
-      .sort((a, b) => a.localeCompare(b));
-    expect(keys).toEqual(["2025-11", "2026-02", "2026-12"]);
-  });
-});
-
-describe("dateToEpoch / toDateInputValue", () => {
-  it("空値には null を返す", () => {
-    expect(dateToEpoch("")).toBeNull();
-    expect(dateToEpoch(null)).toBeNull();
-    expect(dateToEpoch(undefined)).toBeNull();
-  });
-
-  it("date input の値をその日の深夜0時のepochに変換する", () => {
-    expect(dateToEpoch("2026-07-27")).toBe(epoch(2026, 7, 27));
-  });
-
-  it("toDateInputValue は YYYY-MM-DD にゼロ埋めする", () => {
-    expect(toDateInputValue(new Date(2026, 6, 5))).toBe("2026-07-05");
-    expect(toDateInputValue(new Date(2026, 11, 31))).toBe("2026-12-31");
-  });
-
-  it("dateToEpoch と toDateInputValue は往復できる", () => {
-    const value = "2026-03-09";
-    expect(toDateInputValue(new Date(dateToEpoch(value)))).toBe(value);
-  });
-});
-
-describe("defaultDateRange / formatDateSuffix", () => {
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
-  it("デフォルト期間は1か月前〜今日", () => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date("2026-07-27T12:00:00+09:00"));
-    expect(defaultDateRange()).toEqual({ start: "2026-06-27", end: "2026-07-27" });
-  });
-
-  it("ファイル名サフィックスは YYYYMMDD", () => {
-    expect(formatDateSuffix(new Date(2026, 6, 5))).toBe("20260705");
-    expect(formatDateSuffix(new Date(2026, 11, 31))).toBe("20261231");
-  });
 });
 
 describe("csvCell", () => {
