@@ -1,6 +1,7 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
 import {
   CSV_BOM,
+  csvCell,
   epochToDateStr,
   epochToYearMonth,
   dateToEpoch,
@@ -85,6 +86,31 @@ describe("defaultDateRange / formatDateSuffix", () => {
   });
 });
 
+describe("csvCell", () => {
+  it("特殊文字を含まない値はそのまま出す", () => {
+    expect(csvCell("本町")).toBe("本町");
+    expect(csvCell(1200)).toBe("1200");
+  });
+
+  it("null / undefined は空文字にする", () => {
+    expect(csvCell(null)).toBe("");
+    expect(csvCell(undefined)).toBe("");
+  });
+
+  it("カンマを含む値はダブルクォートで囲む", () => {
+    expect(csvCell("駅前,北口")).toBe('"駅前,北口"');
+  });
+
+  it("ダブルクォートは二重化して囲む", () => {
+    expect(csvCell('洗濯機"A"')).toBe('"洗濯機""A"""');
+  });
+
+  it("改行を含む値も囲む", () => {
+    expect(csvCell("本町\n店")).toBe('"本町\n店"');
+    expect(csvCell("本町\r\n店")).toBe('"本町\r\n店"');
+  });
+});
+
 describe("recordsToCsv", () => {
   it("BOM付きでヘッダー行を出力する", () => {
     const csv = recordsToCsv([
@@ -142,6 +168,31 @@ describe("recordsToCsv", () => {
   it("空配列でもヘッダーだけ返す", () => {
     const csv = recordsToCsv([]);
     expect(csv).toBe(CSV_BOM + "日付,店舗名,合計,集金担当者\n");
+  });
+
+  it("店舗名・担当者名のカンマで列がずれない", () => {
+    const csv = recordsToCsv([
+      record({ y: 2026, m: 7, d: 27, store: "駅前,北口", total: 5000, user: "田中, 花子" }),
+    ]);
+    const row = csv.split("\n")[1];
+    expect(row).toBe('2026年7月27日,"駅前,北口店",5000,"田中, 花子"');
+    // 列数がヘッダーと一致する（クォート内のカンマは区切りとして数えない）
+    expect(row.match(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/g)).toHaveLength(3);
+  });
+
+  it("設備名にカンマや引用符が含まれてもヘッダーが壊れない", () => {
+    const csv = recordsToCsv([
+      record({
+        y: 2026,
+        m: 7,
+        d: 27,
+        store: "本町",
+        machines: [{ name: '洗濯機"A",大型', funds: 10 }],
+        total: 1000,
+      }),
+    ]);
+    const header = csv.slice(CSV_BOM.length).split("\n")[0];
+    expect(header).toBe('日付,店舗名,"洗濯機""A"",大型",合計,集金担当者');
   });
 });
 

@@ -6,7 +6,7 @@ import { Tooltip } from "@/components/ui/tooltip";
 import * as Icon from "@/app/feacher/Icon";
 import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
 import { createNowData } from "@/functions/makeDate/date";
-import { formatDateSuffix } from "@/functions/csvExport";
+import { formatDateSuffix, recordsToCsv } from "@/functions/csvExport";
 
 function epochToLabel(epoch) {
   if (epoch === null || epoch === undefined) return "現在まで";
@@ -31,7 +31,14 @@ export default function ExportCsvButton({ plan = "free", storeName = "全店舗"
         alert(`エラー: ${error ?? "エクスポートに失敗しました"}`);
         return;
       }
-      const blob = await res.blob();
+      // API は JSON ({ data }) を返すので、CSV へはクライアント側で変換する
+      const { data } = await res.json();
+      if (!data || data.length === 0) {
+        alert("ダウンロードするデータがありません");
+        return;
+      }
+
+      const blob = new Blob([recordsToCsv(data)], { type: "text/csv;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;

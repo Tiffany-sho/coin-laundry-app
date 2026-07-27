@@ -42,6 +42,14 @@ export function formatDateSuffix(date = new Date()) {
   ).padStart(2, "0")}`;
 }
 
+// CSVの1セルをエスケープする（RFC 4180）。
+// 店舗名・設備名・担当者名はユーザー入力なので、カンマや引用符・改行が含まれうる。
+// 該当文字を含む場合はダブルクォートで囲み、内部の " は "" に二重化する。
+export function csvCell(value) {
+  const s = value === null || value === undefined ? "" : String(value);
+  return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
 // グループ内の全設備名を列として横展開し、1集金履歴 = 1行に変換する
 export function recordsToCsv(records) {
   // グループ内に登場する全設備名を出現順で収集
@@ -58,7 +66,8 @@ export function recordsToCsv(records) {
     }
   });
 
-  const header = ["日付", "店舗名", ...machineNames, "合計", "集金担当者"].join(",") + "\n";
+  const header =
+    ["日付", "店舗名", ...machineNames, "合計", "集金担当者"].map(csvCell).join(",") + "\n";
 
   const rows = records
     .map((row) => {
@@ -76,7 +85,7 @@ export function recordsToCsv(records) {
       }
 
       const machineValues = machineNames.map((name) => machineMap[name] ?? "");
-      return [date, store, ...machineValues, total, collector].join(",");
+      return [date, store, ...machineValues, total, collector].map(csvCell).join(",");
     })
     .join("\n");
 
