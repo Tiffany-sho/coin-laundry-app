@@ -6,6 +6,7 @@ import { Tooltip } from "@/components/ui/tooltip";
 import * as Icon from "@/app/feacher/Icon";
 import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
 import { createNowData } from "@/functions/makeDate/date";
+import { formatDateSuffix } from "@/functions/csvExport";
 
 function epochToLabel(epoch) {
   if (epoch === null || epoch === undefined) return "現在まで";
@@ -33,12 +34,8 @@ export default function ExportCsvButton({ plan = "free", storeName = "全店舗"
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      const now = new Date();
-      const y = now.getFullYear();
-      const m = String(now.getMonth() + 1).padStart(2, "0");
-      const d = String(now.getDate()).padStart(2, "0");
       a.href = url;
-      a.download = `collecie_${y}${m}${d}.csv`;
+      a.download = `collecie_${formatDateSuffix()}.csv`;
       a.click();
       URL.revokeObjectURL(url);
     } catch {

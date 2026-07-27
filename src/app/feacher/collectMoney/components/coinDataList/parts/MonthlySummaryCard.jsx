@@ -4,42 +4,7 @@ import { useState, useEffect } from "react";
 import { Box, VStack, HStack, Text, Skeleton } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
 import { getCollectMonthlySummary } from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
-
-const EPOCH_OFFSET = 32400000; // JST +9h
-
-function groupByMonth(records) {
-  const map = new Map();
-  records.forEach(({ date, totalFunds }) => {
-    const d = new Date(date + EPOCH_OFFSET);
-    const y = d.getUTCFullYear();
-    const mo = d.getUTCMonth() + 1;
-    const key = `${y}-${String(mo).padStart(2, "0")}`;
-    const label = `${y}年${mo}月`;
-    if (!map.has(key)) map.set(key, { key, label, total: 0 });
-    map.get(key).total += totalFunds;
-  });
-  return Array.from(map.values()).sort((a, b) => a.key.localeCompare(b.key));
-}
-
-function computeChanges(months) {
-  return months.map((m, i) => {
-    const prev = i > 0 ? months[i - 1] : null;
-    const mom =
-      prev && prev.total > 0
-        ? ((m.total - prev.total) / prev.total) * 100
-        : null;
-
-    const [y, mo] = m.key.split("-").map(Number);
-    const yoyKey = `${y - 1}-${String(mo).padStart(2, "0")}`;
-    const yoyEntry = months.find((x) => x.key === yoyKey);
-    const yoy =
-      yoyEntry && yoyEntry.total > 0
-        ? ((m.total - yoyEntry.total) / yoyEntry.total) * 100
-        : null;
-
-    return { ...m, mom, yoy };
-  });
-}
+import { groupByMonth, computeChanges } from "@/functions/monthlySummary";
 
 function ChangeCell({ value }) {
   if (value === null)

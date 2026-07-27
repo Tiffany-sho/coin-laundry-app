@@ -5,83 +5,14 @@ import { Box, VStack, HStack, Text, Button } from "@chakra-ui/react";
 import { Tooltip } from "@/components/ui/tooltip";
 import * as Icon from "@/app/feacher/Icon";
 import { getStores } from "@/app/api/supabaseFunctions/supabaseDatabase/laundryStore/action";
+import {
+  buildCsvFiles,
+  dateToEpoch,
+  defaultDateRange,
+  formatDateSuffix,
+} from "@/functions/csvExport";
 
-// ── CSV generation (client-side) ──────────────────────────────────────────────
-
-const BOM = "﻿";
-const EPOCH_OFFSET = 32400000; // JST +9h in ms
-
-function epochToDateStr(epoch) {
-  const d = new Date(epoch + EPOCH_OFFSET);
-  return `${d.getUTCFullYear()}年${d.getUTCMonth() + 1}月${d.getUTCDate()}日`;
-}
-
-function epochToYearMonth(epoch) {
-  const d = new Date(epoch + EPOCH_OFFSET);
-  const y = d.getUTCFullYear();
-  const m = d.getUTCMonth() + 1;
-  return { key: `${y}-${String(m).padStart(2, "0")}`, label: `${y}年${m}月` };
-}
-
-function dateToEpoch(dateStr) {
-  if (!dateStr) return null;
-  return new Date(dateStr + "T00:00:00").getTime();
-}
-
-function toDateInputValue(date) {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
-}
-
-function defaultDateRange() {
-  const end = new Date();
-  const start = new Date(end);
-  start.setMonth(start.getMonth() - 1);
-  return { start: toDateInputValue(start), end: toDateInputValue(end) };
-}
-
-// グループ内の全設備名を列として横展開し、1集金履歴 = 1行に変換する
-function recordsToCsv(records) {
-  // グループ内に登場する全設備名を出現順で収集
-  const machineNames = [];
-  const seen = new Set();
-  records.forEach((row) => {
-    if (Array.isArray(row.fundsArray)) {
-      row.fundsArray.forEach((m) => {
-        if (m.name && !seen.has(m.name)) {
-          seen.add(m.name);
-          machineNames.push(m.name);
-        }
-      });
-    }
-  });
-
-  const header = ["日付", "店舗名", ...machineNames, "合計", "集金担当者"].join(",") + "\n";
-
-  const rows = records
-    .map((row) => {
-      const date = epochToDateStr(row.date);
-      const store = `${row.laundryName}店`;
-      const total = row.totalFunds ?? 0;
-      const collector = row.profiles?.username ?? "";
-
-      // 設備ごとの売上マップ（funds * 100 = 円）
-      const machineMap = {};
-      if (Array.isArray(row.fundsArray)) {
-        row.fundsArray.forEach((m) => {
-          if (m.name) machineMap[m.name] = (m.funds ?? 0) * 100;
-        });
-      }
-
-      const machineValues = machineNames.map((name) => machineMap[name] ?? "");
-      return [date, store, ...machineValues, total, collector].join(",");
-    })
-    .join("\n");
-
-  return BOM + header + rows;
-}
+// ── CSV download (client-side) ────────────────────────────────────────────────
 
 async function downloadFiles(files) {
   for (let i = 0; i < files.length; i++) {
@@ -160,38 +91,10 @@ export default function ExportPanel({ plan = "free", storeId = null }) {
         return;
       }
 
-      const now = new Date();
-      const dateSuffix = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`;
-
-      let files = [];
-
-      if (splitMethod === "store") {
-        // 店舗ごとにファイル分割
-        const groups = {};
-        data.forEach((row) => {
-          const key = row.laundryName;
-          if (!groups[key]) groups[key] = [];
-          groups[key].push(row);
-        });
-        files = Object.entries(groups).map(([name, records]) => ({
-          name: `collecie_${name}店_${dateSuffix}.csv`,
-          csv: recordsToCsv(records),
-        }));
-      } else {
-        // 月ごとにファイル分割
-        const groups = {};
-        data.forEach((row) => {
-          const { key, label } = epochToYearMonth(row.date);
-          if (!groups[key]) groups[key] = { label, records: [] };
-          groups[key].records.push(row);
-        });
-        files = Object.entries(groups)
-          .sort(([a], [b]) => a.localeCompare(b))
-          .map(([, { label, records }]) => ({
-            name: `collecie_${label}_${dateSuffix}.csv`,
-            csv: recordsToCsv(records),
-          }));
-      }
+      const files = buildCsvFiles(data, {
+        splitMethod,
+        dateSuffix: formatDateSuffix(),
+      });
 
       await downloadFiles(files);
     } catch {
