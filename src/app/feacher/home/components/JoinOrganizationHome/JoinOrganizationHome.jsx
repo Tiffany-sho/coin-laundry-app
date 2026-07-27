@@ -1,8 +1,9 @@
 "use client";
 
-import { Box, Button, Flex, Heading, Text, VStack } from "@chakra-ui/react";
+import { Box, Flex, Heading, Text, VStack } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
 import JoinOrgForm from "@/app/feacher/settings/components/JoinOrgForm";
+import OtherActionsCard from "@/app/feacher/settings/components/OtherActionsCard";
 
 const roleLabel = {
   collecter: "集金担当者",
@@ -13,12 +14,13 @@ const JoinOrganizationHome = ({ username, role }) => {
   return (
     <Flex
       minH="100dvh"
-      align="center"
       justify="center"
       bg="var(--app-bg, #F0F9FF)"
       p={{ base: 4, md: 8 }}
     >
-      <Box maxW="480px" w="full">
+      {/* align="center" だと内容が画面より高いとき上端が見切れるため、
+          my="auto" で中央寄せする（収まらない場合は上詰めになる） */}
+      <Box maxW="480px" w="full" my="auto">
         <VStack gap={4} align="stretch">
           {/* ヘッダーカード */}
           <Box
@@ -83,22 +85,10 @@ const JoinOrganizationHome = ({ username, role }) => {
           {/* 組織参加フォーム */}
           <JoinOrgForm />
 
-          {/* ログアウト */}
-          <form action="/api/auth/logout" method="post">
-            <Button
-              type="submit"
-              w="full"
-              variant="outline"
-              color="var(--text-muted)"
-              borderColor="var(--divider)"
-              borderRadius="xl"
-              fontSize="sm"
-              _hover={{ bg: "gray.50", borderColor: "gray.300" }}
-            >
-              <Icon.LuX size={15} />
-              ログアウト
-            </Button>
-          </form>
+          {/* 設定ページと同じ「その他」（この画面にはボトムナビが出ないため、
+              ヘルプ・規約・サインアウトへの導線をここに置く）。
+              サインアウトボタンもこのカードに含まれる。 */}
+          <OtherActionsCard />
         </VStack>
       </Box>
     </Flex>
