@@ -45,3 +45,6 @@ next-env.d.ts
 
 # superpowers brainstorm sessions
 .superpowers/
+
+# Claude Code 用のローカル指示書（DBスキーマ等を含むため非公開）
+CLAUDE.md
