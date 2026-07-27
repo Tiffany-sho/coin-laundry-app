@@ -103,7 +103,7 @@ const TopPop = () => {
             </HStack>
 
             <HStack gap={{ base: 4, md: 6 }} flexWrap="wrap">
-              {["Proプランは6か月無料", "クレジットカード不要", "3店舗まで永久無料"].map((label) => (
+              {["Proプランは6か月無料", "3店舗まで永久無料"].map((label) => (
                 <HStack key={label} gap={2}>
                   <Box w="6px" h="6px" borderRadius="full" bg="rgba(255,255,255,0.65)" flexShrink={0} />
                   <Text fontSize="sm" color="rgba(255,255,255,0.82)">{label}</Text>

@@ -6,7 +6,7 @@ const steps = [
     number: "01",
     icon: <Icon.LuUser size={24} />,
     title: "アカウント登録",
-    description: "メールアドレスだけで30秒登録完了。クレジットカード不要で、Proプランの6か月トライアルがすぐに始まります。",
+    description: "メールアドレスだけで30秒登録完了。Proプランの6か月トライアルがすぐに始まります。",
   },
   {
     number: "02",

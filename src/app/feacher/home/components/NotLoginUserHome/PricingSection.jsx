@@ -246,7 +246,7 @@ const PricingSection = () => {
 
           {/* 補足 */}
           <Text fontSize="sm" color="var(--text-muted)" textAlign="center">
-            Proプランは6か月無料トライアル付き。クレジットカード不要で試せます。
+            Proプランは6か月無料トライアル付き。じっくりお試しいただけます。
           </Text>
         </VStack>
       </Container>

@@ -45,7 +45,7 @@ const Subscribe = () => {
               color="rgba(255,255,255,0.82)"
               lineHeight="1.8"
             >
-              3店舗まで永久無料。クレジットカード不要で今すぐ始められます。<br />
+              3店舗まで永久無料。今すぐ始められます。<br />
               Proプランは6か月間、費用ゼロでお試しいただけます。
             </Text>
           </VStack>
@@ -72,7 +72,7 @@ const Subscribe = () => {
           </Link>
 
           <HStack gap={{ base: 4, md: 8 }} flexWrap="wrap" justify="center">
-            {["3店舗まで永久無料", "6か月トライアル", "クレジットカード不要"].map((item) => (
+            {["3店舗まで永久無料", "6か月トライアル"].map((item) => (
               <HStack key={item} gap={1.5}>
                 <Icon.LuCheck size={14} color="rgba(255,255,255,0.8)" />
                 <Text fontSize="sm" color="rgba(255,255,255,0.8)">{item}</Text>
