@@ -55,9 +55,12 @@ src/
 │   └── auth/                       # 認証ページ
 ├── components/
 │   └── ui/                         # 汎用UIコンポーネント（Chakra UI拡張）
-├── functions/                      # ユーティリティ関数
-│   ├── makeDate/                   # 日付変換ユーティリティ
-│   └── collectSchedule.js          # 集金スケジュール計算（getNextCollectDate）
+├── functions/                      # ユーティリティ関数（純粋関数・テスト対象）
+│   ├── makeDate/                   # 日付変換ユーティリティ（date.js + date.test.js）
+│   ├── collectSchedule.js          # 集金スケジュール計算（getNextCollectDate）
+│   ├── csvExport.js                # CSVエクスポートの整形・ファイル分割ロジック
+│   ├── monthlySummary.js           # 月次集計（前月比・前年同月比）
+│   └── plans.js                    # プラン別の店舗数上限・表示名
 └── seeds/                          # シードデータ
 ```
 
@@ -314,6 +317,15 @@ cyan.900 → ダイアログ見出し
   - データフェッチは Server Component で行い、Client Component にはデータをプロパティとして渡す。
   - インタラクティブな部分だけを切り出して Client Component にする（ページ全体を `"use client"` にしない）。
 
+### テスト
+
+- テストランナーは **Vitest**（設定は `vitest.config.mjs`）。`npm test` で実行、`npm run test:watch` で監視モード。
+- テストファイルは対象ファイルの隣に `<名前>.test.js` として置く（例: `src/functions/csvExport.js` → `src/functions/csvExport.test.js`）。
+- **対象は DB・React に依存しない純粋関数**。Supabase を叩く `api/supabaseFunctions/` 配下や UI コンポーネントはユニットテストの対象外（動作確認で担保）。
+- UI コンポーネント内にロジックを書くとテストできないため、**計算・整形・集計ロジックは `src/functions/` の純粋モジュールに切り出してから** コンポーネントで import する。
+- 日付ロジックは JST (UTC+9) 前提。`vitest.config.mjs` の `test.env.TZ = "Asia/Tokyo"` で実行マシンのタイムゾーンに依存しないよう固定済み。
+- `Date.now()` / `new Date()` を読む関数は `vi.useFakeTimers()` + `vi.setSystemTime()` で時刻を固定して検証する。
+
 ### パフォーマンス
 
 - ページ遷移速度を最優先にする。
@@ -332,13 +344,12 @@ cyan.900 → ダイアログ見出し
 
 ### 1. テスト・ビルド確認（必須）
 
-- **コードを変更したら毎回、作業の最後に必ずテストを実行する**こと。テストが通らないまま作業を終えない。
-- 現状このリポジトリにはテストランナー（Vitest / Jest 等）が導入されていないため、**`npm run build` を検証コマンドとして必ず実行する**。型・import・RSC 境界のエラーはここで検出される。
-- テストランナーが導入されたら、`npm test` も併せて実行すること。
+- **コードを変更したら毎回、作業の最後に必ず `npm test` と `npm run build` を実行する**こと。どちらも通らないまま作業を終えない。
 - 失敗した場合は原因を修正してから完了とする。修正できない失敗が残る場合は、その内容をユーザーに明示的に報告する（黙って完了扱いにしない）。
 
 ```bash
-npm run build    # 必須。エラーが出たら修正してから完了
+npm test         # Vitest（純粋ロジックのユニットテスト）
+npm run build    # 型・import・RSC境界のエラー検出
 ```
 
 ### 2. コミット
@@ -418,7 +429,9 @@ RESEND_API_KEY=re_...                 # メール送信（招待メール等）
 ## よく使うコマンド
 
 ```bash
-npm run dev      # 開発サーバー起動
-npm run build    # 本番ビルド
-npm start        # 本番サーバー起動
+npm run dev        # 開発サーバー起動
+npm run build      # 本番ビルド
+npm start          # 本番サーバー起動
+npm test           # Vitest（1回実行）
+npm run test:watch # Vitest（監視モード）
 ```
