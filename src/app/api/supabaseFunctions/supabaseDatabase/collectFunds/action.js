@@ -182,20 +182,39 @@ export async function createData(formData) {
   }
 
   const serviceSupabase = createServiceClient();
+
+  const row = {
+    laundryId: formData.storeId,
+    laundryName: formData.store,
+    date: formData.date,
+    fundsArray: formData.fundsArray,
+    totalFunds: formData.totalFunds,
+    collecter: user.id,
+  };
+
+  // モバイルのみ冪等性キーを送ってくる。Web は未指定なので NULL のまま（部分ユニークの対象外）
+  if (formData.clientRequestId) row.client_request_id = formData.clientRequestId;
+
   const { data, error } = await serviceSupabase
     .from("collect_funds")
-    .insert({
-      laundryId: formData.storeId,
-      laundryName: formData.store,
-      date: formData.date,
-      fundsArray: formData.fundsArray,
-      totalFunds: formData.totalFunds,
-      collecter: user.id,
-    })
-    .select("laundryId,laundryName")
+    .insert(row)
+    .select("id,laundryId,laundryName")
     .single();
 
-  if (error) return { error: "集金データの登録に失敗しました" };
+  if (error) {
+    // 23505 = 一意制約違反。オフライン再送で同じキーが 2 回届いた場合なので
+    // エラーにせず、既に入っているレコードを返して成功扱いにする（二重計上の防止）
+    if (error.code === "23505" && formData.clientRequestId) {
+      const { data: existing } = await serviceSupabase
+        .from("collect_funds")
+        .select("id,laundryId,laundryName")
+        .eq("client_request_id", formData.clientRequestId)
+        .single();
+
+      if (existing) return { data: existing, duplicated: true };
+    }
+    return { error: "集金データの登録に失敗しました" };
+  }
   return { data };
 }
 
@@ -496,7 +515,7 @@ export async function getCollectMonthlySummary(storeId = null) {
 
   const supabase = createServiceClient();
   const { data, error } = await applyDateRange(
-    supabase.from("collect_funds").select("date, totalFunds").in("laundryId", targetIds),
+    supabase.from("collect_funds").select("date, totalFunds, laundryId").in("laundryId", targetIds),
     cutoffEpoch,
     null
   );
