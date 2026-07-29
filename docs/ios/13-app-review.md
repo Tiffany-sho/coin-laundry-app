@@ -13,14 +13,58 @@
 
 ## 13.1 課金（Guideline 3.1.1 / 3.1.3）— 決定事項
 
-アプリ内で **プランは read-only 表示のみ**とする。
+> **2026-07-29 改訂。** 以前は「アプリ内でプランは read-only 表示のみ」としていたが、
+> Apple Developer Program の登録完了により **アプリ内課金（StoreKit の自動更新
+> サブスクリプション）を実装する**方針に変更した。
+>
+> 変わったのは「アプリ内で買えるようになった」ことだけで、**外部購入への言及の
+> 禁止は今も有効**。3.1.3(a) は「アプリ内課金があるかどうか」と無関係に効く。
 
-- ✅ 表示してよい：現在のプラン名（`Free` / `Pro` / `Max`）、店舗数 `3 / 5`、トライアル残日数
-- ❌ **絶対に置かない**：アップグレードボタン、価格表、`collecie.com` への外部リンク、「Web サイトで契約できます」等の文言、決済を想起させるアイコン
-- 上限到達時の表示は「**店舗を追加できません（上限 3 店舗）**」まで。それ以上の誘導はしない
-- `GET /api/v1/plan` は返すが、`/api/v1/stripe/*` は**生やさない**
+### 売り方
 
-> Apple は「外部購入への誘導」自体を 3.1.3(a) で禁止している。リンクだけでなく**言及**もリジェクト事由になるため、文言レビューを審査前に必ず行う。
+- 販売するのは **Pro / Max の 2 つ**。購読グループは `collecie_plan` の 1 つにまとめ、
+  アップグレード・ダウングレードは Apple 側に処理させる
+- 商品 ID は `com.collecie.app.pro.monthly` / `com.collecie.app.max.monthly`
+  （**App Store Connect で一度作ると変更も再利用もできない**）
+- 契約は**組織単位**。購入できるのは `admin` のみ
+- Free の上限到達時の表示は「**店舗を追加できません（上限 3 店舗）**」＋プラン画面への導線まで
+
+### 出してよいもの / 絶対に置かないもの
+
+- ✅ プラン名、店舗数、**StoreKit が返した `displayPrice`**、更新日、購読の内容の開示、
+  「購入を復元」、「サブスクリプションを管理」（Apple の購読管理へのディープリンク）
+- ❌ **絶対に置かない**：`collecie.com` への購入リンク、「Web サイトで契約できます」等の
+  **言及**、Stripe を想起させる表記、価格のハードコード
+- ⚠️ **価格を文字列で持たない。** 必ず `displayPrice` を使う。ハードコードすると地域・
+  為替・Apple の価格改定で実際の請求額とずれ、Guideline 3.1.2 に触れる
+- `/api/v1/stripe/*` は引き続き**生やさない**。アプリ側の課金経路は
+  `POST /api/v1/billing/apple/verify` の 1 本だけ
+
+### Guideline 3.1.2 が求める開示（プラン画面に必須）
+
+購読の名称・期間・価格に加えて、**利用規約とプライバシーポリシーへの機能するリンク**、
+そして**購入を復元する手段**が同一画面に無いとリジェクトされる。
+実装は `app/settings/plan.tsx` と `src/components/settings/PlanCards.tsx`。
+
+### サーバ側の検証（必須）
+
+**StoreKit の戻り値だけでプランを上げてはいけない。** 端末の中の話なので改造した
+端末からは自由に作れる。アプリは `purchaseToken`（iOS では JWS）を BFF に送り、
+`@apple/app-store-server-library` の `SignedDataVerifier` で Apple のルート CA まで
+署名を辿ってから `organizations.plan` を書き換える。
+
+- 検証: `src/utils/apple/verify.js`
+- 反映: `src/app/api/supabaseFunctions/supabaseDatabase/billing/appleAction.js`
+- 更新・解約・返金の追随: `POST /api/apple/notifications`（App Store Server Notifications V2）
+
+⚠️ **サーバの検証が通ってから `finishTransaction()` を呼ぶこと。** 先に閉じると
+StoreKit がその取引を二度と返さなくなり、検証に失敗した購入が宙に浮く。
+
+### Stripe との併存
+
+同じ組織に Stripe と Apple の契約を同時に生かさない。`organizations.plan_source` で
+出どころを持ち、双方向に 409 で弾く。二重に引き落とすと **Apple 側は Web からも
+アプリからも解約できない**ため、返金対応しか手が無くなる。
 
 ## 13.2 Sign in with Apple（Guideline 4.8）— 必須
 

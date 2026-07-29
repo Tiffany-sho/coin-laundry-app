@@ -20,6 +20,14 @@
 | 2026-07-27 | 15章の未決事項 6 件をすべて**推奨案どおりに確定** | [15章](15-risks.md) |
 | 2026-07-27 | Phase 0 のうち **Bearer 対応 + `/api/v1` 疎通まで**を先行実装（モノレポ化と DB マイグレーションは分離） | [14章](14-phases.md) |
 | 2026-07-27 | **共有ロジックはコピー運用**とする。`src/shared/` に置き、ファイル冒頭に「Web と同時に直すこと」を明記。submodule / private npm はアプリが動いてから再検討 | [4章](04-repo-structure.md) |
+| 2026-07-29 | **13.1 の「プランは read-only 表示のみ」を撤回し、アプリ内課金（StoreKit の自動更新サブスクリプション）を実装する。** Apple Developer Program の登録が完了し、Guideline 3.1.1 が求める正規の売り方（IAP）が取れるようになったため。**外部購入への言及の禁止（3.1.3(a)）は引き続き有効**で、変わったのは「アプリ内で買えるようになった」ことだけ。Web の Stripe 導線への言及は今も一切置かない | [13章](13-app-review.md) |
+| 2026-07-29 | **iOS で販売するのは Pro / Max の 2 つ。** 同一の購読グループ `collecie_plan` に入れ、アップグレード・ダウングレードは Apple 側に処理させる。商品 ID は `com.collecie.app.pro.monthly` / `com.collecie.app.max.monthly` | [13章](13-app-review.md) |
+| 2026-07-29 | **契約は組織単位。購入できるのは admin だけ。** Apple の購読は Apple ID に紐づくが、Collecie のプランは `organizations.plan`。購入時に `appAccountToken` へ組織 ID を載せ、サーバ側で `organizations.apple_original_transaction_id` に束ねる | [8章](08-data-model.md) |
+| 2026-07-29 | **Stripe と Apple を同じ組織で併存させない。** `organizations.plan_source` で出どころを持ち、Stripe 契約中は IAP を 409 で拒否、Apple 契約中は Stripe の checkout を 409 で拒否する。二重に引き落とすと Apple 側は Web から解約できず返金対応になるため | [8章](08-data-model.md) |
+| 2026-07-29 | **集金リマインダの起動を「毎日 07:50 JST」から「毎時 0 分」に変更。** 通知時刻は `profiles.notification_prefs.reminderHour` でユーザーごとに変えられるので、1 日 1 回では守れない。Edge Function 側が JST の現在時刻と `reminderHour` を突き合わせて宛先を絞る | [10章](10-push.md) |
+| 2026-07-29 | **`DELETE /api/v1/devices` はトークンを body で受ける**（設計図の `/:token` から変更）。Expo のトークンは `ExponentPushToken[...]` と角括弧を含み、URL パスに載せるとエスケープの解釈が環境ごとに割れるため | [6章](06-api-bff.md) |
+| 2026-07-29 | **在庫・故障アラートは Edge Function ではなく Web の Server Action から送る。** イベント駆動なので cron に載らない。`updateStockState` / `updateMachinesState` が更新前後を比較し、`after()` で応答後に送る | [10章](10-push.md) |
+| 2026-07-29 | **数字の書体をアプリだけ Space Mono → Inter（tabular-nums）に変更。** Web は Space Mono のまま。等幅ではなくなるので `theme/tokens.ts` の `numeric` を必ずセットで使う | [11章](11-design-system.md) |
 
 ## 実装状況
 
