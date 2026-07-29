@@ -1,6 +1,5 @@
 import { Box, VStack, Heading, Text, HStack } from "@chakra-ui/react";
-import Link from "next/link";
-import { LuChevronLeft } from "react-icons/lu";
+import LegalBackLink from "@/app/feacher/partials/LegalBackLink";
 
 export const metadata = {
   title: "プライバシーポリシー | Collecie",
@@ -29,13 +28,8 @@ export default function PrivacyPage() {
             >
               プライバシーポリシー
             </Heading>
-            <Link href="/settings">
-              <HStack gap={1} color="var(--text-muted)" fontSize="sm" cursor="pointer"
-                _hover={{ color: "var(--text-main)" }} flexShrink={0}>
-                <LuChevronLeft size={16} />
-                <Text>戻る</Text>
-              </HStack>
-            </Link>
+            {/* ⚠️ /app/* では出ない。WebView から Web アプリ本体へ抜けさせないため */}
+            <LegalBackLink />
           </HStack>
           <Text fontSize="sm" color="var(--text-muted)">
             上田 将生（以下「当方」）は、Collecie（以下「本サービス」）において取得するお客様の個人情報について、以下のとおり取り扱います。

@@ -1,6 +1,5 @@
 import { Box, VStack, Heading, Text, Table, HStack } from "@chakra-ui/react";
-import Link from "next/link";
-import { LuChevronLeft } from "react-icons/lu";
+import LegalBackLink from "@/app/feacher/partials/LegalBackLink";
 
 export const metadata = {
   title: "特定商取引法に基づく表記 | Collecie",
@@ -46,13 +45,8 @@ export default function TokushohoPage() {
             >
               特定商取引法に基づく表記
             </Heading>
-            <Link href="/settings">
-              <HStack gap={1} color="var(--text-muted)" fontSize="sm" cursor="pointer"
-                _hover={{ color: "var(--text-main)" }} flexShrink={0}>
-                <LuChevronLeft size={16} />
-                <Text>戻る</Text>
-              </HStack>
-            </Link>
+            {/* ⚠️ /app/* では出ない。WebView から Web アプリ本体へ抜けさせないため */}
+            <LegalBackLink />
           </HStack>
           <Text fontSize="sm" color="var(--text-muted)">
             特定商取引に関する法律第11条に基づき、以下の事項を表示します。

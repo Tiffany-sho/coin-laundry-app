@@ -1,6 +1,5 @@
 import { Box, VStack, Heading, Text, List, HStack } from "@chakra-ui/react";
-import Link from "next/link";
-import { LuChevronLeft } from "react-icons/lu";
+import LegalBackLink from "@/app/feacher/partials/LegalBackLink";
 
 export const metadata = {
   title: "利用規約 | Collecie",
@@ -41,13 +40,8 @@ export default function TermsPage() {
             >
               利用規約
             </Heading>
-            <Link href="/settings">
-              <HStack gap={1} color="var(--text-muted)" fontSize="sm" cursor="pointer"
-                _hover={{ color: "var(--text-main)" }} flexShrink={0}>
-                <LuChevronLeft size={16} />
-                <Text>戻る</Text>
-              </HStack>
-            </Link>
+            {/* ⚠️ /app/* では出ない。WebView から Web アプリ本体へ抜けさせないため */}
+            <LegalBackLink />
           </HStack>
           <Text fontSize="sm" color="var(--text-muted)">
             本利用規約（以下「本規約」）は、上田 将生（以下「当方」）が提供するCollecie（以下「本サービス」）の利用条件を定めるものです。本サービスを利用された場合、本規約に同意したものとみなします。
