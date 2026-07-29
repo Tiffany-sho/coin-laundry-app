@@ -41,6 +41,7 @@ export async function POST(request) {
       .from("organizations")
       .update({
         plan: planKey,
+        plan_source: "stripe",
         stripe_subscription_id: subscription.id,
         trial_ends_at: trialEnd,
       })
@@ -60,6 +61,7 @@ export async function POST(request) {
         .from("organizations")
         .update({
           plan: "free",
+          plan_source: null,
           stripe_subscription_id: null,
           trial_ends_at: null,
         })
@@ -76,6 +78,7 @@ export async function POST(request) {
         .from("organizations")
         .update({
           plan: planKey,
+          plan_source: "stripe",
           stripe_subscription_id: subscription.id,
           trial_ends_at: trialEnd,
         })
@@ -95,6 +98,7 @@ export async function POST(request) {
       .from("organizations")
       .update({
         plan: "free",
+        plan_source: null,
         stripe_subscription_id: null,
         trial_ends_at: null,
       })

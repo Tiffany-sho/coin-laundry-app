@@ -3,6 +3,7 @@ import { stripe } from "@/utils/stripe/client";
 import { getUser } from "@/app/api/supabaseFunctions/supabaseDatabase/user/action";
 import { getOrgPlan } from "@/app/api/supabaseFunctions/supabaseDatabase/organization/action";
 import { createServiceClient } from "@/utils/supabase/service";
+import { isAppleSubscriptionActive } from "@/functions/applePlans";
 
 export async function POST(request) {
   const { user } = await getUser();
@@ -16,6 +17,24 @@ export async function POST(request) {
   const { data: planInfo, error } = await getOrgPlan();
   if (error || !planInfo) {
     return NextResponse.json({ error: "Organization not found" }, { status: 404 });
+  }
+
+  // ⚠️ iOS のアプリ内課金が生きている組織に Stripe の決済を通さない。
+  //    通すと Apple と Stripe の両方から引き落とされ、Apple 側は Web から
+  //    解約できないので返金対応になる。解約は必ず Apple の購読管理から。
+  if (
+    planInfo.planSource === "apple" &&
+    isAppleSubscriptionActive(
+      planInfo.appleExpiresAt ? Date.parse(planInfo.appleExpiresAt) : null
+    )
+  ) {
+    return NextResponse.json(
+      {
+        error:
+          "iOS アプリで契約中のプランがあります。プランの変更・解約は iPhone の「設定 > Apple アカウント > サブスクリプション」から行ってください。",
+      },
+      { status: 409 }
+    );
   }
 
   const priceId =

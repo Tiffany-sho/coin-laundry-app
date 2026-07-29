@@ -469,6 +469,16 @@ export async function getOrgPlan() {
 
   if (orgError) return { error: "プラン情報の取得に失敗しました" };
 
+  // ⚠️ 課金の出どころ（003_apple_iap.sql で追加した列）は**別のクエリで取る**。
+  //    上の select に混ぜると、マイグレーション未適用の環境で 42703 が返って
+  //    getOrgPlan ごと失敗し、bootstrap の plan が null になって全画面に響く。
+  //    ここが失敗しても「Apple 契約なし」として続行してよい。
+  const { data: billing } = await serviceSupabase
+    .from("organizations")
+    .select("plan_source, apple_product_id, apple_expires_at")
+    .eq("id", member.org_id)
+    .maybeSingle();
+
   const { count } = await serviceSupabase
     .from("laundry_store")
     .select("*", { count: "exact", head: true })
@@ -486,6 +496,11 @@ export async function getOrgPlan() {
       stripeCustomerId: org.stripe_customer_id,
       orgId: member.org_id,
       myRole: member.role,
+      // どこで契約したか。'apple' なら解約は Apple 側でしか行えないので、
+      // Web に解約ボタンを出しても機能しない（iOS アプリの表示もここで分岐する）
+      planSource: billing?.plan_source ?? null,
+      appleProductId: billing?.apple_product_id ?? null,
+      appleExpiresAt: billing?.apple_expires_at ?? null,
     },
   };
 }
