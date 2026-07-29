@@ -26,10 +26,22 @@ export const GET = withAuth(async (request) => {
   const from = searchParams.get("from");
   const to = searchParams.get("to");
 
-  if (from && to) {
+  /**
+   * 期間指定。to は省略できる（＝開始日以降すべて）。
+   *
+   * ⚠️ アプリの売上履歴はこちらを使うこと。下の offset+limit の経路は
+   *    getOrgCollectFundsPaginated が startEpoch を「2 か月前の月初」に固定しており、
+   *    offset をいくら進めても**それより古いデータは絶対に返らない**。
+   *    並び替えも DB の ORDER BY で効くので、読み込み済みのページ内だけを
+   *    並べ替えて「売上が高い順」が嘘になる問題も起きない。
+   */
+  if (from !== null) {
     const startEpoch = Number(from);
-    const endEpoch = Number(to);
-    if (!Number.isFinite(startEpoch) || !Number.isFinite(endEpoch)) {
+    const endEpoch = to === null ? null : Number(to);
+    if (!Number.isFinite(startEpoch)) {
+      return { error: "期間の指定が不正です", status: 400 };
+    }
+    if (endEpoch !== null && !Number.isFinite(endEpoch)) {
       return { error: "期間の指定が不正です", status: 400 };
     }
     return storeId
