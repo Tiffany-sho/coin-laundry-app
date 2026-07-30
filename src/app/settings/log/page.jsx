@@ -7,7 +7,12 @@ import { getMyOrganization } from "@/app/api/supabaseFunctions/supabaseDatabase/
 import Log from "@/app/feacher/account/components/logList/Log";
 import * as Icon from "@/app/feacher/Icon";
 
-export default async function SettingsLogPage() {
+export default async function SettingsLogPage({ searchParams }) {
+  // ⚠️ Next 16 の searchParams は Promise。await せずに読むと undefined になる
+  const params = await searchParams;
+  // ⚠️ 数値以外や 0 以下が来ても落とさず 1 ページ目に倒す（URL は手で書き換えられる）
+  const page = Math.max(1, Number(params?.page) || 1);
+
   const { user } = await getUser();
   const { data: org } = await getMyOrganization();
 
@@ -27,8 +32,8 @@ export default async function SettingsLogPage() {
       </HStack>
 
       {org?.id
-        ? <Log orgId={org.id} currentUserId={user.id} />
-        : <Log userId={user.id} currentUserId={user.id} />
+        ? <Log orgId={org.id} currentUserId={user.id} page={page} />
+        : <Log userId={user.id} currentUserId={user.id} page={page} />
       }
     </Box>
   );

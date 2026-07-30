@@ -1,6 +1,8 @@
+import Link from "next/link";
 import {
-  getMessage,
-  getOrgMessages,
+  countActionMessages,
+  getMessagesPage,
+  getOrgMessagesPage,
 } from "@/app/api/supabaseFunctions/supabaseDatabase/actionMessage/action";
 import ErrorPage from "@/app/feacher/jumpPage/ErrorPage/ErrorPage";
 import TableEmpty from "@/app/feacher/partials/TableEmpty";
@@ -8,12 +10,36 @@ import { createNowData } from "@/functions/makeDate/date";
 import { Table, Box, Badge, HStack, Text, Flex } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
 
-const Log = async ({ orgId, userId, currentUserId }) => {
-  const { data, error } = orgId
-    ? await getOrgMessages(orgId)
-    : await getMessage(userId);
+/**
+ * 1 ページの件数。
+ *
+ * ⚠️ **必ず範囲を切って引くこと。** 以前は全件を引いていたが、
+ *    `.limit()` も `.range()` も無い select は **PostgREST の 1000 行上限で
+ *    エラーも警告も出ないまま打ち切られる**（supabase/config.toml の max_rows）。
+ *    アクションログは操作のたびに増えるので、必ず到達する。実際 2026-07-31 時点で
+ *    既に 800 行あった。打ち切られても「古い履歴が消えた」ようにしか見えず、
+ *    気づく手段が無い。
+ */
+const PAGE_SIZE = 50;
+
+const Log = async ({ orgId, userId, currentUserId, page = 1 }) => {
+  const current = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
+  const offset = (current - 1) * PAGE_SIZE;
+
+  const [result, total] = await Promise.all([
+    orgId
+      ? getOrgMessagesPage(orgId, offset, PAGE_SIZE)
+      : getMessagesPage(userId, offset, PAGE_SIZE),
+    // ⚠️ 件数は別に数える（head: true）。行を引き直すと上限を避けた意味が無い
+    countActionMessages({ orgId, userId }),
+  ]);
+
+  const { data, error } = result;
 
   if (error) return <ErrorPage title={error.msg} status={error.status} />;
+
+  const lastPage = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const basePath = "/settings/log";
 
   return (
     <Box
@@ -45,8 +71,10 @@ const Log = async ({ orgId, userId, currentUserId }) => {
             <Text fontSize="lg" fontWeight="bold">
               アクションログ
             </Text>
+            {/* ⚠️ 総数は count で数えた値。data.length を出すと 1 ページ分になる */}
             <Text fontSize="xs" color="whiteAlpha.800">
-              {data.length}件の履歴
+              {total}件の履歴
+              {lastPage > 1 && `（${current} / ${lastPage} ページ）`}
             </Text>
           </Box>
         </HStack>
@@ -54,9 +82,16 @@ const Log = async ({ orgId, userId, currentUserId }) => {
 
       <Box overflowX="auto">
         {data.length === 0 ? (
+          /* ⚠️ 「1 件も無い」と「そのページに無い」を分ける。
+                URL の page は手で書き換えられるので、範囲外を開いたときに
+                「まだありません」と出すと履歴ごと消えたように見える */
           <TableEmpty
             columnCount={3}
-            message="まだアクションログがありません"
+            message={
+              total > 0
+                ? `このページには履歴がありません（全${total}件 / ${lastPage}ページ）`
+                : "まだアクションログがありません"
+            }
           />
         ) : (
         <Table.Root size="sm" variant="line">
@@ -172,24 +207,72 @@ const Log = async ({ orgId, userId, currentUserId }) => {
         )}
       </Box>
 
+      {data.length === 0 && total > 0 && (
+        <Box bg="var(--teal-pale, #CFFAFE)" p={3} borderTop="1px solid" borderColor="cyan.100">
+          <Flex justify="center">
+            <PageLink href={`${basePath}?page=1`} label="最初のページへ" />
+          </Flex>
+        </Box>
+      )}
+
       {data.length > 0 && (
         <Box bg="var(--teal-pale, #CFFAFE)" p={3} borderTop="1px solid" borderColor="cyan.100">
-          <Flex justify="space-between" align="center">
+          <Flex justify="space-between" align="center" gap={3} wrap="wrap">
             <Text fontSize="xs" color="var(--teal-dark, #0E7490)">
               最新のアクションが上に表示されます
             </Text>
-            <HStack gap={4}>
-              <HStack gap={1}>
-                <Box w="8px" h="8px" bg="var(--teal, #0891B2)" borderRadius="full" />
-                <Text fontSize="xs" color="var(--teal-deeper, #155E75)">
-                  アクティブ
+
+            {/* ページ送り。⚠️ Link にしてあるのはサーバーコンポーネントのままにするため
+                （クライアント側の状態を持たせると、この画面だけ JS が要る） */}
+            {lastPage > 1 && (
+              <HStack gap={2}>
+                <PageLink
+                  href={`${basePath}?page=${current - 1}`}
+                  disabled={current <= 1}
+                  label="前へ"
+                />
+                <Text fontSize="xs" color="var(--teal-deeper, #155E75)" minW="60px" textAlign="center">
+                  {current} / {lastPage}
                 </Text>
+                <PageLink
+                  href={`${basePath}?page=${current + 1}`}
+                  disabled={current >= lastPage}
+                  label="次へ"
+                />
               </HStack>
-            </HStack>
+            )}
           </Flex>
         </Box>
       )}
     </Box>
+  );
+};
+
+/**
+ * ページ送りの 1 ボタン。
+ * ⚠️ 端では**リンクにしない**（押せそうに見えて何も起きないのを避ける）。
+ */
+const PageLink = ({ href, disabled, label }) => {
+  const style = {
+    fontSize: "12px",
+    fontWeight: "bold",
+    padding: "4px 12px",
+    borderRadius: "999px",
+    border: "1px solid var(--cyan-200, #A5F3FC)",
+  };
+
+  if (disabled) {
+    return (
+      <Box as="span" {...style} color="var(--text-faint, #94A3B8)" opacity={0.5}>
+        {label}
+      </Box>
+    );
+  }
+
+  return (
+    <Link href={href} style={{ ...style, color: "var(--teal-deeper, #155E75)" }}>
+      {label}
+    </Link>
   );
 };
 

@@ -113,6 +113,52 @@ export async function getOrgMessagesPage(orgId, offset, limit) {
 }
 
 /**
+ * 自分のログをページで返す（組織未所属のとき用）。
+ * ⚠️ getMessage は範囲を切っていないので 1000 行で打ち切られる。画面はこちらを使う。
+ */
+export async function getMessagesPage(userId, offset, limit) {
+  if (!userId) return { error: { msg: "ユーザーIDが必要です", status: 400 } };
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("action_message")
+    .select("id, message, date, user")
+    .eq("user", userId)
+    // ⚠️ date は同ミリ秒で並ぶことがある。id を足さないとページの境目で行が重複・欠落する
+    .order("date", { ascending: false })
+    .order("id", { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  if (error) return { error };
+  return { data };
+}
+
+/**
+ * 件数だけ引く。
+ *
+ * ⚠️ **`head: true` を付けること。** 付けないと行も一緒に返ってきて、
+ *    1000 行上限を避けるために分けた意味が無くなる。
+ * ⚠️ `count` は上限の影響を受けない（PostgREST が別に数える）ので、
+ *    実際の総数がそのまま返る。
+ */
+export async function countActionMessages({ orgId, userId }) {
+  try {
+    const supabase = await createClient();
+    let query = supabase
+      .from("action_message")
+      .select("id", { count: "exact", head: true });
+
+    query = orgId ? query.eq("org_id", orgId) : query.eq("user", userId);
+
+    const { count, error } = await query;
+    if (error) return 0;
+    return count ?? 0;
+  } catch {
+    return 0;
+  }
+}
+
+/**
  * アクションログを 1 行残す。**BFF（/api/v1/*）からはこれを使う。**
  *
  * createMessage との違いは 2 つだけ:
