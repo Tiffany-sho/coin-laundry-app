@@ -116,9 +116,19 @@ SELECT cron.schedule(
 -- =====================================================================
 -- 確認用
 --
--- ⚠️ **cron.job_run_details だけ見ても何も分からない。** net.http_post は要求を
---    キューに積んで即座に返るので、Edge Function が 403 でも 404 でも、URL が
---    不正でも status は 'succeeded' になる。**結果は net._http_response にしか出ない。**
+-- 失敗は **2 つのテーブルに分かれて**記録される。片方だけ見ると見落とす。
+--
+--   cron.job_run_details … 積む前の失敗（URL が不正、Vault の行が無い／2 つある）
+--   net._http_response   … 積んだ後の結果（403 / 401 / 404 / タイムアウト）
+--
+-- ⚠️ status = 'succeeded' は「HTTP が成功した」ではない。net.http_post は要求を
+--    キューに積んで即座に返るので、Edge Function が 403 でも 404 でも succeeded に
+--    なる。**積んだ後の結果は net._http_response にしか出ない。**
+-- ⚠️ ただし status = 'failed' は本物で、原因が return_message に書かれている。
+--    最初に見るべきはこちら。URL がプレースホルダのままだったときは
+--    'Quote command returned error' が毎時記録されていた（net._encode_url_with_params_array
+--    が < > を扱えず、キューに積む前に例外を投げる）。この経路では
+--    net._http_response に行が増えないので、応答テーブルだけ見ても分からない。
 -- =====================================================================
 
 -- -- ① 拡張・ジョブ・Vault をまとめて（1 文なので SQL Editor で全行見える）
@@ -168,12 +178,23 @@ SELECT cron.schedule(
 --    ⚠️ ?dryRun=1 は日付判定を飛ばして daysUntil を 0 に上書きするので、
 --       空撃ちと手撃ちで reason が変わるのは正常
 
--- -- ④ 自動起動が走ったか（次の :00 以降）
--- SELECT d.status, d.return_message, d.start_time
+-- -- ④ 自動起動が走ったか（次の :00 以降）。cron と http を 1 文で突き合わせる
+-- SELECT 'cron' AS src, d.start_time::text AS at, d.status AS info,
+--        coalesce(d.return_message, '') AS detail
 --   FROM cron.job_run_details d JOIN cron.job j USING (jobid)
 --  WHERE j.jobname = 'collect-reminder-hourly'
---  ORDER BY d.start_time DESC LIMIT 5;
---    そのうえで ③ をもう一度撃ち、**id が増えていること**を確認する
+-- UNION ALL
+-- SELECT 'http', r.created::text, r.status_code::text,
+--        coalesce(r.content, r.error_msg, '')
+--   FROM net._http_response r
+--  ORDER BY at DESC LIMIT 8;
+--
+--    正常なら :00 の cron（succeeded）の直後に http（200）が並ぶ:
+--      cron  02:00:00.160  succeeded  1 row
+--      http  02:00:00.276  200        {"sent":0,"reason":"no_target_org",…,"jstHour":11}
+--    ⚠️ cron はあるが http が増えていない → 積む前に落ちている。detail を読む
+--    ⚠️ cron の行自体が無い → SELECT active, database FROM cron.job;
+--       database が postgres 以外だとジョブは起きない
 
 -- -- 止めるとき
 -- SELECT cron.unschedule('collect-reminder-hourly');
