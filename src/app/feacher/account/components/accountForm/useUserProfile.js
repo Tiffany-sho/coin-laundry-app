@@ -35,7 +35,8 @@ export function useUserProfile({ onSuccess } = {}) {
     if (error) {
       showToast("error", "プロフィールを更新に失敗しました");
     } else {
-      await showToast("success", "プロフィールを更新しました");
+      // ⚠️ 個人に閉じた操作なのでアクションログには残さない（組織の全員が読むため）
+      await showToast("success", "プロフィールを更新しました", { log: false });
       onSuccess?.();
     }
     setLoading(false);
@@ -53,7 +54,8 @@ export function useUserProfile({ onSuccess } = {}) {
       } else {
         setAvatarUrl(`${data.url}?t=${Date.now()}`);
         router.refresh();
-        showToast("success", "アバターを更新しました");
+        // ⚠️ 同上。アイコンは個人のもの
+        showToast("success", "アバターを更新しました", { log: false });
       }
     } catch {
       showToast("error", "アップロードに失敗しました");

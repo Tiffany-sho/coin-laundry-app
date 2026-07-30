@@ -23,7 +23,8 @@ export default function CollectMethodSetting({ defaultValue }) {
     if (error) {
       showToast("error", "集金方法の更新に失敗しました");
     } else {
-      showToast("success", "集金方法を更新しました");
+      // ⚠️ profiles の個人設定。アクションログには残さない
+      showToast("success", "集金方法を更新しました", { log: false });
     }
   };
 

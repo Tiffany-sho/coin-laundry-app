@@ -24,7 +24,8 @@ const CheckProfiles = () => {
         if (orgError) throw new Error(orgError);
       }
 
-      showToast("success", "登録が完了しました");
+      // ⚠️ 自分のプロフィール作成。個人に閉じるのでログには残さない
+      showToast("success", "登録が完了しました", { log: false });
       handleNext();
     } catch (e) {
       showToast("error", e.message || "登録に失敗しました");

@@ -47,7 +47,12 @@ export default function InviteForm({ orgName, inviterName, onInvited }) {
       const resJson = await res.json().catch(() => ({}));
       showToast("error", resJson.detail ? `招待メールの送信に失敗しました: ${resJson.detail}` : "招待メールの送信に失敗しました");
     } else {
-      showToast("success", `${email} に招待メールを送信しました`);
+      /* ⚠️ トーストには宛先を出してよいが、**ログには残さない。**
+         保留中の招待一覧は admin にしか出していないのに、ログは組織の全員が読む。
+         アプリ側（POST /api/v1/org/invitations）も同じ文面にしてある */
+      showToast("success", `${email} に招待メールを送信しました`, {
+        logMessage: "新しいメンバーを招待しました",
+      });
       setEmail("");
       onInvited?.();
     }
