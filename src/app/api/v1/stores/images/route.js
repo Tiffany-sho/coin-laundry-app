@@ -9,11 +9,20 @@ export const dynamic = "force-dynamic";
 /** Web の CoinLaundryForm と同じ制限（useStoreSubmit.js の invalidFiles 判定） */
 const ALLOWED_TYPES = ["image/jpeg", "image/png"];
 
-/** Storage 側の既定上限に合わせる。これを超えるとアップロード時に落ちる */
+/**
+ * ⚠️ **このチェックは実質到達しない。** Vercel のサーバーレス関数はリクエスト
+ *    ボディが 4.5MB を超えると**関数に届く前に**弾くので、10MB のものはここまで来ない。
+ *    数値は Storage 側の既定上限に合わせてあるだけ。
+ */
 const MAX_BYTES = 10 * 1024 * 1024;
 
 /**
- * 店舗画像のアップロード。
+ * 店舗画像のアップロード（multipart で実体を受ける旧経路）。
+ *
+ * ⚠️ **アプリはこの経路を使わない。** Vercel の 4.5MB のボディ上限に当たり、
+ *    しかも拒否がアップロード途中の接続切断として現れるため端末には 413 すら
+ *    返らない。アプリは POST /api/v1/stores/images/signed-url で署名付き URL を
+ *    貰い、Storage へ直接 PUT する。こちらは小さい画像なら通るので残してある。
  *
  * ⚠️ アプリは SUPABASE_SERVICE_KEY を持てないので、必ずこの経路を通す。
  *    実処理は Web と共通の Server Action（uploadStoreImage）で、
