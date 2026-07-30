@@ -28,6 +28,8 @@
 | 2026-07-29 | **`DELETE /api/v1/devices` はトークンを body で受ける**（設計図の `/:token` から変更）。Expo のトークンは `ExponentPushToken[...]` と角括弧を含み、URL パスに載せるとエスケープの解釈が環境ごとに割れるため | [6章](06-api-bff.md) |
 | 2026-07-29 | **在庫・故障アラートは Edge Function ではなく Web の Server Action から送る。** イベント駆動なので cron に載らない。`updateStockState` / `updateMachinesState` が更新前後を比較し、`after()` で応答後に送る | [10章](10-push.md) |
 | 2026-07-29 | **数字の書体をアプリだけ Space Mono → Inter（tabular-nums）に変更。** Web は Space Mono のまま。等幅ではなくなるので `theme/tokens.ts` の `numeric` を必ずセットで使う | [11章](11-design-system.md) |
+| 2026-07-30 | **「開発者からのお知らせ」を追加。`announcements` テーブル（005）を Web とアプリで共用する。** 出し分けの列は持たない。投稿は Supabase の Table Editor から手で行い、管理画面も書き込み API も作らない（作るとアプリのトークンでお知らせを捏造できる経路が生まれる） | [13章](13-app-review.md) |
+| 2026-07-30 | **お知らせの文面は、Web に出すものも含めて常に iOS の制約（Guideline 3.1.3(a)）で書く。** テーブルを共用する以上、Web 向けに書いた「Pro プラン値上げのお知らせ」がそのままアプリにも出るため。⚠️ **これは運用ルールでしか守れない。**「Web だけに出す」手段は無い。必要になったら `show_in_app`（既定 false）列の追加を再検討する | [13章](13-app-review.md) |
 
 ## 実装状況
 

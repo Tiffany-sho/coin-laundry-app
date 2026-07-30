@@ -38,6 +38,37 @@ CREATE INDEX IF NOT EXISTS announcements_published_idx
   ON public.announcements (published, published_at DESC);
 
 -- ---------------------------------------------------------------------
+-- ①' 投稿する人に見せる警告
+--
+-- ⚠️ **この COMMENT が実質的な唯一の防波堤。**
+--    お知らせを書くとき、人は docs を読まず Supabase の Table Editor にいる。
+--    Table Editor はテーブルと列のコメントを画面に出すので、守ってほしいことは
+--    ドキュメントではなくここに置く。文面ルールを変えたら必ずここも直すこと。
+-- ---------------------------------------------------------------------
+COMMENT ON TABLE public.announcements IS
+  '開発者からのお知らせ。Web と iOS アプリで共用する（出し分けの列は無い）。'
+  '⚠️ ここに書いたものは iOS アプリにもそのまま出る。'
+  '⚠️ 価格・プラン名と金額・外部サイトでの契約への言及を書かないこと（App Store Guideline 3.1.3(a)。リジェクト事由）。';
+
+COMMENT ON COLUMN public.announcements.body IS
+  'プレーンテキスト。改行はそのまま表示される（Markdown は解釈しない）。'
+  '⚠️ 「Proプランは◯◯円」「Webサイトから契約できます」は書かない（3.1.3(a)）。'
+  '⚠️ アプリに無い画面へ誘導しない（フィードバック画面は Web にしか無い）。';
+
+COMMENT ON COLUMN public.announcements.published IS
+  '⚠️ false のあいだは誰にも見えない（下書き）。書き終えてから true にする。';
+
+COMMENT ON COLUMN public.announcements.category IS
+  'info（お知らせ）/ feature（新機能）/ maintenance（メンテナンス）/ incident（障害）。'
+  'アプリのバッジ色が変わるだけ。⚠️ 知らない値は info として表示される。';
+
+COMMENT ON COLUMN public.announcements.expires_at IS
+  'この日時を過ぎると自動的に表示されなくなる。NULL ならずっと表示する。';
+
+COMMENT ON COLUMN public.announcements.published_at IS
+  '一覧の並び順と「未読」の判定に使う。⚠️ 過去日を入れると、既に読んだ人には未読にならない。';
+
+-- ---------------------------------------------------------------------
 -- ② RLS
 --
 -- ⚠️ **読めるのは「公開中かつ期限内」のものだけ。** 下書きが漏れると、
