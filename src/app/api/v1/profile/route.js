@@ -4,7 +4,9 @@ import {
   updateProfile,
   registerProfile,
   setCollectMethod,
+  updateAvatarUrl,
 } from "@/app/api/supabaseFunctions/supabaseDatabase/profiles/action";
+import { buildAvatarPublicUrl } from "@/app/api/supabaseFunctions/supabaseStorage/serverAction";
 
 export const dynamic = "force-dynamic";
 
@@ -45,6 +47,26 @@ export const PATCH = withAuth(async (request) => {
   if (body?.collectMethod !== undefined) {
     return await setCollectMethod(body.collectMethod);
   }
+
+  /**
+   * アバターの確定。POST /profile/avatar/signed-url で得た拡張子だけを受け取る。
+   *
+   * ⚠️ **URL は受け取らない。サーバが user.id から組み直す。** URL を受け付けると、
+   *    他メンバーの画面に描かれる画像の src を自由に差し替えられる。
+   */
+  if (body?.avatarExt !== undefined) {
+    const built = await buildAvatarPublicUrl(body.avatarExt);
+    if (built.error) return { error: built.error, status: 400 };
+    const saved = await updateAvatarUrl(built.url);
+    // ⚠️ updateAvatarUrl は PostgrestError をそのまま返す。英語の生メッセージを
+    //    アプリに流さないよう日本語に置き換える（BFF の応答は日本語で揃える契約）
+    if (saved?.error) {
+      console.error("[api/v1/profile] avatar url save error:", saved.error);
+      return { error: "アイコンの保存に失敗しました", status: 500 };
+    }
+    return { data: { avatarUrl: built.url } };
+  }
+
   if (body?.username !== undefined || body?.fullname !== undefined) {
     return await updateProfile({ fullname: body.fullname, username: body.username });
   }
