@@ -3,6 +3,7 @@ import {
   getCollectSchedule,
   updateCollectSchedule,
 } from "@/app/api/supabaseFunctions/supabaseDatabase/organization/action";
+import { logAction } from "@/app/api/supabaseFunctions/supabaseDatabase/actionMessage/action";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +18,12 @@ export const PUT = withAuth(async (request) => {
   }
 
   // null は「スケジュール未設定に戻す」を意味する
-  if (body?.schedule === null) return await updateCollectSchedule(null);
+  if (body?.schedule === null) {
+    const cleared = await updateCollectSchedule(null);
+    // ⚠️ 未設定にすると集金前日・当日のリマインダー通知も止まる。履歴に残す価値がある
+    if (!cleared?.error) await logAction("集金スケジュールを未設定にしました");
+    return cleared;
+  }
 
   const schedule = body?.schedule;
   if (!schedule || !["weekly", "monthly"].includes(schedule.type)) {
@@ -32,7 +38,13 @@ export const PUT = withAuth(async (request) => {
     return { error: "集金日の指定が不正です", status: 400 };
   }
 
-  return await updateCollectSchedule(schedule);
+  const result = await updateCollectSchedule(schedule);
+  if (!result?.error) {
+    await logAction(
+      `集金スケジュールを${schedule.type === "weekly" ? "毎週" : "毎月"}に更新しました`
+    );
+  }
+  return result;
 });
 
 export const OPTIONS = corsPreflight;

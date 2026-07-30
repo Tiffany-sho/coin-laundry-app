@@ -1,4 +1,5 @@
 import { withAuth, corsPreflight } from "../_lib/handler";
+import { logAction } from "@/app/api/supabaseFunctions/supabaseDatabase/actionMessage/action";
 import {
   getMyOrganization,
   createOrganization,
@@ -28,7 +29,10 @@ export const PATCH = withAuth(async (request) => {
     return { error: "リクエストの形式が不正です", status: 400 };
   }
   if (!body?.name) return { error: "組織名を入力してください", status: 400 };
-  return await updateOrganizationName(body.name);
+  const result = await updateOrganizationName(body.name);
+  // 変更後の名前はサーバが受け取った値そのもの（Server Action が検証済み）
+  if (!result?.error) await logAction(`組織名を「${body.name}」に変更しました`);
+  return result;
 });
 
 export const OPTIONS = corsPreflight;

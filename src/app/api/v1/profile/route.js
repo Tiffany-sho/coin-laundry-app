@@ -7,6 +7,7 @@ import {
   updateAvatarUrl,
 } from "@/app/api/supabaseFunctions/supabaseDatabase/profiles/action";
 import { buildAvatarPublicUrl } from "@/app/api/supabaseFunctions/supabaseStorage/serverAction";
+import { logAction } from "@/app/api/supabaseFunctions/supabaseDatabase/actionMessage/action";
 
 export const dynamic = "force-dynamic";
 
@@ -45,7 +46,9 @@ export const PATCH = withAuth(async (request) => {
   }
 
   if (body?.collectMethod !== undefined) {
-    return await setCollectMethod(body.collectMethod);
+    const result = await setCollectMethod(body.collectMethod);
+    if (!result?.error) await logAction("集金方法を変更しました");
+    return result;
   }
 
   /**
@@ -64,11 +67,14 @@ export const PATCH = withAuth(async (request) => {
       console.error("[api/v1/profile] avatar url save error:", saved.error);
       return { error: "アイコンの保存に失敗しました", status: 500 };
     }
+    await logAction("アイコンを更新しました");
     return { data: { avatarUrl: built.url } };
   }
 
   if (body?.username !== undefined || body?.fullname !== undefined) {
-    return await updateProfile({ fullname: body.fullname, username: body.username });
+    const result = await updateProfile({ fullname: body.fullname, username: body.username });
+    if (!result?.error) await logAction("アカウント情報を更新しました");
+    return result;
   }
   return { error: "更新する内容がありません", status: 400 };
 });

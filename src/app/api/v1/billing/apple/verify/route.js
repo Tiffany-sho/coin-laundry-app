@@ -1,6 +1,7 @@
 import { withAuth, corsPreflight } from "../../../_lib/handler";
 import { verifyTransaction } from "@/utils/apple/verify";
 import { applyAppleTransaction } from "@/app/api/supabaseFunctions/supabaseDatabase/billing/appleAction";
+import { logAction } from "@/app/api/supabaseFunctions/supabaseDatabase/actionMessage/action";
 
 export const dynamic = "force-dynamic";
 
@@ -35,7 +36,21 @@ export const POST = withAuth(async (request) => {
   const verified = await verifyTransaction(jws);
   if (verified.error) return { error: verified.error, status: 400 };
 
-  return await applyAppleTransaction(verified.data);
+  const result = await applyAppleTransaction(verified.data);
+
+  /**
+   * ⚠️ **金額を書かない。** ログは組織の全員が読むうえ、文面はアプリを更新せずに
+   *    増えていく。出してよい価格は StoreKit の displayPrice だけで、
+   *    数字を残すと Guideline 3.1.2 / 3.1.3(a) に触れる。プラン名だけにする。
+   *
+   * ⚠️ 購入だけでなく**復元でもここを通る。** 同じ文面になるが、どちらも
+   *    「その組織のプランがこうなった」という事実なので分けていない。
+   */
+  if (!result?.error && result?.data?.plan) {
+    const label = String(result.data.plan);
+    await logAction(`プランを ${label.charAt(0).toUpperCase()}${label.slice(1)} に変更しました`);
+  }
+  return result;
 });
 
 export const OPTIONS = corsPreflight;

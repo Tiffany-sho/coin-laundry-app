@@ -1,4 +1,5 @@
 import { withAuth, corsPreflight } from "../../_lib/handler";
+import { logAction } from "@/app/api/supabaseFunctions/supabaseDatabase/actionMessage/action";
 import {
   getOrgJoinPassword,
   setOrgJoinPassword,
@@ -20,7 +21,10 @@ export const PUT = withAuth(async (request) => {
   if (typeof body?.password !== "string") {
     return { error: "参加パスワードを入力してください", status: 400 };
   }
-  return await setOrgJoinPassword(body.password);
+  const result = await setOrgJoinPassword(body.password);
+  // ⚠️ **パスワードそのものを絶対に書かない。** ログは組織の全員が読む
+  if (!result?.error) await logAction("組織参加パスワードを変更しました");
+  return result;
 });
 
 export const OPTIONS = corsPreflight;
