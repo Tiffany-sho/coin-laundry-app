@@ -3,7 +3,8 @@ import {
   getStores,
   createStore,
 } from "@/app/api/supabaseFunctions/supabaseDatabase/laundryStore/action";
-import { toStoreFormData, sanitizeStoreError } from "./_form";
+import { logAction } from "@/app/api/supabaseFunctions/supabaseDatabase/actionMessage/action";
+import { toStoreFormData, sanitizeStoreError, storeNameOf } from "./_form";
 
 export const dynamic = "force-dynamic";
 
@@ -20,7 +21,13 @@ export const POST = withAuth(async (request) => {
   }
   if (!body?.store) return { error: "店舗名を入力してください", status: 400 };
 
-  return sanitizeStoreError(await createStore(toStoreFormData(body)));
+  const result = sanitizeStoreError(await createStore(toStoreFormData(body)));
+  /**
+   * ⚠️ 店舗名は**登録結果**から取る（body.store をそのまま使わない）。
+   *    実際に保存された名前と違うものをログに残せてしまうため。
+   */
+  if (!result?.error) await logAction(`${storeNameOf(result?.data)}店の登録が完了しました。`);
+  return result;
 });
 
 // web プレビュー用のプリフライト（開発時のみ CORS ヘッダが付く）

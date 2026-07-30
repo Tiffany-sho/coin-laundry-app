@@ -26,6 +26,18 @@ export function toStoreFormData(body) {
  * この文言をアプリにそのまま出すと、外部での課金導線への言及とみなされる。
  * アプリ向けには課金に触れない文言へ差し替える（Web 側の文言は変えない）。
  */
+/**
+ * アクションログに出す店舗名を Server Action の戻り値から取る。
+ *
+ * ⚠️ createStore / updateStore / deleteStore は `.select()` の書き方が揃っておらず、
+ *    data が**オブジェクトのことも配列のこともある。** 片方だけ想定すると
+ *    ログが「undefined店の登録が完了しました。」になる（型エラーは出ない）。
+ */
+export function storeNameOf(data) {
+  const row = Array.isArray(data) ? data[0] : data;
+  return row?.store ?? "店舗";
+}
+
 export function sanitizeStoreError(result) {
   const message = typeof result?.error === "string" ? result.error : result?.error?.msg;
   if (message && message.includes("アップグレード")) {

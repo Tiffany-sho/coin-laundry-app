@@ -6,6 +6,7 @@ import {
   getStoreFundsInPeriod,
   getOrgCollectFundsInPeriod,
 } from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
+import { logAction } from "@/app/api/supabaseFunctions/supabaseDatabase/actionMessage/action";
 
 export const dynamic = "force-dynamic";
 
@@ -99,6 +100,18 @@ export const POST = withAuth(async (request) => {
   });
 
   if (result.error) return result;
+
+  /**
+   * アクションログ。⚠️ **再送（duplicated）では残さない。**
+   * Outbox は応答を受け取れなかったとき必ず再送するので、ここで無条件に
+   * 書くと同じ集金が何度も履歴に並ぶ。
+   *
+   * ⚠️ 店舗名は**登録結果**から取る。body の store をそのまま使うと、
+   *    実際に登録された店舗と違う名前をログに残せてしまう。
+   */
+  if (!result.duplicated) {
+    await logAction(`${result.data?.laundryName ?? "店舗"}店の集金データの登録が完了しました`);
+  }
 
   // 再送で既存レコードを返した場合も 200。アプリは Outbox から破棄してよい
   return { data: { ...result.data, duplicated: Boolean(result.duplicated) } };

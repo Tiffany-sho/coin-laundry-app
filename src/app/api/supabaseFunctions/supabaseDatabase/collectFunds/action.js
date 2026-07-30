@@ -157,9 +157,14 @@ export async function getFundItemById(id) {
   if (storeIds.length === 0) return { error: "アクセス権限がありません" };
 
   const supabase = createServiceClient();
+  /**
+   * ⚠️ `laundryName` も引く。アクションログの文面（「〇〇店の集金データを
+   *    削除しました」）に使う。**削除後には引けないので、消す前にここで取る。**
+   *    追加しただけなので既存の呼び出し（明細の遅延取得）には影響しない。
+   */
   const { data, error } = await supabase
     .from("collect_funds")
-    .select("fundsArray")
+    .select("fundsArray, laundryName")
     .eq("id", id)
     .in("laundryId", storeIds)
     .single();
@@ -263,8 +268,14 @@ export async function updateData(fundsArray, totalFunds, id) {
     query = query.eq("collecter", user.id);
   }
 
-  const { error } = await query;
-  return { error };
+  const { data, error } = await query;
+  /**
+   * ⚠️ **`changed` を見ないと「更新できていない」ことに気づけない。**
+   *    非 admin が他人の集金データを編集すると `collecter` の条件で
+   *    0 行になるが、エラーにはならず 200 が返る（docs/contracts.md の
+   *    「既知の未対応」）。呼び出し側が成功と誤認しないよう件数を返す。
+   */
+  return { error, changed: data?.length ?? 0 };
 }
 
 export async function updateDate(date, id) {
@@ -338,13 +349,14 @@ export async function deleteData(id) {
     return { error: { msg: "アクセス権限がありません", status: 403 } };
   }
 
-  let query = serviceSupabase.from("collect_funds").delete().eq("id", id);
+  let query = serviceSupabase.from("collect_funds").delete().eq("id", id).select("id");
   if (member.role !== "admin") {
     query = query.eq("collecter", user.id);
   }
 
-  const { error } = await query;
-  return { error };
+  const { data, error } = await query;
+  // ⚠️ updateData と同じ。非 admin が他人のデータを消そうとすると 0 行で成功扱いになる
+  return { error, changed: data?.length ?? 0 };
 }
 
 export async function getAllMonthBenefits() {

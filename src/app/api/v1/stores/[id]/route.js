@@ -4,7 +4,8 @@ import {
   updateStore,
   deleteStore,
 } from "@/app/api/supabaseFunctions/supabaseDatabase/laundryStore/action";
-import { toStoreFormData, sanitizeStoreError } from "../_form";
+import { logAction } from "@/app/api/supabaseFunctions/supabaseDatabase/actionMessage/action";
+import { toStoreFormData, sanitizeStoreError, storeNameOf } from "../_form";
 
 export const dynamic = "force-dynamic";
 
@@ -33,13 +34,18 @@ export const PATCH = withAuth(async (request, context) => {
   }
   if (!body?.store) return { error: "店舗名を入力してください", status: 400 };
 
-  return sanitizeStoreError(await updateStore(toStoreFormData(body), id));
+  const result = sanitizeStoreError(await updateStore(toStoreFormData(body), id));
+  if (!result?.error) await logAction(`${storeNameOf(result?.data)}店の編集が完了しました。`);
+  return result;
 });
 
 /** 店舗の削除。集金データ・在庫状況ごと消えるので、呼ぶ前に必ず確認を取ること */
 export const DELETE = withAuth(async (request, context) => {
   const { id } = await context.params;
-  return await deleteStore(id);
+  const result = await deleteStore(id);
+  // deleteStore は削除した行（store, images）を返すので、そこから名前を取る
+  if (!result?.error) await logAction(`${storeNameOf(result?.data)}店を削除しました`);
+  return result;
 });
 
 // web プレビュー用のプリフライト（開発時のみ CORS ヘッダが付く）
