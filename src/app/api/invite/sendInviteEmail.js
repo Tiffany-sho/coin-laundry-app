@@ -16,6 +16,17 @@ export async function sendInviteEmail({ email, orgName, inviterName, role, invit
   const roleLabel =
     role === "admin" ? "店舗管理者" : role === "collecter" ? "集金担当者" : "閲覧者";
 
+  /**
+   * ⚠️ **組織名と招待者名は HTML に入れる前に必ずエスケープする。**
+   *    どちらもユーザーが自由に決められる文字列で、生のまま差し込むと
+   *    `</a><a href="...">` のような断片でリンクを差し替えられる。メールクライアントは
+   *    script は落とすが**アンカーは残す**ので、自分のドメインから出るメールの中に
+   *    他所へのリンクを作られる。
+   */
+  const safeOrgName = escapeHtml(orgName ?? "");
+  const safeInviterName = escapeHtml(inviterName ?? "");
+  const safeInviteUrl = escapeHtml(inviteUrl);
+
   const { error } = await resend.emails.send({
     from: "Collecie <noreply@collecie.com>",
     to: email,
@@ -26,7 +37,7 @@ export async function sendInviteEmail({ email, orgName, inviterName, role, invit
           組織への招待
         </h1>
         <p style="color: #4a5568; margin-bottom: 24px;">
-          <strong>${inviterName}</strong> さんから <strong>${orgName}</strong> への招待が届いています。
+          <strong>${safeInviterName}</strong> さんから <strong>${safeOrgName}</strong> への招待が届いています。
         </p>
 
         <div style="background: #ebf8ff; border-left: 4px solid #3182ce; padding: 12px 16px; border-radius: 4px; margin-bottom: 24px;">
@@ -35,7 +46,7 @@ export async function sendInviteEmail({ email, orgName, inviterName, role, invit
           </p>
         </div>
 
-        <a href="${inviteUrl}"
+        <a href="${safeInviteUrl}"
           style="display: inline-block; background: #3182ce; color: white; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;">
           招待を承認する
         </a>
@@ -52,4 +63,14 @@ export async function sendInviteEmail({ email, orgName, inviterName, role, invit
     return { error: error?.message ?? String(error) };
   }
   return { error: null };
+}
+
+/** HTML の文脈に文字列を差し込むためのエスケープ。属性値も本文も同じ扱いで足りる */
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
