@@ -5,6 +5,15 @@ export const metadata = {
   title: "プライバシーポリシー | Collecie",
 };
 
+/**
+ * プライバシーポリシー（正本）。/app/privacy もこれをそのまま描画している。
+ *
+ * ⚠️ **この本文は iOS アプリ側にも複製がある。**（2026-07-30〜）
+ *      coinlaundy_app_iOS/src/content/legal/privacy.ts
+ *    アプリは WebView をやめてこのテキストを自前で描いている（表示が遅かったため）。
+ *    **ここを直したら必ずあちらも直すこと。** Web は /privacy と /app/privacy が
+ *    同じ本文を共有しているのでこの 1 か所で足りるが、**アプリだけが取り残される。**
+ */
 const Section = ({ title, children }) => (
   <Box>
     <Heading as="h2" fontSize="md" fontWeight="bold" color="var(--teal-deeper)" mb={2}>
@@ -52,7 +61,8 @@ export default function PrivacyPage() {
                   "ユーザー名・プロフィール情報（任意入力）",
                   "組織名・メンバー情報",
                   "店舗情報・集金データ（サービス利用中に入力された情報）",
-                  "決済情報（クレジットカード情報はStripe社が管理し、当方は保持しません）",
+                  "決済情報（クレジットカード番号等はStripe社またはApple社が管理し、当方は保持しません）",
+                  "サブスクリプションの契約状態（プラン・購読の識別子・有効期限）",
                   "アクセスログ・利用状況（サービス改善目的）",
                 ].map((item) => (
                   <Text key={item} fontSize="sm" color="var(--text-muted)">
@@ -105,6 +115,10 @@ export default function PrivacyPage() {
                   {
                     name: "Stripe（Stripe, Inc.）",
                     desc: "決済処理サービス。クレジットカード情報はStripeが管理し、当方のサーバーには保存されません。",
+                  },
+                  {
+                    name: "Apple（Apple Inc.）",
+                    desc: "iOSアプリ内で購入された有料プランの決済処理。お支払い情報はAppleが管理し、当方はサブスクリプションの契約状態（プラン・購読の識別子・有効期限）のみを受け取ります。",
                   },
                   {
                     name: "Vercel（Vercel Inc.）",
@@ -161,7 +175,7 @@ export default function PrivacyPage() {
         </Box>
 
         <Text fontSize="xs" color="var(--text-faint)" textAlign="right">
-          制定日：2026年5月29日
+          制定日：2026年5月29日／改定日：2026年7月31日
         </Text>
       </VStack>
     </Box>

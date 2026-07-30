@@ -11,6 +11,10 @@ export const metadata = {
  *
  * ⚠️ 本文は /privacy をそのまま描画する。**内容を写経しないこと。**
  *    法務文書が 2 か所にあると、片方だけ直して食い違う。
+ *
+ * ⚠️ **ただし iOS アプリ側には複製がある**（coinlaundy_app_iOS/src/content/legal/privacy.ts）。
+ *    2026-07-30 に表示速度を優先して例外を認めたもの。/privacy を直したら
+ *    あちらも直すこと。Web 側でこれ以上増やさない。
  *    このパスで違うのは 2 点だけ:
  *      - ナビ・フッターが出ない（appLegalPaths.js）
  *      - 「戻る」リンクが出ない（LegalBackLink が /app/* を見て消す）
