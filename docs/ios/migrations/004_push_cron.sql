@@ -54,6 +54,42 @@ SELECT vault.create_secret(
 );
 
 -- ---------------------------------------------------------------------
+-- ①' 置き換え忘れを検出する
+--
+-- ⚠️ **この番人が無いと置き換え忘れに気づけない。** vault.create_secret は値を
+--    検証しないので、'<PROJECT_REF>' のまま入れても成功する。pg_net は
+--    ホスト名として不正な URL を名前解決できずに黙って捨て、応答行も残らない。
+--    cron 側は毎時 succeeded を返し続けるため、通知だけが永久に届かなくなる。
+--    実際にこれで 2 日気づかなかった。
+-- ---------------------------------------------------------------------
+DO $check$
+DECLARE
+  v_url    text;
+  v_secret text;
+BEGIN
+  SELECT decrypted_secret INTO v_url
+    FROM vault.decrypted_secrets WHERE name = 'collect_reminder_url';
+  SELECT decrypted_secret INTO v_secret
+    FROM vault.decrypted_secrets WHERE name = 'collect_reminder_secret';
+
+  IF v_url IS NULL OR v_secret IS NULL THEN
+    RAISE EXCEPTION 'Vault に値が入っていない（url=%, secret=%）',
+      v_url IS NOT NULL, v_secret IS NOT NULL;
+  END IF;
+
+  -- 山括弧が残っている ＝ 置き換えていない
+  IF v_url LIKE '%<%' OR v_secret LIKE '%<%' THEN
+    RAISE EXCEPTION
+      'プレースホルダが残っている。上の 2 つの create_secret の値を実際のものに置き換えてから実行すること';
+  END IF;
+
+  IF v_url NOT LIKE 'https://%.supabase.co/functions/v1/collect-reminder' THEN
+    RAISE EXCEPTION 'URL の形が違う: %', v_url;
+  END IF;
+END
+$check$;
+
+-- ---------------------------------------------------------------------
 -- ② 毎時 0 分に起動
 --
 -- cron の時刻は **UTC**。毎時なので JST との差は関係ない
@@ -77,20 +113,67 @@ SELECT cron.schedule(
   $$
 );
 
--- ---------------------------------------------------------------------
+-- =====================================================================
 -- 確認用
--- ---------------------------------------------------------------------
--- -- 登録されているか
--- SELECT jobid, jobname, schedule, active FROM cron.job;
 --
--- -- 直近の実行結果（status が 'succeeded' になること）
--- SELECT jobid, status, return_message, start_time
---   FROM cron.job_run_details
---  ORDER BY start_time DESC LIMIT 10;
+-- ⚠️ **cron.job_run_details だけ見ても何も分からない。** net.http_post は要求を
+--    キューに積んで即座に返るので、Edge Function が 403 でも 404 でも、URL が
+--    不正でも status は 'succeeded' になる。**結果は net._http_response にしか出ない。**
+-- =====================================================================
+
+-- -- ① 拡張・ジョブ・Vault をまとめて（1 文なので SQL Editor で全行見える）
+-- SELECT '1_拡張' AS step, extname AS name, extversion AS detail
+--   FROM pg_extension WHERE extname IN ('pg_cron','pg_net')
+-- UNION ALL
+-- SELECT '1_ジョブ', jobname, schedule || ' / active=' || active::text FROM cron.job
+-- UNION ALL
+-- SELECT '2_Vault', name,
+--        'rows=' || count(*)::text || ' len=' || max(length(decrypted_secret))::text
+--   FROM vault.decrypted_secrets
+--  WHERE name IN ('collect_reminder_url','collect_reminder_secret')
+--  GROUP BY name ORDER BY 1, 2;
 --
--- -- HTTP の応答（Edge Function が返した JSON が body に入る）
--- SELECT id, status_code, content FROM net._http_response
---  ORDER BY created DESC LIMIT 10;
+--    期待値: 拡張 2 行 / ジョブ 1 行（'0 * * * * / active=true'）/ Vault 2 行で rows=1。
+--    ⚠️ rows=2 は 004 の二重実行。単一行サブクエリが毎時失敗するので古い方を消す:
+--       SELECT id, name, created_at FROM vault.secrets
+--        WHERE name LIKE 'collect_reminder%' ORDER BY created_at;
+--       SELECT vault.delete_secret('<古い方の id>');
+--    ⚠️ url の len は 70 が正しい。63 なら <PROJECT_REF> が残っている
+
+-- -- ② :00 を待たずに手で撃つ（cron の本文と同一。これが一番速い切り分け）
+-- SELECT net.http_post(
+--   url := (SELECT decrypted_secret FROM vault.decrypted_secrets
+--            WHERE name = 'collect_reminder_url'),
+--   headers := jsonb_build_object(
+--     'Content-Type', 'application/json',
+--     'x-cron-secret', (SELECT decrypted_secret FROM vault.decrypted_secrets
+--                        WHERE name = 'collect_reminder_secret')
+--   ),
+--   body := '{}'::jsonb,
+--   timeout_milliseconds := 30000
+-- );
+
+-- -- ③ 数秒待って応答を見る。error_msg も必ず選ぶこと
+-- SELECT id, status_code, content, error_msg, created
+--   FROM net._http_response ORDER BY id DESC LIMIT 5;
 --
+--    200 + {"sent":0,"reason":"no_target_org"} … 正常（集金日が前日・当日でないだけ）
+--    403                                        … Vault と CRON_SECRET が食い違い
+--    401                                        … --no-verify-jwt 無しでデプロイした
+--    404                                        … project ref か関数名が違う
+--    status_code が NULL + error_msg あり       … pg_net が外に出られていない
+--    行が増えない                               … ワーカー停止。SELECT net.worker_restart();
+--
+--    ⚠️ 行は数時間で消える。撃った直後に見ること
+--    ⚠️ ?dryRun=1 は日付判定を飛ばして daysUntil を 0 に上書きするので、
+--       空撃ちと手撃ちで reason が変わるのは正常
+
+-- -- ④ 自動起動が走ったか（次の :00 以降）
+-- SELECT d.status, d.return_message, d.start_time
+--   FROM cron.job_run_details d JOIN cron.job j USING (jobid)
+--  WHERE j.jobname = 'collect-reminder-hourly'
+--  ORDER BY d.start_time DESC LIMIT 5;
+--    そのうえで ③ をもう一度撃ち、**id が増えていること**を確認する
+
 -- -- 止めるとき
 -- SELECT cron.unschedule('collect-reminder-hourly');
