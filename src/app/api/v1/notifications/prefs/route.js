@@ -3,7 +3,6 @@ import {
   getNotificationPrefs,
   updateNotificationPrefs,
 } from "@/app/api/supabaseFunctions/supabaseDatabase/devices/action";
-import { logAction } from "@/app/api/supabaseFunctions/supabaseDatabase/actionMessage/action";
 
 export const dynamic = "force-dynamic";
 
@@ -24,15 +23,12 @@ export const PATCH = withAuth(async (request) => {
   } catch {
     return { error: "リクエストの形式が不正です", status: 400 };
   }
-  const result = await updateNotificationPrefs(body);
   /**
-   * ⚠️ **個人設定なのに組織全員のログに出る。** さらにトグル 1 つごとに
-   *    1 行増えるので、まとめて変えると履歴が埋まる。
-   *    「toast が出る操作は残す」という方針でそう決めたもの。
-   *    うるさければここを外すのが最初の候補（他のログには影響しない）。
+   * ⚠️ **アクションログには記録しない**（2026-07-31 の決定）。個人の設定であって
+   *    組織の誰かが知る必要は無く、ログは組織の全員が読む。トグル 1 つごとに
+   *    1 行増えるので履歴も埋まる。記録するのは組織のデータと設定だけにする。
    */
-  if (!result?.error) await logAction("通知設定を変更しました");
-  return result;
+  return await updateNotificationPrefs(body);
 });
 
 export const OPTIONS = corsPreflight;

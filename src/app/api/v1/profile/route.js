@@ -7,7 +7,6 @@ import {
   updateAvatarUrl,
 } from "@/app/api/supabaseFunctions/supabaseDatabase/profiles/action";
 import { buildAvatarPublicUrl } from "@/app/api/supabaseFunctions/supabaseStorage/serverAction";
-import { logAction } from "@/app/api/supabaseFunctions/supabaseDatabase/actionMessage/action";
 
 export const dynamic = "force-dynamic";
 
@@ -45,10 +44,13 @@ export const PATCH = withAuth(async (request) => {
     return { error: "リクエストの形式が不正です", status: 400 };
   }
 
+  /**
+   * ⚠️ **このルートはアクションログに記録しない**（2026-07-31 の決定）。
+   *    氏名・表示名・アイコン・集金方法はいずれも個人の設定で、組織の全員が
+   *    読むログに出す必要が無い。記録するのは組織のデータと設定だけにする。
+   */
   if (body?.collectMethod !== undefined) {
-    const result = await setCollectMethod(body.collectMethod);
-    if (!result?.error) await logAction("集金方法を変更しました");
-    return result;
+    return await setCollectMethod(body.collectMethod);
   }
 
   /**
@@ -67,14 +69,11 @@ export const PATCH = withAuth(async (request) => {
       console.error("[api/v1/profile] avatar url save error:", saved.error);
       return { error: "アイコンの保存に失敗しました", status: 500 };
     }
-    await logAction("アイコンを更新しました");
     return { data: { avatarUrl: built.url } };
   }
 
   if (body?.username !== undefined || body?.fullname !== undefined) {
-    const result = await updateProfile({ fullname: body.fullname, username: body.username });
-    if (!result?.error) await logAction("アカウント情報を更新しました");
-    return result;
+    return await updateProfile({ fullname: body.fullname, username: body.username });
   }
   return { error: "更新する内容がありません", status: 400 };
 });
