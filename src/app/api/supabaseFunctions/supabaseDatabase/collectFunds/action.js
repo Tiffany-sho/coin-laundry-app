@@ -5,6 +5,7 @@ import { createServiceClient } from "@/utils/supabase/service";
 import { getUser } from "../user/action";
 import { changeEpocFromNowYearMonth, getEpochTimeInSeconds } from "@/functions/makeDate/date";
 import { applyDateRange, END_INCLUSIVE } from "@/functions/dateRange";
+import { fetchAllRows } from "@/functions/fetchAllRows";
 import { getStores } from "../laundryStore/action";
 
 async function getOrgStoreIds() {
@@ -57,17 +58,19 @@ export async function getStoreFundsForChart(id, startEpoch, endEpoch) {
 
   const supabase = createServiceClient();
   // startEpoch は月初、endEpoch は翌月初（期間スライダー由来）
-  const query = applyDateRange(
-    supabase
-      .from("collect_funds")
-      .select("date, totalFunds, laundryId")
-      .eq("laundryId", id)
-      .order("date", { ascending: true }),
-    startEpoch,
-    endEpoch
+  // ⚠️ 期間は最大 5 年選べるので 1000 行の上限に届く。fetchAllRows を通すこと
+  const { data, error } = await fetchAllRows(() =>
+    applyDateRange(
+      supabase
+        .from("collect_funds")
+        .select("date, totalFunds, laundryId")
+        .eq("laundryId", id)
+        .order("date", { ascending: true }),
+      startEpoch,
+      endEpoch
+    )
   );
 
-  const { data, error } = await query;
   if (error) return { error: "集金データの取得に失敗しました" };
   return { data };
 }
@@ -102,17 +105,19 @@ export async function getStoreFundsInPeriod(id, startEpoch, endEpoch, orderAmoun
   if (!storeIds.includes(id)) return { error: "アクセス権限がありません" };
 
   const supabase = createServiceClient();
-  const query = applyDateRange(
-    supabase
-      .from("collect_funds")
-      .select("id, laundryId, laundryName, date, totalFunds, collecter, profiles!collect_funds_collecter_fkey(username)")
-      .eq("laundryId", id)
-      .order(orderAmount, { ascending: upOrder }),
-    startEpoch,
-    endEpoch
+  // ⚠️ 期間の下限が無い呼び出し（アプリの売上履歴）があるので必ず全件取る
+  const { data, error } = await fetchAllRows(() =>
+    applyDateRange(
+      supabase
+        .from("collect_funds")
+        .select("id, laundryId, laundryName, date, totalFunds, collecter, profiles!collect_funds_collecter_fkey(username)")
+        .eq("laundryId", id)
+        .order(orderAmount, { ascending: upOrder }),
+      startEpoch,
+      endEpoch
+    )
   );
 
-  const { data, error } = await query;
   if (error) return { error: "集金データの取得に失敗しました" };
   return { data };
 }
@@ -126,17 +131,19 @@ export async function getOrgCollectFundsInPeriod(startEpoch, endEpoch, orderAmou
   if (storeIds.length === 0) return { data: [] };
 
   const supabase = createServiceClient();
-  const query = applyDateRange(
-    supabase
-      .from("collect_funds")
-      .select("id, laundryId, laundryName, date, totalFunds, collecter, profiles!collect_funds_collecter_fkey(username)")
-      .in("laundryId", storeIds)
-      .order(orderAmount, { ascending: upOrder }),
-    startEpoch,
-    endEpoch
+  // ⚠️ アプリの売上履歴は from=0 / to 省略（＝全期間）で呼ぶ。必ず全件取る
+  const { data, error } = await fetchAllRows(() =>
+    applyDateRange(
+      supabase
+        .from("collect_funds")
+        .select("id, laundryId, laundryName, date, totalFunds, collecter, profiles!collect_funds_collecter_fkey(username)")
+        .in("laundryId", storeIds)
+        .order(orderAmount, { ascending: upOrder }),
+      startEpoch,
+      endEpoch
+    )
   );
 
-  const { data, error } = await query;
   if (error) return { error: "集金データの取得に失敗しました" };
   return { data };
 }
@@ -374,17 +381,19 @@ export async function getOrgCollectFunds(startEpoch, endEpoch) {
 
   const supabase = createServiceClient();
   // startEpoch は月初、endEpoch は翌月初（期間スライダー由来）
-  const query = applyDateRange(
-    supabase
-      .from("collect_funds")
-      .select("date, totalFunds, laundryId, laundryName")
-      .in("laundryId", storeIds)
-      .order("date", { ascending: true }),
-    startEpoch,
-    endEpoch
+  // ⚠️ 期間は最大 5 年選べるので 1000 行の上限に届く
+  const { data, error } = await fetchAllRows(() =>
+    applyDateRange(
+      supabase
+        .from("collect_funds")
+        .select("date, totalFunds, laundryId, laundryName")
+        .in("laundryId", storeIds)
+        .order("date", { ascending: true }),
+      startEpoch,
+      endEpoch
+    )
   );
 
-  const { data, error } = await query;
   if (error) return { error: "集金データの取得に失敗しました" };
   return { data };
 }
@@ -476,18 +485,21 @@ export async function getCollectFundsForExport(startEpoch, endEpoch, filterStore
   const supabase = createServiceClient();
   // エクスポート画面の startEpoch / endEpoch は「選択した開始日・終了日」そのもの。
   // 終了日当日のデータも出力に含める必要があるため endMode は inclusive。
-  const query = applyDateRange(
-    supabase
-      .from("collect_funds")
-      .select("date, totalFunds, laundryName, fundsArray, profiles!collect_funds_collecter_fkey(username)")
-      .in("laundryId", effectiveStoreIds)
-      .order("date", { ascending: true }),
-    startEpoch,
-    endEpoch,
-    { endMode: END_INCLUSIVE }
+  // ⚠️ CSV は取りこぼしが一番分かりにくい（開いても「そういう期間だった」と読める）ので
+  //    必ず全件取る
+  const { data, error } = await fetchAllRows(() =>
+    applyDateRange(
+      supabase
+        .from("collect_funds")
+        .select("date, totalFunds, laundryName, fundsArray, profiles!collect_funds_collecter_fkey(username)")
+        .in("laundryId", effectiveStoreIds)
+        .order("date", { ascending: true }),
+      startEpoch,
+      endEpoch,
+      { endMode: END_INCLUSIVE }
+    )
   );
 
-  const { data, error } = await query;
   if (error) return { error: "集金データの取得に失敗しました" };
   return { data };
 }
@@ -535,10 +547,17 @@ export async function getCollectMonthlySummary(storeId = null) {
   const cutoffEpoch = getEpochTimeInSeconds(now.getFullYear() - 2, now.getMonth() + 1, 1);
 
   const supabase = createServiceClient();
-  const { data, error } = await applyDateRange(
-    supabase.from("collect_funds").select("date, totalFunds, laundryId").in("laundryId", targetIds),
-    cutoffEpoch,
-    null
+  // ⚠️ 2 年ぶんなので 1000 行の上限に届く。届いた瞬間、古い月がグラフから消えるのではなく
+  //    **新しい月の合計が減る**（並び順が id なので）ため、原因が分かりにくい
+  const { data, error } = await fetchAllRows(() =>
+    applyDateRange(
+      supabase
+        .from("collect_funds")
+        .select("date, totalFunds, laundryId")
+        .in("laundryId", targetIds),
+      cutoffEpoch,
+      null
+    )
   );
 
   if (error) return { error: "集金データの取得に失敗しました" };
@@ -554,10 +573,18 @@ export async function getStoreRevenueSummary() {
   if (orgStoreIds.length === 0) return { data: [] };
 
   const supabase = createServiceClient();
-  const { data, error } = await supabase
-    .from("collect_funds")
-    .select("totalFunds, laundryName, laundryId")
-    .in("laundryId", orgStoreIds);
+  /**
+   * ⚠️ **全期間なので 1000 行の上限に真っ先に届く。** ここが打ち切られると
+   *    総額収益が黙って実際より少なくなる（エラーも警告も出ない）。
+   * ⚠️ date を落とさないこと。集計期間の「最初 / 最後の集金日」はここからしか出せない
+   *    （月次サマリーは前年同月比のため過去 2 年に固定されている）。
+   */
+  const { data, error } = await fetchAllRows(() =>
+    supabase
+      .from("collect_funds")
+      .select("totalFunds, laundryName, laundryId, date")
+      .in("laundryId", orgStoreIds)
+  );
 
   if (error) return { error: "集金データの取得に失敗しました" };
   return { data };
