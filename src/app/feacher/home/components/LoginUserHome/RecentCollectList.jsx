@@ -4,8 +4,16 @@ import Link from "next/link";
 import { createNowData } from "@/functions/makeDate/date";
 import * as Icon from "@/app/feacher/Icon";
 
+/**
+ * ⚠️ getRecentCollectFunds は過去 1 か月を**全件**返す（表示件数は呼び出し側が決める）。
+ *    ここで切らないと、集金の多い組織でホームが数百行になる。
+ *    30 は従来この関数が返していた上限で、Web の見え方を変えないための値。
+ */
+const VISIBLE_LIMIT = 30;
+
 const RecentCollectList = async () => {
-  const { data, error } = await getRecentCollectFunds();
+  const { data: allData, error } = await getRecentCollectFunds();
+  const data = allData?.slice(0, VISIBLE_LIMIT);
 
   return (
     <Box

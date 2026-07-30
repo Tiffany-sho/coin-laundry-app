@@ -389,7 +389,20 @@ export async function getOrgCollectFunds(startEpoch, endEpoch) {
   return { data };
 }
 
-// ホーム用：org全体の最新N件
+/**
+ * ホーム用：org 全体の「過去 1 か月」。
+ *
+ * ⚠️ **下限を Date.now() から引いて作らないこと。** collect_funds.date は
+ *    **JST 深夜 0 時の epoch**（Date.UTC(y,m,d) - 9h）なので、UTC の「今この瞬間」から
+ *    30 日引くと境界が JST の 1 日の途中に落ち、境目の日が丸ごと欠ける。
+ *    JST の今日を求めてから、その 1 か月前の 0 時を下限にする。
+ *
+ * ⚠️ 件数の上限（MAX）は表示件数ではない。表示側で何件出すかはアプリ・Web が決める。
+ *    ここを 30 のような小さい値にすると、集金が多い組織では
+ *    「過去 1 か月」と書いてあるのに半月ぶんしか届かなくなる（実際にそうなっていた）。
+ */
+const RECENT_MAX = 200;
+
 export async function getRecentCollectFunds() {
   const { user } = await getUser();
   if (!user) return { error: "ログインしてください" };
@@ -397,16 +410,24 @@ export async function getRecentCollectFunds() {
   const storeIds = await getOrgStoreIds();
   if (storeIds.length === 0) return { data: [] };
 
-  const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
+  // JST の壁時計。Vercel は UTC で動くので +9h して UTC ゲッタで読む
+  const jstNow = new Date(Date.now() + 32400000);
+  // ⚠️ 3/31 のように「前月に無い日」は Date.UTC が繰り上げる（2/31 → 3/3）。
+  //    窓が数日短くなるだけで 1 か月を超えることはないので、そのまま使う
+  const startEpoch = getEpochTimeInSeconds(
+    jstNow.getUTCFullYear(),
+    jstNow.getUTCMonth(), // 実際の月は getUTCMonth() + 1。その 1 つ前の月を渡している
+    jstNow.getUTCDate()
+  );
 
   const supabase = createServiceClient();
   const { data, error } = await supabase
     .from("collect_funds")
     .select("id, laundryName, date, totalFunds, profiles!collect_funds_collecter_fkey(username)")
     .in("laundryId", storeIds)
-    .gte("date", thirtyDaysAgo)
+    .gte("date", startEpoch)
     .order("date", { ascending: false })
-    .limit(30);
+    .limit(RECENT_MAX);
 
   if (error) return { error: "集金データの取得に失敗しました" };
   return { data };

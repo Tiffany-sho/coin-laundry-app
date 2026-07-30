@@ -10,9 +10,6 @@ import {
 
 export const dynamic = "force-dynamic";
 
-// ホームに出す件数。全件はそれぞれのタブで取る
-const RECENT_LIMIT = 5;
-
 /**
  * ホーム画面の 1 リクエスト集約。
  * 低在庫・故障は「件数」だけ返し、明細は管理タブで取得する（設計図 6.3）。
@@ -32,7 +29,13 @@ export const GET = withAuth(async () => {
   // ヒーローカードに出す「集金回数」。Web の SalesCard と同じ数え方（レコード数）
   const collectCount = monthRows.length;
 
-  const recentFunds = (recent?.data ?? []).slice(0, RECENT_LIMIT).map((row) => ({
+  /**
+   * ⚠️ **ここで件数を絞らない。** カードの見出しが「過去1ヶ月の集金記録」なので、
+   *    5 件に切ると集金の多い組織では半月ぶんしか届かず、見出しと中身が食い違う
+   *    （実際にそう見えていた）。アプリ側が既定 5 件だけ描き、
+   *    「さらに表示」で残りを出す。1 行 100 バイト程度なので月 200 件でも 20KB。
+   */
+  const recentFunds = (recent?.data ?? []).map((row) => ({
     id: row.id,
     laundryName: row.laundryName,
     totalFunds: row.totalFunds,
