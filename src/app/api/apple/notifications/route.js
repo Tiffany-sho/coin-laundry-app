@@ -36,16 +36,34 @@ export async function POST(request) {
 
   const signedPayload = body?.signedPayload;
   if (!signedPayload || typeof signedPayload !== "string") {
+    /**
+     * ⚠️ **キー名だけ出す。中身は出さない**（取引情報と識別子が入るため）。
+     *    App Store Connect で V1 を選んでいると `notification_type` / `unified_receipt`
+     *    といった別の形が届く。ここに出るキーを見れば V1 か V2 かが一発で分かる。
+     */
+    console.error(
+      "[apple/notifications] signedPayload が無い。届いたキー:",
+      body && typeof body === "object" ? Object.keys(body).join(",") : typeof body
+    );
     return NextResponse.json({ error: "missing signedPayload" }, { status: 400 });
   }
 
   const verified = await verifyNotification(signedPayload);
   if (verified.error) {
     // 署名が通らないものは再送されても通らない
+    console.error("[apple/notifications] 署名の検証に失敗:", verified.error);
     return NextResponse.json({ error: "invalid signature" }, { status: 400 });
   }
 
   const notification = verified.data;
+
+  // ⚠️ 何が届いたかはここにしか残らない。TEST / SUBSCRIBED / DID_RENEW など
+  console.log(
+    "[apple/notifications]",
+    notification.notificationType,
+    notification.subtype ?? "-",
+    notification.data?.environment ?? "-"
+  );
 
   // 再送の握りつぶし。ここで false が返る = すでに処理済み
   const record = await recordAppleNotification(notification);
