@@ -1,3 +1,4 @@
+import { escapeHtml } from "@/functions/escapeHtml";
 import { Resend } from "resend";
 
 /**
@@ -65,12 +66,3 @@ export async function sendInviteEmail({ email, orgName, inviterName, role, invit
   return { error: null };
 }
 
-/** HTML の文脈に文字列を差し込むためのエスケープ。属性値も本文も同じ扱いで足りる */
-function escapeHtml(value) {
-  return String(value)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
