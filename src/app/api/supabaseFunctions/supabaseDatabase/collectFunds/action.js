@@ -75,6 +75,126 @@ export async function getStoreFundsForChart(id, startEpoch, endEpoch) {
   return { data };
 }
 
+/** 硬貨 1 枚あたりの金額。⚠️ アプリの src/shared/collectMoney.ts と同じ値にすること */
+const COIN_VALUE = 100;
+
+/**
+ * 機器ごとの売上内訳（店舗別ページの「機器別」タブ）。
+ *
+ * ⚠️ **生レコードを返さない。** fundsArray は台数ぶんの jsonb なので、5 年ぶんを
+ *    そのまま端末へ流すと応答が数 MB になる。**ここで畳んでから返すこと。**
+ *
+ * ⚠️ **合計は必ず「機器別の和 + unattributed」で店舗の総額に一致させる。**
+ *    合計入力モードで登録された集金は fundsArray が**空配列**なので
+ *    （app/collect/[storeId].tsx が `byMachine ? rows.map(...) : []` を送る）、
+ *    機器別だけを足すと総額収益カードより小さくなる。**差分を黙って捨てない。**
+ *
+ * ⚠️ **期間は最大 5 年選べるので 1000 行の上限に届く。** fetchAllRows を通すこと。
+ */
+export async function getStoreMachineBreakdown(id, startEpoch, endEpoch) {
+  const { user } = await getUser();
+  if (!user) return { error: "ログインしてください" };
+
+  const { data: stores, error: storeError } = await getStores();
+  if (storeError) return { error: "店舗情報の取得に失敗しました" };
+
+  const store = (stores ?? []).find((s) => s.id === id);
+  // 組織の店舗一覧に無い ＝ 他組織の店舗。存在の有無は明かさない
+  if (!store) return { error: "アクセス権限がありません" };
+
+  const supabase = createServiceClient();
+  const { data, error } = await fetchAllRows(() =>
+    applyDateRange(
+      supabase
+        .from("collect_funds")
+        .select("date, totalFunds, fundsArray")
+        .eq("laundryId", id)
+        .order("date", { ascending: true }),
+      startEpoch,
+      endEpoch
+    )
+  );
+
+  if (error) return { error: "集金データの取得に失敗しました" };
+
+  /**
+   * 表示名は**現在の設備一覧を優先**する。改名しても過去の集計が古い名前で
+   * 並ばないようにするため。設備が消えていればレコードに残っている名前へ落とす。
+   */
+  const currentNames = new Map(
+    (store.machines ?? []).filter((m) => m?.id).map((m) => [String(m.id), m.name])
+  );
+
+  /** id → { name, total }。⚠️ 現在ある設備は売上 0 でも並べる（故障中の台に気づけるように） */
+  const byMachine = new Map();
+  for (const [machineId, name] of currentNames) {
+    byMachine.set(machineId, { id: machineId, name, total: 0 });
+  }
+
+  let totalModeAmount = 0;
+  let machinesTotal = 0;
+  let grandTotal = 0;
+
+  for (const row of data ?? []) {
+    const amount = row.totalFunds ?? 0;
+    grandTotal += amount;
+
+    const entries = Array.isArray(row.fundsArray) ? row.fundsArray : [];
+    if (entries.length === 0) {
+      // 合計入力モード。機器に割り振れないので内訳の外に出す
+      totalModeAmount += amount;
+      continue;
+    }
+
+    for (const entry of entries) {
+      const key = entry?.id != null ? String(entry.id) : `name:${entry?.name ?? ""}`;
+      let current = byMachine.get(key);
+      if (!current) {
+        current = { id: key, name: entry?.name ?? "（削除された設備）", total: 0 };
+        byMachine.set(key, current);
+      }
+      // ⚠️ funds は硬貨の枚数。金額にするには × 100
+      const value = (entry?.funds ?? 0) * COIN_VALUE;
+      current.total += value;
+      machinesTotal += value;
+    }
+  }
+
+  const machines = [...byMachine.values()].sort((a, b) => b.total - a.total);
+
+  /**
+   * ⚠️ **残差を必ず出す。** 内訳の和が総額に届かない可能性が 2 つある。
+   *
+   *   1. キャッシュレス（007 以降）… totalFunds に含まれるが機器には紐づかない
+   *   2. 過去データのずれ … `totalFunds` と `fundsArray` は別々の列で、
+   *      DB 側に「和が一致する」制約は無い。Web 側の編集経路が両方を
+   *      送り直す作りなので、片方だけ書き換わった行が過去に生まれ得る
+   *
+   * これを捨てると **「機器別の合計が総額収益カードと違う」** という形でしか
+   * 気づけない（しかも原因が分からない）。0 のときは画面に出さない。
+   */
+  const other = grandTotal - machinesTotal - totalModeAmount;
+
+  return {
+    data: {
+      machines,
+      unattributed: {
+        /** 合計入力モードで登録されたぶん */
+        totalMode: totalModeAmount,
+        /**
+         * 機器にも合計入力にも紐づかないぶん。
+         * ⚠️ 007 を適用したら、ここから **キャッシュレスぶんを切り出して別項目にする**こと
+         *    （今は両方まとめてここに入る）。切り出しても `other` は残すこと。
+         * ⚠️ 負になり得る（fundsArray の和が totalFunds を上回る古い行）。丸めないこと
+         */
+        other,
+      },
+      /** ⚠️ machines の和 + unattributed の和 と必ず一致する（定義上そうなる） */
+      total: grandTotal,
+    },
+  };
+}
+
 // 店舗の集金データ取得（全期間・ページネーション付き、RLS回避）
 // 管理者・集金担当者・閲覧者全員が参照可能
 export async function getStoreFundsPaginated(id, orderAmount, upOrder, from, to) {
