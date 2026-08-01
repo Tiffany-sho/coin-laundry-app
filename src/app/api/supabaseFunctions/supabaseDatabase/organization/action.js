@@ -3,8 +3,56 @@
 import { createClient } from "@/utils/supabase/server";
 import { createServiceClient } from "@/utils/supabase/service";
 import { getUser } from "../user/action";
-import { PLAN_LIMITS } from "@/functions/plans";
+import { PLAN_LIMITS, PLAN_MEMBER_LIMITS } from "@/functions/plans";
 import { Resend } from "resend";
+
+/**
+ * この組織にもう 1 人メンバーを増やせるか。増やせないときだけ文字列を返す。
+ *
+ * ⚠️ **メンバーが増える経路は 3 つある。**
+ *      1. inviteMember      … 招待を作る
+ *      2. acceptInvitation  … 招待を受ける（実際に行が増えるのはここ）
+ *      3. requestJoinOrg    … 参加パスワードで直接入る
+ *    **どれか 1 つでも素通しにすると制限が意味を持たない。**
+ *    実際、2026-08-01 まで 3 つとも plan を見ておらず、free でも人数無制限だった。
+ *    1 だけ塞いでも 3 が開いているので、必ず 3 か所とも通すこと。
+ *
+ * ⚠️ **2 でも必ず確認する。** Pro のときに作った招待が残ったまま free へ下がる
+ *    ことがあるので、「作れた ＝ 受けられる」ではない。
+ *
+ * ⚠️ **保留中の招待は数えていない。** free の上限が 1 人（＝オーナーが居る時点で
+ *    常に満杯）なので招待自体を作れず、溜まりようがないため。
+ *    **Pro に有限の上限を入れるなら、ここで招待の件数も足すこと。**
+ *
+ * ⚠️ **サービスクライアントで引く。** 呼び出し元のユーザー権限では
+ *    organizations を読めないことがある。
+ */
+async function memberCapacityError(serviceSupabase, orgId) {
+  const { data: org } = await serviceSupabase
+    .from("organizations")
+    .select("plan")
+    .eq("id", orgId)
+    .single();
+
+  const plan = org?.plan ?? "free";
+  const limit = PLAN_MEMBER_LIMITS[plan] ?? PLAN_MEMBER_LIMITS.free;
+  if (limit === Infinity) return null;
+
+  const { count } = await serviceSupabase
+    .from("organization_members")
+    .select("*", { count: "exact", head: true })
+    .eq("org_id", orgId);
+
+  if ((count ?? 0) < limit) return null;
+
+  /*
+    ⚠️ 文言に外部サイトでの契約を匂わせないこと（App Store Guideline 3.1.3(a)）。
+       「プランを変更してください」までに留め、どこで変更するかは書かない。
+  */
+  return limit === 1
+    ? "現在のプランではメンバーを追加できません。プランを変更してください。"
+    : `現在のプランのメンバー数の上限（${limit}人）に達しています。プランを変更してください。`;
+}
 
 export async function getMyOrganization() {
   const { user } = await getUser();
@@ -155,6 +203,11 @@ export async function inviteMember(email, role) {
 
   // Collecieに登録済みのユーザーかチェック
   const serviceSupabase = createServiceClient();
+
+  // ⚠️ 相手を探す前にプランで弾く。招待メールを送ってから断ると相手が混乱する
+  const capacityError = await memberCapacityError(serviceSupabase, myMember.org_id);
+  if (capacityError) return { error: capacityError };
+
   const { data: usersData } = await serviceSupabase.auth.admin.listUsers({ page: 1, perPage: 1000 });
   const userExists = usersData?.users?.some((u) => u.email === email);
   if (!userExists) return { error: "このメールアドレスはCollecieに登録されていません。先にアカウントを作成してもらってください。" };
@@ -247,6 +300,15 @@ export async function acceptInvitation(token) {
   if (invitation.email && user.email !== invitation.email) {
     return { error: "この招待はあなた宛てではありません" };
   }
+
+  /*
+    ⚠️ **作った時点ではなく受ける時点で確認する。** Pro のときに作った招待が
+       残ったまま free へ下がっているとここを通ってしまう。
+    ⚠️ 招待は消さずに残す。プランを戻せばそのまま使えるほうが親切で、
+       期限切れなら既に上で弾かれている。
+  */
+  const capacityError = await memberCapacityError(supabase, invitation.org_id);
+  if (capacityError) return { error: capacityError };
 
   const { error: memberError } = await supabase
     .from("organization_members")
@@ -404,6 +466,15 @@ export async function requestJoinOrg(adminEmail, joinPassword) {
   if (!org.join_password || org.join_password !== joinPassword) {
     return { error: "メールアドレスまたはパスワードが正しくありません" };
   }
+
+  /*
+    ⚠️ **ここを忘れると招待を塞いだ意味が無くなる。** 参加パスワードは admin が
+       一度配れば誰でも使えるので、招待側だけ止めても人数は増やせてしまう。
+    ⚠️ 認証（メール + パスワード）が通った**あと**に置く。先に置くと、
+       上限に達している組織かどうかがパスワード無しで分かってしまう。
+  */
+  const capacityError = await memberCapacityError(serviceSupabase, org.id);
+  if (capacityError) return { error: capacityError };
 
   // 組織に集金担当者として追加
   const { error: addError } = await serviceSupabase
