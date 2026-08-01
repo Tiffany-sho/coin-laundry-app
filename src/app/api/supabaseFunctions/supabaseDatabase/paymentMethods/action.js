@@ -17,6 +17,23 @@ import { getUser } from "../user/action";
  *    「権限がありません」としか出ないので原因を見失いやすい）。
  */
 
+/**
+ * DB の列名（snake_case）をアプリ向けに揃える。
+ *
+ * ⚠️ **必ずここを通すこと。** 生の行をそのまま返すと `sort_order` / `is_active` の
+ *    まま端末へ届き、アプリ側の `sortOrder` / `isActive` が **undefined** になる。
+ *    型は合っているように見えるので TypeScript は何も言わず、
+ *    「並び順がばらばら」「無効にしたものが集金画面に出続ける」形で気づくことになる。
+ */
+function toApi(row) {
+  return {
+    id: row.id,
+    name: row.name,
+    sortOrder: row.sort_order ?? 0,
+    isActive: row.is_active !== false,
+  };
+}
+
 /** 名前の長さの上限。⚠️ 集金画面の入力欄に並ぶので長すぎると折り返す */
 const MAX_NAME_LENGTH = 20;
 
@@ -57,7 +74,7 @@ export async function getPaymentMethods() {
     .order("created_at", { ascending: true });
 
   if (queryError) return { error: "支払方法の取得に失敗しました" };
-  return { data: data ?? [] };
+  return { data: (data ?? []).map(toApi) };
 }
 
 export async function createPaymentMethod(name) {
@@ -102,7 +119,7 @@ export async function createPaymentMethod(name) {
     return { error: { msg: "同じ名前の支払方法がすでにあります", status: 400 } };
   }
   if (insertError) return { error: "支払方法の追加に失敗しました" };
-  return { data };
+  return { data: toApi(data) };
 }
 
 /**
@@ -155,7 +172,7 @@ export async function updatePaymentMethod(id, { name, isActive }) {
   if (!data || data.length === 0) {
     return { error: { msg: "支払方法が見つかりません", status: 404 } };
   }
-  return { data: data[0] };
+  return { data: toApi(data[0]) };
 }
 
 /**
