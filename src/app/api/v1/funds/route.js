@@ -79,15 +79,23 @@ export const POST = withAuth(async (request) => {
     return { error: "リクエストの形式が不正です", status: 400 };
   }
 
-  const { storeId, store, date, fundsArray, totalFunds } = body ?? {};
+  const { storeId, store, date, fundsArray, totalFunds, cashless } = body ?? {};
 
   if (!storeId || !store) return { error: "店舗が指定されていません", status: 400 };
   if (!Number.isFinite(date)) return { error: "集金日が不正です", status: 400 };
+  /*
+    ⚠️ **`totalFunds` は「現金ぶんの金額」。** DB に入る totalFunds は
+       現金 + キャッシュレスの総額で、createData が組み直す。
+       ここで足さないこと（二重計上になる）。
+  */
   if (!Number.isFinite(totalFunds) || totalFunds < 0) {
     return { error: "合計金額が不正です", status: 400 };
   }
   if (fundsArray != null && !Array.isArray(fundsArray)) {
     return { error: "明細の形式が不正です", status: 400 };
+  }
+  if (cashless != null && !Array.isArray(cashless)) {
+    return { error: "支払方法の内訳の形式が不正です", status: 400 };
   }
 
   const result = await createData({
@@ -96,6 +104,8 @@ export const POST = withAuth(async (request) => {
     date,
     fundsArray: fundsArray ?? [],
     totalFunds,
+    // 中身（methodId が自組織のものか・金額が整数か）は createData 側で検算する
+    cashless: cashless ?? [],
     clientRequestId: idempotencyKey,
   });
 

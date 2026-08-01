@@ -63,7 +63,7 @@ export async function getStoreFundsForChart(id, startEpoch, endEpoch) {
     applyDateRange(
       supabase
         .from("collect_funds")
-        .select("date, totalFunds, laundryId")
+        .select("date, totalFunds, laundryId, cashless")
         .eq("laundryId", id)
         .order("date", { ascending: true }),
       startEpoch,
@@ -77,6 +77,59 @@ export async function getStoreFundsForChart(id, startEpoch, endEpoch) {
 
 /** 硬貨 1 枚あたりの金額。⚠️ アプリの src/shared/collectMoney.ts と同じ値にすること */
 const COIN_VALUE = 100;
+
+/**
+ * キャッシュレスの内訳を検算して正規化する。
+ *
+ * ⚠️ **クライアントが送ってきた `name` を使わない。** 支払方法の名前は必ず DB から
+ *    引き直す。受け取った文字列をそのまま焼き込むと、集金履歴に任意の決済名を
+ *    書き込めてしまう（アクションログの文面をサーバで組む理由と同じ）。
+ *
+ * ⚠️ **他組織の methodId を弾く。** id だけで引くと、他組織の支払方法に
+ *    紐づいた集金レコードを作れてしまう。
+ *
+ * @returns {{ error?: string, entries?: object[], sum?: number }}
+ */
+async function normalizeCashless(input, orgId) {
+  if (input === undefined || input === null) return { entries: [], sum: 0 };
+  if (!Array.isArray(input)) return { error: "キャッシュレスの内訳の形式が不正です" };
+  if (input.length === 0) return { entries: [], sum: 0 };
+
+  const supabase = createServiceClient();
+  const { data: methods, error } = await supabase
+    .from("payment_methods")
+    .select("id, name")
+    .eq("org_id", orgId);
+
+  if (error) return { error: "支払方法の取得に失敗しました" };
+
+  const byId = new Map((methods ?? []).map((m) => [String(m.id), m.name]));
+  const entries = [];
+  const seen = new Set();
+  let sum = 0;
+
+  for (const raw of input) {
+    const methodId = raw?.methodId != null ? String(raw.methodId) : "";
+    const name = byId.get(methodId);
+    if (!name) return { error: "選択された支払方法が見つかりません" };
+
+    // ⚠️ 同じ方法を 2 行送られると二重計上になる
+    if (seen.has(methodId)) return { error: "同じ支払方法が重複しています" };
+    seen.add(methodId);
+
+    const amount = Number(raw?.amount);
+    if (!Number.isFinite(amount) || !Number.isInteger(amount) || amount < 0) {
+      return { error: "キャッシュレスの金額が不正です" };
+    }
+    // 0 円は記録する意味が無いので落とす（画面で空欄のまま送られてくる）
+    if (amount === 0) continue;
+
+    entries.push({ methodId, name, amount });
+    sum += amount;
+  }
+
+  return { entries, sum };
+}
 
 /**
  * 機器ごとの売上内訳（店舗別ページの「機器別」タブ）。
@@ -107,7 +160,7 @@ export async function getStoreMachineBreakdown(id, startEpoch, endEpoch) {
     applyDateRange(
       supabase
         .from("collect_funds")
-        .select("date, totalFunds, fundsArray")
+        .select("date, totalFunds, fundsArray, cashless")
         .eq("laundryId", id)
         .order("date", { ascending: true }),
       startEpoch,
@@ -132,6 +185,7 @@ export async function getStoreMachineBreakdown(id, startEpoch, endEpoch) {
   }
 
   let totalModeAmount = 0;
+  let cashlessAmount = 0;
   let machinesTotal = 0;
   let grandTotal = 0;
 
@@ -139,10 +193,19 @@ export async function getStoreMachineBreakdown(id, startEpoch, endEpoch) {
     const amount = row.totalFunds ?? 0;
     grandTotal += amount;
 
+    /*
+      ⚠️ **キャッシュレスは先に総額から差し引く。** totalFunds は
+         現金 + キャッシュレスの総額なので、引かずに合計入力モードの判定へ回すと
+         キャッシュレスぶんが「合計入力」として数えられる。
+    */
+    const cashlessRows = Array.isArray(row.cashless) ? row.cashless : [];
+    const rowCashless = cashlessRows.reduce((acc, e) => acc + (Number(e?.amount) || 0), 0);
+    cashlessAmount += rowCashless;
+
     const entries = Array.isArray(row.fundsArray) ? row.fundsArray : [];
     if (entries.length === 0) {
       // 合計入力モード。機器に割り振れないので内訳の外に出す
-      totalModeAmount += amount;
+      totalModeAmount += amount - rowCashless;
       continue;
     }
 
@@ -173,19 +236,20 @@ export async function getStoreMachineBreakdown(id, startEpoch, endEpoch) {
    * これを捨てると **「機器別の合計が総額収益カードと違う」** という形でしか
    * 気づけない（しかも原因が分からない）。0 のときは画面に出さない。
    */
-  const other = grandTotal - machinesTotal - totalModeAmount;
+  const other = grandTotal - machinesTotal - totalModeAmount - cashlessAmount;
 
   return {
     data: {
       machines,
       unattributed: {
-        /** 合計入力モードで登録されたぶん */
+        /** 合計入力モードで登録されたぶん（キャッシュレスを除いた現金ぶん） */
         totalMode: totalModeAmount,
+        /** キャッシュレス決済。機器に紐づけようがない */
+        cashless: cashlessAmount,
         /**
-         * 機器にも合計入力にも紐づかないぶん。
-         * ⚠️ 007 を適用したら、ここから **キャッシュレスぶんを切り出して別項目にする**こと
-         *    （今は両方まとめてここに入る）。切り出しても `other` は残すこと。
-         * ⚠️ 負になり得る（fundsArray の和が totalFunds を上回る古い行）。丸めないこと
+         * どれにも当てはまらない残り。
+         * ⚠️ 負になり得る（fundsArray の和が totalFunds を上回る古い行）。丸めないこと。
+         * ⚠️ **0 でないときは過去データのずれを意味する。** 消さずに画面へ出すこと
          */
         other,
       },
@@ -293,6 +357,18 @@ export async function getFundItemById(id) {
   return { data };
 }
 
+/**
+ * 集金データの登録。
+ *
+ * ⚠️ **`formData.totalFunds` は「現金ぶんの金額」。** DB に入る `totalFunds` は
+ *    現金 + キャッシュレスの**総額**で、ここで組み直す。
+ *    - 機種別入力 … 現金 = fundsArray の枚数の和 × 100
+ *    - 合計入力   … 現金 = 入力された金額（fundsArray は空配列）
+ *
+ *    **Web の集金フォームはキャッシュレスを知らないので、送ってくる
+ *    totalFunds は常に現金ぶん。** そのまま素通しさせるとキャッシュレスが
+ *    総額から抜けるので、この関数が唯一の組み立て場所になっている。
+ */
 export async function createData(formData) {
   const { user } = await getUser();
   if (!user) return { error: { msg: "ログインしてください", status: 401 } };
@@ -300,7 +376,7 @@ export async function createData(formData) {
   const supabase = await createClient();
   const { data: member } = await supabase
     .from("organization_members")
-    .select("role")
+    .select("role, org_id")
     .eq("user_id", user.id)
     .single();
 
@@ -313,6 +389,9 @@ export async function createData(formData) {
     return { error: "指定された店舗へのアクセス権限がありません" };
   }
 
+  const cashless = await normalizeCashless(formData.cashless, member.org_id);
+  if (cashless.error) return { error: cashless.error };
+
   const serviceSupabase = createServiceClient();
 
   const row = {
@@ -320,7 +399,9 @@ export async function createData(formData) {
     laundryName: formData.store,
     date: formData.date,
     fundsArray: formData.fundsArray,
-    totalFunds: formData.totalFunds,
+    // ⚠️ 現金ぶん + キャッシュレス。クライアントの値をそのまま入れない
+    totalFunds: (formData.totalFunds ?? 0) + cashless.sum,
+    cashless: cashless.entries,
     collecter: user.id,
   };
 
@@ -350,7 +431,19 @@ export async function createData(formData) {
   return { data };
 }
 
-export async function updateData(fundsArray, totalFunds, id) {
+/**
+ * 集金データの金額を編集する。
+ *
+ * ⚠️ **`totalFunds` は「現金ぶんの金額」**（createData と同じ規約）。DB に入るのは
+ *    現金 + キャッシュレスの総額で、ここで組み直す。
+ *
+ * ⚠️ **`cashless` を省略した呼び出しは「変更しない」の意味。** 既存の内訳を
+ *    そのまま残し、その合計を足して総額を組む。
+ *    **Web の編集画面はキャッシュレスを知らずに totalFunds（現金ぶん）だけ送ってくる**
+ *    ので、ここで足し直さないと**キャッシュレスの金額が総額から静かに消える。**
+ *    型エラーも 0 行更新も起きず、月別売上が黙って減るだけになる。
+ */
+export async function updateData(fundsArray, totalFunds, id, cashlessInput) {
   const { user } = await getUser();
   if (!user) return { error: { msg: "ログインしてください", status: 401 } };
 
@@ -358,7 +451,7 @@ export async function updateData(fundsArray, totalFunds, id) {
 
   const { data: member } = await supabase
     .from("organization_members")
-    .select("role")
+    .select("role, org_id")
     .eq("user_id", user.id)
     .single();
 
@@ -371,7 +464,7 @@ export async function updateData(fundsArray, totalFunds, id) {
 
   const { data: target } = await serviceSupabase
     .from("collect_funds")
-    .select("laundryId")
+    .select("laundryId, cashless")
     .eq("id", id)
     .single();
 
@@ -379,9 +472,23 @@ export async function updateData(fundsArray, totalFunds, id) {
     return { error: { msg: "アクセス権限がありません", status: 403 } };
   }
 
+  const patch = { fundsArray };
+
+  if (cashlessInput === undefined) {
+    // 既存の内訳を据え置き、その合計だけ総額に足し戻す
+    const existing = Array.isArray(target.cashless) ? target.cashless : [];
+    const sum = existing.reduce((acc, e) => acc + (Number(e?.amount) || 0), 0);
+    patch.totalFunds = (totalFunds ?? 0) + sum;
+  } else {
+    const cashless = await normalizeCashless(cashlessInput, member.org_id);
+    if (cashless.error) return { error: { msg: cashless.error, status: 400 } };
+    patch.cashless = cashless.entries;
+    patch.totalFunds = (totalFunds ?? 0) + cashless.sum;
+  }
+
   let query = serviceSupabase
     .from("collect_funds")
-    .update({ fundsArray, totalFunds })
+    .update(patch)
     .eq("id", id)
     .select("id");
   if (member.role !== "admin") {
@@ -518,7 +625,7 @@ export async function getOrgCollectFunds(startEpoch, endEpoch) {
     applyDateRange(
       supabase
         .from("collect_funds")
-        .select("date, totalFunds, laundryId, laundryName")
+        .select("date, totalFunds, laundryId, laundryName, cashless")
         .in("laundryId", storeIds)
         .order("date", { ascending: true }),
       startEpoch,
@@ -623,7 +730,9 @@ export async function getCollectFundsForExport(startEpoch, endEpoch, filterStore
     applyDateRange(
       supabase
         .from("collect_funds")
-        .select("date, totalFunds, laundryName, fundsArray, profiles!collect_funds_collecter_fkey(username)")
+        .select(
+          "date, totalFunds, laundryName, fundsArray, cashless, profiles!collect_funds_collecter_fkey(username)"
+        )
         .in("laundryId", effectiveStoreIds)
         .order("date", { ascending: true }),
       startEpoch,

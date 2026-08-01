@@ -16,7 +16,16 @@ const JST_OFFSET = 32_400_000;
  * 翌月 1 日を渡すこと（src/functions/dateRange.js の END_EXCLUSIVE）。
  *
  * groupBy=month を付けると、生レコードではなく月ごとに畳んで返す。
- *   [{ month: "2026-07", total, count, storeCount, byStore: { [laundryId]: total } }]
+ *   [{ month: "2026-07", total, count, storeCount,
+ *      byStore:  { [laundryId]: total },
+ *      byMethod: { cash: n, [methodId]: n } }]
+ *
+ * ⚠️ **`byMethod.cash` は「現金」の固定キー。** 支払方法テーブルに現金の行は無く、
+ *    総額からキャッシュレスを引いて出している。**uuid と衝突しない名前**なので
+ *    そのままキーに使ってよい。
+ *
+ * ⚠️ **`byMethod` の値の和は `total` と一致する**（現金 = total − キャッシュレス、
+ *    と定義しているため）。一致しなくなる変更を入れないこと。
  *
  * ⚠️ /funds/summary/monthly は前年同月比のため**過去 2 年に固定**されている。
  *    任意の期間で見たいときはこちらを使うこと。
@@ -63,13 +72,37 @@ function groupByMonth(rows) {
 
     let current = byMonth.get(key);
     if (!current) {
-      current = { month: key, total: 0, count: 0, stores: new Set(), byStore: {} };
+      current = {
+        month: key,
+        total: 0,
+        count: 0,
+        stores: new Set(),
+        byStore: {},
+        byMethod: {},
+      };
       byMonth.set(key, current);
     }
 
     const amount = row.totalFunds ?? 0;
     current.total += amount;
     current.count += 1;
+
+    /*
+      支払方法ごとの内訳。
+      ⚠️ **現金は引き算で出す。** payment_methods に現金の行は無く、
+         totalFunds は現金 + キャッシュレスの総額として保存されている。
+      ⚠️ **`cash` を 0 でも必ず立てる。** キーが無いと、アプリ側で
+         「現金だけで絞り込んだ月」が undefined になり NaN が出る。
+    */
+    const cashless = Array.isArray(row.cashless) ? row.cashless : [];
+    let cashlessSum = 0;
+    for (const entry of cashless) {
+      const value = Number(entry?.amount) || 0;
+      if (!entry?.methodId) continue;
+      current.byMethod[entry.methodId] = (current.byMethod[entry.methodId] ?? 0) + value;
+      cashlessSum += value;
+    }
+    current.byMethod.cash = (current.byMethod.cash ?? 0) + (amount - cashlessSum);
 
     // storeId 指定で呼ぶと laundryId を持たない場合があるので、その時は内訳を作らない
     if (row.laundryId) {

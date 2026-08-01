@@ -53,14 +53,26 @@ export const PATCH = withAuth(async (request, context) => {
   }
 
   if (body?.totalFunds !== undefined) {
+    /*
+      ⚠️ **`totalFunds` は「現金ぶんの金額」**（POST /funds と同じ規約）。
+         DB に入るのは現金 + キャッシュレスの総額で、updateData が組み直す。
+    */
     if (!Number.isFinite(body.totalFunds) || body.totalFunds < 0) {
       return { error: "合計金額が不正です", status: 400 };
     }
     if (body.fundsArray != null && !Array.isArray(body.fundsArray)) {
       return { error: "明細の形式が不正です", status: 400 };
     }
+    if (body.cashless != null && !Array.isArray(body.cashless)) {
+      return { error: "支払方法の内訳の形式が不正です", status: 400 };
+    }
     const storeName = await fundStoreName(id);
-    const result = await updateData(body.fundsArray ?? [], body.totalFunds, id);
+    /*
+      ⚠️ **`cashless` を送らないときは undefined のまま渡す。** `?? []` にすると
+         「内訳を空にする」の意味になり、**既存のキャッシュレスが消えて総額が減る。**
+         省略 = 据え置き、という区別を潰さないこと。
+    */
+    const result = await updateData(body.fundsArray ?? [], body.totalFunds, id, body.cashless);
     /**
      * ⚠️ **`changed` を見る。** 非 admin が他人の集金データを編集すると
      *    0 行更新の 200 が返るので（docs/contracts.md）、error だけを見ると

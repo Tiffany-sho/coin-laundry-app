@@ -140,6 +140,62 @@ describe("recordsToTable", () => {
     expect(header).toEqual(["日付", "店舗名", "合計", "集金担当者"]);
     expect(rows).toEqual([]);
   });
+
+  // ---- 支払方法（キャッシュレス）----
+  //
+  // ⚠️ totalFunds は「現金 + キャッシュレス」の総額。支払方法の列を出さないと
+  //    横に足しても合計に届かない表になる。**横の和 = 合計**を必ず保つこと。
+
+  it("キャッシュレスが無ければ列は増えない（既存の表と同じ形）", () => {
+    const { header } = recordsToTable([
+      record({ y: 2026, m: 7, d: 27, store: "本町", machines: [{ name: "洗濯機A", funds: 30 }], total: 3000 }),
+    ]);
+    expect(header).toEqual(["日付", "店舗名", "洗濯機A", "合計", "集金担当者"]);
+  });
+
+  it("支払方法を列に出し、設備 + 現金 + 支払方法 の横の和が合計に一致する", () => {
+    const { header, rows } = recordsToTable([
+      {
+        date: epoch(2026, 7, 27),
+        laundryName: "本町",
+        // 現金 3000（枚数 30）+ PayPay 1200 = 4200
+        fundsArray: [{ name: "洗濯機A", funds: 30 }],
+        cashless: [{ methodId: "pp", name: "PayPay", amount: 1200 }],
+        totalFunds: 4200,
+        profiles: { username: "田中" },
+      },
+    ]);
+    expect(header).toEqual([
+      "日付", "店舗名", "洗濯機A", "現金（内訳なし）", "PayPay", "合計", "集金担当者",
+    ]);
+    // 現金（内訳なし）は 0 なので空欄
+    expect(rows[0]).toEqual(["2026年7月27日", "本町店", 3000, null, 1200, 4200, "田中"]);
+
+    const [, , ...rest] = rows[0];
+    const parts = rest.slice(0, 3).map((v) => v ?? 0);
+    expect(parts.reduce((a, b) => a + b, 0)).toBe(4200);
+  });
+
+  it("合計入力モード（fundsArray が空）の現金は「現金（内訳なし）」に入る", () => {
+    const { rows } = recordsToTable([
+      {
+        date: epoch(2026, 7, 27),
+        laundryName: "本町",
+        fundsArray: [],
+        cashless: [{ methodId: "cc", name: "クレカ", amount: 8900 }],
+        totalFunds: 53900, // 現金 45000 + クレカ 8900
+        profiles: null,
+      },
+    ]);
+    expect(rows[0]).toEqual(["2026年7月27日", "本町店", 45000, 8900, 53900, ""]);
+  });
+
+  it("cashless が null / 未定義でも落ちない（007 適用前に入った行）", () => {
+    const { rows } = recordsToTable([
+      { date: epoch(2026, 7, 27), laundryName: "本町", fundsArray: null, cashless: null, totalFunds: 1000 },
+    ]);
+    expect(rows[0]).toEqual(["2026年7月27日", "本町店", 1000, ""]);
+  });
 });
 
 describe("groupRecords", () => {
