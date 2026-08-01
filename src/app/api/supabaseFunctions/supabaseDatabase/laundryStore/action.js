@@ -16,6 +16,49 @@ async function getMyOrgId(supabase, userId) {
   return { orgId: data.org_id, myRole: data.role };
 }
 
+const machineName = (value) => String(value ?? "").trim();
+
+/**
+ * 設備の id を安定させる。**保存のたびに作り直さない。**
+ *
+ * ⚠️ **`collect_funds.fundsArray[].id` は集金を登録した時点の id を焼き込む。**
+ *    振り直すと過去の集金との対応が切れる。2026-08-02 まで Web の
+ *    `useStoreSubmit.js` が全機器に `crypto.randomUUID()` を配り直していて、
+ *    **機器別の売上内訳が同じ台を「店舗を編集した回数」だけ別の行に割っていた。**
+ *
+ * 引き継ぐ順に見る:
+ *   1. **同じ名前**の設備が前からあれば、その id（＝ほとんどの場合ここ）
+ *   2. クライアントが送ってきた id（改名したときの救済。アプリは温存して送る）
+ *   3. どちらも無ければ新規発行
+ *
+ * ⚠️ **同じ id を 2 つの設備に配らない。** 同名を 2 つ登録した場合と、
+ *    「A を B に改名 + 新しい A を追加」の場合に起きうる。使った id は
+ *    取り除き、衝突したら発行し直す。
+ *
+ * ⚠️ この関数は**サーバ側の最後の砦**。クライアントが何を送っても id は保たれる。
+ *    Web / アプリの両方を通るので、片方だけ直すより確実。
+ */
+function stableMachineIds(afterMachines, beforeMachines) {
+  /** 名前 → その名前で前から使われていた id の並び */
+  const inherited = new Map();
+  for (const machine of beforeMachines ?? []) {
+    const key = machineName(machine?.name);
+    if (!key || !machine?.id) continue;
+    if (!inherited.has(key)) inherited.set(key, []);
+    inherited.get(key).push(String(machine.id));
+  }
+
+  const used = new Set();
+  return (afterMachines ?? []).map((machine) => {
+    const queue = inherited.get(machineName(machine?.name));
+    let id = queue && queue.length > 0 ? queue.shift() : null;
+    if (!id && machine?.id) id = String(machine.id);
+    if (!id || used.has(id)) id = crypto.randomUUID();
+    used.add(id);
+    return { ...machine, id };
+  });
+}
+
 // cache() でリクエスト内の重複呼び出しを1回に集約する
 export const getStores = cache(async () => {
   const { user } = await getUser();
@@ -78,7 +121,9 @@ export async function createStore(formData) {
 
   const machinesString = formData.get("machines");
   const imagesString = formData.get("images");
-  const machinesData = machinesString ? JSON.parse(machinesString) : [];
+  // ⚠️ 新規でも通す。クライアントが id を送ってこなくても必ず 1 つずつ持たせるため
+  //    （下の laundry_state が machine.id をそのまま使う）
+  const machinesData = stableMachineIds(machinesString ? JSON.parse(machinesString) : [], []);
   const imagesData = imagesString ? JSON.parse(imagesString) : [];
 
   const serviceSupabase = createServiceClient();
@@ -162,10 +207,20 @@ export async function updateStore(formData, id) {
 
   const machinesString = formData.get("machines");
   const imagesString = formData.get("images");
-  const afterMachine = machinesString ? JSON.parse(machinesString) : [];
   const imagesData = imagesString ? JSON.parse(imagesString) : [];
 
   const { data: beforeData } = await getStore(id);
+
+  /*
+    ⚠️ **クライアントが送ってきた id をそのまま保存しない。** 前の設備一覧と
+       突き合わせて引き継ぐ（`stableMachineIds` の説明を参照）。Web の
+       `useStoreSubmit.js` は 2026-08-02 まで全機器に新しい uuid を配っていた。
+  */
+  const afterMachine = stableMachineIds(
+    machinesString ? JSON.parse(machinesString) : [],
+    beforeData.machines
+  );
+
   const beforeMachineArray = beforeData.machines.map((m) => m.name);
   const afterMachineArray = afterMachine.map((m) => m.name);
   const addMachine = afterMachineArray.filter((m) => !beforeMachineArray.includes(m));

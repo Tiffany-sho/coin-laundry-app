@@ -22,9 +22,19 @@ export function useStoreSubmit({ storeId, images, method, formRef, dialogRef }) 
 
     const formData = new FormData(formRef.current);
 
+    /*
+      ⚠️ **既存の id を捨てない。** ここは 2026-08-02 まで
+         `{ ...machine, id: crypto.randomUUID() }` と書いていて、
+         **店舗を保存するたびに全機器の id を作り直していた。**
+         `collect_funds.fundsArray[].id` は集金を登録した時点の id を
+         焼き込むので、振り直すと過去の集金との対応が切れる
+         （機器別の売上内訳が同じ台を別々の行に割っていた）。
+      ⚠️ 最終的な id は **サーバ（`updateStore` の `stableMachineIds`）が決める。**
+         ここで漏らしてもデータは壊れないが、無駄な差分を作らないよう揃えておく。
+    */
     const newMachine = state.machines
       .filter((machine) => machine.num > 0)
-      .map((machine) => ({ ...machine, id: crypto.randomUUID() }));
+      .map((machine) => ({ ...machine, id: machine.id ?? crypto.randomUUID() }));
 
     const filesToUpload = state.newPictures.filter((item) => item.file);
 
