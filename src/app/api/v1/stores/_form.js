@@ -15,6 +15,17 @@ export function toStoreFormData(body) {
   // images は { url, path } の配列。アプリからは画像を追加できないので、
   // 編集時は取得済みの配列をそのまま返してもらって温存する
   formData.set("images", JSON.stringify(body.images ?? []));
+
+  /*
+    ⚠️ **支払方法は送られてきたときだけ set する。** `?? []` にすると
+       「送らなかった」と「全部消したい」が区別できなくなり、
+       支払方法を知らないクライアントが店舗を保存した瞬間に全部無効になる。
+       Server Action 側は `formData.get("paymentMethods") === null` を
+       「据え置き」として見ている。
+  */
+  if (body.paymentMethods !== undefined) {
+    formData.set("paymentMethods", JSON.stringify(body.paymentMethods));
+  }
   return formData;
 }
 

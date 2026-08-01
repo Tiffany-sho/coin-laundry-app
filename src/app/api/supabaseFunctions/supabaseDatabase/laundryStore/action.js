@@ -4,6 +4,10 @@ import { cache } from "react";
 import { createClient } from "@/utils/supabase/server";
 import { createServiceClient } from "@/utils/supabase/service";
 import { getUser } from "../user/action";
+import {
+  attachPaymentMethods,
+  reconcileStorePaymentMethods,
+} from "../paymentMethods/action";
 import { PLAN_LIMITS } from "@/functions/plans";
 
 async function getMyOrgId(supabase, userId) {
@@ -77,7 +81,9 @@ export const getStores = cache(async () => {
       .eq("organization_id", orgId);
 
     if (error) return { error: { msg: "データの取得に失敗しました", status: 500 } };
-    return { data };
+    // ⚠️ 支払方法は店舗ごと（009）。一覧に貼って返すので、
+    //    集金画面も店舗フォームも追加の往復をしなくてよい
+    return { data: await attachPaymentMethods(data) };
   } catch {
     return { error: { msg: "予期しないエラーが発生しました", status: 400 } };
   }
@@ -105,7 +111,8 @@ export async function getStore(id) {
       console.error(error);
       return { error: { msg: "データの取得に失敗しました", status: 500 } };
     }
-    return { data: coinLaundryStore };
+    const [withMethods] = await attachPaymentMethods([coinLaundryStore]);
+    return { data: withMethods };
   } catch {
     return { error: { msg: "予期しないエラーが発生しました", status: 400 } };
   }
@@ -191,6 +198,17 @@ export async function createStore(formData) {
     });
 
     if (stockError) return { error: "在庫情報の登録に失敗しました" };
+
+    /*
+      ⚠️ **店舗が出来てからでないと入れられない**（laundry_id NOT NULL）。
+         ここで失敗しても店舗の登録は成功として返す。支払方法が入らないことより、
+         「登録できたのにエラーが出て、押し直すと 2 店舗できる」ほうが困る。
+    */
+    const methods = formData.get("paymentMethods");
+    if (methods !== null) {
+      await reconcileStorePaymentMethods(data.id, orgId, JSON.parse(methods));
+    }
+
     return { data };
   } catch {
     return { error: { msg: "予期しないエラーが発生しました", status: 400 } };
@@ -276,6 +294,20 @@ export async function updateStore(formData, id) {
       .eq("laundryId", data.id);
 
     if (fundsError) return { error: "集金データの編集に失敗しました" };
+
+    /*
+      ⚠️ **送られてこなかったら据え置き。** Web の店舗フォームは支払方法を
+         知らないまま保存してくるので、`?? []` にすると**Web で店舗を編集した
+         瞬間に支払方法が全部無効になる**（images と同じ罠だが、あちらと違って
+         「送らない＝消す」にしていない）。
+      ⚠️ 一方で**空配列は「全部無効にする」の意味**。区別を潰さないこと。
+    */
+    const methods = formData.get("paymentMethods");
+    if (methods !== null) {
+      const result = await reconcileStorePaymentMethods(data.id, orgId, JSON.parse(methods));
+      if (result?.error) return { error: result.error };
+    }
+
     return { data };
   } catch {
     return { error: { msg: "予期しないエラーが発生しました", status: 400 } };

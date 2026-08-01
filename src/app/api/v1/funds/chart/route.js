@@ -18,11 +18,18 @@ const JST_OFFSET = 32_400_000;
  * groupBy=month を付けると、生レコードではなく月ごとに畳んで返す。
  *   [{ month: "2026-07", total, count, storeCount,
  *      byStore:  { [laundryId]: total },
- *      byMethod: { cash: n, [methodId]: n } }]
+ *      byMethod: { cash: n, "method:PayPay": n } }]
+ *
+ * ⚠️ **キーは methodId ではなく「method:」+ 支払方法の名前。**
+ *    支払方法は**店舗ごと**（009）なので、同じ「PayPay」でも店舗ごとに
+ *    別の uuid になる。id でキーを作ると**組織全体のグラフで店舗の数だけ
+ *    チップが並び、しかもどれも同じ名前**になる。名前で畳めば店舗をまたいで
+ *    1 本にまとまる（機器別の内訳を名前で束ねているのと同じ理屈）。
  *
  * ⚠️ **`byMethod.cash` は「現金」の固定キー。** 支払方法テーブルに現金の行は無く、
- *    総額からキャッシュレスを引いて出している。**uuid と衝突しない名前**なので
- *    そのままキーに使ってよい。
+ *    総額からキャッシュレスを引いて出している。**接頭辞を付けているのは
+ *    「cash」という名前の支払方法を作られても衝突しないようにするため。**
+ *    接頭辞を外すと、その 1 件が現金と合算されて静かに壊れる。
  *
  * ⚠️ **`byMethod` の値の和は `total` と一致する**（現金 = total − キャッシュレス、
  *    と定義しているため）。一致しなくなる変更を入れないこと。
@@ -98,8 +105,16 @@ function groupByMonth(rows) {
     let cashlessSum = 0;
     for (const entry of cashless) {
       const value = Number(entry?.amount) || 0;
-      if (!entry?.methodId) continue;
-      current.byMethod[entry.methodId] = (current.byMethod[entry.methodId] ?? 0) + value;
+      /*
+        ⚠️ **名前で畳む（methodId ではない）。** 上のコメントの理由。
+           名前が空の行は畳みようが無いので飛ばす。飛ばした分は
+           cashlessSum に入らず現金として数えられるので、
+           **`byMethod` の値の和が total と一致する不変条件は保たれる。**
+      */
+      const name = String(entry?.name ?? "").trim();
+      if (!name) continue;
+      const key = `method:${name}`;
+      current.byMethod[key] = (current.byMethod[key] ?? 0) + value;
       cashlessSum += value;
     }
     current.byMethod.cash = (current.byMethod.cash ?? 0) + (amount - cashlessSum);

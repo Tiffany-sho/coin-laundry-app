@@ -85,12 +85,13 @@ const COIN_VALUE = 100;
  *    引き直す。受け取った文字列をそのまま焼き込むと、集金履歴に任意の決済名を
  *    書き込めてしまう（アクションログの文面をサーバで組む理由と同じ）。
  *
- * ⚠️ **他組織の methodId を弾く。** id だけで引くと、他組織の支払方法に
- *    紐づいた集金レコードを作れてしまう。
+ * ⚠️ **他店舗の methodId を弾く。** 支払方法は**店舗ごと**（009）なので、
+ *    店舗で絞らずに引くと、別の店舗の支払方法に紐づいた集金レコードを作れてしまう。
+ *    ⚠️ 組織で絞るだけでは足りない（同じ組織の別店舗が通ってしまう）。
  *
  * @returns {{ error?: string, entries?: object[], sum?: number }}
  */
-async function normalizeCashless(input, orgId) {
+async function normalizeCashless(input, laundryId) {
   if (input === undefined || input === null) return { entries: [], sum: 0 };
   if (!Array.isArray(input)) return { error: "キャッシュレスの内訳の形式が不正です" };
   if (input.length === 0) return { entries: [], sum: 0 };
@@ -99,7 +100,7 @@ async function normalizeCashless(input, orgId) {
   const { data: methods, error } = await supabase
     .from("payment_methods")
     .select("id, name")
-    .eq("org_id", orgId);
+    .eq("laundry_id", laundryId);
 
   if (error) return { error: "支払方法の取得に失敗しました" };
 
@@ -413,7 +414,8 @@ export async function createData(formData) {
     return { error: "指定された店舗へのアクセス権限がありません" };
   }
 
-  const cashless = await normalizeCashless(formData.cashless, member.org_id);
+  // ⚠️ 支払方法は店舗ごと（009）。組織ではなく storeId で絞る
+  const cashless = await normalizeCashless(formData.cashless, formData.storeId);
   if (cashless.error) return { error: cashless.error };
 
   const serviceSupabase = createServiceClient();
@@ -504,7 +506,8 @@ export async function updateData(fundsArray, totalFunds, id, cashlessInput) {
     const sum = existing.reduce((acc, e) => acc + (Number(e?.amount) || 0), 0);
     patch.totalFunds = (totalFunds ?? 0) + sum;
   } else {
-    const cashless = await normalizeCashless(cashlessInput, member.org_id);
+    // ⚠️ その集金レコードの店舗で絞る（支払方法は店舗ごと。009）
+    const cashless = await normalizeCashless(cashlessInput, target.laundryId);
     if (cashless.error) return { error: { msg: cashless.error, status: 400 } };
     patch.cashless = cashless.entries;
     patch.totalFunds = (totalFunds ?? 0) + cashless.sum;
