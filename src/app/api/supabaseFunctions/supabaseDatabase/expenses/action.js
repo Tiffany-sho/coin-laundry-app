@@ -5,6 +5,12 @@ import { createServiceClient } from "@/utils/supabase/service";
 import { getUser } from "../user/action";
 import { getEpochTimeInSeconds } from "@/functions/makeDate/date";
 import { fetchAllRows } from "@/functions/fetchAllRows";
+/*
+  ⚠️ **カテゴリの定義をこのファイルに置かない。** "use server" のモジュールは
+     **async 関数しか export できず**、定数を export するとビルドが落ちる
+     （`Failed to collect page data for …` としか出ず原因が分かりにくい）。
+*/
+import { EXPENSE_CATEGORIES } from "@/functions/expenseCategories";
 
 /**
  * 経費。単発（在庫の仕入れ・修理代など）と、毎月の固定費（家賃・水道光熱費）の 2 本立て。
@@ -18,19 +24,6 @@ import { fetchAllRows } from "@/functions/fetchAllRows";
  * ⚠️ **書き込みは必ず service client で行う。** 008 は SELECT のポリシーしか
  *    作っていない（利用者のクライアントで insert すると 42501 で失敗する）。
  */
-
-/** カテゴリ。⚠️ アプリの src/components/expenses/categories.ts と同じ綴りにすること */
-export const EXPENSE_CATEGORIES = [
-  "仕入れ",
-  "水道光熱費",
-  "家賃",
-  "修繕費",
-  "消耗品費",
-  "通信費",
-  "広告宣伝費",
-  "支払手数料",
-  "その他",
-];
 
 const MAX_NAME_LENGTH = 40;
 const MAX_NOTE_LENGTH = 200;
