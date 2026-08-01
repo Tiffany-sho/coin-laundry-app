@@ -171,17 +171,37 @@ export async function getStoreMachineBreakdown(id, startEpoch, endEpoch) {
   if (error) return { error: "集金データの取得に失敗しました" };
 
   /**
-   * 表示名は**現在の設備一覧を優先**する。改名しても過去の集計が古い名前で
-   * 並ばないようにするため。設備が消えていればレコードに残っている名前へ落とす。
+   * ⚠️ **束ねるのは「名前」。id では束ねられない。**
+   *
+   * Web の `useStoreSubmit.js` が店舗を保存するたびに
+   * `machines.map((m) => ({ ...m, id: crypto.randomUUID() }))` で
+   * **全機器の id を振り直す。** `fundsArray[].id` は登録時点の id を
+   * 焼き込むので、**店舗を 1 回編集しただけで過去の集金と食い違う。**
+   * id で束ねると **同じ台が店舗を編集した回数だけ別の行に割れる**
+   * （2026-08-02 に実際にそう見えた）。
+   *
+   * ⚠️ 引き換えに **設備を改名すると別の台として並ぶ。** `fundsArray[].name` は
+   *    登録時の名前を焼き込んでいるため（`cashless[].name` と同じ理屈）。
+   *    id 側で救えない以上こちらを受け入れる。
+   *
+   * ⚠️ **同じ名前の設備を 2 つ登録すると 1 本にまとまる。** 区別する手段が
+   *    名前しか残っていないため。
    */
-  const currentNames = new Map(
-    (store.machines ?? []).filter((m) => m?.id).map((m) => [String(m.id), m.name])
+  const NO_NAME = "（名称未設定）";
+  const nameOf = (value) => String(value ?? "").trim();
+
+  /** id → 現在の名前。`fundsArray` に name が無い古い行を救うときだけ使う */
+  const nameById = new Map(
+    (store.machines ?? [])
+      .filter((m) => m?.id != null && nameOf(m.name))
+      .map((m) => [String(m.id), nameOf(m.name)])
   );
 
-  /** id → { name, total }。⚠️ 現在ある設備は売上 0 でも並べる（故障中の台に気づけるように） */
+  /** 名前 → { id, name, total }。⚠️ 現在ある設備は売上 0 でも並べる（故障中の台に気づけるように） */
   const byMachine = new Map();
-  for (const [machineId, name] of currentNames) {
-    byMachine.set(machineId, { id: machineId, name, total: 0 });
+  for (const machine of store.machines ?? []) {
+    const key = nameOf(machine?.name) || NO_NAME;
+    if (!byMachine.has(key)) byMachine.set(key, { id: key, name: key, total: 0 });
   }
 
   let totalModeAmount = 0;
@@ -210,10 +230,14 @@ export async function getStoreMachineBreakdown(id, startEpoch, endEpoch) {
     }
 
     for (const entry of entries) {
-      const key = entry?.id != null ? String(entry.id) : `name:${entry?.name ?? ""}`;
+      /*
+        ⚠️ **name を先に見る。** id は店舗の保存ごとに振り直されるので当てにならない。
+           id を引くのは name が空の古い行を救うときだけで、それも当たらないことがある。
+      */
+      const key = nameOf(entry?.name) || nameById.get(String(entry?.id)) || NO_NAME;
       let current = byMachine.get(key);
       if (!current) {
-        current = { id: key, name: entry?.name ?? "（削除された設備）", total: 0 };
+        current = { id: key, name: key, total: 0 };
         byMachine.set(key, current);
       }
       // ⚠️ funds は硬貨の枚数。金額にするには × 100
