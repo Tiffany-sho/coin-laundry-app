@@ -382,7 +382,7 @@ export async function getStoreFundsPaginated(id, orderAmount, upOrder, from, to)
   const supabase = createServiceClient();
   const { data, error } = await supabase
     .from("collect_funds")
-    .select("id, laundryId, laundryName, date, totalFunds, collecter, profiles!collect_funds_collecter_fkey(username)")
+    .select("id, laundryId, laundryName, date, totalFunds, cashless, collecter, profiles!collect_funds_collecter_fkey(username)")
     .eq("laundryId", id)
     .order(orderAmount, { ascending: upOrder })
     .range(from, to);
@@ -405,7 +405,7 @@ export async function getStoreFundsInPeriod(id, startEpoch, endEpoch, orderAmoun
     applyDateRange(
       supabase
         .from("collect_funds")
-        .select("id, laundryId, laundryName, date, totalFunds, collecter, profiles!collect_funds_collecter_fkey(username)")
+        .select("id, laundryId, laundryName, date, totalFunds, cashless, collecter, profiles!collect_funds_collecter_fkey(username)")
         .eq("laundryId", id)
         .order(orderAmount, { ascending: upOrder }),
       startEpoch,
@@ -431,7 +431,7 @@ export async function getOrgCollectFundsInPeriod(startEpoch, endEpoch, orderAmou
     applyDateRange(
       supabase
         .from("collect_funds")
-        .select("id, laundryId, laundryName, date, totalFunds, collecter, profiles!collect_funds_collecter_fkey(username)")
+        .select("id, laundryId, laundryName, date, totalFunds, cashless, collecter, profiles!collect_funds_collecter_fkey(username)")
         .in("laundryId", storeIds)
         .order(orderAmount, { ascending: upOrder }),
       startEpoch,
@@ -858,7 +858,7 @@ export async function getOrgCollectFundsPaginated(orderAmount, upOrder, from, to
   const { data, error } = await applyDateRange(
     supabase
       .from("collect_funds")
-      .select("id, laundryId, laundryName, date, totalFunds, collecter, profiles!collect_funds_collecter_fkey(username)")
+      .select("id, laundryId, laundryName, date, totalFunds, cashless, collecter, profiles!collect_funds_collecter_fkey(username)")
       .in("laundryId", storeIds),
     startEpoch,
     null
