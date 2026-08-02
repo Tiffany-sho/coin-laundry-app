@@ -24,13 +24,22 @@ const CollectMoneyFooter = ({
     Object.values(values ?? {}).reduce((acc, value) => acc + (Number(value) || 0), 0);
 
   /*
-    ⚠️ **機種別入力のときは設備ごとのキャッシュレスを足す。** 集金レベルの欄は
-       出していないので `cashless` は空のままで、そちらを足しても 0 にしかならない。
-       ここを分けないと、**設備ごとに入力した金額が合計に出ない。**
+    キャッシュレスは 2 か所から来る。**足し方を CheckDialog と揃えること**
+    （画面の見込み額と、実際に登録される金額が食い違う）。
+
+    ⚠️ **機器ごとに 1 円でも入力があれば、サーバは機器の側だけを正とする**
+       （`hasMachineCashless`）。集金レベルのぶんは捨てられるので足さない。
+    ⚠️ **逆に、機器ごとが空なら集金レベルのぶんは生きている。**
+       機種別入力では欄を出していないが、**合計入力で入れてから切り替えた分が
+       state に残る。** ここで足さないと、登録後に金額が増えたように見える
+       （確認画面にも「キャッシュレス（内訳なし）」として必ず出す）。
   */
-  const cashlessTotal = checked
-    ? machinesAndFunds.reduce((acc, item) => acc + sumValues(item.cashless), 0)
-    : sumValues(cashless);
+  const machineCashless = machinesAndFunds.reduce(
+    (acc, item) => acc + sumValues(item.cashless),
+    0
+  );
+  const cashlessTotal =
+    checked && machineCashless > 0 ? machineCashless : sumValues(cashless);
   const cashTotal = checked
     ? machinesAndFunds.reduce((acc, item) => acc + (item.funds || 0), 0) * 100
     : Number(moneyTotal) || 0;

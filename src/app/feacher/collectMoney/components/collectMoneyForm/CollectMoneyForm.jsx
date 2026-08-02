@@ -45,7 +45,7 @@ const CollectMoneyForm = ({ coinLaundry }) => {
   const handleCashlessChange = (methodId, value) =>
     setCashless((prev) => ({ ...prev, [methodId]: value }));
 
-  const { checked, fixed, loading, handleMethodChange, handleFixedChange } =
+  const { checked, setChecked, fixed, loading, handleMethodChange, handleFixedChange } =
     useCollectMethod();
 
   const { draft, saveDraft, discardDraft, clearDraft } = useDraft(
@@ -60,6 +60,15 @@ const CollectMoneyForm = ({ coinLaundry }) => {
   const handleRestoreDraft = () => {
     if (!draft) return;
     setEpoc(draft.epoc);
+    /*
+      ⚠️ **集金方法も戻す。** 保存はしていたのに戻していなかったため、
+         機種別で書いた下書きを合計入力の状態で復元すると、**設備ごとの金額が
+         画面に出ないまま `moneyTotal`（空）で登録され、入力が丸ごと消えていた。**
+      ⚠️ `handleMethodChange` ではなく `setChecked` を使う。あちらは既定の
+         集金方法まで書き換えるので、下書きを戻しただけで設定が変わってしまう。
+      ⚠️ 集金方法を持たない古い下書きは今の状態のままにする（勝手に切り替えない）。
+    */
+    if (typeof draft.checked === "boolean") setChecked(draft.checked);
     setMachinesAndFunds(draft.machinesAndFunds);
     setMoneyTotal(draft.moneyTotal);
     // ⚠️ cashless を持たない古い下書きも復元できるようにする

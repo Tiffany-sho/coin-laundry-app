@@ -39,7 +39,12 @@ const useCollectMethod = () => {
     updateCollectMethod(isFixed ? checked : null);
   };
 
-  return { checked, fixed, loading, handleMethodChange, handleFixedChange };
+  /*
+    ⚠️ **保存しない切り替え。** 一時保存した下書きを戻すときに使う。
+       `handleMethodChange` を呼ぶと `fixed` のときに既定の集金方法まで
+       書き換わってしまう（下書きを戻しただけで設定が変わるのはやりすぎ）。
+  */
+  return { checked, setChecked, fixed, loading, handleMethodChange, handleFixedChange };
 };
 
 export default useCollectMethod;

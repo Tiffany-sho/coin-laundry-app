@@ -38,19 +38,38 @@ const CheckDialog = ({
 
   /*
     確認画面に出す金額。⚠️ **登録後の一覧と同じ数字になること。**
-    機種別入力では設備ごとのキャッシュレスが総額に入るので、現金だけ出すと
-    「登録したら増えた」ように見える。
+    現金だけ出すと「登録したら増えた」ように見える。
+
+    ⚠️ **集金方法（機種別 / 合計）でキャッシュレスの出どころが変わる。**
+       下の postHander と足し方を必ず揃えること。ここがずれると、確認画面の
+       数字だけが正しくない状態になり、**押すまで気づけない。**
   */
-  const methodName = (row, methodId) =>
+  const methodName = (methodId) =>
     (coinLaundry.paymentMethods ?? []).find((m) => String(m.id) === String(methodId))?.name ??
     "支払方法";
-  const machineCashTotal =
-    machinesAndFunds.reduce((acc, item) => acc + (item.funds || 0), 0) * 100;
-  const machineCashlessTotal = machinesAndFunds.reduce(
-    (acc, item) =>
-      acc + toCashlessPayload(item.cashless).reduce((sum, e) => sum + e.amount, 0),
-    0
-  );
+
+  /** 設備ごとに入力されたキャッシュレス（機種別入力のときだけ意味を持つ） */
+  const machineCashless = checked
+    ? machinesAndFunds.flatMap((item) => toCashlessPayload(item.cashless))
+    : [];
+  const machineCashlessTotal = machineCashless.reduce((acc, e) => acc + e.amount, 0);
+
+  /*
+    集金レベルのキャッシュレス。
+    ⚠️ **機器ごとに 1 円でも入っていれば送られない**（サーバが機器の側を正とする）。
+    ⚠️ **機種別入力でも、機器ごとが空なら生きている。** 合計入力で入れてから
+       集金方法を切り替えると欄が消えるのに state は残るため。
+       **見えないまま登録されるのを防ぐため、ここには必ず出す。**
+  */
+  const collectionCashless =
+    machineCashlessTotal > 0 ? [] : toCashlessPayload(cashless);
+  const collectionCashlessTotal = collectionCashless.reduce((acc, e) => acc + e.amount, 0);
+
+  const cashTotal = checked
+    ? machinesAndFunds.reduce((acc, item) => acc + (item.funds || 0), 0) * 100
+    : parseInt(moneyTotal || 0) || 0;
+  const cashlessTotal = machineCashlessTotal + collectionCashlessTotal;
+  const grandTotal = cashTotal + cashlessTotal;
 
   const postHander = async (event) => {
     setIsLoading(true);
@@ -300,7 +319,7 @@ const CheckDialog = ({
                               {toCashlessPayload(item.cashless).map((entry) => (
                                 <Flex key={entry.methodId} justify="space-between">
                                   <Text fontSize="xs" color="var(--text-muted, #64748B)">
-                                    {methodName(item, entry.methodId)}
+                                    {methodName(entry.methodId)}
                                   </Text>
                                   <Text fontSize="xs" fontWeight="semibold" color="var(--teal-deeper, #155E75)">
                                     ¥{entry.amount.toLocaleString()}
@@ -320,33 +339,78 @@ const CheckDialog = ({
                         borderColor="cyan.200"
                       >
                         <Flex justify="space-between" align="center">
+                          {/* ⚠️ キャッシュレスがあるときは「合計金額」と呼ばない。
+                                 総合計と 2 つの合計が並んで、どちらが登録されるのか
+                                 分からなくなる */}
                           <Text fontSize="md" fontWeight="semibold" color="var(--text-main, #1E3A5F)">
-                            合計金額
+                            {cashlessTotal > 0 ? "現金" : "合計金額"}
                           </Text>
                           <Text fontSize="2xl" fontWeight="bold" color="var(--teal-deeper, #155E75)">
-                            ¥{parseInt(moneyTotal || 0).toLocaleString()}
+                            ¥{cashTotal.toLocaleString()}
                           </Text>
                         </Flex>
                       </Box>
                     )}
+
+                    {/*
+                      集金レベルのキャッシュレス。
+                      ⚠️ **集金方法によらず必ず出す。** 合計入力モードでは今まで
+                         1 円も出ていなかったので、¥45,000 と確認して登録したのに
+                         一覧には ¥53,900 と出ていた。
+                      ⚠️ 機種別入力でここに出るのは、合計入力で入れてから
+                         切り替えた分（欄は消えるが登録はされる）。
+                    */}
+                    {collectionCashless.length > 0 && (
+                      <Box
+                        p={3}
+                        bg="var(--app-bg, #F0F9FF)"
+                        borderRadius="md"
+                        borderWidth="1px"
+                        borderColor="var(--divider, #F1F5F9)"
+                      >
+                        <HStack gap={2} mb={2} color="var(--teal, #0891B2)">
+                          <Icon.LuCreditCard size={16} />
+                          <Text fontSize="sm" fontWeight="semibold">
+                            キャッシュレス{checked ? "（内訳なし）" : ""}
+                          </Text>
+                        </HStack>
+                        <Stack gap={1}>
+                          {collectionCashless.map((entry) => (
+                            <Flex key={entry.methodId} justify="space-between">
+                              <Text fontSize="sm" color="var(--text-muted, #64748B)">
+                                {methodName(entry.methodId)}
+                              </Text>
+                              <Text fontSize="sm" fontWeight="semibold" color="var(--teal-deeper, #155E75)">
+                                ¥{entry.amount.toLocaleString()}
+                              </Text>
+                            </Flex>
+                          ))}
+                        </Stack>
+                      </Box>
+                    )}
                   </Stack>
 
-                  {/* ⚠️ **キャッシュレスを含めた総合計を出す。** 現金だけ出すと、
-                         登録後の一覧に出る金額と食い違って「増えた」ように見える */}
-                  {checked && (
+                  {/*
+                    ⚠️ **集金方法によらず、キャッシュレスを含めた総合計を出す。**
+                       登録後の一覧に出るのはこの数字。現金だけ出すと
+                       「登録したら増えた」ように見える。
+                    ⚠️ 合計入力 × 現金のみのときだけ出さない（上の箱と同じ数字が
+                       縦に 2 回並ぶだけになる）。
+                  */}
+                  {(checked || cashlessTotal > 0) && (
                     <Box mt={3} p={4} borderRadius="lg" bg="var(--teal-pale, #CFFAFE)">
                       <Flex justify="space-between" align="center">
                         <Text fontSize="md" fontWeight="bold" color="var(--text-main, #1E3A5F)">
                           総合計
                         </Text>
                         <Text fontSize="2xl" fontWeight="bold" color="var(--teal-deeper, #155E75)">
-                          ¥{(machineCashTotal + machineCashlessTotal).toLocaleString()}
+                          ¥{grandTotal.toLocaleString()}
                         </Text>
                       </Flex>
-                      {machineCashlessTotal > 0 && (
+                      {cashlessTotal > 0 && (
                         <Text fontSize="xs" color="var(--text-muted, #64748B)" mt={1} textAlign="right">
-                          現金 ¥{machineCashTotal.toLocaleString()} ／ キャッシュレス ¥
-                          {machineCashlessTotal.toLocaleString()}
+                          現金 ¥{cashTotal.toLocaleString()} ／ キャッシュレス ¥
+                          {cashlessTotal.toLocaleString()}
                         </Text>
                       )}
                     </Box>

@@ -181,6 +181,124 @@ describe("集金フォーム（機種別 + 設備ごとのキャッシュレス�
   });
 });
 
+/*
+  確認画面（CheckDialog）とフッターの見込み額が、実際に登録される金額と
+  1 円まで一致すること。
+
+  ⚠️ **集金方法（機種別 / 合計）でキャッシュレスの出どころが変わる。**
+     3 か所（フッター・確認画面・送信）が同じ足し方を持っているので、
+     1 つでもずれると「確認した金額と違うものが登録される」。
+*/
+describe("確認画面の総合計 = 登録される totalFunds", () => {
+  const sumValues = (values) =>
+    Object.values(values ?? {}).reduce((acc, v) => acc + (Number(v) || 0), 0);
+
+  /** 送信 body（postHander） */
+  const buildBody = (checked, machines, moneyTotal, collectionCashless) => {
+    const postArray = checked
+      ? machines.map((m) => {
+          const row = { id: m.id, name: m.name, funds: m.funds || 0 };
+          const entries = toCashlessPayload(m.cashless);
+          if (entries.length > 0) row.cashless = entries;
+          return row;
+        })
+      : [];
+    const hasMachineCashless = postArray.some((r) => r.cashless);
+    return {
+      fundsArray: postArray,
+      totalFunds: checked
+        ? postArray.reduce((a, r) => a + r.funds, 0) * 100
+        : Number(moneyTotal) || 0,
+      cashless: hasMachineCashless ? [] : toCashlessPayload(collectionCashless),
+    };
+  };
+
+  /** 確認画面の総合計 */
+  const dialogTotal = (checked, machines, moneyTotal, collectionCashless) => {
+    const machineCashless = checked
+      ? machines.flatMap((m) => toCashlessPayload(m.cashless))
+      : [];
+    const machineSum = machineCashless.reduce((a, e) => a + e.amount, 0);
+    const collection = machineSum > 0 ? [] : toCashlessPayload(collectionCashless);
+    const cash = checked
+      ? machines.reduce((a, m) => a + (m.funds || 0), 0) * 100
+      : Number(moneyTotal) || 0;
+    return cash + machineSum + collection.reduce((a, e) => a + e.amount, 0);
+  };
+
+  /** フッターの見込み額 */
+  const footerTotal = (checked, machines, moneyTotal, collectionCashless) => {
+    const machineSum = machines.reduce((a, m) => a + sumValues(m.cashless), 0);
+    const cashless =
+      checked && machineSum > 0 ? machineSum : sumValues(collectionCashless);
+    const cash = checked
+      ? machines.reduce((a, m) => a + (m.funds || 0), 0) * 100
+      : Number(moneyTotal) || 0;
+    return cash + cashless;
+  };
+
+  const cases = [
+    {
+      name: "合計入力 + 集金レベルのキャッシュレス（⚠️ 確認画面に 1 円も出ていなかった）",
+      checked: false,
+      machines: [],
+      moneyTotal: "45000",
+      collection: { cc: "8900" },
+      expected: 53900,
+    },
+    {
+      name: "合計入力 + 現金のみ",
+      checked: false,
+      machines: [],
+      moneyTotal: "45000",
+      collection: {},
+      expected: 45000,
+    },
+    {
+      name: "機種別 + 設備ごとのキャッシュレス",
+      checked: true,
+      machines: [
+        { id: "m1", name: "洗濯機", funds: 30, cashless: { pp: "900" } },
+        { id: "m2", name: "乾燥機", funds: 12 },
+      ],
+      moneyTotal: "",
+      collection: {},
+      expected: 5100,
+    },
+    {
+      name: "⚠️ 機種別 + 合計入力で入れてから切り替えた分（欄は消えるが登録される）",
+      checked: true,
+      machines: [{ id: "m1", name: "洗濯機", funds: 30 }],
+      moneyTotal: "45000",
+      collection: { cc: "8900" },
+      expected: 11900,
+    },
+    {
+      name: "⚠️ 両方に入っていたら機器の側だけ（集金レベルは捨てられる）",
+      checked: true,
+      machines: [{ id: "m1", name: "洗濯機", funds: 30, cashless: { pp: "900" } }],
+      moneyTotal: "",
+      collection: { cc: "8900" },
+      expected: 3900,
+    },
+    {
+      name: "機種別 + 現金のみ",
+      checked: true,
+      machines: [{ id: "m1", name: "洗濯機", funds: 30 }],
+      moneyTotal: "",
+      collection: {},
+      expected: 3000,
+    },
+  ];
+
+  it.each(cases)("$name", ({ checked, machines, moneyTotal, collection, expected }) => {
+    const saved = createData(buildBody(checked, machines, moneyTotal, collection));
+    expect(saved.totalFunds).toBe(expected);
+    expect(dialogTotal(checked, machines, moneyTotal, collection)).toBe(expected);
+    expect(footerTotal(checked, machines, moneyTotal, collection)).toBe(expected);
+  });
+});
+
 describe("フォームで登録 → ドロワーで編集 の通し", () => {
   it("登録した金額が、ドロワーを開いて保存し直しても変わらない", () => {
     const saved = createData({
