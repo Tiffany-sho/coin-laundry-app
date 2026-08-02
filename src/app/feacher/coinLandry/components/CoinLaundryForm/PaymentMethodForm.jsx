@@ -3,44 +3,45 @@
 import { useState } from "react";
 import { Box, Button, HStack, Input, Text, VStack } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
-import { useCoinLaundryForm } from "@/app/feacher/coinLandry/context/CoinlaundryForm/CoinLaundryFormContext";
+import {
+  MAX_PAYMENT_METHODS,
+  MAX_PAYMENT_METHOD_NAME,
+  useCoinLaundryForm,
+} from "@/app/feacher/coinLandry/context/CoinlaundryForm/CoinLaundryFormContext";
 
 /**
  * 店舗ごとの支払方法（PayPay・クレジットカードなど）。
  *
- * ⚠️ **現金は出さない。** 常に存在する暗黙の方法で、現金額は
- *    `totalFunds − sum(cashless[].amount)` で出す。行として持たせると
- *    「現金を無効化できる」「二重に数える」の両方が起きる。
+ * ⚠️ **現金は出さない。** 常に存在する暗黙の方法で、金額は
+ *    「総額 − キャッシュレスの和」で出している。行として持たせると
+ *    集金画面に現金が 2 つ並び、片方が総額に二重計上される。
  *
- * ⚠️ **削除しても行は消えない。** サーバ側が `is_active = false` にするだけ。
- *    過去の `collect_funds.cashless` が参照しているため。
+ * ⚠️ **「一覧から外す」は物理削除ではない。** 過去の集金（`collect_funds.cashless`）が
+ *    その名前を参照しているので、外したものは `isActive: false` として
+ *    **配列に残したまま**送る。下の「使わなくなった支払方法」に出して戻せるようにしてある。
  *
  * ⚠️ このフォームが `paymentMethods` を送らないと**据え置き**になる
  *    （送らない = 消す、ではない）。空配列は「全部無効にする」の意味。
  */
 
-/** 1 店舗あたりの上限。⚠️ サーバ側（reconcileStorePaymentMethods）と揃えること */
-const MAX_METHODS = 10;
-const MAX_NAME_LENGTH = 20;
-
-/** よく使うものは 1 タップで足せるように */
-const SUGGESTIONS = ["PayPay", "クレジットカード", "交通系IC", "楽天ペイ", "d払い"];
+/** よく使うものを 1 タップで足せるように。⚠️ 「現金」は入れない */
+const PRESET_METHODS = ["PayPay", "クレジットカード", "交通系IC", "楽天ペイ", "d払い"];
 
 const PaymentMethodForm = () => {
   const { state, dispatch } = useCoinLaundryForm();
   const [draft, setDraft] = useState("");
 
   const methods = state.paymentMethods ?? [];
-  const full = methods.length >= MAX_METHODS;
+  const active = methods.filter((m) => m.isActive);
+  const retired = methods.filter((m) => !m.isActive);
+  const remainingPresets = PRESET_METHODS.filter((name) => !methods.some((m) => m.name === name));
 
   const add = (name) => {
     const value = String(name).trim();
-    if (!value || full) return;
+    if (!value) return;
     dispatch({ type: "ADD_PAYMENT_METHOD", payload: { name: value } });
     setDraft("");
   };
-
-  const remaining = SUGGESTIONS.filter((s) => !methods.some((m) => m.name === s));
 
   return (
     <Box
@@ -52,147 +53,190 @@ const PaymentMethodForm = () => {
       p={{ base: 4, md: 6 }}
     >
       <VStack align="stretch" gap={4}>
-        <Box>
-          <HStack gap={2} mb={1}>
-            <Box color="var(--teal)">
-              <Icon.LuCreditCard size={16} />
-            </Box>
-            <Text fontWeight="semibold" color="var(--text-main)" fontSize="sm">
-              支払方法
-            </Text>
-          </HStack>
-          <Text fontSize="xs" color="var(--text-faint)">
-            集金画面でキャッシュレスの内訳を入力できるようになります。現金は登録不要です。
-          </Text>
-        </Box>
+        <Text fontSize="xs" color="var(--text-muted)" lineHeight="1.7">
+          現金以外の支払方法を登録すると、集金入力で方法ごとに金額を分けて記録できます。
+          現金は登録しなくても常に記録されます。
+        </Text>
 
-        {methods.length > 0 && (
+        {/* ── 使用中 ── */}
+        {active.length === 0 ? (
+          <Text fontSize="sm" color="var(--text-faint)" textAlign="center" py={3}>
+            現金のみ記録します
+          </Text>
+        ) : (
           <VStack align="stretch" gap={2}>
-            {methods.map((method) => (
+            {active.map((method) => (
               <HStack
                 key={method.name}
-                justify="space-between"
-                p={3}
+                gap={2}
+                minH="52px"
+                px={3}
+                bg="var(--app-bg, #F0F9FF)"
                 borderRadius="lg"
                 border="1px solid"
-                borderColor={method.isActive ? "cyan.100" : "var(--divider)"}
-                bg={method.isActive ? "white" : "var(--app-bg, #F0F9FF)"}
-                gap={2}
+                borderColor="cyan.100"
               >
+                <Box color="var(--teal)" flexShrink={0}>
+                  <Icon.LuCreditCard size={17} />
+                </Box>
                 <Text
-                  fontSize="sm"
-                  fontWeight="medium"
-                  color={method.isActive ? "var(--text-main)" : "var(--text-faint)"}
-                  textDecoration={method.isActive ? "none" : "line-through"}
+                  flex="1"
                   minW={0}
+                  fontSize="sm"
+                  fontWeight="semibold"
+                  color="var(--text-main)"
+                  overflow="hidden"
+                  textOverflow="ellipsis"
+                  whiteSpace="nowrap"
                 >
                   {method.name}
                 </Text>
-
-                <HStack gap={1} flexShrink={0}>
-                  {/* 無効にすると集金画面から消える。過去のデータは残る */}
-                  <Box
-                    as="button"
-                    type="button"
-                    onClick={() =>
-                      dispatch({ type: "TOGGLE_PAYMENT_METHOD", payload: { name: method.name } })
-                    }
-                    px={2}
-                    py={1}
-                    borderRadius="md"
-                    fontSize="xs"
-                    fontWeight="semibold"
-                    color={method.isActive ? "var(--text-muted)" : "var(--teal)"}
-                    cursor="pointer"
-                    _hover={{ bg: "cyan.50" }}
-                  >
-                    {method.isActive ? "使わない" : "戻す"}
-                  </Box>
-                  <Box
-                    as="button"
-                    type="button"
-                    onClick={() =>
-                      dispatch({ type: "REMOVE_PAYMENT_METHOD", payload: { name: method.name } })
-                    }
-                    p={1.5}
-                    borderRadius="md"
-                    color="var(--text-faint)"
-                    cursor="pointer"
-                    _hover={{ bg: "red.50", color: "red.500" }}
-                    aria-label={`${method.name} を一覧から外す`}
-                  >
-                    <Icon.LuX size={14} />
-                  </Box>
-                </HStack>
+                <Box
+                  as="button"
+                  type="button"
+                  onClick={() =>
+                    dispatch({ type: "RETIRE_PAYMENT_METHOD", payload: { name: method.name } })
+                  }
+                  p={2}
+                  borderRadius="md"
+                  color="red.400"
+                  cursor="pointer"
+                  flexShrink={0}
+                  _hover={{ bg: "red.50", color: "red.500" }}
+                  aria-label={`${method.name}を一覧から外す`}
+                >
+                  <Icon.LuTrash2 size={16} />
+                </Box>
               </HStack>
             ))}
           </VStack>
         )}
 
-        {!full && (
-          <>
-            <HStack gap={2}>
-              <Input
-                value={draft}
-                onChange={(e) => setDraft(e.target.value)}
-                onKeyDown={(e) => {
-                  // Enter でフォーム全体が送信されるのを止める
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    add(draft);
-                  }
-                }}
-                maxLength={MAX_NAME_LENGTH}
-                placeholder="PayPay など"
-                size="sm"
-                bg="white"
-                borderRadius="lg"
-                _focusVisible={{ borderColor: "cyan.400" }}
-              />
-              <Button
-                type="button"
-                size="sm"
-                colorPalette="cyan"
-                borderRadius="lg"
-                onClick={() => add(draft)}
-                disabled={draft.trim() === ""}
-                flexShrink={0}
-              >
-                <Icon.LuPlus size={15} /> 追加
-              </Button>
-            </HStack>
+        {/* ── 追加 ── */}
+        <VStack
+          align="stretch"
+          gap={2}
+          pt={4}
+          borderTop="1px solid"
+          borderColor="var(--divider)"
+        >
+          <Text fontSize="xs" fontWeight="semibold" color="var(--text-muted)">
+            支払方法を追加
+          </Text>
+          <HStack gap={2}>
+            <Input
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={(e) => {
+                // Enter でフォーム全体が送信されるのを止める
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  add(draft);
+                }
+              }}
+              maxLength={MAX_PAYMENT_METHOD_NAME}
+              placeholder="PayPay など"
+              size="sm"
+              bg="white"
+              borderRadius="lg"
+              _focusVisible={{ borderColor: "cyan.400" }}
+            />
+            <Button
+              type="button"
+              size="sm"
+              colorPalette="cyan"
+              borderRadius="lg"
+              onClick={() => add(draft)}
+              disabled={draft.trim() === ""}
+              flexShrink={0}
+            >
+              追加
+            </Button>
+          </HStack>
 
-            {remaining.length > 0 && (
-              <HStack wrap="wrap" gap={2}>
-                {remaining.map((name) => (
-                  <Box
-                    key={name}
-                    as="button"
-                    type="button"
-                    onClick={() => add(name)}
-                    px={3}
-                    py={1.5}
-                    borderRadius="full"
-                    fontSize="xs"
-                    fontWeight="semibold"
-                    border="1px dashed"
-                    borderColor="cyan.300"
-                    color="var(--teal)"
-                    bg="white"
-                    cursor="pointer"
-                    _hover={{ bg: "cyan.50" }}
-                  >
-                    + {name}
-                  </Box>
-                ))}
-              </HStack>
-            )}
-          </>
+          {remainingPresets.length > 0 && (
+            <HStack wrap="wrap" gap={2} pt={1}>
+              {remainingPresets.map((name) => (
+                <Box
+                  key={name}
+                  as="button"
+                  type="button"
+                  onClick={() => add(name)}
+                  display="flex"
+                  alignItems="center"
+                  gap={0.5}
+                  minH="34px"
+                  px={3}
+                  borderRadius="full"
+                  fontSize="xs"
+                  fontWeight="semibold"
+                  bg="var(--teal-pale, #CFFAFE)"
+                  border="1px solid"
+                  borderColor="cyan.200"
+                  color="var(--teal-deeper)"
+                  cursor="pointer"
+                  _hover={{ bg: "cyan.100" }}
+                >
+                  <Icon.LuPlus size={13} /> {name}
+                </Box>
+              ))}
+            </HStack>
+          )}
+        </VStack>
+
+        {/*
+          ⚠️ **使わなくなったものを見せる。** 過去の集金がその名前を参照しているので
+             完全には消えない。「消したのに履歴に出る」を説明できるようにしておく。
+        */}
+        {retired.length > 0 && (
+          <VStack
+            align="stretch"
+            gap={1}
+            pt={4}
+            borderTop="1px solid"
+            borderColor="var(--divider)"
+          >
+            <Text fontSize="xs" fontWeight="semibold" color="var(--text-muted)">
+              使わなくなった支払方法
+            </Text>
+            <Text fontSize="11px" color="var(--text-faint)" lineHeight="1.6" mb={1}>
+              過去の集金記録には残ります。もう一度使うときは押して戻してください。
+            </Text>
+            <HStack wrap="wrap" gap={2}>
+              {retired.map((method) => (
+                <Box
+                  key={method.name}
+                  as="button"
+                  type="button"
+                  onClick={() =>
+                    dispatch({ type: "RESTORE_PAYMENT_METHOD", payload: { name: method.name } })
+                  }
+                  display="flex"
+                  alignItems="center"
+                  gap={1}
+                  minH="34px"
+                  px={3}
+                  borderRadius="full"
+                  fontSize="xs"
+                  fontWeight="semibold"
+                  bg="gray.50"
+                  border="1px solid"
+                  borderColor="var(--divider)"
+                  color="var(--text-muted)"
+                  cursor="pointer"
+                  _hover={{ bg: "gray.100" }}
+                  aria-label={`${method.name}を戻す`}
+                >
+                  <Icon.LuRefreshCcw size={13} /> {method.name}
+                </Box>
+              ))}
+            </HStack>
+          </VStack>
         )}
 
-        {full && (
+        {active.length >= MAX_PAYMENT_METHODS && (
           <Text fontSize="xs" color="var(--text-faint)">
-            支払方法は {MAX_METHODS} 件までです
+            支払方法は {MAX_PAYMENT_METHODS} 件までです
           </Text>
         )}
       </VStack>

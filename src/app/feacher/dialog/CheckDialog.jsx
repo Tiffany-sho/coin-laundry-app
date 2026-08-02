@@ -47,6 +47,14 @@ const CheckDialog = ({ method, postHander, dialogRef }) => {
   const hasMachines = state.machines.filter((m) => m.num !== 0).length > 0;
   const allPictures = [...(state.existingPictures ?? []), ...(state.newPictures ?? [])];
 
+  /*
+    ⚠️ 使用中と使わなくなったものを分ける。フォームは無効化したものも
+       `isActive: false` のまま配列に残して送る（落とすと戻せなくなるため）。
+  */
+  const paymentMethods = state.paymentMethods ?? [];
+  const activeMethods = paymentMethods.filter((m) => m.isActive);
+  const retiredMethods = paymentMethods.filter((m) => !m.isActive);
+
   return (
     <Dialog.Root
       role="alertdialog"
@@ -196,6 +204,101 @@ const CheckDialog = ({ method, postHander, dialogRef }) => {
                       <Text color="var(--text-faint, #94A3B8)" fontSize="sm">
                         機械の登録なし
                       </Text>
+                    </Box>
+                  )}
+                </Box>
+
+                <Separator borderColor="var(--divider, #F1F5F9)" />
+
+                {/* 支払方法 */}
+                <Box>
+                  <HStack mb={3} gap={2}>
+                    <Box color="var(--teal, #0891B2)">
+                      <Icon.LuCreditCard size={13} />
+                    </Box>
+                    <Text
+                      fontSize="xs"
+                      fontWeight="semibold"
+                      color="var(--text-muted, #64748B)"
+                      textTransform="uppercase"
+                      letterSpacing="wide"
+                    >
+                      支払方法
+                    </Text>
+                  </HStack>
+
+                  <Stack gap={2}>
+                    {/* 現金は payment_methods に行が無く、常に記録される */}
+                    <Flex
+                      justify="space-between"
+                      align="center"
+                      p={3}
+                      bg="var(--app-bg, #F0F9FF)"
+                      borderRadius="md"
+                      borderWidth="1px"
+                      borderColor="var(--divider, #F1F5F9)"
+                    >
+                      <HStack gap={2}>
+                        <Box color="var(--text-muted, #64748B)">
+                          <Icon.TbCoinYenFilled size={15} />
+                        </Box>
+                        <Text fontSize="sm" fontWeight="semibold" color="var(--text-main, #1E3A5F)">
+                          現金
+                        </Text>
+                      </HStack>
+                      <Text fontSize="xs" color="var(--text-faint, #94A3B8)">
+                        常に記録されます
+                      </Text>
+                    </Flex>
+
+                    {activeMethods.map((method) => (
+                      <Flex
+                        key={method.name}
+                        align="center"
+                        gap={2}
+                        p={3}
+                        bg="var(--app-bg, #F0F9FF)"
+                        borderRadius="md"
+                        borderWidth="1px"
+                        borderColor="var(--divider, #F1F5F9)"
+                      >
+                        <Box color="var(--teal, #0891B2)">
+                          <Icon.LuCreditCard size={15} />
+                        </Box>
+                        <Text fontSize="sm" fontWeight="semibold" color="var(--text-main, #1E3A5F)">
+                          {method.name}
+                        </Text>
+                      </Flex>
+                    ))}
+                  </Stack>
+
+                  {/*
+                    ⚠️ 使わなくなったものも出す。保存すると無効化されるが、過去の集金記録には
+                       名前が残る。「消したのに履歴に出る」を確認画面の時点で説明しておく。
+                  */}
+                  {retiredMethods.length > 0 && (
+                    <Box mt={3}>
+                      <Text fontSize="xs" color="var(--text-muted, #64748B)" mb={1.5}>
+                        使わなくなる支払方法（過去の集金記録には残ります）
+                      </Text>
+                      <Flex flexWrap="wrap" gap={2}>
+                        {retiredMethods.map((method) => (
+                          <Text
+                            key={method.name}
+                            fontSize="xs"
+                            color="var(--text-faint, #94A3B8)"
+                            textDecoration="line-through"
+                            px={2.5}
+                            py={1}
+                            bg="gray.50"
+                            borderRadius="full"
+                            borderWidth="1px"
+                            borderColor="var(--divider, #F1F5F9)"
+                          >
+                            {method.name}
+                          </Text>
+                        ))}
+                      </Flex>
                     </Box>
                   )}
                 </Box>

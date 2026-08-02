@@ -17,6 +17,7 @@ import MonoDataTotal from "./MonoDataTotal";
 import MachinesState from "../MachinesState";
 import NowLaundryNum from "../NowLaundryNum";
 import HaveMachines from "./HaveMachines";
+import PaymentMethodChips from "@/app/feacher/coinLandry/components/PaymentMethodChips";
 
 const MonoCard = ({ coinLaundry, myRole }) => {
   const isOwner = myRole === "admin";
@@ -44,6 +45,9 @@ const MonoCard = ({ coinLaundry, myRole }) => {
               <Icon.PiMapPin size={18} />
               <Text>{coinLaundry.location}</Text>
             </HStack>
+
+            {/* 支払方法。編集後にここで確かめられるよう一覧と同じチップを出す */}
+            <PaymentMethodChips methods={coinLaundry.paymentMethods} size="md" />
 
             {coinLaundry.description && (
               <Text

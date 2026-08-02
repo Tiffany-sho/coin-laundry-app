@@ -3,11 +3,9 @@ import {
   getStoreFundsForChart,
   getOrgCollectFunds,
 } from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
+import { groupFundsByMonth } from "@/functions/fundsByMethod";
 
 export const dynamic = "force-dynamic";
-
-/** JST は UTC+9。date は JST 深夜 0 時の epoch なので、この分を足してから月を読む */
-const JST_OFFSET = 32_400_000;
 
 /**
  * グラフ用。明細を含まない軽量カラムのみ返す。
@@ -67,69 +65,9 @@ export const GET = withAuth(async (request) => {
 
   if (result.error || searchParams.get("groupBy") !== "month") return result;
 
-  return { data: groupByMonth(result.data ?? []) };
+  // ⚠️ 畳み込みは Web の収益ページと同じ `src/functions/fundsByMethod.js` を通す。
+  //    ここに書き写すと、アプリと Web で支払方法別の数字がずれても気づけない
+  return { data: groupFundsByMonth(result.data ?? []) };
 });
-
-function groupByMonth(rows) {
-  const byMonth = new Map();
-
-  for (const row of rows) {
-    const d = new Date((row.date ?? 0) + JST_OFFSET);
-    const key = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
-
-    let current = byMonth.get(key);
-    if (!current) {
-      current = {
-        month: key,
-        total: 0,
-        count: 0,
-        stores: new Set(),
-        byStore: {},
-        byMethod: {},
-      };
-      byMonth.set(key, current);
-    }
-
-    const amount = row.totalFunds ?? 0;
-    current.total += amount;
-    current.count += 1;
-
-    /*
-      支払方法ごとの内訳。
-      ⚠️ **現金は引き算で出す。** payment_methods に現金の行は無く、
-         totalFunds は現金 + キャッシュレスの総額として保存されている。
-      ⚠️ **`cash` を 0 でも必ず立てる。** キーが無いと、アプリ側で
-         「現金だけで絞り込んだ月」が undefined になり NaN が出る。
-    */
-    const cashless = Array.isArray(row.cashless) ? row.cashless : [];
-    let cashlessSum = 0;
-    for (const entry of cashless) {
-      const value = Number(entry?.amount) || 0;
-      /*
-        ⚠️ **名前で畳む（methodId ではない）。** 上のコメントの理由。
-           名前が空の行は畳みようが無いので飛ばす。飛ばした分は
-           cashlessSum に入らず現金として数えられるので、
-           **`byMethod` の値の和が total と一致する不変条件は保たれる。**
-      */
-      const name = String(entry?.name ?? "").trim();
-      if (!name) continue;
-      const key = `method:${name}`;
-      current.byMethod[key] = (current.byMethod[key] ?? 0) + value;
-      cashlessSum += value;
-    }
-    current.byMethod.cash = (current.byMethod.cash ?? 0) + (amount - cashlessSum);
-
-    // storeId 指定で呼ぶと laundryId を持たない場合があるので、その時は内訳を作らない
-    if (row.laundryId) {
-      current.stores.add(row.laundryId);
-      current.byStore[row.laundryId] = (current.byStore[row.laundryId] ?? 0) + amount;
-    }
-  }
-
-  // 古い順。グラフは左から右へ時系列で並べる
-  return [...byMonth.values()]
-    .sort((a, b) => a.month.localeCompare(b.month))
-    .map(({ stores, ...rest }) => ({ ...rest, storeCount: stores.size }));
-}
 
 export const OPTIONS = corsPreflight;

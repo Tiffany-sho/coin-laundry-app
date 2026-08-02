@@ -2,6 +2,10 @@
 
 import { createContext, useContext, useReducer } from "react";
 
+/** ⚠️ サーバ（reconcileStorePaymentMethods）と同じ値にすること */
+export const MAX_PAYMENT_METHODS = 10;
+export const MAX_PAYMENT_METHOD_NAME = 20;
+
 const initialState = {
   store: null,
   location: null,
@@ -122,28 +126,64 @@ const formReducer = (state, action) => {
       if (name === "現金") {
         return { ...state, msg: "「現金」は既定で記録されるため追加できません" };
       }
-      if (state.paymentMethods.some((m) => m.name === name)) {
-        return { ...state, msg: `「${name}」はすでにあります` };
+      if (name.length > MAX_PAYMENT_METHOD_NAME) {
+        return { ...state, msg: `名前は ${MAX_PAYMENT_METHOD_NAME} 文字以内にしてください` };
       }
+
+      /*
+        ⚠️ **使わなくなったものとも突き合わせる。** 同じ名前で作り直そうとしたときは
+           新しく足さず**戻す**。サーバも名前で突き合わせるので、足しても
+           UNIQUE(laundry_id, name) に当たって「すでにあります」になる。
+      */
+      const existing = state.paymentMethods.find((m) => m.name === name);
+      if (existing) {
+        if (existing.isActive) return { ...state, msg: "同じ支払方法が含まれています" };
+        return {
+          ...state,
+          msg: "",
+          paymentMethods: state.paymentMethods.map((m) =>
+            m.name === name ? { ...m, isActive: true } : m
+          ),
+        };
+      }
+
+      // ⚠️ 上限は「使用中」の数で見る。使わなくなったものは含めない
+      if (state.paymentMethods.filter((m) => m.isActive).length >= MAX_PAYMENT_METHODS) {
+        return { ...state, msg: `支払方法は ${MAX_PAYMENT_METHODS} 件までです` };
+      }
+
       return {
         ...state,
         msg: "",
         paymentMethods: [...state.paymentMethods, { name, isActive: true }],
       };
     }
-    case "TOGGLE_PAYMENT_METHOD":
+    /*
+      一覧から外す。⚠️ **配列からは落とさない。** 過去の集金（collect_funds.cashless）が
+      その名前を参照しているので、`isActive: false` のまま送って無効化として扱わせる。
+      落とすと画面から消えて**戻せなくなる**（サーバは無効化するので実害は無いが、
+      使い直したくなったときに手がかりが無い）。
+    */
+    case "RETIRE_PAYMENT_METHOD":
       return {
         ...state,
+        msg: "",
         paymentMethods: state.paymentMethods.map((m) =>
-          m.name === action.payload.name ? { ...m, isActive: !m.isActive } : m
+          m.name === action.payload.name ? { ...m, isActive: false } : m
         ),
       };
-    case "REMOVE_PAYMENT_METHOD":
-      // 一覧から外すだけ。サーバ側が is_active = false にして行は残す
+    case "RESTORE_PAYMENT_METHOD": {
+      if (state.paymentMethods.filter((m) => m.isActive).length >= MAX_PAYMENT_METHODS) {
+        return { ...state, msg: `支払方法は ${MAX_PAYMENT_METHODS} 件までです` };
+      }
       return {
         ...state,
-        paymentMethods: state.paymentMethods.filter((m) => m.name !== action.payload.name),
+        msg: "",
+        paymentMethods: state.paymentMethods.map((m) =>
+          m.name === action.payload.name ? { ...m, isActive: true } : m
+        ),
       };
+    }
     case "SET_MSG":
       return {
         ...state,

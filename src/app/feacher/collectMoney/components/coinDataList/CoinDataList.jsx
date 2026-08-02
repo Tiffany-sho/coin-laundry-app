@@ -36,6 +36,7 @@ import MonthlySummaryCard from "./parts/MonthlySummaryCard";
 import StoreRevenueChart from "./parts/StoreRevenueChart";
 import TotalRevenueCard from "./parts/TotalRevenueCard";
 import MachineBreakdownCard from "./parts/MachineBreakdownCard";
+import MethodBreakdownCard from "./parts/MethodBreakdownCard";
 import RevenueTabs from "./parts/RevenueTabs";
 import CollecterFilter from "./parts/CollecterFilter";
 import useStoreRevenue from "../../hooks/useStoreRevenue";
@@ -49,12 +50,14 @@ import useStoreRevenue from "../../hooks/useStoreRevenue";
 const TABS_MANY = [
   { value: "store", label: "店舗別" },
   { value: "monthly", label: "月別" },
+  { value: "method", label: "支払方法別" },
   { value: "summary", label: "月次サマリー" },
 ];
 
 const TABS_MONO = [
   { value: "monthly", label: "月別" },
   { value: "machine", label: "機器別" },
+  { value: "method", label: "支払方法別" },
   { value: "summary", label: "月次サマリー" },
 ];
 
@@ -214,6 +217,11 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
 
           {/* 機器別（店舗ページのみ） */}
           {tab === "machine" && isMono && <MachineBreakdownCard storeId={coinLaundry.id} />}
+
+          {/* 支払方法別。組織全体では店舗をまたいで名前で 1 本にまとまる */}
+          {tab === "method" && (
+            <MethodBreakdownCard storeId={isMono ? coinLaundry.id : null} />
+          )}
 
           {/* 月次サマリー */}
           {tab === "summary" && (

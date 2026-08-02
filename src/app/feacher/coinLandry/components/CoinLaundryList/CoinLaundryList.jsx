@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Button, Card, Flex, Image, Box, Text, HStack } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
+import PaymentMethodChips from "@/app/feacher/coinLandry/components/PaymentMethodChips";
 
 const CoinLaundryList = ({ coinLaundry, myRole }) => {
   return (
@@ -59,6 +60,14 @@ const CoinLaundryList = ({ coinLaundry, myRole }) => {
           <Icon.PiMapPin size={15} />
           <Text noOfLines={1}>{coinLaundry.location}</Text>
         </HStack>
+
+        {/*
+          支払方法。⚠️ **使用中のものだけ出す。** attachPaymentMethods は
+          店舗フォームで戻せるように isActive: false も返してくる。
+          ⚠️ 現金は暗黙の方法なので行として存在しない。「現金のみ」は
+          キャッシュレスが 1 つも無いことを表す。
+        */}
+        <PaymentMethodChips methods={coinLaundry.paymentMethods} />
       </Card.Body>
 
       <Card.Footer gap="2" p={5} pt={0}>
