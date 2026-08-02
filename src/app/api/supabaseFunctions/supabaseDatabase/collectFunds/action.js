@@ -7,6 +7,7 @@ import { changeEpocFromNowYearMonth, getEpochTimeInSeconds } from "@/functions/m
 import { applyDateRange, END_INCLUSIVE } from "@/functions/dateRange";
 import { fetchAllRows } from "@/functions/fetchAllRows";
 import { getStores } from "../laundryStore/action";
+import { attachPaymentMethods } from "../paymentMethods/action";
 
 async function getOrgStoreIds() {
   const { data: stores, error } = await getStores();
@@ -468,6 +469,17 @@ export async function getFundItemById(id) {
     .eq("id", id)
     .in("laundryId", storeIds)
     .single();
+
+  /*
+    ⚠️ **その店舗の支払方法も返す。** 無いと編集画面が「記録済みの方法」しか
+       並べられず、**あとから受け付け始めた方法を足せない**（金額を 0 に戻すことは
+       できても、新しい方法の行を作れない）。
+    ⚠️ 失敗しても本体は返す。支払方法が出ないより、集金データが開けないほうが困る。
+  */
+  if (!error && data) {
+    const [withMethods] = await attachPaymentMethods([{ id: data.laundryId }]);
+    data.paymentMethods = withMethods?.paymentMethods ?? [];
+  }
 
   if (error) return { error: "集金データの取得に失敗しました" };
   return { data };

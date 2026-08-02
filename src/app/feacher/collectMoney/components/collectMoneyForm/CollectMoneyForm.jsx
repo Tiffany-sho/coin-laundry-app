@@ -126,6 +126,7 @@ const CollectMoneyForm = ({ coinLaundry }) => {
               <MachineAndMoney
                 machinesAndFunds={machinesAndFunds}
                 setMachinesAndFunds={setMachinesAndFunds}
+                methods={activeMethods}
               />
             ) : (
               <MoneyTotal
@@ -135,8 +136,14 @@ const CollectMoneyForm = ({ coinLaundry }) => {
             )}
           </Box>
 
-          {/* キャッシュレス（店舗に支払方法が登録されているときだけ出る） */}
-          {activeMethods.length > 0 && (
+          {/*
+            キャッシュレス（店舗に支払方法が登録されているときだけ出る）。
+            ⚠️ **機種別入力のときは出さない。** 設備ごとに入力できるので、
+               両方あると同じ金額を 2 か所に書けてしまう。サーバは設備の側を
+               正とする（`hasMachineCashless`）ので、**集金レベルに入れた分は
+               黙って消える。**
+          */}
+          {activeMethods.length > 0 && !checked && (
             <>
               <SectionDivider />
               <CashlessInputs

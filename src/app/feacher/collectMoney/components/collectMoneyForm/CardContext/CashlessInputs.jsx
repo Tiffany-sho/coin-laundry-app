@@ -96,14 +96,10 @@ const CashlessInputs = ({ methods = [], values, onChange }) => {
 
 export default CashlessInputs;
 
-/**
- * 画面の入力（`{ [methodId]: "1200" }`）を `createData` が受け取る形へ。
- *
- * ⚠️ **0 円と空欄は落とす。** サーバも 0 を捨てるが、送らないほうが
- *    「入力しなかった」ことが素直に伝わる。
- */
-export function toCashlessPayload(values) {
-  return Object.entries(values ?? [])
-    .map(([methodId, raw]) => ({ methodId, amount: Number(raw) }))
-    .filter((e) => Number.isInteger(e.amount) && e.amount > 0);
-}
+/*
+  ⚠️ **実体は `src/functions/cashlessMath.js`。** ドロワーの編集画面でも同じ変換を
+     使うので、コンポーネントの中に置いたままにしない（2 か所に同じ整形を持つと、
+     片方だけ直したときに型エラーも出ないまま金額がずれる）。
+     既存の import を壊さないよう、ここからも出しておく。
+*/
+export { toCashlessPayload } from "@/functions/cashlessMath";

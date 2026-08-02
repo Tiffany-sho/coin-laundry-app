@@ -20,17 +20,26 @@ const CollectMoneyFooter = ({
     ⚠️ ここは**画面に出す見込み額**。DB に入る totalFunds はサーバが
        `formData.totalFunds + cashless.sum` で組み直す（二重に足さないこと）。
   */
-  const cashlessTotal = Object.values(cashless ?? {}).reduce(
-    (acc, value) => acc + (Number(value) || 0),
-    0
-  );
+  const sumValues = (values) =>
+    Object.values(values ?? {}).reduce((acc, value) => acc + (Number(value) || 0), 0);
+
+  /*
+    ⚠️ **機種別入力のときは設備ごとのキャッシュレスを足す。** 集金レベルの欄は
+       出していないので `cashless` は空のままで、そちらを足しても 0 にしかならない。
+       ここを分けないと、**設備ごとに入力した金額が合計に出ない。**
+  */
+  const cashlessTotal = checked
+    ? machinesAndFunds.reduce((acc, item) => acc + sumValues(item.cashless), 0)
+    : sumValues(cashless);
   const cashTotal = checked
     ? machinesAndFunds.reduce((acc, item) => acc + (item.funds || 0), 0) * 100
     : Number(moneyTotal) || 0;
   const total = cashTotal + cashlessTotal;
 
   const hasData = checked
-    ? machinesAndFunds.some((item) => item.funds !== null || item.weight !== null)
+    ? machinesAndFunds.some(
+        (item) => item.funds !== null || item.weight !== null || sumValues(item.cashless) > 0
+      )
     : moneyTotal != null && moneyTotal !== "";
 
   return (

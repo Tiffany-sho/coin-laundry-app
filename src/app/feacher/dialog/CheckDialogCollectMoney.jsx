@@ -36,6 +36,22 @@ const CheckDialog = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
 
+  /*
+    確認画面に出す金額。⚠️ **登録後の一覧と同じ数字になること。**
+    機種別入力では設備ごとのキャッシュレスが総額に入るので、現金だけ出すと
+    「登録したら増えた」ように見える。
+  */
+  const methodName = (row, methodId) =>
+    (coinLaundry.paymentMethods ?? []).find((m) => String(m.id) === String(methodId))?.name ??
+    "支払方法";
+  const machineCashTotal =
+    machinesAndFunds.reduce((acc, item) => acc + (item.funds || 0), 0) * 100;
+  const machineCashlessTotal = machinesAndFunds.reduce(
+    (acc, item) =>
+      acc + toCashlessPayload(item.cashless).reduce((sum, e) => sum + e.amount, 0),
+    0
+  );
+
   const postHander = async (event) => {
     setIsLoading(true);
     setMsg("");
@@ -43,20 +59,31 @@ const CheckDialog = ({
 
     const postArray = checked
       ? machinesAndFunds.map((machineAndFunds) => {
-          if (!machineAndFunds.funds && machineAndFunds.weight) {
-            return {
-              id: machineAndFunds.machine.id,
-              name: machineAndFunds.machine.name,
-              funds: Math.ceil(machineAndFunds.weight / coinWeight) || 0,
-            };
-          }
-          return {
+          const funds =
+            !machineAndFunds.funds && machineAndFunds.weight
+              ? Math.ceil(machineAndFunds.weight / coinWeight) || 0
+              : machineAndFunds.funds || 0;
+
+          const row = {
             id: machineAndFunds.machine.id,
             name: machineAndFunds.machine.name,
-            funds: machineAndFunds.funds || 0,
+            funds,
           };
+
+          /*
+            ⚠️ **入力があった設備にだけ `cashless` を付ける。**
+               キー自体が「機器ごとに入力した」の合図（`hasMachineCashless`）なので、
+               空配列を全設備に付けると、1 円も入れていないのに機器ごとのモードに
+               切り替わり、**集金レベルの `cashless` が無視される。**
+          */
+          const entries = toCashlessPayload(machineAndFunds.cashless);
+          if (entries.length > 0) row.cashless = entries;
+          return row;
         })
       : [];
+
+    /** 機器ごとに入力があったか。⚠️ あるときは集金レベルの内訳を送らない（二重計上） */
+    const hasMachineCashless = postArray.some((row) => row.cashless);
 
     const totalFunds = checked
       ? postArray.reduce((accumulator, currentValue) => {
@@ -75,8 +102,13 @@ const CheckDialog = ({
            ここで足すと二重計上になる。ここは現金ぶんだけ。
       */
       totalFunds,
-      // ⚠️ 0 円・空欄は落とす（サーバも捨てるが、送らないほうが意図が伝わる）
-      cashless: toCashlessPayload(cashless),
+      /*
+        ⚠️ **機器ごとに入力があるときは空で送る。** 両方に金額があるとサーバは
+           機器の側を正として集金レベルを捨てるので、ここで送っても消えるだけ。
+           画面も機種別入力のときは集金レベルの欄を出していない。
+        ⚠️ 0 円・空欄は落とす（サーバも捨てるが、送らないほうが意図が伝わる）
+      */
+      cashless: hasMachineCashless ? [] : toCashlessPayload(cashless),
     };
 
     let responseData;
@@ -228,39 +260,56 @@ const CheckDialog = ({
                   <Stack gap={2}>
                     {checked ? (
                       machinesAndFunds.map((item) => (
-                        <Flex
+                        <Box
                           key={item.machine.id}
-                          justify="space-between"
-                          align="center"
                           p={3}
                           bg="var(--app-bg, #F0F9FF)"
                           borderRadius="md"
                           borderWidth="1px"
                           borderColor="var(--divider, #F1F5F9)"
                         >
-                          <Text
-                            fontSize="md"
-                            fontWeight="medium"
-                            color="var(--text-main, #1E3A5F)"
-                          >
-                            {item.machine.name}
-                          </Text>
-                          <Flex align="baseline" gap={1}>
+                          <Flex justify="space-between" align="center">
                             <Text
-                              fontSize="lg"
-                              fontWeight="bold"
+                              fontSize="md"
+                              fontWeight="medium"
                               color="var(--text-main, #1E3A5F)"
                             >
-                              {item.funds || 0}
+                              {item.machine.name}
                             </Text>
-                            <Text fontSize="sm" color="var(--text-muted, #64748B)">
-                              枚
-                            </Text>
-                            <Text fontSize="sm" color="var(--text-faint, #94A3B8)" ml={2}>
-                              (¥{((item.funds || 0) * 100).toLocaleString()})
-                            </Text>
+                            <Flex align="baseline" gap={1}>
+                              <Text
+                                fontSize="lg"
+                                fontWeight="bold"
+                                color="var(--text-main, #1E3A5F)"
+                              >
+                                {item.funds || 0}
+                              </Text>
+                              <Text fontSize="sm" color="var(--text-muted, #64748B)">
+                                枚
+                              </Text>
+                              <Text fontSize="sm" color="var(--text-faint, #94A3B8)" ml={2}>
+                                (¥{((item.funds || 0) * 100).toLocaleString()})
+                              </Text>
+                            </Flex>
                           </Flex>
-                        </Flex>
+
+                          {/* ⚠️ 設備ごとのキャッシュレスも出す。出さないと確認画面の
+                                 数字が合計と合わず、何を登録するのか分からない */}
+                          {toCashlessPayload(item.cashless).length > 0 && (
+                            <Stack gap={1} mt={2} pt={2} borderTop="1px solid" borderColor="var(--divider, #F1F5F9)">
+                              {toCashlessPayload(item.cashless).map((entry) => (
+                                <Flex key={entry.methodId} justify="space-between">
+                                  <Text fontSize="xs" color="var(--text-muted, #64748B)">
+                                    {methodName(item, entry.methodId)}
+                                  </Text>
+                                  <Text fontSize="xs" fontWeight="semibold" color="var(--teal-deeper, #155E75)">
+                                    ¥{entry.amount.toLocaleString()}
+                                  </Text>
+                                </Flex>
+                              ))}
+                            </Stack>
+                          )}
+                        </Box>
                       ))
                     ) : (
                       <Box
@@ -282,6 +331,8 @@ const CheckDialog = ({
                     )}
                   </Stack>
 
+                  {/* ⚠️ **キャッシュレスを含めた総合計を出す。** 現金だけ出すと、
+                         登録後の一覧に出る金額と食い違って「増えた」ように見える */}
                   {checked && (
                     <Box mt={3} p={4} borderRadius="lg" bg="var(--teal-pale, #CFFAFE)">
                       <Flex justify="space-between" align="center">
@@ -289,15 +340,15 @@ const CheckDialog = ({
                           総合計
                         </Text>
                         <Text fontSize="2xl" fontWeight="bold" color="var(--teal-deeper, #155E75)">
-                          ¥
-                          {(
-                            machinesAndFunds.reduce(
-                              (acc, item) => acc + (item.funds || 0),
-                              0
-                            ) * 100
-                          ).toLocaleString()}
+                          ¥{(machineCashTotal + machineCashlessTotal).toLocaleString()}
                         </Text>
                       </Flex>
+                      {machineCashlessTotal > 0 && (
+                        <Text fontSize="xs" color="var(--text-muted, #64748B)" mt={1} textAlign="right">
+                          現金 ¥{machineCashTotal.toLocaleString()} ／ キャッシュレス ¥
+                          {machineCashlessTotal.toLocaleString()}
+                        </Text>
+                      )}
                     </Box>
                   )}
                 </Box>

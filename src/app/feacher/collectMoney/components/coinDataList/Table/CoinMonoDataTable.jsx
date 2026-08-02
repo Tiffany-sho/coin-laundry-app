@@ -54,7 +54,13 @@ const CoinMonoDataTable = ({ id, myRole }) => {
     setIsFundsArrayLoading(true);
     const { data } = await getFundItemById(item.id);
     if (data) {
-      setSelectedItem({ ...item, fundsArray: data.fundsArray });
+      /*
+        ⚠️ **fundsArray だけ受け取らないこと。** getFundItemById は cashless と
+           その店舗の paymentMethods も返す。落とすと編集ドロワーが
+           **キャッシュレスの欄を出せない**（一覧の行に cashless があっても、
+           あとから受け付け始めた支払方法を足せない）。
+      */
+      setSelectedItem({ ...item, ...data });
     }
     setIsFundsArrayLoading(false);
   };
