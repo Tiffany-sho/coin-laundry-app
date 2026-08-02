@@ -24,7 +24,7 @@ const PLANS = [
   {
     key: "proplus",
     name: "Pro+",
-    price: "¥1,400",
+    price: "¥1,500",
     storeLimit: "10店舗",
     features: ["集金記録", "在庫管理", "データ可視化", "メンバー管理"],
     /* ⚠️ トライアルは Pro だけ（2026-08-03 の決定）。Apple の導入オファーは
