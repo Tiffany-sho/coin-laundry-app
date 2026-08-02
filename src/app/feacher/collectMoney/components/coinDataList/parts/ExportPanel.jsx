@@ -7,6 +7,7 @@ import * as Icon from "@/app/feacher/Icon";
 import { getStores } from "@/app/api/supabaseFunctions/supabaseDatabase/laundryStore/action";
 import { buildCsvFiles } from "@/functions/csvExport";
 import { dateToEpoch, defaultDateRange, formatDateSuffix } from "@/functions/exportData";
+import { planAtLeast } from "@/functions/plans";
 
 // ── download helpers (client-side) ────────────────────────────────────────────
 
@@ -49,7 +50,8 @@ export default function ExportPanel({ plan = "free", storeId = null }) {
   const [selectedStoreIds, setSelectedStoreIds] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const isPro = plan === "pro" || plan === "max";
+  /* ⚠️ プラン名を並べない。足すたびに直し漏れる（plans.js の planAtLeast を参照） */
+  const isPro = planAtLeast(plan, "pro");
 
   useEffect(() => {
     getStores().then(({ data }) => {

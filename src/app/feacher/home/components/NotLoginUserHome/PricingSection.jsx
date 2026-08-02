@@ -51,6 +51,25 @@ const plans = [
     ],
   },
   {
+    name: "Pro+",
+    price: "¥1,400",
+    period: "/月（税込）",
+    /* ⚠️ トライアルは Pro だけ。Apple の導入オファーは購読グループ単位で
+          1 回しか使えないので、Pro で試した人は Pro+ では受けられない */
+    cta: "今すぐ始める",
+    ctaHref: "/auth/login",
+    featured: false,
+    rows: [
+      { label: "店舗数", value: "10店舗まで", ok: true },
+      { label: "集金記録", value: "", ok: true },
+      { label: "在庫管理", value: "", ok: true },
+      { label: "機器状態管理", value: "", ok: true },
+      { label: "売上グラフ", value: "", ok: true },
+      { label: "CSV/Excelエクスポート", value: "", ok: true },
+      { label: "チームメンバー招待", value: "無制限", ok: true },
+    ],
+  },
+  {
     name: "Max",
     price: "¥2,980",
     period: "/月（税込）",
@@ -231,10 +250,12 @@ const PricingSection = () => {
             </Text>
           </VStack>
 
-          {/* プランカード */}
+          {/* プランカード。
+              ⚠️ 4 プランになったので md は 2 列。3 列のままだと 4 枚目が
+                 1 枚だけ次の行に落ちて、幅も揃わない */}
           <Box
             display="grid"
-            gridTemplateColumns={{ base: "1fr", md: "1fr 1.08fr 1fr" }}
+            gridTemplateColumns={{ base: "1fr", md: "repeat(2, 1fr)", lg: "1fr 1.08fr 1fr 1fr" }}
             gap={{ base: 5, md: 6 }}
             w="full"
             alignItems="start"

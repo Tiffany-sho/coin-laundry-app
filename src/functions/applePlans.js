@@ -13,6 +13,7 @@
  */
 export const APPLE_PRODUCT_IDS = {
   pro: "com.collecie.app.pro.monthly",
+  proplus: "com.collecie.app.proplus.monthly",
   max: "com.collecie.app.max.monthly",
 };
 

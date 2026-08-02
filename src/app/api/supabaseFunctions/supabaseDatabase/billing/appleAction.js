@@ -12,6 +12,25 @@ import { PLAN_BY_PRODUCT_ID, isAppleSubscriptionActive } from "@/functions/apple
  * 生のリクエストボディを渡さないこと。
  */
 
+/**
+ * この取引が**無料トライアル中**か。
+ *
+ * ⚠️ **`offerType` だけで判断しない。** 導入オファーには「初回だけ割引」
+ *    （PAY_AS_YOU_GO / PAY_UP_FRONT）もあり、課金が発生しているのに
+ *    「無料期間」と表示することになる。`offerDiscountType` があればそちらが正。
+ *
+ * ⚠️ **`offerDiscountType` は古い payload に無い。** App Store Server API の
+ *    後から足されたフィールドなので、無いときは `offerType === 1`（導入オファー）に
+ *    倒す。今のところ導入オファーは無料トライアルしか設定していないので実害は無いが、
+ *    **有料の導入オファーを作るなら、ここが誤判定になる。**
+ */
+function isFreeTrial(transaction) {
+  if (transaction.offerDiscountType) {
+    return transaction.offerDiscountType === "FREE_TRIAL";
+  }
+  return transaction.offerType === 1;
+}
+
 /** 検証済みトランザクションから、DB に書く形へ落とす */
 function toPlanPatch(transaction) {
   const plan = PLAN_BY_PRODUCT_ID[transaction.productId];
@@ -21,15 +40,27 @@ function toPlanPatch(transaction) {
   const revoked = Boolean(transaction.revocationDate);
   const active = !revoked && isAppleSubscriptionActive(transaction.expiresDate);
 
+  const expiresAt = transaction.expiresDate
+    ? new Date(transaction.expiresDate).toISOString()
+    : null;
+
   return {
     plan: active ? plan : "free",
     plan_source: active ? "apple" : null,
     apple_original_transaction_id: transaction.originalTransactionId,
     apple_product_id: transaction.productId,
-    apple_expires_at: transaction.expiresDate
-      ? new Date(transaction.expiresDate).toISOString()
-      : null,
+    apple_expires_at: expiresAt,
     apple_environment: transaction.environment ?? null,
+    /*
+      無料トライアルの終わり = この取引の失効日。
+
+      ⚠️ **トライアルでないときは必ず null に戻す。** 残したままにすると、
+         有料へ切り替わったあとも設定画面が「無料期間 ◯◯まで」を出し続ける
+         （更新のたびに新しい取引が来るので、上書きしないと古い日付が残る）。
+      ⚠️ 失効時（active=false）も null。**プランは free に落ちているのに
+         無料期間だけ表示される**のを防ぐ。
+    */
+    trial_ends_at: active && isFreeTrial(transaction) ? expiresAt : null,
     active,
   };
 }

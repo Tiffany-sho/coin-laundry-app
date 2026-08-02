@@ -10,7 +10,7 @@ export async function POST(request) {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { planKey } = await request.json();
-  if (!["pro", "max"].includes(planKey)) {
+  if (!["pro", "proplus", "max"].includes(planKey)) {
     return NextResponse.json({ error: "Invalid plan" }, { status: 400 });
   }
 
@@ -37,10 +37,16 @@ export async function POST(request) {
     );
   }
 
-  const priceId =
-    planKey === "pro"
-      ? process.env.STRIPE_PRO_PRICE_ID
-      : process.env.STRIPE_MAX_PRICE_ID;
+  /*
+    ⚠️ **プランを足したらここにも足す。** 三項演算子で 2 択にしていたときは
+       未知のプランが黙って Max の価格になっていた（planKey の検証を通った
+       あとなので気づけない）。表引きにして、無ければ下で 500 にする。
+  */
+  const priceId = {
+    pro: process.env.STRIPE_PRO_PRICE_ID,
+    proplus: process.env.STRIPE_PROPLUS_PRICE_ID,
+    max: process.env.STRIPE_MAX_PRICE_ID,
+  }[planKey];
 
   if (!priceId) {
     return NextResponse.json({ error: "Price not configured" }, { status: 500 });

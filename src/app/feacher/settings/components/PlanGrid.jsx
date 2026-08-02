@@ -22,6 +22,17 @@ const PLANS = [
     trial: "6か月無料トライアル",
   },
   {
+    key: "proplus",
+    name: "Pro+",
+    price: "¥1,400",
+    storeLimit: "10店舗",
+    features: ["集金記録", "在庫管理", "データ可視化", "メンバー管理"],
+    /* ⚠️ トライアルは Pro だけ（2026-08-03 の決定）。Apple の導入オファーは
+          購読グループ単位で 1 回しか使えないので、両方に付けても
+          Pro で試した人は Pro+ で受けられず、表示と実際が食い違う */
+    trial: null,
+  },
+  {
     key: "max",
     name: "Max",
     price: "¥2,980",

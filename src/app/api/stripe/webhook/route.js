@@ -117,8 +117,22 @@ async function getOrgIdFromCustomer(supabase, customerId) {
   return data?.id ?? null;
 }
 
+/*
+  ⚠️ **プランを足したらここにも足す。** 落とすと、購入も更新も成功しているのに
+     `free` として記録される（`return "free"` に落ちる）。決済は通っているので
+     エラーもログも出ず、利用者からは「払ったのに使えない」という形で届く。
+  ⚠️ 環境変数が未設定だと `undefined === undefined` で**全部その行に当たる。**
+     価格 ID が空のものは先に弾く。
+*/
 function getPlanFromPriceId(priceId) {
-  if (priceId === process.env.STRIPE_PRO_PRICE_ID) return "pro";
-  if (priceId === process.env.STRIPE_MAX_PRICE_ID) return "max";
+  if (!priceId) return "free";
+  const byPrice = [
+    [process.env.STRIPE_PRO_PRICE_ID, "pro"],
+    [process.env.STRIPE_PROPLUS_PRICE_ID, "proplus"],
+    [process.env.STRIPE_MAX_PRICE_ID, "max"],
+  ];
+  for (const [id, plan] of byPrice) {
+    if (id && id === priceId) return plan;
+  }
   return "free";
 }
