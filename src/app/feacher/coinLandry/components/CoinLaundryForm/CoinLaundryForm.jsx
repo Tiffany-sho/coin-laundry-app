@@ -24,6 +24,7 @@ import MachineForm from "@/app/feacher/coinLandry/components/CoinLaundryForm/Mac
 import CheckDialog from "@/app/feacher/dialog/CheckDialog";
 import UploadPicture from "@/app/feacher/coinLandry/components/CoinLaundryForm/UploadPicture";
 import DeletePicture from "@/app/feacher/coinLandry/components/CoinLaundryForm/DeletePicture";
+import PaymentMethodForm from "@/app/feacher/coinLandry/components/CoinLaundryForm/PaymentMethodForm";
 import { useCoinLaundryForm } from "@/app/feacher/coinLandry/context/CoinlaundryForm/CoinLaundryFormContext";
 import { useStoreSubmit } from "./useStoreSubmit";
 
@@ -252,6 +253,12 @@ const CoinLaundryForm = ({ storeId, images = [], method }) => {
                     </Drawer.Positioner>
                   </Portal>
                 </Drawer.Root>
+              </Box>
+
+              {/* 支払方法（店舗ごと。現金は登録しない） */}
+              <Box>
+                <SectionLabel icon={<Icon.LuCreditCard size={15} />}>支払方法</SectionLabel>
+                <PaymentMethodForm />
               </Box>
 
               {/* 写真 */}

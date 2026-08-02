@@ -81,6 +81,19 @@ export function useStoreSubmit({ storeId, images, method, formRef, dialogRef }) 
     formData.append("machines", JSON.stringify(newMachine));
     formData.append("images", JSON.stringify(finalImageUrlList));
 
+    /*
+      ⚠️ **必ず送る。** 送らない（キーが無い）＝「据え置き」で、空配列＝「全部無効」。
+         フォームで全部外した状態を保存できるようにするため、0 件でも送る。
+      ⚠️ id は送らない。サーバは**名前で突き合わせる**（他店舗の id を送られても
+         書き換えられないようにするため。reconcileStorePaymentMethods 参照）。
+    */
+    formData.append(
+      "paymentMethods",
+      JSON.stringify(
+        (state.paymentMethods ?? []).map(({ name, isActive }) => ({ name, isActive }))
+      )
+    );
+
     let responseData;
 
     try {

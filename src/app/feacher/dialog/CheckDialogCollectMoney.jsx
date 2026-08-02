@@ -16,6 +16,7 @@ import { useState } from "react";
 import { redirect } from "next/navigation";
 import { createNowData } from "@/functions/makeDate/date";
 import { createData } from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
+import { toCashlessPayload } from "@/app/feacher/collectMoney/components/collectMoneyForm/CardContext/CashlessInputs";
 
 import * as Icon from "@/app/feacher/Icon";
 import { createMessage } from "@/app/api/supabaseFunctions/supabaseDatabase/actionMessage/action";
@@ -28,6 +29,7 @@ const CheckDialog = ({
   checked,
   moneyTotal,
   machinesAndFunds,
+  cashless,
   epoc,
   setMsg,
   onSuccess,
@@ -67,7 +69,14 @@ const CheckDialog = ({
       storeId: coinLaundry.id,
       date: epoc + Math.floor(Math.random() * 1000),
       fundsArray: postArray,
+      /*
+        ⚠️ **キャッシュレスを足さずに送る。** サーバの createData が
+           `formData.totalFunds + cashless.sum` で組み直すので、
+           ここで足すと二重計上になる。ここは現金ぶんだけ。
+      */
       totalFunds,
+      // ⚠️ 0 円・空欄は落とす（サーバも捨てるが、送らないほうが意図が伝わる）
+      cashless: toCashlessPayload(cashless),
     };
 
     let responseData;

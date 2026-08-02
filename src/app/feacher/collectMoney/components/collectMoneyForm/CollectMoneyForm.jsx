@@ -10,6 +10,7 @@ import MoneyTotal from "./CardContext/MoneyTotal";
 import CollectMoneyHeader from "./CollectMoneyHeader";
 import CollectMoneyFooter from "./CollectMoneyFooter";
 import CollectMethodCard from "./CollectMethodCard";
+import CashlessInputs from "./CardContext/CashlessInputs";
 import DraftBanner from "./parts/DraftBanner";
 import useDraft from "../../hooks/useDraft";
 import useCollectMethod from "../../hooks/useCollectMethod";
@@ -34,6 +35,16 @@ const CollectMoneyForm = ({ coinLaundry }) => {
     }))
   );
 
+  /**
+   * キャッシュレスの入力（`{ [methodId]: "1200" }`）。
+   * ⚠️ **無効にした支払方法は出さない。** `attachPaymentMethods` は
+   *    店舗フォームで戻せるように `isActive: false` も返してくる。
+   */
+  const activeMethods = (coinLaundry.paymentMethods ?? []).filter((m) => m.isActive);
+  const [cashless, setCashless] = useState({});
+  const handleCashlessChange = (methodId, value) =>
+    setCashless((prev) => ({ ...prev, [methodId]: value }));
+
   const { checked, fixed, loading, handleMethodChange, handleFixedChange } =
     useCollectMethod();
 
@@ -42,7 +53,8 @@ const CollectMoneyForm = ({ coinLaundry }) => {
   );
 
   const handleSaveDraft = () => {
-    saveDraft({ epoc, checked, machinesAndFunds, moneyTotal });
+    // ⚠️ cashless も含める。含めないと復元したときにキャッシュレスだけ黙って消える
+    saveDraft({ epoc, checked, machinesAndFunds, moneyTotal, cashless });
   };
 
   const handleRestoreDraft = () => {
@@ -50,6 +62,8 @@ const CollectMoneyForm = ({ coinLaundry }) => {
     setEpoc(draft.epoc);
     setMachinesAndFunds(draft.machinesAndFunds);
     setMoneyTotal(draft.moneyTotal);
+    // ⚠️ cashless を持たない古い下書きも復元できるようにする
+    setCashless(draft.cashless ?? {});
     discardDraft();
   };
 
@@ -121,6 +135,18 @@ const CollectMoneyForm = ({ coinLaundry }) => {
             )}
           </Box>
 
+          {/* キャッシュレス（店舗に支払方法が登録されているときだけ出る） */}
+          {activeMethods.length > 0 && (
+            <>
+              <SectionDivider />
+              <CashlessInputs
+                methods={activeMethods}
+                values={cashless}
+                onChange={handleCashlessChange}
+              />
+            </>
+          )}
+
           {msg && (
             <>
               <SectionDivider />
@@ -141,6 +167,7 @@ const CollectMoneyForm = ({ coinLaundry }) => {
         machinesAndFunds={machinesAndFunds}
         checked={checked}
         moneyTotal={moneyTotal}
+        cashless={cashless}
         coinLaundry={coinLaundry}
         epoc={epoc}
         setMsg={setMsg}

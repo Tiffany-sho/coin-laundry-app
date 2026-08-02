@@ -35,6 +35,17 @@ const initialState = {
   ],
   existingPictures: [],
   newPictures: [],
+  /**
+   * 店舗ごとの支払方法（PayPay・クレジットカードなど）。
+   *
+   * ⚠️ **現金は入れない。** 常に存在する暗黙の方法として扱い、現金額は
+   *    `totalFunds − sum(cashless[].amount)` で出す。行として持つと
+   *    「現金を無効化できる」「二重に数える」の両方が起きる。
+   *
+   * ⚠️ 無効にしたもの（`isActive: false`）も残す。物理削除すると過去の
+   *    `collect_funds.cashless` の参照先が消える。
+   */
+  paymentMethods: [],
   msg: "",
   isLoading: false,
 };
@@ -104,6 +115,35 @@ const formReducer = (state, action) => {
           (item) => item.url !== action.payload.url,
         ),
       };
+    case "ADD_PAYMENT_METHOD": {
+      const name = String(action.payload.name ?? "").trim();
+      if (!name) return state;
+      // ⚠️ 現金は暗黙の方法。同名の行を作ると集金画面に「現金」が 2 つ並び二重計上になる
+      if (name === "現金") {
+        return { ...state, msg: "「現金」は既定で記録されるため追加できません" };
+      }
+      if (state.paymentMethods.some((m) => m.name === name)) {
+        return { ...state, msg: `「${name}」はすでにあります` };
+      }
+      return {
+        ...state,
+        msg: "",
+        paymentMethods: [...state.paymentMethods, { name, isActive: true }],
+      };
+    }
+    case "TOGGLE_PAYMENT_METHOD":
+      return {
+        ...state,
+        paymentMethods: state.paymentMethods.map((m) =>
+          m.name === action.payload.name ? { ...m, isActive: !m.isActive } : m
+        ),
+      };
+    case "REMOVE_PAYMENT_METHOD":
+      // 一覧から外すだけ。サーバ側が is_active = false にして行は残す
+      return {
+        ...state,
+        paymentMethods: state.paymentMethods.filter((m) => m.name !== action.payload.name),
+      };
     case "SET_MSG":
       return {
         ...state,
@@ -130,6 +170,8 @@ const CoinLaundryFormContextProvider = ({
     description: coinData.description || "",
     machines: coinData.machines || initialState.machines,
     existingPictures: coinData.images || [],
+    // getStores / getStore が attachPaymentMethods で貼り付けている
+    paymentMethods: coinData.paymentMethods || [],
   });
   return (
     <CoinLaundryFormContext.Provider value={{ state, dispatch }}>

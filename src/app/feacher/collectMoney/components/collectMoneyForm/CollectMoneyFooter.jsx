@@ -6,6 +6,7 @@ const CollectMoneyFooter = ({
   machinesAndFunds,
   checked,
   moneyTotal,
+  cashless,
   coinLaundry,
   epoc,
   setMsg,
@@ -13,8 +14,20 @@ const CollectMoneyFooter = ({
   onSaveDraft,
   clearDraft,
 }) => {
-  const total =
-    machinesAndFunds.reduce((acc, item) => acc + (item.funds || 0), 0) * 100;
+  /*
+    ⚠️ funds は硬貨の枚数なので金額にするには × 100。
+       キャッシュレスは既に「円」なのでそのまま足す。
+    ⚠️ ここは**画面に出す見込み額**。DB に入る totalFunds はサーバが
+       `formData.totalFunds + cashless.sum` で組み直す（二重に足さないこと）。
+  */
+  const cashlessTotal = Object.values(cashless ?? {}).reduce(
+    (acc, value) => acc + (Number(value) || 0),
+    0
+  );
+  const cashTotal = checked
+    ? machinesAndFunds.reduce((acc, item) => acc + (item.funds || 0), 0) * 100
+    : Number(moneyTotal) || 0;
+  const total = cashTotal + cashlessTotal;
 
   const hasData = checked
     ? machinesAndFunds.some((item) => item.funds !== null || item.weight !== null)
@@ -109,6 +122,7 @@ const CollectMoneyFooter = ({
             checked={checked}
             machinesAndFunds={machinesAndFunds}
             moneyTotal={moneyTotal}
+            cashless={cashless}
             epoc={epoc}
             setMsg={setMsg}
             onSuccess={clearDraft}
