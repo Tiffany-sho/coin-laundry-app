@@ -24,6 +24,7 @@ import {
 } from "@/app/api/supabaseFunctions/supabaseDatabase/organization/action";
 import { showToast } from "@/functions/makeToast/toast";
 import MemberList from "./MemberList";
+import { getStores } from "@/app/api/supabaseFunctions/supabaseDatabase/laundryStore/action";
 import InviteForm from "./InviteForm";
 
 export default function OrganizationSettings({ currentUserId, currentUsername }) {
@@ -34,19 +35,25 @@ export default function OrganizationSettings({ currentUserId, currentUsername })
   const [editingName, setEditingName] = useState(false);
   const [orgName, setOrgName] = useState("");
   const [savingName, setSavingName] = useState(false);
+  /* 担当店舗の割り当てに使う。⚠️ 管理者から取るので全店舗が入る */
+  const [stores, setStores] = useState([]);
+  const [myRole, setMyRole] = useState(null);
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
-    const [orgRes, membersRes, invRes] = await Promise.all([
+    const [orgRes, membersRes, invRes, storesRes] = await Promise.all([
       getMyOrganization(),
       getOrganizationMembers(),
       getOrganizationInvitations(),
+      getStores(),
     ]);
     if (orgRes.data) {
       setOrg(orgRes.data);
       setOrgName(orgRes.data.name);
     }
     if (membersRes.data) setMembers(membersRes.data);
+    setMyRole(membersRes.myRole ?? null);
+    if (storesRes?.data) setStores(storesRes.data);
     if (invRes.data) setInvitations(invRes.data);
     setLoading(false);
   }, []);
@@ -162,6 +169,8 @@ export default function OrganizationSettings({ currentUserId, currentUsername })
           members={members}
           currentUserId={currentUserId}
           onChanged={fetchAll}
+          stores={stores}
+          canAssign={myRole === "admin"}
         />
       </Box>
 

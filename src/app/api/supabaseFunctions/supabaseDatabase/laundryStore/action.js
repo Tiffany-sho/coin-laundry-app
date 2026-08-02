@@ -8,6 +8,7 @@ import {
   attachPaymentMethods,
   reconcileStorePaymentMethods,
 } from "../paymentMethods/action";
+import { getMyStoreScope } from "../memberStores/action";
 import { PLAN_LIMITS } from "@/functions/plans";
 
 async function getMyOrgId(supabase, userId) {
@@ -63,7 +64,22 @@ function stableMachineIds(afterMachines, beforeMachines) {
   });
 }
 
-// cache() でリクエスト内の重複呼び出しを1回に集約する
+/**
+ * 自分が見てよい店舗の一覧。
+ *
+ * ⚠️ **ここが担当店舗（011）を強制する唯一の場所。**
+ *    集金（collectFunds）も在庫（laundryState）も、自前の `getOrgStoreIds()` から
+ *    この関数を呼んでいて、**合計 20 か所以上がここを通る。**
+ *    個々の関数に判定を撒くと必ず撒き漏らすので、入口で絞る。
+ *
+ * ⚠️ **`laundry_store` を直接引く経路を新しく作らないこと。**
+ *    作った時点でそこだけ担当店舗を素通りする。
+ *
+ * ⚠️ **admin は全店舗**（`storeIds === null`）。空配列とは意味が違うので
+ *    `storeIds?.length` のような書き方で判定しないこと。
+ *
+ * cache() でリクエスト内の重複呼び出しを1回に集約する。
+ */
 export const getStores = cache(async () => {
   const { user } = await getUser();
   if (!user) return { error: { msg: "ログインしてください", status: 401 } };
@@ -72,13 +88,24 @@ export const getStores = cache(async () => {
   const { orgId } = await getMyOrgId(supabase, user.id);
   if (!orgId) return { data: [] };
 
+  const scope = await getMyStoreScope();
+  /* ⚠️ 1 店舗も担当していない人には何も返さない（2026-08-03 の決定）。
+        「0 件なら全店舗」に倒さないこと。移行では既存メンバーに
+        現在の全店舗を配ってあるので、ここに来るのは新しく入った人。 */
+  if (scope.storeIds !== null && scope.storeIds.length === 0) return { data: [] };
+
   // 組織メンバーであることを確認後、RLSを迂回して取得（閲覧者も参照可能にする）
   const serviceSupabase = createServiceClient();
   try {
-    const { data, error } = await serviceSupabase
+    let query = serviceSupabase
       .from("laundry_store")
       .select("*")
       .eq("organization_id", orgId);
+
+    // ⚠️ 組織の条件は外さない。担当店舗が他組織の id を持っていても弾くため
+    if (scope.storeIds !== null) query = query.in("id", scope.storeIds);
+
+    const { data, error } = await query;
 
     if (error) return { error: { msg: "データの取得に失敗しました", status: 500 } };
     // ⚠️ 支払方法は店舗ごと（009）。一覧に貼って返すので、
@@ -96,6 +123,16 @@ export async function getStore(id) {
   const supabase = await createClient();
   const { orgId } = await getMyOrgId(supabase, user.id);
   if (!orgId) return { error: { msg: "組織が見つかりません", status: 403 } };
+
+  /*
+    ⚠️ **この関数は `getStores()` を通らない**ので、担当店舗の判定を自前で持つ。
+       ここを忘れると、一覧に出ない店舗でも **URL を直接叩けば開けてしまう**
+       （店舗詳細は /coinLaundry/{id} で id が推測できなくても共有されうる）。
+  */
+  const scope = await getMyStoreScope();
+  if (scope.storeIds !== null && !scope.storeIds.includes(id)) {
+    return { error: { msg: "この店舗を閲覧する権限がありません", status: 403 } };
+  }
 
   // 組織メンバーであることを確認後、RLSを迂回して取得（閲覧者も参照可能にする）
   const serviceSupabase = createServiceClient();
