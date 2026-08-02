@@ -51,6 +51,41 @@ const MoneyDataCard = ({ myRole }) => {
   */
   const perMachineMode = hasMachineCashless(selectedItem.fundsArray);
 
+  /**
+   * 合計入力モードで支払方法が 1 つも無い店舗か。
+   * ⚠️ **このときだけ従来の大きな入力欄を出す。** 内訳が現金しか無いのに
+   *    「集金額 ¥45,000 / 現金 ¥45,000」と同じ数字を 2 段で出しても意味が無い。
+   */
+  const cashOnly = cashless.length === 0 && (selectedItem.paymentMethods ?? []).length === 0;
+
+  /** 現金ぶんだけを保存する（合計入力モードの現金の行） */
+  const submitCash = async (amount) => {
+    try {
+      /* ⚠️ `cashless` を渡さない＝据え置き。サーバが既存の合計を足し戻す */
+      const result = await updateData([], amount, selectedItem.id);
+      if (result.error) throw new Error("編集に失敗しました");
+      if (result.changed === 0) throw new Error("この集金データを編集する権限がありません");
+
+      setCashFunds(amount);
+      setSelectedItem((item) => ({ ...item, totalFunds: amount + cashlessSum }));
+      setMsg("");
+      showToast(
+        "success",
+        `${selectedItem.laundryName}店(${createNowData(
+          selectedItem.date
+        )})の集金データを更新しました`
+      );
+    } catch (error) {
+      setMsg(error.message);
+      showToast(
+        "error",
+        `${selectedItem.laundryName}店(${createNowData(
+          selectedItem.date
+        )})の集金データの更新に失敗しました`
+      );
+    }
+  };
+
   /** キャッシュレスの内訳だけを保存する。⚠️ 現金ぶんは今の値をそのまま送る */
   const submitCashless = async (entries) => {
     try {
@@ -180,17 +215,32 @@ const MoneyDataCard = ({ myRole }) => {
         </Box>
       ) : (
         <>
+          {/*
+            ⚠️ **合計入力モードは 1 つの箱にまとめる。** 総額・現金・キャッシュレスを
+               別々の枠に分けていたときは、大きい数字が 2 つ並んで
+               **どれを直せばよいのか分からなかった。**
+               機種別モードは設備の表が主役なので、そちらは従来どおり 2 段に分ける。
+          */}
           {selectedItem.fundsArray?.length > 0 ? (
-            <MachineAndFundsList
-              moveCursorToEnd={moveCursorToEnd}
-              validateNumberInput={validateNumberInput}
-              cashFunds={cashFunds}
-              setCashFunds={setCashFunds}
-              displayTotal={displayTotal}
-              setMsg={setMsg}
-              readOnly={isViewer}
-            />
-          ) : (
+            <>
+              <MachineAndFundsList
+                moveCursorToEnd={moveCursorToEnd}
+                validateNumberInput={validateNumberInput}
+                cashFunds={cashFunds}
+                setCashFunds={setCashFunds}
+                displayTotal={displayTotal}
+                setMsg={setMsg}
+                readOnly={isViewer}
+              />
+              <CashlessList
+                recorded={cashless}
+                methods={selectedItem.paymentMethods}
+                perMachineMode={perMachineMode}
+                readOnly={isViewer}
+                onCommit={submitCashless}
+              />
+            </>
+          ) : cashOnly ? (
             <TotalFundsList
               moveCursorToEnd={moveCursorToEnd}
               validateNumberInput={validateNumberInput}
@@ -201,15 +251,17 @@ const MoneyDataCard = ({ myRole }) => {
               setMsg={setMsg}
               readOnly={isViewer}
             />
+          ) : (
+            <CashlessList
+              recorded={cashless}
+              methods={selectedItem.paymentMethods}
+              perMachineMode={perMachineMode}
+              readOnly={isViewer}
+              onCommit={submitCashless}
+              cashRow={{ amount: cashFunds, onCommit: submitCash }}
+              total={displayTotal}
+            />
           )}
-
-          <CashlessList
-            recorded={cashless}
-            methods={selectedItem.paymentMethods}
-            perMachineMode={perMachineMode}
-            readOnly={isViewer}
-            onCommit={submitCashless}
-          />
         </>
       )}
 

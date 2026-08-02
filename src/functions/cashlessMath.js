@@ -71,7 +71,12 @@ export function toCashlessPayload(values) {
  *    **金額を 0 に戻すことすらできず、消せない内訳が残る。**
  * ⚠️ 突き合わせは `methodId`。同じ名前の方法が別店舗にあり得るので名前では寄せない。
  *
- * @returns {{ id: string, name: string, amount: number, retired: boolean }[]}
+ * ⚠️ **`recorded` が false の行は「まだ使っていない方法」。** 常に並べると、現金だけの
+ *    集金でも支払方法の数だけ ¥0 が並んで**何を直せばよいか分からなくなる。**
+ *    画面側はこれを見て畳むこと。
+ *
+ * @returns {{ id: string, name: string, amount: number, retired: boolean,
+ *             recorded: boolean }[]}
  */
 export function buildMethodRows(recorded, storeMethods) {
   const rows = [];
@@ -88,6 +93,7 @@ export function buildMethodRows(recorded, storeMethods) {
       name: current?.name ?? entry?.name ?? "（削除された支払方法）",
       amount: Number(entry?.amount) || 0,
       retired: !current || current.isActive === false,
+      recorded: true,
     });
   }
 
@@ -96,7 +102,7 @@ export function buildMethodRows(recorded, storeMethods) {
     const id = String(method?.id ?? "");
     if (!id || seen.has(id) || method?.isActive === false) continue;
     seen.add(id);
-    rows.push({ id, name: method.name, amount: 0, retired: false });
+    rows.push({ id, name: method.name, amount: 0, retired: false, recorded: false });
   }
 
   return rows;

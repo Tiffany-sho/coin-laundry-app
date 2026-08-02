@@ -154,3 +154,36 @@ describe("buildMethodRows", () => {
     expect(buildMethodRows([], [])).toEqual([]);
   });
 });
+
+describe("buildMethodRows の recorded（画面で畳むための目印）", () => {
+  const methods = [
+    { id: "pp", name: "PayPay", isActive: true },
+    { id: "ic", name: "交通系IC", isActive: true },
+  ];
+
+  it("記録済みは recorded: true、未使用は false", () => {
+    const rows = buildMethodRows([{ methodId: "pp", name: "PayPay", amount: 1200 }], methods);
+    expect(rows.map((r) => [r.id, r.recorded])).toEqual([
+      ["pp", true],
+      ["ic", false],
+    ]);
+  });
+
+  /*
+    ⚠️ 常に並べると、現金だけの集金でも支払方法の数だけ ¥0 が並んで
+       どれを直せばよいのか分からなくなる。畳めることを保証する。
+  */
+  it("現金だけの集金では、出す行が 0 件になる", () => {
+    const rows = buildMethodRows([], methods);
+    expect(rows.filter((r) => r.recorded)).toEqual([]);
+    expect(rows.filter((r) => !r.recorded)).toHaveLength(2);
+  });
+
+  it("使用停止でも記録済みなら recorded: true（畳まれない）", () => {
+    const rows = buildMethodRows(
+      [{ methodId: "pp", name: "PayPay", amount: 1200 }],
+      [{ id: "pp", name: "PayPay", isActive: false }]
+    );
+    expect(rows[0]).toMatchObject({ recorded: true, retired: true });
+  });
+});
