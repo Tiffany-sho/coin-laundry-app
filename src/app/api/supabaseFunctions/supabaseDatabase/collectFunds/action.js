@@ -133,6 +133,67 @@ async function normalizeCashless(input, laundryId) {
 }
 
 /**
+ * `fundsArray` を検算して正規化する。**機器ごとのキャッシュレスもここで畳む。**
+ *
+ * 形: `[{ id, name, funds, cashless?: [{ methodId, name, amount }] }]`
+ *
+ * ⚠️ **集金レコードの `cashless`（列）は「その集金の合計」で不変。**
+ *    機器ごとに分けても、月別売上・書き出し・支払方法別の集計はすべて
+ *    列のほうを見ている。**ここで必ず合計を組み直すこと。**
+ *    片方だけ更新すると、`totalFunds` と内訳が食い違って静かに壊れる。
+ *
+ * ⚠️ **クライアントが送る集金レベルの `cashless` は使わない。**
+ *    機器ごとの入力があるときにそれも足すと**二重計上**になる。
+ *
+ * @returns {{ error?: string, entries?: object[], merged?: object[], sum?: number,
+ *             hasMachineCashless?: boolean }}
+ */
+async function normalizeFundsArray(input, laundryId) {
+  const rows = Array.isArray(input) ? input : [];
+  if (rows.length === 0) {
+    return { entries: [], merged: [], sum: 0, hasMachineCashless: false };
+  }
+
+  const entries = [];
+  /** methodId → { methodId, name, amount }。機器をまたいで足し合わせる */
+  const merged = new Map();
+  let sum = 0;
+  let hasMachineCashless = false;
+
+  for (const raw of rows) {
+    const entry = {
+      id: raw?.id,
+      name: raw?.name,
+      funds: raw?.funds ?? 0,
+    };
+
+    /*
+      ⚠️ **`cashless` が undefined＝「この機器には入力が無い」。**
+         キー自体を落として保存する（空配列を入れると、あとから
+         「入力したが 0 円」と区別できなくなる）。
+    */
+    if (raw?.cashless !== undefined) {
+      hasMachineCashless = true;
+      const result = await normalizeCashless(raw.cashless, laundryId);
+      if (result.error) return { error: result.error };
+      if (result.entries.length > 0) {
+        entry.cashless = result.entries;
+        for (const item of result.entries) {
+          const current = merged.get(item.methodId);
+          if (current) current.amount += item.amount;
+          else merged.set(item.methodId, { ...item });
+        }
+        sum += result.sum;
+      }
+    }
+
+    entries.push(entry);
+  }
+
+  return { entries, merged: [...merged.values()], sum, hasMachineCashless };
+}
+
+/**
  * 機器ごとの売上内訳（店舗別ページの「機器別」タブ）。
  *
  * ⚠️ **生レコードを返さない。** fundsArray は台数ぶんの jsonb なので、5 年ぶんを
@@ -207,6 +268,8 @@ export async function getStoreMachineBreakdown(id, startEpoch, endEpoch) {
 
   let totalModeAmount = 0;
   let cashlessAmount = 0;
+  /** 機器ごとに入力されたぶん。⚠️ これは機器の側に計上済みなので二重に数えない */
+  let attributedCashless = 0;
   let machinesTotal = 0;
   let grandTotal = 0;
 
@@ -242,7 +305,23 @@ export async function getStoreMachineBreakdown(id, startEpoch, endEpoch) {
         byMachine.set(key, current);
       }
       // ⚠️ funds は硬貨の枚数。金額にするには × 100
-      const value = (entry?.funds ?? 0) * COIN_VALUE;
+      let value = (entry?.funds ?? 0) * COIN_VALUE;
+
+      /*
+        ⚠️ **機器ごとのキャッシュレスはその機器に足す。** 足さないと
+           `unattributed.cashless` へ丸ごと落ちて「機器ごとに入力したのに
+           内訳なしに入る」ことになる。
+        ⚠️ **単位は「円」。** 上の funds は枚数なので × 100 しない。
+        ⚠️ その分だけ `attributedCashless` を増やしておくこと。増やさないと
+           **同じ金額を機器と unattributed の両方で数える**（不変条件が崩れる）。
+      */
+      const rows = Array.isArray(entry?.cashless) ? entry.cashless : [];
+      for (const item of rows) {
+        const amount = Number(item?.amount) || 0;
+        value += amount;
+        attributedCashless += amount;
+      }
+
       current.total += value;
       machinesTotal += value;
     }
@@ -261,7 +340,14 @@ export async function getStoreMachineBreakdown(id, startEpoch, endEpoch) {
    * これを捨てると **「機器別の合計が総額収益カードと違う」** という形でしか
    * 気づけない（しかも原因が分からない）。0 のときは画面に出さない。
    */
-  const other = grandTotal - machinesTotal - totalModeAmount - cashlessAmount;
+  /**
+   * ⚠️ **機器に割り振れなかったキャッシュレスだけを残す。**
+   *    `cashlessAmount` は集金レコードの列（その集金の合計）で、そこには
+   *    機器ごとに入力したぶんも含まれている。引かないと**同じ金額を
+   *    機器と unattributed の両方で数えて**不変条件が崩れる。
+   */
+  const unattributedCashless = cashlessAmount - attributedCashless;
+  const other = grandTotal - machinesTotal - totalModeAmount - unattributedCashless;
 
   return {
     data: {
@@ -269,8 +355,8 @@ export async function getStoreMachineBreakdown(id, startEpoch, endEpoch) {
       unattributed: {
         /** 合計入力モードで登録されたぶん（キャッシュレスを除いた現金ぶん） */
         totalMode: totalModeAmount,
-        /** キャッシュレス決済。機器に紐づけようがない */
-        cashless: cashlessAmount,
+        /** 機器に紐づけようがないキャッシュレス（合計入力ぶん・機器ごとに入れなかったぶん） */
+        cashless: unattributedCashless,
         /**
          * どれにも当てはまらない残り。
          * ⚠️ 負になり得る（fundsArray の和が totalFunds を上回る古い行）。丸めないこと。
@@ -414,8 +500,17 @@ export async function createData(formData) {
     return { error: "指定された店舗へのアクセス権限がありません" };
   }
 
-  // ⚠️ 支払方法は店舗ごと（009）。組織ではなく storeId で絞る
-  const cashless = await normalizeCashless(formData.cashless, formData.storeId);
+  /*
+    ⚠️ 支払方法は店舗ごと（009）。組織ではなく storeId で絞る。
+    ⚠️ **機器ごとの入力があるときは、集金レベルの `cashless` を使わない。**
+       両方足すと二重計上になる。機種別入力では機器の側が正。
+  */
+  const funds = await normalizeFundsArray(formData.fundsArray, formData.storeId);
+  if (funds.error) return { error: funds.error };
+
+  const cashless = funds.hasMachineCashless
+    ? { entries: funds.merged, sum: funds.sum }
+    : await normalizeCashless(formData.cashless, formData.storeId);
   if (cashless.error) return { error: cashless.error };
 
   const serviceSupabase = createServiceClient();
@@ -424,9 +519,10 @@ export async function createData(formData) {
     laundryId: formData.storeId,
     laundryName: formData.store,
     date: formData.date,
-    fundsArray: formData.fundsArray,
+    fundsArray: funds.entries,
     // ⚠️ 現金ぶん + キャッシュレス。クライアントの値をそのまま入れない
     totalFunds: (formData.totalFunds ?? 0) + cashless.sum,
+    // ⚠️ 機器ごとに分けても、列はその集金の**合計**を持つ（集計は全部こちらを見る）
     cashless: cashless.entries,
     collecter: user.id,
   };
@@ -490,7 +586,7 @@ export async function updateData(fundsArray, totalFunds, id, cashlessInput) {
 
   const { data: target } = await serviceSupabase
     .from("collect_funds")
-    .select("laundryId, cashless")
+    .select("laundryId, cashless, fundsArray")
     .eq("id", id)
     .single();
 
@@ -498,9 +594,44 @@ export async function updateData(fundsArray, totalFunds, id, cashlessInput) {
     return { error: { msg: "アクセス権限がありません", status: 403 } };
   }
 
-  const patch = { fundsArray };
+  /*
+    ⚠️ **機器ごとのキャッシュレスを、知らないクライアントに消させない。**
+       Web の編集画面（MachineAndFundsList.jsx）は `{ id, name, funds }` しか
+       送ってこないので、そのまま保存すると**機器ごとの内訳だけが静かに消える**
+       （`updateStockState` と同じ「送らなかった項目が既定値で潰される」罠）。
+       `cashless` のキーが無い行は、既存の行から id → 名前の順で引き継ぐ。
+       ⚠️ **空配列は「消す」の意味なので引き継がない。**
+  */
+  const before = Array.isArray(target.fundsArray) ? target.fundsArray : [];
+  const beforeById = new Map();
+  const beforeByName = new Map();
+  for (const row of before) {
+    if (!Array.isArray(row?.cashless) || row.cashless.length === 0) continue;
+    if (row?.id != null) beforeById.set(String(row.id), row.cashless);
+    const name = String(row?.name ?? "").trim();
+    if (name && !beforeByName.has(name)) beforeByName.set(name, row.cashless);
+  }
 
-  if (cashlessInput === undefined) {
+  const restored = (Array.isArray(fundsArray) ? fundsArray : []).map((row) => {
+    if (row?.cashless !== undefined) return row;
+    const kept =
+      beforeById.get(String(row?.id)) ?? beforeByName.get(String(row?.name ?? "").trim());
+    return kept ? { ...row, cashless: kept } : row;
+  });
+
+  const funds = await normalizeFundsArray(restored, target.laundryId);
+  if (funds.error) return { error: { msg: funds.error, status: 400 } };
+
+  const patch = { fundsArray: funds.entries };
+
+  if (funds.hasMachineCashless) {
+    /*
+      ⚠️ 機器ごとの入力があるときは、そちらから集金レベルの合計を組み直す。
+         ⚠️ **`cashlessInput` は無視する。** 両方を足すと二重計上になる。
+    */
+    patch.cashless = funds.merged;
+    patch.totalFunds = (totalFunds ?? 0) + funds.sum;
+  } else if (cashlessInput === undefined) {
     // 既存の内訳を据え置き、その合計だけ総額に足し戻す
     const existing = Array.isArray(target.cashless) ? target.cashless : [];
     const sum = existing.reduce((acc, e) => acc + (Number(e?.amount) || 0), 0);
