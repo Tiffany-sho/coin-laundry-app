@@ -48,3 +48,27 @@ export function filterByCollecter(rows, collecterId) {
   if (!collecterId) return rows ?? [];
   return (rows ?? []).filter((row) => row?.collecter === collecterId);
 }
+
+/**
+ * 売上履歴の並び替えの軸。⚠️ **アプリの `HistoryControls.tsx` と同じ 2 つに揃えること。**
+ *
+ * `defaultAsc` はその軸に切り替えた直後の向き。
+ * ⚠️ `upOrder`（Web）と `direction === "asc"`（アプリ）は同じ意味。
+ */
+export const SORT_AXES = [
+  { value: "date", label: "集金日", hint: { desc: "新しい順", asc: "古い順" }, defaultAsc: false },
+  { value: "totalFunds", label: "売上", hint: { desc: "高い順", asc: "低い順" }, defaultAsc: false },
+];
+
+/**
+ * 軸を押したときの次の並び順。
+ *
+ * ⚠️ **効いている軸をもう一度押したら「反転」、別の軸なら「既定の向き」。**
+ *    どちらも既定に戻すと、日付の古い順を見ている途中で売上に切り替えて戻したときに
+ *    向きが黙って変わる。アプリの `SortControls` と同じ規則にしてある。
+ */
+export function nextSort({ orderAmount, upOrder }, axisValue) {
+  if (axisValue === orderAmount) return { orderAmount, upOrder: !upOrder };
+  const axis = SORT_AXES.find((a) => a.value === axisValue);
+  return { orderAmount: axisValue, upOrder: axis ? axis.defaultAsc : false };
+}

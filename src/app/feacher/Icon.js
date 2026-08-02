@@ -56,6 +56,8 @@ import {
   LuCalendarDays,
   LuSmartphone,
   LuArrowRight,
+  LuArrowUp,
+  LuArrowDown,
 } from "react-icons/lu";
 
 import { MdOutlineLocalLaundryService } from "react-icons/md";
@@ -131,4 +133,6 @@ export {
   LuCalendarDays,
   LuSmartphone,
   LuArrowRight,
+  LuArrowUp,
+  LuArrowDown,
 };
