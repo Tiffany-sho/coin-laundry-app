@@ -457,9 +457,14 @@ export async function getFundItemById(id) {
    *    削除しました」）に使う。**削除後には引けないので、消す前にここで取る。**
    *    追加しただけなので既存の呼び出し（明細の遅延取得）には影響しない。
    */
+  /*
+    ⚠️ **`cashless` と `laundryId` も返す。** これが無いと、アプリの詳細画面が
+       キャッシュレスの内訳を**表示も編集もできない**（金額が「現金ぶんしか
+       無い」ように見える）。`laundryId` はその店舗の支払方法を引くのに要る。
+  */
   const { data, error } = await supabase
     .from("collect_funds")
-    .select("fundsArray, laundryName")
+    .select("fundsArray, laundryName, laundryId, totalFunds, cashless")
     .eq("id", id)
     .in("laundryId", storeIds)
     .single();
