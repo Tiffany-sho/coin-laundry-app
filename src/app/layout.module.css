@@ -3,11 +3,31 @@
   flex-direction: column;
   min-height: 100vh;
   background-color: var(--app-bg, #F0F9FF);
-   -webkit-user-select: none; 
-  -moz-user-select: none;  
-  -ms-user-select: none;   
-  user-select: none;      
+   -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  /*
+    ⚠️ **`hidden` にしないこと。`clip` でなければならない。**
+
+    CSS の仕様上、`overflow-x: hidden` は `overflow-y: visible` を **`auto` に
+    計算し直す**。つまりこの要素が**スクロールコンテナになる**。そうなると
+    内側の `position: fixed` / `sticky` がビューポートではなくこのコンテナ基準で
+    解決され、次の 2 つが同時に壊れる。
+
+      - ボトムナビ（`position: fixed; bottom: 0`）が画面の途中で止まる
+        （下までスクロールすると真ん中あたりに居座る）
+      - トップナビ（`position: sticky; top: 0`）が追従しない
+        （CLAUDE.md「`position: sticky` と `overflow: hidden` の競合」）
+
+    `clip` は**もう一方の軸を `auto` にしない**ので、横のはみ出しだけを
+    今までどおり切り落としつつ、スクロールコンテナを作らない。
+
+    ⚠️ 2 行あるのは意図的。`clip` を知らない古いブラウザ（Safari 15 以前）は
+       下の行を捨てて `hidden` のまま動く。横の切り落としだけは効かせておく。
+  */
   overflow-x: hidden;
+  overflow-x: clip;
 }
 
 .mainContent {
