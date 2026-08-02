@@ -1,5 +1,6 @@
 import { Box, VStack, Heading, Text, Table, HStack } from "@chakra-ui/react";
 import LegalBackLink from "@/app/feacher/partials/LegalBackLink";
+import { paidPriceLines } from "@/functions/planFeatures";
 
 export const metadata = {
   title: "特定商取引法に基づく表記 | Collecie",
@@ -13,9 +14,10 @@ const rows = [
   { label: "サービス名", value: "Collecie（コインランドリー集金管理サービス）" },
   {
     label: "販売価格",
-    /* ⚠️ **全プランを漏れなく載せる**（掲示義務）。プランを足したらここも足すこと */
-    value:
-      "Proプラン：¥800/月（税込）\nPro+プラン：¥1,500/月（税込）\nMaxプラン：¥3,000/月（税込）",
+    /* ⚠️ **全プランを漏れなく載せる**（掲示義務）。手書きすると足し忘れるので
+          planFeatures.js の有料プラン一覧から出す。プランを増やすときは
+          PLAN_PRICES に足せばここにも出る */
+    value: paidPriceLines().join("\n"),
   },
   { label: "支払い方法", value: "クレジットカード（Visa / Mastercard / American Express 等）" },
   { label: "支払い時期", value: "ご契約月より毎月自動引き落とし" },

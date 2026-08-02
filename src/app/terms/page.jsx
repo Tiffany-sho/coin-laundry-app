@@ -1,5 +1,6 @@
 import { Box, VStack, Heading, Text, List, HStack } from "@chakra-ui/react";
 import LegalBackLink from "@/app/feacher/partials/LegalBackLink";
+import { paidPriceLines } from "@/functions/planFeatures";
 
 export const metadata = {
   title: "利用規約 | Collecie",
@@ -91,11 +92,14 @@ export default function TermsPage() {
             </Section>
 
             <Section number="5" title="料金・支払い">
-              <P>有料プランの料金は以下のとおりです（税込）。</P>
+              <P>有料プランの料金は以下のとおりです。</P>
+              {/* ⚠️ **有料プランを漏れなく載せる。** 手書きすると、プランを足したときに
+                     規約だけ古い一覧のまま残る（実際 2026-08-03 まで別の画面で
+                     Pro+ が抜けていた）。planFeatures.js から回して出す */}
               <VStack align="stretch" gap={1} mb={2}>
-                <Li>Proプラン：¥800/月</Li>
-                <Li>Pro+プラン：¥1,500/月</Li>
-                <Li>Maxプラン：¥3,000/月</Li>
+                {paidPriceLines().map((line) => (
+                  <Li key={line}>{line}</Li>
+                ))}
               </VStack>
               <P>支払いはクレジットカードによる月次自動引き落としです。料金は毎月の契約更新日に請求されます。</P>
             </Section>

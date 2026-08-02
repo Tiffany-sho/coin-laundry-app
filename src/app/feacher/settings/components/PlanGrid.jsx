@@ -3,45 +3,33 @@
 import { useState } from "react";
 import { Box, VStack, HStack, Text, Button, Badge, Heading, Card } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
-import { PLAN_RANK } from "@/functions/plans";
+import { PLAN_NAMES, PLAN_RANK } from "@/functions/plans";
+import {
+  PLAN_ORDER,
+  planFeatureList,
+  priceLabel,
+  storeLimitLabel,
+  trialLabel,
+} from "@/functions/planFeatures";
 
-const PLANS = [
-  {
-    key: "free",
-    name: "Free",
-    price: "¥0",
-    storeLimit: "3店舗",
-    features: ["集金記録", "在庫管理", "データ可視化"],
-    trial: null,
-  },
-  {
-    key: "pro",
-    name: "Pro",
-    price: "¥800",
-    storeLimit: "5店舗",
-    features: ["集金記録", "在庫管理", "データ可視化", "メンバー管理"],
-    trial: "6か月無料トライアル",
-  },
-  {
-    key: "proplus",
-    name: "Pro+",
-    price: "¥1,500",
-    storeLimit: "10店舗",
-    features: ["集金記録", "在庫管理", "データ可視化", "メンバー管理"],
-    /* ⚠️ トライアルは Pro だけ（2026-08-03 の決定）。Apple の導入オファーは
-          購読グループ単位で 1 回しか使えないので、両方に付けても
-          Pro で試した人は Pro+ で受けられず、表示と実際が食い違う */
-    trial: null,
-  },
-  {
-    key: "max",
-    name: "Max",
-    price: "¥3,000",
-    storeLimit: "無制限",
-    features: ["集金記録", "在庫管理", "データ可視化", "メンバー管理", "優先サポート"],
-    trial: null,
-  },
-];
+/*
+  ⚠️ **機能一覧をここに手書きしないこと。** 2026-08-03 まで直書きしていて、
+     実際の制限と 2 か所ずれていた:
+       - Max にだけ「優先サポート」。**提供の裏付けが無い**うえ LP の料金表には
+         無いので、2 つの表が矛盾していた
+       - 実在する有料機能の「CSV/Excelエクスポート」が無く、Free と Pro の差が
+         店舗数だけに見えていた
+     いまは planFeatures.js が正で、上限の表（PLAN_LIMITS / PLAN_MEMBER_LIMITS）から
+     導いている。
+*/
+const PLANS = PLAN_ORDER.map((key) => ({
+  key,
+  name: PLAN_NAMES[key],
+  price: priceLabel(key),
+  storeLimit: storeLimitLabel(key),
+  features: planFeatureList(key),
+  trial: trialLabel(key),
+}));
 
 export default function PlanGrid({ currentPlan, stripeCustomerId }) {
   const [loadingPlan, setLoadingPlan] = useState(null);

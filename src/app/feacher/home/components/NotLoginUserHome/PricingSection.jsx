@@ -1,6 +1,14 @@
 import { Box, Container, Flex, Heading, Text, VStack } from "@chakra-ui/react";
 import Link from "next/link";
 import * as Icon from "@/app/feacher/Icon";
+import { PLAN_NAMES } from "@/functions/plans";
+import {
+  PLAN_ORDER,
+  TRIAL_PERIOD_LABEL,
+  planRows,
+  priceLabel,
+  trialLabel,
+} from "@/functions/planFeatures";
 
 const checkMark = (ok) =>
   ok ? (
@@ -13,80 +21,32 @@ const checkMark = (ok) =>
     </Box>
   );
 
-const plans = [
-  {
-    name: "Free",
-    price: "¥0",
-    period: "/月　ずっと無料",
-    cta: "無料で始める",
+/*
+  ⚠️ **比較表を手書きしないこと。** 2026-08-03 まで 4 プランぶんを直書きしていて、
+     Pro のメンバー招待にだけ「無制限」が付いておらず、**Pro だけ人数制限が
+     あるように読めた**（実際は PLAN_MEMBER_LIMITS が Pro 以上すべて Infinity）。
+     行の内容は planFeatures.js が正で、実際に制限している表から導いている。
+*/
+const plans = PLAN_ORDER.map((key) => {
+  const trial = trialLabel(key);
+  const isFree = key === "free";
+  return {
+    name: PLAN_NAMES[key],
+    price: priceLabel(key),
+    period: isFree ? "/月　ずっと無料" : "/月（税込）",
+    /* 無料期間が付くプランを推す。トライアルの置き場所が変わっても追随する */
+    badge: trial ? "おすすめ" : undefined,
+    trial,
+    cta: isFree
+      ? "無料で始める"
+      : trial
+        ? `${TRIAL_PERIOD_LABEL}無料で試す`
+        : "今すぐ始める",
     ctaHref: "/auth/login",
-    featured: false,
-    rows: [
-      { label: "店舗数", value: "3店舗まで", ok: true },
-      { label: "集金記録", value: "", ok: true },
-      { label: "在庫管理", value: "", ok: true },
-      { label: "機器状態管理", value: "", ok: true },
-      { label: "売上グラフ", value: "", ok: true },
-      { label: "CSV/Excelエクスポート", value: "", ok: false },
-      { label: "チームメンバー招待", value: "", ok: false },
-    ],
-  },
-  {
-    name: "Pro",
-    price: "¥800",
-    period: "/月（税込）",
-    badge: "おすすめ",
-    trial: "6か月無料トライアル",
-    cta: "6か月無料で試す",
-    ctaHref: "/auth/login",
-    featured: true,
-    rows: [
-      { label: "店舗数", value: "5店舗まで", ok: true },
-      { label: "集金記録", value: "", ok: true },
-      { label: "在庫管理", value: "", ok: true },
-      { label: "機器状態管理", value: "", ok: true },
-      { label: "売上グラフ", value: "", ok: true },
-      { label: "CSV/Excelエクスポート", value: "", ok: true },
-      { label: "チームメンバー招待", value: "", ok: true },
-    ],
-  },
-  {
-    name: "Pro+",
-    price: "¥1,500",
-    period: "/月（税込）",
-    /* ⚠️ トライアルは Pro だけ。Apple の導入オファーは購読グループ単位で
-          1 回しか使えないので、Pro で試した人は Pro+ では受けられない */
-    cta: "今すぐ始める",
-    ctaHref: "/auth/login",
-    featured: false,
-    rows: [
-      { label: "店舗数", value: "10店舗まで", ok: true },
-      { label: "集金記録", value: "", ok: true },
-      { label: "在庫管理", value: "", ok: true },
-      { label: "機器状態管理", value: "", ok: true },
-      { label: "売上グラフ", value: "", ok: true },
-      { label: "CSV/Excelエクスポート", value: "", ok: true },
-      { label: "チームメンバー招待", value: "無制限", ok: true },
-    ],
-  },
-  {
-    name: "Max",
-    price: "¥3,000",
-    period: "/月（税込）",
-    cta: "今すぐ始める",
-    ctaHref: "/auth/login",
-    featured: false,
-    rows: [
-      { label: "店舗数", value: "無制限", ok: true },
-      { label: "集金記録", value: "", ok: true },
-      { label: "在庫管理", value: "", ok: true },
-      { label: "機器状態管理", value: "", ok: true },
-      { label: "売上グラフ", value: "", ok: true },
-      { label: "CSV/Excelエクスポート", value: "", ok: true },
-      { label: "チームメンバー招待", value: "無制限", ok: true },
-    ],
-  },
-];
+    featured: Boolean(trial),
+    rows: planRows(key),
+  };
+});
 
 const PlanCard = ({ plan }) => {
   const { name, price, period, badge, trial, cta, ctaHref, featured, rows } = plan;
@@ -267,7 +227,7 @@ const PricingSection = () => {
 
           {/* 補足 */}
           <Text fontSize="sm" color="var(--text-muted)" textAlign="center">
-            Proプランは6か月無料トライアル付き。じっくりお試しいただけます。
+            Proプランは{TRIAL_PERIOD_LABEL}無料トライアル付き。じっくりお試しいただけます。
           </Text>
         </VStack>
       </Container>

@@ -7,6 +7,8 @@ import WelcomeHome from "./feacher/home/components/WelcomeHome/WelcomeHome";
 import JoinOrganizationHome from "./feacher/home/components/JoinOrganizationHome/JoinOrganizationHome";
 import { getUser } from "./api/supabaseFunctions/supabaseDatabase/user/action";
 import { getMyOrganization } from "./api/supabaseFunctions/supabaseDatabase/organization/action";
+import { PLAN_NAMES } from "@/functions/plans";
+import { PLAN_ORDER, PLAN_PRICES, planSummary } from "@/functions/planFeatures";
 
 export const dynamic = "force-dynamic";
 
@@ -30,36 +32,18 @@ const jsonLd = {
   operatingSystem: "Web",
   url: "https://www.collecie.com",
   inLanguage: "ja",
-  offers: [
-    {
-      "@type": "Offer",
-      name: "Free",
-      price: "0",
-      priceCurrency: "JPY",
-      description: "3店舗まで永久無料",
-    },
-    {
-      "@type": "Offer",
-      name: "Pro",
-      price: "800",
-      priceCurrency: "JPY",
-      description: "5店舗まで・CSV/Excelエクスポート・チームメンバー招待",
-    },
-    {
-      "@type": "Offer",
-      name: "Pro+",
-      price: "1500",
-      priceCurrency: "JPY",
-      description: "10店舗まで・CSV/Excelエクスポート・チームメンバー招待",
-    },
-    {
-      "@type": "Offer",
-      name: "Max",
-      price: "3000",
-      priceCurrency: "JPY",
-      description: "無制限店舗・全機能・メンバー無制限",
-    },
-  ],
+  /*
+    ⚠️ **手書きしないこと。** 2026-08-03 まで 4 件を直書きしていて、Pro / Pro+ だけ
+       中身を列挙し Max は「全機能」で済ませていたため、料金表と食い違っていた。
+       検索結果に出る内容なので、実際の制限から導いておく。
+  */
+  offers: PLAN_ORDER.map((plan) => ({
+    "@type": "Offer",
+    name: PLAN_NAMES[plan],
+    price: String(PLAN_PRICES[plan]),
+    priceCurrency: "JPY",
+    description: planSummary(plan),
+  })),
   featureList: [
     "集金記録・売上管理",
     "在庫管理（洗剤・柔軟剤）",

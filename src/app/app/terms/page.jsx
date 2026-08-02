@@ -1,4 +1,5 @@
 import { Box, VStack, Heading, Text } from "@chakra-ui/react";
+import { paidPlanNames } from "@/functions/planFeatures";
 
 export const metadata = {
   title: "利用規約 | Collecie",
@@ -27,7 +28,8 @@ export const metadata = {
  * ⚠️ **価格を数字で書かないこと。** 表示してよいのは StoreKit が返す displayPrice だけ
  *    （地域・為替・価格改定でずれると Guideline 3.1.2 に触れる）。この条文が
  *    「App Store の購入画面に表示される金額」という書き方をしているのはそのため。
- *    Web 版にある ¥780 / ¥2,980 をここへ持ち込まない。
+ *    Web 版にある ¥800 / ¥1,500 / ¥3,000（PLAN_PRICES）をここへ持ち込まない。
+ *    ⚠️ **プラン名は別。** 何を売っているかは開示する必要があるので paidPlanNames() で出す。
  *
  * ⚠️ ナビ・フッターは appLegalPaths.js に載せて非表示にしている。
  *    ここから Web アプリ本体へ辿れるとプラン画面に到達できてしまう。
@@ -86,8 +88,12 @@ export default function AppTermsPage() {
               <P>
                 本サービスは、コインランドリーの集金業務・店舗管理・データ可視化を支援するアプリケーションです。
               </P>
+              {/* ⚠️ **有料プラン名を手書きしないこと。** 2026-08-03 まで「Pro・Max」と
+                     書いてあり Pro+ が抜けていた。App Store に並ぶ商品は 3 つなので、
+                     審査で「規約に無いものを売っている」状態になる */}
               <P>
-                本サービスには無料プランと有料プラン（Pro・Max）があります。本アプリ内での有料プランのお申し込みは、App
+                本サービスには無料プランと有料プラン（{paidPlanNames()}
+                ）があります。本アプリ内での有料プランのお申し込みは、App
                 Storeを通じた自動更新サブスクリプションとして提供します。
               </P>
             </Section>
