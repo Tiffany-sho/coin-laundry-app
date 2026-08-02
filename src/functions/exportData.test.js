@@ -392,5 +392,41 @@ describe("groupRecords", () => {
   it("空データなら空配列", () => {
     expect(groupRecords([], "store")).toEqual([]);
     expect(groupRecords([], "period")).toEqual([]);
+    // ⚠️ "none" も空配列。1 件も無いのにヘッダーだけのシートを作らない
+    expect(groupRecords([], "none")).toEqual([]);
+  });
+
+  // ---- "none"（分けない）----
+
+  it("'none' は月も店舗もまたいで 1 グループにまとめる", () => {
+    const groups = groupRecords(data, "none");
+    expect(groups).toHaveLength(1);
+    expect(groups[0].records).toHaveLength(3);
+  });
+
+  it("'none' で全部同じ店舗ならシート名に店舗名を出す", () => {
+    const single = [
+      record({ y: 2026, m: 7, d: 1, store: "本町", total: 100 }),
+      record({ y: 2026, m: 8, d: 1, store: "本町", total: 200 }),
+    ];
+    expect(groupRecords(single, "none")[0].label).toBe("本町店");
+  });
+
+  it("'none' で店舗が混ざっていれば汎用のシート名にする", () => {
+    expect(groupRecords(data, "none")[0].label).toBe("集金データ");
+  });
+
+  /*
+    ⚠️ **1 店舗ぶんを 'store' で代用しない。** グループは laundryName で作るので、
+       改名をまたいだデータがあると 1 店舗なのに 2 シートに割れる。
+  */
+  it("⚠️ 改名をまたいでも 'none' なら 1 シートのまま（'store' は 2 つに割れる）", () => {
+    const renamed = [
+      record({ y: 2026, m: 7, d: 1, store: "本町", total: 100 }),
+      record({ y: 2026, m: 8, d: 1, store: "本町中央", total: 200 }),
+    ];
+    expect(groupRecords(renamed, "store")).toHaveLength(2);
+    expect(groupRecords(renamed, "none")).toHaveLength(1);
+    expect(groupRecords(renamed, "none")[0].label).toBe("集金データ");
   });
 });

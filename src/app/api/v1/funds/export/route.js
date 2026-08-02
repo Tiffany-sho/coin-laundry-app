@@ -22,6 +22,14 @@ const MAX_BASE64_LENGTH = 3_500_000;
 const FORMATS = new Set(["csv", "xlsx"]);
 
 /**
+ * Excel のシートの分け方。
+ * ⚠️ **`"none"` は「1 シートにまとめる」。** 店舗別の収益ページからの書き出しが使う。
+ *    ⚠️ 1 店舗ぶんを `"store"` で代用しないこと（改名した店舗は 2 シートに割れる。
+ *    理由は `groupRecords` のコメント）。
+ */
+const SPLITS = new Set(["period", "store", "none"]);
+
+/**
  * 集金データのエクスポート（CSV / Excel）。
  *
  * Web は `/api/export/collect-csv`（行を JSON で返してブラウザで CSV を組む）と
@@ -58,7 +66,9 @@ export const POST = withAuth(async (request) => {
   if (!FORMATS.has(format)) {
     return { error: "ファイル形式の指定が不正です", status: 400 };
   }
-  const splitMethod = body?.splitMethod === "store" ? "store" : "period";
+  /* ⚠️ 知らない値は "period" に倒す。エラーにすると、古いアプリが新しい値を
+        送ってきたときに書き出しごと失敗する（分け方は本質ではない） */
+  const splitMethod = SPLITS.has(body?.splitMethod) ? body.splitMethod : "period";
 
   const startEpoch = body?.startEpoch ?? null;
   const endEpoch = body?.endEpoch ?? null;

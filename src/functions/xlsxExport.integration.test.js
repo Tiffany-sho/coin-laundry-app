@@ -62,7 +62,7 @@ function readSheetNames(buffer) {
   return [];
 }
 
-describe.each(["period", "store"])("buildSheets → write-excel-file (%s)", (splitMethod) => {
+describe.each(["period", "store", "none"])("buildSheets → write-excel-file (%s)", (splitMethod) => {
   it("厄介な店舗名でも例外なく .xlsx を生成できる", async () => {
     const sheets = buildSheets(nastyRecords, { splitMethod });
     const buffer = await writeXlsxFile(sheets).toBuffer();
@@ -111,5 +111,38 @@ describe("buildSheets → write-excel-file (通常データ)", () => {
     const sheets = buildSheets(records, { splitMethod: "store" });
     const buffer = await writeXlsxFile(sheets).toBuffer();
     expect(readSheetNames(buffer)).toEqual(["駅前店", "本町店"]);
+  });
+
+  // ---- "none"（店舗別の収益ページからの書き出し）----
+
+  it("'none' は月も店舗もまたいで1シートのブックになる", async () => {
+    const sheets = buildSheets(records, { splitMethod: "none" });
+    const buffer = await writeXlsxFile(sheets).toBuffer();
+    expect(readSheetNames(buffer)).toEqual(["集金データ"]);
+    // ヘッダー 1 行 + データ 2 行が同じシートに並ぶ
+    expect(sheets).toHaveLength(1);
+    expect(sheets[0].data).toHaveLength(3);
+  });
+
+  it("'none' で 1 店舗ぶんならシート名が店舗名になる", async () => {
+    const single = records.map((r) => ({ ...r, laundryName: "本町" }));
+    const buffer = await writeXlsxFile(buildSheets(single, { splitMethod: "none" })).toBuffer();
+    expect(readSheetNames(buffer)).toEqual(["本町店"]);
+  });
+
+  /*
+    ⚠️ **1 店舗ぶんを "store" で代用しない。** 改名をまたいだ集金があると
+       laundryName が 2 種類になり、1 店舗なのに 2 シートに割れる。
+  */
+  it("⚠️ 改名をまたいでも 'none' なら 1 シート（'store' は 2 シートに割れる）", async () => {
+    const renamed = [
+      { ...records[0], laundryName: "本町" },
+      { ...records[1], laundryName: "本町中央" },
+    ];
+    const byStore = await writeXlsxFile(buildSheets(renamed, { splitMethod: "store" })).toBuffer();
+    expect(readSheetNames(byStore)).toEqual(["本町店", "本町中央店"]);
+
+    const none = await writeXlsxFile(buildSheets(renamed, { splitMethod: "none" })).toBuffer();
+    expect(readSheetNames(none)).toEqual(["集金データ"]);
   });
 });

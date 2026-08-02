@@ -221,9 +221,26 @@ export function recordsToTable(records) {
 // splitMethod に応じてレコードをグループ分けする。
 //   "store"  … 店舗ごと（登場順）
 //   "period" … 年月ごと（年月キーの昇順）
+//   "none"   … 分けない（Excel なら 1 シート）
 // 戻り値: [{ key, label, records }]
 export function groupRecords(records, splitMethod = "period") {
   const groups = new Map();
+
+  /*
+    分けない。
+    ⚠️ **1 店舗ぶんを "store" で代用しない。** グループは laundryName で作るので、
+       **店舗を改名すると 1 店舗なのに 2 グループ（＝2 シート）に割れる**
+       （collect_funds.laundryName は登録時の名前を持ち、改名時に一括更新される
+       仕組みに乗っているだけ）。意図が「分けない」なら "none" と書くこと。
+    ⚠️ シート名だけは中身から決める。全部同じ店舗なら店舗名を出す
+       （ファイル名に店舗が入らないので、ここが唯一の手掛かりになる）。
+  */
+  if (splitMethod === "none") {
+    if (records.length === 0) return [];
+    const names = new Set(records.map((row) => row.laundryName));
+    const label = names.size === 1 ? `${[...names][0]}店` : "集金データ";
+    return [{ key: "all", label, records }];
+  }
 
   if (splitMethod === "store") {
     records.forEach((row) => {
