@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Box, HStack, Text, VStack } from "@chakra-ui/react";
 import {
   Bar,
@@ -13,7 +12,6 @@ import {
   YAxis,
 } from "recharts";
 import { VscGraphLine } from "@/app/feacher/Icon";
-import { getStoreRevenueSummary } from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
 import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
 
 // ManyCoinDataChart と同じパレット
@@ -30,15 +28,19 @@ const STORE_COLORS = [
   "#A5B4FC",
 ];
 
-function groupByStore(records) {
-  const map = new Map();
-  records.forEach(({ totalFunds, laundryName, laundryId }) => {
-    if (!map.has(laundryId)) {
-      map.set(laundryId, { name: `${laundryName}店`, rawName: laundryName, total: 0 });
-    }
-    map.get(laundryId).total += totalFunds;
-  });
-  return Array.from(map.values()).sort((a, b) => b.total - a.total);
+/**
+ * 畳み済みの店舗別売上をグラフの形へ。
+ *
+ * ⚠️ 集計そのものはここでしない。`useStoreRevenue()` が
+ *    `src/functions/storeRevenue.js` を通して畳んだものを受け取る。
+ *    ここで畳み直すと BFF（アプリ）と数字がずれても気づけない。
+ */
+function toChartRows(stores) {
+  return (stores ?? []).map((s) => ({
+    name: `${s.laundryName}店`,
+    rawName: s.laundryName,
+    total: s.total,
+  }));
 }
 
 const formatAxis = (value) => {
@@ -73,21 +75,16 @@ function CustomTooltip({ active, payload, label }) {
   );
 }
 
-export default function StoreRevenueChart() {
+/**
+ * 店舗別の累計売上。
+ *
+ * ⚠️ **データは props で受け取る。自分では取りに行かない。** 総額収益カードと
+ *    同じ `getStoreRevenueSummary()` を使うので、両方が呼ぶと全期間の
+ *    ページングが 2 周する。取得は CoinDataList の `useStoreRevenue()` 1 か所。
+ */
+export default function StoreRevenueChart({ stores: rawStores, loading }) {
   const { storeNames } = useUploadPage();
-  const [stores, setStores] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    getStoreRevenueSummary().then(({ data, error }) => {
-      if (error || !data) {
-        setLoading(false);
-        return;
-      }
-      setStores(groupByStore(data));
-      setLoading(false);
-    });
-  }, []);
+  const stores = rawStores ? toChartRows(rawStores) : null;
 
   const chartHeight = stores
     ? Math.max(160, stores.length * 44 + 40)
@@ -122,46 +119,11 @@ export default function StoreRevenueChart() {
           </Text>
         </HStack>
 
-        {/* 全店舗合計 */}
-        {!loading && stores && stores.length > 0 && (
-          <VStack align="stretch" gap={2}>
-            <Text
-              fontSize="xs"
-              fontWeight="semibold"
-              color="var(--text-muted)"
-              textTransform="uppercase"
-              letterSpacing="widest"
-            >
-              全店舗累計
-            </Text>
-            <HStack align="baseline" gap={1}>
-              <Text
-                fontSize={{ base: "lg", md: "xl" }}
-                fontWeight="semibold"
-                color="var(--text-muted)"
-              >
-                ¥
-              </Text>
-              <Text
-                fontSize={{ base: "4xl", md: "5xl" }}
-                fontWeight="black"
-                lineHeight="1"
-                letterSpacing="tight"
-              >
-                {totalAmount.toLocaleString()}
-              </Text>
-              <Text
-                fontSize={{ base: "md", md: "lg" }}
-                fontWeight="medium"
-                color="var(--text-muted)"
-                alignSelf="flex-end"
-                pb={0.5}
-              >
-                円
-              </Text>
-            </HStack>
-          </VStack>
-        )}
+        {/*
+          ⚠️ 全店舗累計の金額はここに出さない。真上の総額収益カードと同じ数字になり、
+             画面に 2 回並ぶ（2026-08-02 のタブ化で総額はカード側へ移した）。
+             totalAmount は下のシェア（%）の計算にだけ使う。
+        */}
 
         {!loading && (!stores || stores.length === 0) && (
           <Text color="var(--text-faint)" fontSize="sm">

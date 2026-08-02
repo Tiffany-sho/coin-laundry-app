@@ -11,6 +11,7 @@ import TableError from "@/app/feacher/partials/TableError";
 import TableEmpty from "@/app/feacher/partials/TableEmpty";
 import { getStoreFundsInPeriod, getFundItemById } from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
 import { changeEpocFromNowYearMonth } from "@/functions/makeDate/date";
+import { filterByCollecter } from "@/functions/fundHistory";
 
 const CoinMonoDataTable = ({ id, myRole }) => {
   const [error, setError] = useState(null);
@@ -33,7 +34,11 @@ const CoinMonoDataTable = ({ id, myRole }) => {
     setDisplayData,
     setDisplayBtn,
     setTableMonthsBack,
+    collecter,
   } = useUploadPage();
+
+  /** ⚠️ 絞り込みは表示だけ。取得範囲は変えない（月ごとの合計も絞り込み後の行から出す） */
+  const rows = filterByCollecter(displayData, collecter);
 
   const selectedItemId = selectedItem?.id;
 
@@ -214,11 +219,11 @@ const CoinMonoDataTable = ({ id, myRole }) => {
   if (loading) return <TableLoading />;
   if (error) return <TableError message={error} />;
 
-  if (!displayData || displayData.length === 0) {
+  if (!rows || rows.length === 0) {
     return <TableEmpty />;
   }
 
-  const groupedData = groupByMonth(displayData);
+  const groupedData = groupByMonth(rows);
   const months = Object.keys(groupedData);
 
   return (

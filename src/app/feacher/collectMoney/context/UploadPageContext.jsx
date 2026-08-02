@@ -19,6 +19,8 @@ export const UploadPageProvider = ({ children }) => {
   const [displayData, setDisplayData] = useState([]);
   const [storeNames, setStoreNames] = useState([]);
   const [selectedStores, setSelectedStores] = useState([]);
+  /** 売上履歴の集金者絞り込み。null = 全員。⚠️ 表示だけの話で取得範囲は変えない */
+  const [collecter, setCollecter] = useState(null);
 
   const PAGE_SIZE = 20;
 
@@ -50,6 +52,8 @@ export const UploadPageProvider = ({ children }) => {
     setStoreNames,
     selectedStores,
     setSelectedStores,
+    collecter,
+    setCollecter,
   };
 
   return (

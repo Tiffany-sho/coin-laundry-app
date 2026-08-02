@@ -17,8 +17,6 @@ import {
   Button,
   Stack,
   Skeleton,
-  Grid,
-  GridItem,
 } from "@chakra-ui/react";
 import { LuPlus, LuDownload, LuCalendarDays } from "@/app/feacher/Icon";
 import { useUploadPage } from "../../context/UploadPageContext";
@@ -36,9 +34,39 @@ import ChangeStores from "./parts/ChangeStore";
 import ExportPanel from "./parts/ExportPanel";
 import MonthlySummaryCard from "./parts/MonthlySummaryCard";
 import StoreRevenueChart from "./parts/StoreRevenueChart";
+import TotalRevenueCard from "./parts/TotalRevenueCard";
+import MachineBreakdownCard from "./parts/MachineBreakdownCard";
+import RevenueTabs from "./parts/RevenueTabs";
+import CollecterFilter from "./parts/CollecterFilter";
+import useStoreRevenue from "../../hooks/useStoreRevenue";
+
+/**
+ * グラフの切り替えタブ。
+ *
+ * ⚠️ **機器別は店舗ページだけ。** 組織全体で出すと、店舗をまたいで同じ名前
+ *    （「洗濯機1」）の別の台が合算されて意味の無い数字になる。
+ */
+const TABS_MANY = [
+  { value: "store", label: "店舗別" },
+  { value: "monthly", label: "月別" },
+  { value: "summary", label: "月次サマリー" },
+];
+
+const TABS_MONO = [
+  { value: "monthly", label: "月別" },
+  { value: "machine", label: "機器別" },
+  { value: "summary", label: "月次サマリー" },
+];
 
 const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
   const { selectedItem, open, setOpen, data, isFundsArrayLoading } = useUploadPage();
+
+  const isMono = valiant === "aStore";
+  const tabs = isMono ? TABS_MONO : TABS_MANY;
+  const [tab, setTab] = useState("monthly");
+
+  /** ⚠️ 全期間の集計。総額収益カードと店舗別グラフで共有するのでここで 1 回だけ引く */
+  const { stores: storeRevenue, loading: revenueLoading } = useStoreRevenue();
 
   const [totalRevenue, setTotalRevenue] = useState(null);
   useEffect(() => {
@@ -151,24 +179,33 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
           )}
         </Flex>
 
-        {/* ── Row 1: グラフ横並び（PC）/ 縦並び（mobile） ── */}
-        <Grid
-          templateColumns={{
-            base: "1fr",
-            md: valiant === "manyStore" ? "1fr 1fr" : "1fr",
-          }}
-          gap={6}
-          alignItems="start"
-        >
-          {/* 店舗別グラフ（manyStore のみ） */}
-          {valiant === "manyStore" && (
-            <GridItem minW={0}>
-              <StoreRevenueChart />
-            </GridItem>
+        {/* ── 総額収益（タブの外。期間の切り替えで変わらない数字） ── */}
+        <TotalRevenueCard
+          stores={storeRevenue}
+          loading={revenueLoading}
+          storeId={isMono ? coinLaundry.id : null}
+        />
+
+        {/* ── グラフ切り替え ── */}
+        <RevenueTabs tabs={tabs} value={tab} onChange={setTab} />
+
+        {/* ── 選ばれたグラフ 1 枚だけを描く ── */}
+        <Box minW={0}>
+          {/* 店舗別（組織全体のみ） */}
+          {tab === "store" && !isMono && (
+            <StoreRevenueChart stores={storeRevenue} loading={revenueLoading} />
+          )}
+
+          {/* 機器別（店舗ページのみ） */}
+          {tab === "machine" && isMono && <MachineBreakdownCard storeId={coinLaundry.id} />}
+
+          {/* 月次サマリー */}
+          {tab === "summary" && (
+            <MonthlySummaryCard storeId={isMono ? coinLaundry.id : null} />
           )}
 
           {/* 月別グラフカード（月別売上ヘッダー + 集金総額 + 期間フィルタ + チャート） */}
-          <GridItem minW={0}>
+          {tab === "monthly" && (
             <Card.Root
               bg="var(--card-bg, #FFFFFF)"
               border="1px solid"
@@ -250,29 +287,19 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
                 </VStack>
               </Card.Body>
             </Card.Root>
-          </GridItem>
-        </Grid>
+          )}
+        </Box>
 
-        {/* ── Row 2: 月次サマリー | 売上履歴 ── */}
-        <Grid
-          templateColumns={{ base: "1fr", md: "1fr 1fr" }}
-          gap={6}
-          alignItems="start"
-        >
-          {/* 月次サマリー */}
-          <GridItem minW={0}>
-            <MonthlySummaryCard
-              storeId={valiant === "aStore" ? coinLaundry.id : null}
-            />
-          </GridItem>
-
-          {/* 売上履歴 */}
-          <GridItem minW={0}>
+        {/* ── 売上履歴（タブの外。常に手前に置く） ── */}
+        <Box minW={0}>
             <VStack align="stretch" gap={4}>
               <HStack wrap="wrap" gap={2}>
                 <Heading color="var(--teal-deeper)">売上履歴</Heading>
                 <OrderSelecter />
               </HStack>
+
+              {/* 集金者で絞り込む。1 人しかいないときは何も出ない */}
+              <CollecterFilter />
 
               {valiant === "aStore" && (
                 <Box display={{ base: "block", md: "none" }}>
@@ -371,8 +398,7 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
                 </Drawer.Root>
               </Stack>
             </VStack>
-          </GridItem>
-        </Grid>
+        </Box>
 
       </VStack>
     </Box>

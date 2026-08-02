@@ -10,6 +10,7 @@ import TableError from "@/app/feacher/partials/TableError";
 import TableEmpty from "@/app/feacher/partials/TableEmpty";
 import { getOrgCollectFundsInPeriod, getFundItemById } from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
 import { changeEpocFromNowYearMonth } from "@/functions/makeDate/date";
+import { filterByCollecter } from "@/functions/fundHistory";
 
 const CoinManyDataTable = () => {
   const [error, setError] = useState(null);
@@ -28,7 +29,14 @@ const CoinManyDataTable = () => {
     setDisplayData,
     setDisplayBtn,
     setTableMonthsBack,
+    collecter,
   } = useUploadPage();
+
+  /**
+   * ⚠️ 絞り込みは表示だけ。取得範囲は変えない（月ごとの合計も絞り込み後の行から出す）。
+   *    選択肢は CollecterFilter が displayData から作るので、こちらは適用するだけ。
+   */
+  const rows = filterByCollecter(displayData, collecter);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -167,7 +175,7 @@ const CoinManyDataTable = () => {
   if (loading) return <TableLoading />;
   if (error) return <TableError message={error.message} />;
 
-  if (!displayData || displayData.length === 0) {
+  if (!rows || rows.length === 0) {
     return <TableEmpty />;
   }
 
@@ -178,7 +186,7 @@ const CoinManyDataTable = () => {
         <Box overflowX="auto">
           <Table.Root size="lg" variant="plain">
             <Table.Body>
-              {displayData.map((item, index) => renderRow(item, index, displayData))}
+              {rows.map((item, index) => renderRow(item, index, rows))}
             </Table.Body>
           </Table.Root>
         </Box>
@@ -187,7 +195,7 @@ const CoinManyDataTable = () => {
   }
 
   // 日付順のときは月ごとにグループ化
-  const groupedData = groupByMonth(displayData);
+  const groupedData = groupByMonth(rows);
   const months = Object.keys(groupedData);
 
   return (

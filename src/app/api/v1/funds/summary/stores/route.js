@@ -1,5 +1,6 @@
 import { withAuth, corsPreflight } from "../../../_lib/handler";
 import { getStoreRevenueSummary } from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
+import { aggregateStoreRevenue } from "@/functions/storeRevenue";
 
 export const dynamic = "force-dynamic";
 
@@ -22,34 +23,9 @@ export const GET = withAuth(async () => {
   const result = await getStoreRevenueSummary();
   if (result.error) return result;
 
-  const byStore = new Map();
-  for (const row of result.data ?? []) {
-    const amount = row.totalFunds ?? 0;
-    const date = typeof row.date === "number" ? row.date : null;
-    const current = byStore.get(row.laundryId);
-
-    if (!current) {
-      byStore.set(row.laundryId, {
-        laundryId: row.laundryId,
-        laundryName: row.laundryName,
-        total: amount,
-        count: 1,
-        firstDate: date,
-        lastDate: date,
-      });
-      continue;
-    }
-
-    current.total += amount;
-    current.count += 1;
-    if (date !== null) {
-      if (current.firstDate === null || date < current.firstDate) current.firstDate = date;
-      if (current.lastDate === null || date > current.lastDate) current.lastDate = date;
-    }
-  }
-
-  // 売上の多い順
-  return { data: [...byStore.values()].sort((a, b) => b.total - a.total) };
+  // ⚠️ 畳み込みは Web の収益ページと同じ `src/functions/storeRevenue.js` を通す。
+  //    ここに書き写すと、アプリと Web で総額収益がずれても気づけない
+  return { data: aggregateStoreRevenue(result.data) };
 });
 
 export const OPTIONS = corsPreflight;
