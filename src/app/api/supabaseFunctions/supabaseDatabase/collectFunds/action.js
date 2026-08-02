@@ -80,6 +80,24 @@ export async function getStoreFundsForChart(id, startEpoch, endEpoch) {
 const COIN_VALUE = 100;
 
 /**
+ * クライアントが送ってきた金額を数値にする。
+ *
+ * ⚠️ **`+` の前に必ず通すこと。** Web の合計入力は Chakra の NumberInput で
+ *    `e.value` が**文字列**なので、`"45000" + 8900` が **`"450008900"`** になる。
+ *    JS は例外を投げず、Postgres の integer 列も 450,008,900 として受け取るので、
+ *    **2 つの金額が横に連結された数字がそのまま保存される。**
+ *    キャッシュレスが 0 件のうちは文字列がそのまま渡って Postgres 側で
+ *    型変換されていたため、**007 で `+ cashless.sum` を足すまで表に出なかった。**
+ *
+ * ⚠️ **クライアント側だけ直さない。** 送り手は Web・アプリ・Outbox の再送と複数あり、
+ *    1 つでも文字列を送れば同じことが起きる。**受け口で必ず数値にする。**
+ */
+function toAmount(value) {
+  const n = Number(value);
+  return Number.isFinite(n) ? Math.trunc(n) : 0;
+}
+
+/**
  * キャッシュレスの内訳を検算して正規化する。
  *
  * ⚠️ **クライアントが送ってきた `name` を使わない。** 支払方法の名前は必ず DB から
@@ -165,7 +183,8 @@ async function normalizeFundsArray(input, laundryId) {
     const entry = {
       id: raw?.id,
       name: raw?.name,
-      funds: raw?.funds ?? 0,
+      // ⚠️ 枚数も数値にする。文字列のまま jsonb に入ると、読み側の足し算が連結になる
+      funds: toAmount(raw?.funds),
     };
 
     /*
@@ -538,7 +557,7 @@ export async function createData(formData) {
     date: formData.date,
     fundsArray: funds.entries,
     // ⚠️ 現金ぶん + キャッシュレス。クライアントの値をそのまま入れない
-    totalFunds: (formData.totalFunds ?? 0) + cashless.sum,
+    totalFunds: toAmount(formData.totalFunds) + cashless.sum,
     // ⚠️ 機器ごとに分けても、列はその集金の**合計**を持つ（集計は全部こちらを見る）
     cashless: cashless.entries,
     collecter: user.id,
@@ -647,18 +666,18 @@ export async function updateData(fundsArray, totalFunds, id, cashlessInput) {
          ⚠️ **`cashlessInput` は無視する。** 両方を足すと二重計上になる。
     */
     patch.cashless = funds.merged;
-    patch.totalFunds = (totalFunds ?? 0) + funds.sum;
+    patch.totalFunds = toAmount(totalFunds) + funds.sum;
   } else if (cashlessInput === undefined) {
     // 既存の内訳を据え置き、その合計だけ総額に足し戻す
     const existing = Array.isArray(target.cashless) ? target.cashless : [];
     const sum = existing.reduce((acc, e) => acc + (Number(e?.amount) || 0), 0);
-    patch.totalFunds = (totalFunds ?? 0) + sum;
+    patch.totalFunds = toAmount(totalFunds) + sum;
   } else {
     // ⚠️ その集金レコードの店舗で絞る（支払方法は店舗ごと。009）
     const cashless = await normalizeCashless(cashlessInput, target.laundryId);
     if (cashless.error) return { error: { msg: cashless.error, status: 400 } };
     patch.cashless = cashless.entries;
-    patch.totalFunds = (totalFunds ?? 0) + cashless.sum;
+    patch.totalFunds = toAmount(totalFunds) + cashless.sum;
   }
 
   let query = serviceSupabase

@@ -104,11 +104,19 @@ const CheckDialog = ({
     /** 機器ごとに入力があったか。⚠️ あるときは集金レベルの内訳を送らない（二重計上） */
     const hasMachineCashless = postArray.some((row) => row.cashless);
 
+    /*
+      ⚠️ **数値で送る。** 合計入力の `moneyTotal` は Chakra の NumberInput 由来で
+         **文字列**なので、そのまま送るとサーバの `totalFunds + cashless.sum` が
+         **文字列の連結**になる（`"45000" + 8900` → `"450008900"`）。
+         例外は出ず、金額が横に並んだ数字のまま保存される。
+      ⚠️ サーバ側でも `toAmount` を通しているが、ここでも直しておく
+         （画面に出している見込み額と同じ値を送るのが素直）。
+    */
     const totalFunds = checked
       ? postArray.reduce((accumulator, currentValue) => {
-          return accumulator + parseInt(currentValue.funds);
+          return accumulator + (Number(currentValue.funds) || 0);
         }, 0) * 100
-      : moneyTotal || 0;
+      : Number(moneyTotal) || 0;
 
     const formData = {
       store: coinLaundry.store,

@@ -317,3 +317,52 @@ describe("フォームで登録 → ドロワーで編集 の通し", () => {
     expect(sumCashless(after.cashless)).toBe(900);
   });
 });
+
+/*
+  ⚠️ **文字列を足すと連結になる。** Web の合計入力（Chakra の NumberInput）は
+     `e.value` が文字列なので、サーバが `totalFunds + cashless.sum` を計算した瞬間
+     `"45000" + 8900` → `"450008900"` になる。例外は出ず、Postgres の integer 列も
+     450,008,900 として受け取るので、**2 つの金額が横に連結された数字が保存される。**
+     キャッシュレスが 0 件のうちは Postgres 側で型変換されて表に出なかった。
+*/
+describe("金額は必ず数値にしてから足す", () => {
+  const toAmount = (value) => {
+    const n = Number(value);
+    return Number.isFinite(n) ? Math.trunc(n) : 0;
+  };
+
+  it("⚠️ 素朴に足すと連結になる（これが実際に起きていた）", () => {
+    expect(("45000" ?? 0) + 8900).toBe("450008900");
+  });
+
+  it("toAmount を通せば和になる", () => {
+    expect(toAmount("45000") + 8900).toBe(53900);
+  });
+
+  it("キャッシュレスが 0 件だと連結が起きず、気づけない", () => {
+    // ⚠️ 文字列のまま Postgres へ渡り、integer 列で 45000 に変換されていた
+    expect(("45000" ?? 0) + 0).toBe("450000");
+    expect(toAmount("45000") + 0).toBe(45000);
+  });
+
+  it("空欄・null・非数値は 0 にする", () => {
+    for (const value of ["", null, undefined, "abc", NaN, {}]) {
+      expect(toAmount(value)).toBe(0);
+    }
+  });
+
+  it("小数を混ぜない（円未満は切り捨て）", () => {
+    expect(toAmount("45000.7")).toBe(45000);
+    expect(toAmount(-12.9)).toBe(-12);
+  });
+
+  it("数値はそのまま通る（アプリ・Outbox の再送）", () => {
+    expect(toAmount(45000)).toBe(45000);
+    expect(toAmount(0)).toBe(0);
+  });
+
+  it("設備の枚数も数値にする（jsonb に文字列を入れない）", () => {
+    const entries = [{ funds: "30" }, { funds: 12 }].map((r) => ({ funds: toAmount(r.funds) }));
+    expect(entries.reduce((a, r) => a + r.funds, 0) * 100).toBe(4200);
+  });
+});
