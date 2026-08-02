@@ -1,6 +1,7 @@
 import { Card, Button, HStack, Text, Box, Flex, Heading, VStack, Separator } from "@chakra-ui/react";
 import Link from "next/link";
 import * as Icon from "@/app/feacher/Icon";
+import AnnouncementsNavRow from "./AnnouncementsNavRow";
 
 const NavRow = ({ href, icon, label, description }) => (
   <Link href={href}>
@@ -25,7 +26,7 @@ const NavRow = ({ href, icon, label, description }) => (
   </Link>
 );
 
-export default function OtherActionsCard() {
+export default function OtherActionsCard({ announcements = [] }) {
   return (
     <Card.Root w="full" bg="var(--card-bg, #FFFFFF)" borderRadius="xl"
       boxShadow="var(--shadow-sm)" border="1px solid" borderColor="cyan.100">
@@ -34,6 +35,11 @@ export default function OtherActionsCard() {
           その他
         </Heading>
         <VStack align="stretch" gap={3}>
+
+          {/* 未読バッジのためだけにクライアント側。見た目は下の NavRow と揃えてある */}
+          <AnnouncementsNavRow items={announcements} />
+
+          <Separator borderColor="var(--divider)" />
 
           <NavRow
             href="/settings/log"

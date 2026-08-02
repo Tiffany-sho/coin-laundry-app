@@ -4,6 +4,7 @@ import { Box, VStack, HStack, Heading } from "@chakra-ui/react";
 import { getUser } from "@/app/api/supabaseFunctions/supabaseDatabase/user/action";
 import { getProfile } from "@/app/api/supabaseFunctions/supabaseDatabase/profiles/action";
 import { getMyOrganization, getOrgPlan, getCollectSchedule } from "@/app/api/supabaseFunctions/supabaseDatabase/organization/action";
+import { getAnnouncements } from "@/app/api/supabaseFunctions/supabaseDatabase/announcements/action";
 import AccountInfoCard from "@/app/feacher/settings/components/AccountInfoCard";
 import OrgInfoCard from "@/app/feacher/settings/components/OrgInfoCard";
 import AppSettingsCard from "@/app/feacher/settings/components/AppSettingsCard";
@@ -20,11 +21,19 @@ export default async function SettingsPage({ searchParams }) {
   const checkoutSuccess = params?.checkout === "success";
 
   const { user } = await getUser();
-  const [{ data: profile }, { data: org }, { data: planInfo }, { data: schedule }] = await Promise.all([
+  const [
+    { data: profile },
+    { data: org },
+    { data: planInfo },
+    { data: schedule },
+    { data: announcements },
+  ] = await Promise.all([
     getProfile(),
     getMyOrganization(),
     getOrgPlan(),
     getCollectSchedule(),
+    // 未読バッジのため。取得に失敗してもページ全体は出す（announcements は undefined）
+    getAnnouncements(),
   ]);
 
   const hasOrg = !!org?.id;
@@ -55,7 +64,7 @@ export default async function SettingsPage({ searchParams }) {
         {isAdmin && <CollectScheduleDisplay schedule={schedule} />}
 
         <AppSettingsCard collectMethod={profile?.collectMethod} />
-        <OtherActionsCard />
+        <OtherActionsCard announcements={announcements ?? []} />
 
         {/* 管理者向け：注意が必要な操作（登録から3日以内のみ表示） */}
         {isAdmin && isWithinThreeDays && <DangerActionsCard />}
