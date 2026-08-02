@@ -18,7 +18,7 @@ import {
   Stack,
   Skeleton,
 } from "@chakra-ui/react";
-import { LuPlus, LuDownload, LuCalendarDays } from "@/app/feacher/Icon";
+import { LuPlus, LuDownload, LuCalendarDays, LuWallet } from "@/app/feacher/Icon";
 import { useUploadPage } from "../../context/UploadPageContext";
 import { toaster } from "@/components/ui/toaster";
 import MoneyDataCard from "./DrawerContext/CoinDataCard";
@@ -108,6 +108,22 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
               {valiant === "manyStore" && `収益レポート`}
             </Heading>
             <HStack gap={2}>
+              {/* 経費は組織単位なので収益レポート側にだけ置く */}
+              {!isMono && (
+                <Link href="/collectMoney/expenses" _hover={{ textDecoration: "none" }}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    colorPalette="cyan"
+                    borderRadius="full"
+                    fontWeight="semibold"
+                    fontSize={{ base: "xs", md: "sm" }}
+                  >
+                    <LuWallet size={14} />
+                    <Box as="span" display={{ base: "none", md: "inline" }}>経費</Box>
+                  </Button>
+                </Link>
+              )}
               <ChangeStores />
               <Dialog.Root placement="center" scrollBehavior="inside">
                 <Dialog.Trigger asChild>
