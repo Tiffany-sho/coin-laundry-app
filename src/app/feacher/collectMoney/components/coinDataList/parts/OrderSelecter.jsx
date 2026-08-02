@@ -3,7 +3,7 @@
 import { Box, HStack, Text } from "@chakra-ui/react";
 import { LuArrowDown, LuArrowUp } from "@/app/feacher/Icon";
 import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
-import { SORT_AXES, nextSort } from "@/functions/fundHistory";
+import { SORT_AXES, initialLimit, nextSort } from "@/functions/fundHistory";
 
 /**
  * 売上履歴の並び替え。**アプリの `src/components/common/SortControls.tsx` の移植。**
@@ -24,7 +24,7 @@ import { SORT_AXES, nextSort } from "@/functions/fundHistory";
  */
 
 const OrderSelecter = () => {
-  const { orderAmount, setOrderAmount, upOrder, setUpOrder } = useUploadPage();
+  const { orderAmount, setOrderAmount, upOrder, setUpOrder, setHistoryLimit } = useUploadPage();
 
   return (
     <HStack gap={2} wrap="wrap" ml={{ base: 0, sm: "auto" }}>
@@ -45,6 +45,12 @@ const OrderSelecter = () => {
               const next = nextSort({ orderAmount, upOrder }, axis.value);
               setOrderAmount(next.orderAmount);
               setUpOrder(next.upOrder);
+              /*
+                ⚠️ **表示量を初期値に戻す。** 日付順は「月数」、売上順は「件数」で
+                   数えるので、3（か月）のまま売上順へ移ると**3 件しか出ない。**
+                   ⚠️ 単位が変わることを忘れると、この行を消したくなる。
+              */
+              setHistoryLimit(initialLimit(next.orderAmount === "date"));
             }}
             aria-pressed={active}
             aria-label={`${axis.label}で並び替え${active ? "（もう一度押すと逆順）" : ""}`}

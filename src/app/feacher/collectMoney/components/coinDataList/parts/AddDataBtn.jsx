@@ -1,77 +1,45 @@
-import { Button } from "@chakra-ui/react";
+"use client";
+
+import { Button, HStack, Text } from "@chakra-ui/react";
+import { LuChevronDown } from "@/app/feacher/Icon";
 import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
-import { useState } from "react";
-import { getStoreFundsInPeriod, getOrgCollectFundsInPeriod } from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
-import { changeEpocFromNowYearMonth } from "@/functions/makeDate/date";
+import { initialLimit } from "@/functions/fundHistory";
 
-const AddDataBtn = ({ id = "" }) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const {
-    tableMonthsBack,
-    setTableMonthsBack,
-    orderAmount,
-    upOrder,
-    setDisplayData,
-    displayBtn,
-    setDisplayBtn,
-  } = useUploadPage();
+/**
+ * 売上履歴の「さらに表示」。**アプリの `ShowMoreRow` と同じ役割。**
+ *
+ * ⚠️ **取得範囲を広げるボタンではない。表示量だけを増やす。**
+ *    データは最初から全期間ぶん来ていて、並び替えもその全部に対して
+ *    サーバが済ませてある。
+ *
+ * ⚠️ **2 か月ずつ取りに行く形へ戻さないこと**（2026-08-03 まではそうだった）。
+ *    - 「売上が高い順」の先頭が**読み込んだ 2 か月の中の最高額**にしかならない
+ *    - 古い塊を末尾に**継ぎ足す**ので、売上順のときは**全体としては
+ *      並んでいない**列ができる（塊ごとには並んでいる）
+ *    - **集金の無い 2 か月に当たると打ち切られ**、それより古い履歴に二度と届かない
+ *
+ * ⚠️ **残りの件数／月数を必ず出す。** あとどれだけあるか分からないと押す気にならない。
+ */
+const AddDataBtn = ({ remaining = 0, unit = "month" }) => {
+  const { setHistoryLimit, orderAmount } = useUploadPage();
 
-  const addData = async () => {
-    setIsLoading(true);
-
-    try {
-      const startEpoch = changeEpocFromNowYearMonth(-(tableMonthsBack + 2));
-      const endEpoch = changeEpocFromNowYearMonth(-tableMonthsBack);
-
-      let nextData;
-      let nextError;
-
-      if (id) {
-        ({ data: nextData, error: nextError } = await getStoreFundsInPeriod(
-          id,
-          startEpoch,
-          endEpoch,
-          orderAmount,
-          upOrder
-        ));
-      } else {
-        ({ data: nextData, error: nextError } = await getOrgCollectFundsInPeriod(
-          startEpoch,
-          endEpoch,
-          orderAmount,
-          upOrder
-        ));
-      }
-
-      if (nextError) {
-        setDisplayData(null);
-      } else {
-        if (nextData.length === 0) {
-          setDisplayBtn(false);
-        } else {
-          setDisplayData((prev) => [...prev, ...nextData]);
-          setTableMonthsBack((prev) => prev + 2);
-        }
-      }
-    } catch (error) {
-      console.error("Error adding data:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  if (remaining <= 0) return null;
 
   return (
-    displayBtn && (
-      <Button
-        variant="outline"
-        color="var(--teal, #0891B2)"
-        border="none"
-        onClick={() => addData()}
-        disabled={isLoading}
-      >
-        {isLoading ? "読み込み中..." : "さらに表示（2か月分）"}
-      </Button>
-    )
+    <Button
+      variant="outline"
+      color="var(--teal, #0891B2)"
+      border="none"
+      onClick={() => setHistoryLimit((prev) => prev + initialLimit(orderAmount === "date"))}
+    >
+      <HStack gap={1}>
+        <LuChevronDown size={16} />
+        <Text>
+          さらに表示（残り{remaining}
+          {unit === "month" ? "か月" : "件"}）
+        </Text>
+      </HStack>
+    </Button>
   );
 };
 

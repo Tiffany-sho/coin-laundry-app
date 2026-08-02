@@ -72,3 +72,68 @@ export function nextSort({ orderAmount, upOrder }, axisValue) {
   const axis = SORT_AXES.find((a) => a.value === axisValue);
   return { orderAmount: axisValue, upOrder: axis ? axis.defaultAsc : false };
 }
+
+/**
+ * 一度に出す量。
+ *
+ * ⚠️ **これは受け取ったあとの出し分けであって、取得する範囲ではない。**
+ *    並び替えは常に全データに対してサーバが済ませてある。ここを絞っても
+ *    「売上が高い順」の先頭は全期間の最高額のまま。
+ *
+ * ⚠️ **取得を 2 か月ずつにしないこと。** 2026-08-03 まで Web はそうなっていて、
+ *    「売上が高い順」が**読み込んだ 2 か月の中の最高額**を指していた。
+ *    さらに「さらに表示」で古い塊を末尾に**継ぎ足していた**ので、
+ *    売上順のときは**全体としては並んでいない**列ができていた
+ *    （塊ごとには並んでいるが、2 つ目の先頭が 1 つ目の末尾より大きい）。
+ *    ⚠️ 集金の無い 2 か月に当たると打ち切られ、それより古い履歴に二度と届かなかった。
+ *
+ * 日付順は月でまとまるので月単位、売上順は月に意味が無いので件数で刻む。
+ * ⚠️ アプリ（`src/components/revenue/historyRows.ts`）と同じ値にすること。
+ */
+export const MONTHS_PER_PAGE = 3;
+export const ROWS_PER_PAGE = 50;
+
+/** 「さらに表示」の初期値・1 回ぶん。日付順なら月数、売上順なら件数 */
+export function initialLimit(grouped) {
+  return grouped ? MONTHS_PER_PAGE : ROWS_PER_PAGE;
+}
+
+/**
+ * 表示する行に切り詰める。
+ *
+ * ⚠️ **日付順（`grouped`）は「月数」で数える。** 件数で切ると月の途中で切れて、
+ *    月の見出しに出す合計と、その下に並ぶ行の和が食い違う。
+ *
+ * @returns {{ rows: object[], remaining: number, unit: "month" | "row" }}
+ */
+export function limitRows(rows, limit, grouped) {
+  const all = Array.isArray(rows) ? rows : [];
+  if (!grouped) {
+    return {
+      rows: all.slice(0, limit),
+      remaining: Math.max(all.length - limit, 0),
+      unit: "row",
+    };
+  }
+
+  const months = [];
+  for (const row of all) {
+    const key = monthKeyOf(row.date);
+    if (!months.includes(key)) months.push(key);
+  }
+  const shown = new Set(months.slice(0, limit));
+  return {
+    rows: all.filter((row) => shown.has(monthKeyOf(row.date))),
+    remaining: Math.max(months.length - limit, 0),
+    unit: "month",
+  };
+}
+
+/**
+ * epoch（JST 深夜 0 時）が属する月のキー。
+ * ⚠️ **数値だけで組み立てる。** 文字列を経由すると環境ごとにパースが割れる。
+ */
+function monthKeyOf(epoch) {
+  const d = new Date((Number(epoch) || 0) + 32_400_000);
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+}

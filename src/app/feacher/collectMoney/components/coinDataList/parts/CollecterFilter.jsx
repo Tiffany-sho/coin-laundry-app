@@ -2,7 +2,7 @@
 
 import { Box, HStack, Text } from "@chakra-ui/react";
 import { LuUsers } from "@/app/feacher/Icon";
-import { collecterOptions } from "@/functions/fundHistory";
+import { collecterOptions, initialLimit } from "@/functions/fundHistory";
 import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageContext";
 
 /**
@@ -15,7 +15,17 @@ import { useUploadPage } from "@/app/feacher/collectMoney/context/UploadPageCont
  * ⚠️ 集金者が 1 人しかいないときは出さない（押しても何も変わらないため）。
  */
 const CollecterFilter = () => {
-  const { displayData, collecter, setCollecter } = useUploadPage();
+  const { displayData, collecter, setCollecter, setHistoryLimit, orderAmount } =
+    useUploadPage();
+
+  /*
+    ⚠️ **絞り込みを変えたら表示量を初期値に戻す。** 3 か月ぶん出した状態で
+       絞ると、残っているのが 1 か月でも「さらに表示」の残数が実態とずれる。
+  */
+  const pick = (next) => {
+    setCollecter(next);
+    setHistoryLimit(initialLimit(orderAmount === "date"));
+  };
   const options = collecterOptions(displayData);
 
   if (options.length < 2) return null;
@@ -51,7 +61,7 @@ const CollecterFilter = () => {
         <Text fontSize="xs">集金者</Text>
       </HStack>
 
-      <Chip active={!collecter} onClick={() => setCollecter(null)}>
+      <Chip active={!collecter} onClick={() => pick(null)}>
         全員
       </Chip>
 
@@ -59,7 +69,7 @@ const CollecterFilter = () => {
         <Chip
           key={option.id}
           active={collecter === option.id}
-          onClick={() => setCollecter(collecter === option.id ? null : option.id)}
+          onClick={() => pick(collecter === option.id ? null : option.id)}
         >
           {option.name}
           <Text as="span" opacity={0.7} ml={1}>

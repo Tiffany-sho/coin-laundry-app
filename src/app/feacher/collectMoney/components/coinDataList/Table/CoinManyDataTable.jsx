@@ -9,8 +9,8 @@ import TableLoading from "@/app/feacher/partials/TableLoading";
 import TableError from "@/app/feacher/partials/TableError";
 import TableEmpty from "@/app/feacher/partials/TableEmpty";
 import { getOrgCollectFundsInPeriod, getFundItemById } from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
-import { changeEpocFromNowYearMonth } from "@/functions/makeDate/date";
-import { filterByCollecter } from "@/functions/fundHistory";
+import { filterByCollecter, limitRows } from "@/functions/fundHistory";
+import AddDataBtn from "../parts/AddDataBtn";
 
 const CoinManyDataTable = () => {
   const [error, setError] = useState(null);
@@ -27,23 +27,34 @@ const CoinManyDataTable = () => {
     setOpen,
     displayData,
     setDisplayData,
-    setDisplayBtn,
-    setTableMonthsBack,
     collecter,
+    historyLimit,
   } = useUploadPage();
 
   /**
    * ⚠️ 絞り込みは表示だけ。取得範囲は変えない（月ごとの合計も絞り込み後の行から出す）。
    *    選択肢は CollecterFilter が displayData から作るので、こちらは適用するだけ。
    */
-  const rows = filterByCollecter(displayData, collecter);
+  const filtered = filterByCollecter(displayData, collecter);
+  /*
+    ⚠️ **切り詰めるのは表示だけ。** 並び替えはサーバが全期間に対して済ませてあるので、
+       ここを絞っても「売上が高い順」の先頭は全期間の最高額のまま。
+    ⚠️ 日付順は**月数**で数える。件数で切ると月の途中で切れ、月の見出しに出す合計と
+       その下に並ぶ行の和が食い違う。
+  */
+  const { rows, remaining, unit } = limitRows(filtered, historyLimit, orderAmount === "date");
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      const startEpoch = changeEpocFromNowYearMonth(-2);
+      /*
+        ⚠️ **全期間を取る。** 2026-08-03 まで直近 2 か月だけ取っていたため、
+           「売上が高い順」の先頭が**その 2 か月の中の最高額**でしかなかった。
+           絞ってよいのは「見せる量」だけ（`limitRows`）。
+        ⚠️ サーバは `fetchAllRows` で全件取るので 1000 行の上限にも当たらない。
+      */
       const { data: initialData, error: initialError } = await getOrgCollectFundsInPeriod(
-        startEpoch,
+        null,
         null,
         orderAmount,
         upOrder
@@ -53,9 +64,7 @@ const CoinManyDataTable = () => {
         setError(initialError);
         setDisplayData(null);
       } else {
-        setDisplayBtn(initialData.length > 0);
         setDisplayData(initialData);
-        setTableMonthsBack(2);
         setError(null);
       }
       setLoading(false);
@@ -196,6 +205,7 @@ const CoinManyDataTable = () => {
             </Table.Body>
           </Table.Root>
         </Box>
+        <AddDataBtn remaining={remaining} unit={unit} />
       </Box>
     );
   }
@@ -279,6 +289,7 @@ const CoinManyDataTable = () => {
           </Box>
         );
       })}
+      <AddDataBtn remaining={remaining} unit={unit} />
     </VStack>
   );
 };

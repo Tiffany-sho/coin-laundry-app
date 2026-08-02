@@ -10,8 +10,8 @@ import TableLoading from "@/app/feacher/partials/TableLoading";
 import TableError from "@/app/feacher/partials/TableError";
 import TableEmpty from "@/app/feacher/partials/TableEmpty";
 import { getStoreFundsInPeriod, getFundItemById } from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
-import { changeEpocFromNowYearMonth } from "@/functions/makeDate/date";
-import { filterByCollecter } from "@/functions/fundHistory";
+import { filterByCollecter, limitRows } from "@/functions/fundHistory";
+import AddDataBtn from "../parts/AddDataBtn";
 
 const CoinMonoDataTable = ({ id, myRole }) => {
   const [error, setError] = useState(null);
@@ -32,13 +32,17 @@ const CoinMonoDataTable = ({ id, myRole }) => {
     setOpen,
     displayData,
     setDisplayData,
-    setDisplayBtn,
-    setTableMonthsBack,
+    historyLimit,
     collecter,
   } = useUploadPage();
 
   /** ⚠️ 絞り込みは表示だけ。取得範囲は変えない（月ごとの合計も絞り込み後の行から出す） */
-  const rows = filterByCollecter(displayData, collecter);
+  const filtered = filterByCollecter(displayData, collecter);
+  /*
+    ⚠️ **切り詰めるのは表示だけ。** 並び替えはサーバが全期間に対して済ませてある。
+    ⚠️ 日付順は**月数**で数える（件数で切ると月の途中で切れ、月の合計と行の和が食い違う）。
+  */
+  const { rows, remaining, unit } = limitRows(filtered, historyLimit, orderAmount === "date");
 
   const selectedItemId = selectedItem?.id;
 
@@ -73,10 +77,10 @@ const CoinMonoDataTable = ({ id, myRole }) => {
 
     const fetchData = async () => {
       setLoading(true);
-      const startEpoch = changeEpocFromNowYearMonth(-2);
+      /* ⚠️ 全期間を取る。理由は CoinManyDataTable と同じ（並び替えが窓の中で閉じる） */
       const { data: initialData, error: initialError } = await getStoreFundsInPeriod(
         id,
-        startEpoch,
+        null,
         null,
         orderAmount,
         upOrder
@@ -86,9 +90,7 @@ const CoinMonoDataTable = ({ id, myRole }) => {
         setError(initialError);
         setDisplayData(null);
       } else {
-        setDisplayBtn(initialData.length > 0);
         setDisplayData(initialData);
-        setTableMonthsBack(2);
         setError(null);
       }
       setLoading(false);
@@ -229,6 +231,26 @@ const CoinMonoDataTable = ({ id, myRole }) => {
     return <TableEmpty />;
   }
 
+  /*
+    ⚠️ **売上順のときは月でまとめない。** 高い順に並んだものを月で区切っても
+       区切りが意味を持たず、月の見出しが売上の順に飛び飛びで現れる
+       （アプリの `isGrouped` と同じ判断）。
+  */
+  if (orderAmount !== "date") {
+    return (
+      <Box bg="var(--card-bg, #FFFFFF)" borderRadius="2xl" shadow="md" overflow="hidden">
+        <Box overflowX="auto">
+          <Table.Root size="lg" variant="plain">
+            <Table.Body>
+              {rows.map((item, index) => renderRow(item, index, rows))}
+            </Table.Body>
+          </Table.Root>
+        </Box>
+        <AddDataBtn remaining={remaining} unit={unit} />
+      </Box>
+    );
+  }
+
   const groupedData = groupByMonth(rows);
   const months = Object.keys(groupedData);
 
@@ -307,6 +329,7 @@ const CoinMonoDataTable = ({ id, myRole }) => {
           </Box>
         );
       })}
+      <AddDataBtn remaining={remaining} unit={unit} />
     </VStack>
   );
 };

@@ -26,7 +26,6 @@ import MonoCoinDataChart from "./Chart/MonoCoinDataChart";
 import ManyCoinDataChart from "./Chart/ManyCoinDataChart";
 import CoinManyDataTable from "./Table/CoinManyDataTable";
 import CoinMonoDataTable from "./Table/CoinMonoDataTable";
-import AddDataBtn from "./parts/AddDataBtn";
 import OrderSelecter from "./parts/OrderSelecter";
 import DataClipBoard from "./parts/DataClipBoard";
 import { PeriodFilterButton, PeriodNav } from "./parts/SegmentedPeriod";
@@ -350,8 +349,7 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
                 )}
                 {valiant === "manyStore" && <CoinManyDataTable />}
 
-                {valiant === "aStore" && <AddDataBtn id={coinLaundry.id} />}
-                {valiant === "manyStore" && <AddDataBtn />}
+                {/* ⚠️ 「さらに表示」は表の中に移した（残りの件数／月数が要るため） */}
 
                 <Drawer.Root
                   size={{ base: "xs", md: "md" }}
