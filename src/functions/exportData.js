@@ -53,6 +53,26 @@ export function formatDateSuffix(date = new Date()) {
 //    列の並び:  日付 / 店舗名 / 設備… / 現金（内訳なし） / 支払方法… / 合計 / 集金担当者
 //    ⚠️ **設備の列 + 現金（内訳なし） + 支払方法の列 = 合計** が常に成り立つ。
 //       ここを崩す変更を入れないこと（確定申告の材料に使われる）。
+//
+// ---------------------------------------------------------------------
+// 機器ごとのキャッシュレス（fundsArray[].cashless）がある期間は、
+// **設備の列を支払方法ごとに割る。**
+//
+//    日付 / 店舗名 / 洗濯機A（現金）/ 洗濯機A（PayPay）/ 乾燥機B（現金）/
+//    現金（内訳なし）/ PayPay（内訳なし）/ 合計 / 集金担当者
+//
+// ⚠️ **集金レベルの `cashless` 列は機器ぶんを含んだ「その集金の合計」。**
+//    そのまま出すと機器の列と**二重計上**になるので、支払方法の列からは
+//    機器へ割り当てたぶんを引いて「内訳なし」だけを残す。
+//    （BFF の getStoreMachineBreakdown の unattributed.cashless と同じ考え方）
+//
+// ⚠️ **機器ごとのキャッシュレスが 1 件も無い期間では列の形を変えない。**
+//    現金しか扱わない組織や Web からの登録だけの期間で、
+//    「（現金）」が付いただけの列が増えると過去の書き出しと見比べられなくなる。
+//
+// ⚠️ **支払方法の列は集金レベルと機器ごとの「和集合」で作る。**
+//    片方にしか無い名前を落とすと、その金額がどの列にも乗らず
+//    **横の和が合計に届かなくなる**（過去データのずれで実際に起こりうる）。
 export function recordsToTable(records) {
   // グループ内に登場する全設備名を出現順で収集
   const machineNames = [];
@@ -60,23 +80,37 @@ export function recordsToTable(records) {
   // 支払方法も同じく出現順。⚠️ 名前で寄せる（methodId は表に出しても読めない）
   const methodNames = [];
   const seenMethods = new Set();
+  /** 設備名 → その設備で使われた支払方法（出現順） */
+  const machineMethods = new Map();
+  let hasMachineCashless = false;
+
+  const noteMethod = (name) => {
+    if (!name || seenMethods.has(name)) return;
+    seenMethods.add(name);
+    methodNames.push(name);
+  };
 
   records.forEach((row) => {
     if (Array.isArray(row.fundsArray)) {
       row.fundsArray.forEach((m) => {
-        if (m.name && !seen.has(m.name)) {
+        if (!m.name) return;
+        if (!seen.has(m.name)) {
           seen.add(m.name);
           machineNames.push(m.name);
+          machineMethods.set(m.name, []);
         }
+        if (!Array.isArray(m.cashless)) return;
+        m.cashless.forEach((c) => {
+          if (!c?.name) return;
+          hasMachineCashless = true;
+          noteMethod(c.name);
+          const list = machineMethods.get(m.name);
+          if (!list.includes(c.name)) list.push(c.name);
+        });
       });
     }
     if (Array.isArray(row.cashless)) {
-      row.cashless.forEach((c) => {
-        if (c?.name && !seenMethods.has(c.name)) {
-          seenMethods.add(c.name);
-          methodNames.push(c.name);
-        }
-      });
+      row.cashless.forEach((c) => noteMethod(c?.name));
     }
   });
 
@@ -84,12 +118,30 @@ export function recordsToTable(records) {
   const hasCashless = methodNames.length > 0;
   const cashColumn = hasCashless ? ["現金（内訳なし）"] : [];
 
+  /*
+    設備の列。機器ごとのキャッシュレスがある期間だけ「（現金）」を付けて
+    支払方法の列を後ろに足す。⚠️ **全通りは作らない**（使われていない
+    組み合わせまで並べると、3 設備 × 3 方法で 9 列の空欄になる）。
+  */
+  const machineColumns = machineNames.flatMap((name) => [
+    { machine: name, method: null, label: hasMachineCashless ? `${name}（現金）` : name },
+    ...(machineMethods.get(name) ?? []).map((method) => ({
+      machine: name,
+      method,
+      label: `${name}（${method}）`,
+    })),
+  ]);
+
+  const methodLabels = methodNames.map((name) =>
+    hasMachineCashless ? `${name}（内訳なし）` : name
+  );
+
   const header = [
     "日付",
     "店舗名",
-    ...machineNames,
+    ...machineColumns.map((c) => c.label),
     ...cashColumn,
-    ...methodNames,
+    ...methodLabels,
     "合計",
     "集金担当者",
   ];
@@ -97,15 +149,28 @@ export function recordsToTable(records) {
   const rows = records.map((row) => {
     // 設備ごとの売上マップ（funds * 100 = 円）
     const machineMap = {};
+    /** 設備名 → 支払方法 → 円。⚠️ 集金レベルの cashless に含まれている分 */
+    const perMachine = new Map();
     let machineSum = 0;
     if (Array.isArray(row.fundsArray)) {
       row.fundsArray.forEach((m) => {
         const amount = (m.funds ?? 0) * 100;
         if (m.name) machineMap[m.name] = amount;
         machineSum += amount;
+        if (!m.name || !Array.isArray(m.cashless)) return;
+        const byMethod = perMachine.get(m.name) ?? new Map();
+        m.cashless.forEach((c) => {
+          if (!c?.name) return;
+          byMethod.set(c.name, (byMethod.get(c.name) ?? 0) + (Number(c.amount) || 0));
+        });
+        perMachine.set(m.name, byMethod);
       });
     }
-    const machineValues = machineNames.map((name) => machineMap[name] ?? null);
+    const machineValues = machineColumns.map(({ machine, method }) =>
+      method === null
+        ? machineMap[machine] ?? null
+        : perMachine.get(machine)?.get(method) ?? null
+    );
 
     // ⚠️ 単位は「円」。設備側（枚数 × 100）と違うので取り違えないこと
     const methodMap = {};
@@ -117,7 +182,20 @@ export function recordsToTable(records) {
         cashlessSum += amount;
       });
     }
-    const methodValues = methodNames.map((name) => methodMap[name] ?? null);
+
+    /*
+      支払方法の列は「機器へ割り当てなかったぶん」だけを出す。
+      ⚠️ **引き算を省くと、機器の列と足して二重計上になる**（列は合計を持つため）。
+      ⚠️ **0 は空欄。** 機種別入力では必ず 0 になるので、並べると表が 0 で埋まる。
+      ⚠️ **負を 0 に丸めない。** 過去データのずれがそのまま見えなくなる。
+    */
+    const methodValues = methodNames.map((name) => {
+      let value = methodMap[name] ?? 0;
+      perMachine.forEach((byMethod) => {
+        value -= byMethod.get(name) ?? 0;
+      });
+      return value === 0 ? null : value;
+    });
 
     /*
       設備にも支払方法にも割り振れない残り。合計入力モードの現金がここに入る。

@@ -196,6 +196,174 @@ describe("recordsToTable", () => {
     ]);
     expect(rows[0]).toEqual(["2026年7月27日", "本町店", 1000, ""]);
   });
+
+  // ---- 機器ごとのキャッシュレス（fundsArray[].cashless）----
+  //
+  // ⚠️ 集金レベルの cashless 列は機器ぶんを含んだ「その集金の合計」。
+  //    支払方法の列からは機器へ割り当てたぶんを引かないと二重計上になる。
+
+  // 機種別入力 + 機器ごとのキャッシュレス。集金レベルの cashless はサーバが組み直した合計
+  const perMachineRecord = {
+    date: epoch(2026, 7, 27),
+    laundryName: "本町",
+    fundsArray: [
+      { name: "洗濯機A", funds: 30, cashless: [{ methodId: "pp", name: "PayPay", amount: 1200 }] },
+      { name: "乾燥機B", funds: 12 },
+    ],
+    cashless: [{ methodId: "pp", name: "PayPay", amount: 1200 }],
+    totalFunds: 5400, // 現金 3000 + 1200 + PayPay 1200
+    profiles: { username: "田中" },
+  };
+
+  it("機器ごとのキャッシュレスがあると、設備の列を支払方法ごとに割る", () => {
+    const { header } = recordsToTable([perMachineRecord]);
+    expect(header).toEqual([
+      "日付",
+      "店舗名",
+      "洗濯機A（現金）",
+      "洗濯機A（PayPay）",
+      "乾燥機B（現金）",
+      "現金（内訳なし）",
+      "PayPay（内訳なし）",
+      "合計",
+      "集金担当者",
+    ]);
+  });
+
+  it("機器へ割り当てたぶんは支払方法の列から引く（二重計上しない）", () => {
+    const { rows } = recordsToTable([perMachineRecord]);
+    // 洗濯機A 現金3000 / 洗濯機A PayPay1200 / 乾燥機B 現金1200 / 内訳なしは両方0で空欄
+    expect(rows[0]).toEqual([
+      "2026年7月27日", "本町店", 3000, 1200, 1200, null, null, 5400, "田中",
+    ]);
+  });
+
+  it("⚠️ 使われていない組み合わせの列は作らない（乾燥機B（PayPay）が無い）", () => {
+    const { header } = recordsToTable([perMachineRecord]);
+    expect(header).not.toContain("乾燥機B（PayPay）");
+  });
+
+  it("機器ごとのキャッシュレスが無ければ列の形は変わらない（「（現金）」を付けない）", () => {
+    const { header } = recordsToTable([
+      {
+        date: epoch(2026, 7, 27),
+        laundryName: "本町",
+        fundsArray: [{ name: "洗濯機A", funds: 30 }],
+        cashless: [{ methodId: "pp", name: "PayPay", amount: 1200 }],
+        totalFunds: 4200,
+      },
+    ]);
+    expect(header).toEqual([
+      "日付", "店舗名", "洗濯機A", "現金（内訳なし）", "PayPay", "合計", "集金担当者",
+    ]);
+  });
+
+  it("機器ごとと集金レベルが混ざっても、横の和が合計に一致する", () => {
+    const { header, rows } = recordsToTable([
+      perMachineRecord,
+      {
+        // 同じ期間に、機器へ紐づかないキャッシュレスだけの集金がある
+        date: epoch(2026, 7, 28),
+        laundryName: "本町",
+        fundsArray: [{ name: "洗濯機A", funds: 10 }],
+        cashless: [{ methodId: "cc", name: "クレカ", amount: 800 }],
+        totalFunds: 1800,
+      },
+    ]);
+    expect(header).toEqual([
+      "日付", "店舗名",
+      "洗濯機A（現金）", "洗濯機A（PayPay）", "乾燥機B（現金）",
+      "現金（内訳なし）", "PayPay（内訳なし）", "クレカ（内訳なし）",
+      "合計", "集金担当者",
+    ]);
+    // 2 行目: 洗濯機A 現金1000 / クレカ 800（機器に紐づかないので内訳なしに残る）
+    expect(rows[1]).toEqual([
+      "2026年7月28日", "本町店", 1000, null, null, null, null, 800, 1800, "",
+    ]);
+
+    rows.forEach((row) => {
+      const parts = row.slice(2, row.length - 2).map((v) => v ?? 0);
+      expect(parts.reduce((a, b) => a + b, 0)).toBe(row[row.length - 2]);
+    });
+  });
+
+  it("⚠️ 集金レベルに無い支払方法が機器に付いていても列を落とさない（横の和が崩れる）", () => {
+    const { header, rows } = recordsToTable([
+      {
+        date: epoch(2026, 7, 27),
+        laundryName: "本町",
+        // 過去データのずれ。cashless 列に交通系IC が無い
+        fundsArray: [
+          { name: "洗濯機A", funds: 30, cashless: [{ methodId: "ic", name: "交通系IC", amount: 500 }] },
+        ],
+        cashless: [],
+        totalFunds: 3500,
+      },
+    ]);
+    expect(header).toContain("洗濯機A（交通系IC）");
+    expect(header).toContain("交通系IC（内訳なし）");
+    /*
+      交通系IC（内訳なし）は 0 - 500 = -500。⚠️ 0 に丸めない（丸めると和が合わない）。
+      ⚠️ 現金（内訳なし）に 500 が立つのは、機器が主張する 500 が集金レベルの
+         cashless に無いぶん、現金として余っているから。**ずれが 2 か所に出て
+         打ち消し合う**ので、合計は正しいまま「どこかが変」と気づける。
+    */
+    expect(rows[0]).toEqual(["2026年7月27日", "本町店", 3000, 500, 500, -500, 3500, ""]);
+
+    const parts = rows[0].slice(2, rows[0].length - 2).map((v) => v ?? 0);
+    expect(parts.reduce((a, b) => a + b, 0)).toBe(3500);
+  });
+
+  it("合計入力モードの行が混ざっても、機器の列は空欄のまま和が合う", () => {
+    const { rows } = recordsToTable([
+      perMachineRecord,
+      {
+        date: epoch(2026, 7, 29),
+        laundryName: "本町",
+        fundsArray: [],
+        cashless: [{ methodId: "pp", name: "PayPay", amount: 900 }],
+        totalFunds: 20900, // 現金 20000 + PayPay 900
+      },
+    ]);
+    expect(rows[1]).toEqual([
+      "2026年7月29日", "本町店", null, null, null, 20000, 900, 20900, "",
+    ]);
+  });
+
+  it("同じ設備・同じ方法が複数回出てきても足し合わせる", () => {
+    const { rows } = recordsToTable([
+      {
+        date: epoch(2026, 7, 27),
+        laundryName: "本町",
+        fundsArray: [
+          {
+            name: "洗濯機A",
+            funds: 30,
+            cashless: [
+              { methodId: "pp", name: "PayPay", amount: 400 },
+              { methodId: "pp", name: "PayPay", amount: 300 },
+            ],
+          },
+        ],
+        cashless: [{ methodId: "pp", name: "PayPay", amount: 700 }],
+        totalFunds: 3700,
+      },
+    ]);
+    expect(rows[0]).toEqual(["2026年7月27日", "本町店", 3000, 700, null, null, 3700, ""]);
+  });
+
+  it("cashless が空配列の設備は「入力なし」と同じ扱い（列を増やさない）", () => {
+    const { header } = recordsToTable([
+      {
+        date: epoch(2026, 7, 27),
+        laundryName: "本町",
+        fundsArray: [{ name: "洗濯機A", funds: 30, cashless: [] }],
+        cashless: [],
+        totalFunds: 3000,
+      },
+    ]);
+    expect(header).toEqual(["日付", "店舗名", "洗濯機A", "合計", "集金担当者"]);
+  });
 });
 
 describe("groupRecords", () => {
