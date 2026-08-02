@@ -93,8 +93,9 @@ export default function TermsPage() {
             <Section number="5" title="料金・支払い">
               <P>有料プランの料金は以下のとおりです（税込）。</P>
               <VStack align="stretch" gap={1} mb={2}>
-                <Li>Proプラン：¥780/月</Li>
-                <Li>Maxプラン：¥2,980/月</Li>
+                <Li>Proプラン：¥800/月</Li>
+                <Li>Pro+プラン：¥1,500/月</Li>
+                <Li>Maxプラン：¥3,000/月</Li>
               </VStack>
               <P>支払いはクレジットカードによる月次自動引き落としです。料金は毎月の契約更新日に請求されます。</P>
             </Section>

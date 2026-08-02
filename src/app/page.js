@@ -41,14 +41,21 @@ const jsonLd = {
     {
       "@type": "Offer",
       name: "Pro",
-      price: "780",
+      price: "800",
       priceCurrency: "JPY",
       description: "5店舗まで・CSV/Excelエクスポート・チームメンバー招待",
     },
     {
       "@type": "Offer",
+      name: "Pro+",
+      price: "1500",
+      priceCurrency: "JPY",
+      description: "10店舗まで・CSV/Excelエクスポート・チームメンバー招待",
+    },
+    {
+      "@type": "Offer",
       name: "Max",
-      price: "2980",
+      price: "3000",
       priceCurrency: "JPY",
       description: "無制限店舗・全機能・メンバー無制限",
     },

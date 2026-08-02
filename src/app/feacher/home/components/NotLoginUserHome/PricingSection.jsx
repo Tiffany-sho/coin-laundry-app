@@ -33,7 +33,7 @@ const plans = [
   },
   {
     name: "Pro",
-    price: "¥780",
+    price: "¥800",
     period: "/月（税込）",
     badge: "おすすめ",
     trial: "6か月無料トライアル",
@@ -71,7 +71,7 @@ const plans = [
   },
   {
     name: "Max",
-    price: "¥2,980",
+    price: "¥3,000",
     period: "/月（税込）",
     cta: "今すぐ始める",
     ctaHref: "/auth/login",

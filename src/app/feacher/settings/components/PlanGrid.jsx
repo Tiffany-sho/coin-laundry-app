@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Box, VStack, HStack, Text, Button, Badge, Heading, Card } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
+import { PLAN_RANK } from "@/functions/plans";
 
 const PLANS = [
   {
@@ -16,7 +17,7 @@ const PLANS = [
   {
     key: "pro",
     name: "Pro",
-    price: "¥780",
+    price: "¥800",
     storeLimit: "5店舗",
     features: ["集金記録", "在庫管理", "データ可視化", "メンバー管理"],
     trial: "6か月無料トライアル",
@@ -35,7 +36,7 @@ const PLANS = [
   {
     key: "max",
     name: "Max",
-    price: "¥2,980",
+    price: "¥3,000",
     storeLimit: "無制限",
     features: ["集金記録", "在庫管理", "データ可視化", "メンバー管理", "優先サポート"],
     trial: null,
@@ -86,14 +87,21 @@ export default function PlanGrid({ currentPlan, stripeCustomerId }) {
   return (
     <Box
       display="grid"
-      gridTemplateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }}
+      /* ⚠️ 4 プランになったので md は 2 列。3 列のままだと 4 枚目だけ次の行に落ちる */
+      gridTemplateColumns={{ base: "1fr", md: "repeat(2, 1fr)", xl: "repeat(4, 1fr)" }}
       gap={4}
     >
       {PLANS.map((plan) => {
         const isCurrent = currentPlan === plan.key;
-        const isDowngrade =
-          (currentPlan === "max" && plan.key !== "max") ||
-          (currentPlan === "pro" && plan.key === "free");
+        /*
+          ⚠️ **プラン名を並べて判定しないこと。** 2026-08-03 まで
+             `currentPlan === "max"` / `"pro"` の 2 条件で書いていたため、
+             Pro+ の利用者には**どちらの条件にも当たらず**「Pro を開始する」という
+             **ダウングレードのボタンが出ていた。** 序列で比べれば増えても壊れない。
+        */
+        const rank = PLAN_RANK[plan.key] ?? 0;
+        const currentRank = PLAN_RANK[currentPlan] ?? 0;
+        const isDowngrade = rank < currentRank;
         const isUpgradeable = !isCurrent && !isDowngrade && plan.key !== "free";
 
         return (
