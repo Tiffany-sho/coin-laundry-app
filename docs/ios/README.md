@@ -29,6 +29,7 @@
 | 2026-07-29 | **在庫・故障アラートは Edge Function ではなく Web の Server Action から送る。** イベント駆動なので cron に載らない。`updateStockState` / `updateMachinesState` が更新前後を比較し、`after()` で応答後に送る | [10章](10-push.md) |
 | 2026-07-29 | **数字の書体をアプリだけ Space Mono → Inter（tabular-nums）に変更。** Web は Space Mono のまま。等幅ではなくなるので `theme/tokens.ts` の `numeric` を必ずセットで使う | [11章](11-design-system.md) |
 | 2026-07-30 | **「開発者からのお知らせ」を追加。`announcements` テーブル（005）を Web とアプリで共用する。** 出し分けの列は持たない。投稿は Supabase の Table Editor から手で行い、管理画面も書き込み API も作らない（作るとアプリのトークンでお知らせを捏造できる経路が生まれる） | [13章](13-app-review.md) |
+| 2026-08-02 | **審査用のデモデータは SQL のシード（`seeds/demo_collect_funds.sql`）で入れる。** 5 店舗 × 2025-01〜2026-07 の集金 285 件。⚠️ **マイグレーションではない**ので `migrations/` には置かない。⚠️ **組織 ID は書かせず店舗名から特定する**（貼り間違えて実データに混ぜないため）。⚠️ **`client_request_id` を `seed-demo-…` で決め打ち**し、投入前に同じ接頭辞を消すので何度流しても増えない＝1 行の DELETE で取り消せる | [13章](13-app-review.md) |
 | 2026-07-30 | **お知らせの文面は、Web に出すものも含めて常に iOS の制約（Guideline 3.1.3(a)）で書く。** テーブルを共用する以上、Web 向けに書いた「Pro プラン値上げのお知らせ」がそのままアプリにも出るため。⚠️ **これは運用ルールでしか守れない。**「Web だけに出す」手段は無い。必要になったら `show_in_app`（既定 false）列の追加を再検討する | [13章](13-app-review.md) |
 
 ## 実装状況
