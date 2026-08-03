@@ -31,7 +31,7 @@ import DataClipBoard from "./parts/DataClipBoard";
 import { PeriodFilterButton, PeriodNav } from "./parts/SegmentedPeriod";
 import ChangeStores from "./parts/ChangeStore";
 import ExportPanel from "./parts/ExportPanel";
-import MonthlySummaryCard from "./parts/MonthlySummaryCard";
+import MonthlyProfitCard from "./parts/MonthlyProfitCard";
 import StoreRevenueChart from "./parts/StoreRevenueChart";
 import TotalRevenueCard from "./parts/TotalRevenueCard";
 import MachineBreakdownCard from "./parts/MachineBreakdownCard";
@@ -45,27 +45,42 @@ import useStoreRevenue from "../../hooks/useStoreRevenue";
  *
  * ⚠️ **機器別は店舗ページだけ。** 組織全体で出すと、店舗をまたいで同じ名前
  *    （「洗濯機1」）の別の台が合算されて意味の無い数字になる。
+ *
+ * ⚠️ **「月次サマリー」は 2026-08-03 に「月別利益」へ差し替えた**（アプリと同時）。
+ *    前月比・前年同月比の表より、売上 − 経費のほうが日々の判断に効くため。
+ * ⚠️ **経費を使わない組織では「月別利益」を出さない**（`expenses_enabled`）。
+ *    経費が常に 0 になり、月別売上と同じ形の棒が 2 枚並ぶだけになる。
  */
 const TABS_MANY = [
   { value: "store", label: "店舗別" },
   { value: "monthly", label: "月別" },
   { value: "method", label: "支払方法別" },
-  { value: "summary", label: "月次サマリー" },
+  { value: "profit", label: "月別利益" },
 ];
 
 const TABS_MONO = [
   { value: "monthly", label: "月別" },
   { value: "machine", label: "機器別" },
   { value: "method", label: "支払方法別" },
-  { value: "summary", label: "月次サマリー" },
+  { value: "profit", label: "月別利益" },
 ];
 
-const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
+const MoneyDataList = ({
+  valiant,
+  coinLaundry,
+  myRole,
+  plan = "free",
+  /* ⚠️ 未指定＝使う。サーバの既定と揃える（false に倒すと機能が黙って消える） */
+  expensesEnabled = true,
+}) => {
   const { selectedItem, open, setOpen, data, isFundsArrayLoading } = useUploadPage();
 
   const isMono = valiant === "aStore";
-  const tabs = isMono ? TABS_MONO : TABS_MANY;
+  const allTabs = isMono ? TABS_MONO : TABS_MANY;
+  const tabs = expensesEnabled ? allTabs : allTabs.filter((t) => t.value !== "profit");
   const [tab, setTab] = useState("monthly");
+  /* ⚠️ 経費を切った直後に「月別利益」を選んだままにしない（タブごと消えるため） */
+  const activeTab = tab === "profit" && !expensesEnabled ? "monthly" : tab;
 
   /** ⚠️ 全期間の集計。総額収益カードと店舗別グラフで共有するのでここで 1 回だけ引く */
   const { stores: storeRevenue, loading: revenueLoading } = useStoreRevenue();
@@ -110,8 +125,9 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
               {valiant === "manyStore" && `収益レポート`}
             </Heading>
             <HStack gap={2}>
-              {/* 経費は組織単位なので収益レポート側にだけ置く */}
-              {!isMono && (
+              {/* 経費は組織単位なので収益レポート側にだけ置く。
+                  ⚠️ 経費を使わない組織では入口ごと出さない（012） */}
+              {!isMono && expensesEnabled && (
                 <Link href="/collectMoney/expenses" _hover={{ textDecoration: "none" }}>
                   <Button
                     size="sm"
@@ -205,30 +221,30 @@ const MoneyDataList = ({ valiant, coinLaundry, myRole, plan = "free" }) => {
         />
 
         {/* ── グラフ切り替え ── */}
-        <RevenueTabs tabs={tabs} value={tab} onChange={setTab} />
+        <RevenueTabs tabs={tabs} value={activeTab} onChange={setTab} />
 
         {/* ── 選ばれたグラフ 1 枚だけを描く ── */}
         <Box minW={0}>
           {/* 店舗別（組織全体のみ） */}
-          {tab === "store" && !isMono && (
+          {activeTab === "store" && !isMono && (
             <StoreRevenueChart stores={storeRevenue} loading={revenueLoading} />
           )}
 
           {/* 機器別（店舗ページのみ） */}
-          {tab === "machine" && isMono && <MachineBreakdownCard storeId={coinLaundry.id} />}
+          {activeTab === "machine" && isMono && <MachineBreakdownCard storeId={coinLaundry.id} />}
 
           {/* 支払方法別。組織全体では店舗をまたいで名前で 1 本にまとまる */}
-          {tab === "method" && (
+          {activeTab === "method" && (
             <MethodBreakdownCard storeId={isMono ? coinLaundry.id : null} />
           )}
 
-          {/* 月次サマリー */}
-          {tab === "summary" && (
-            <MonthlySummaryCard storeId={isMono ? coinLaundry.id : null} />
+          {/* 月別利益（売上 − 経費）。⚠️ 経費を使わない組織にはタブごと出ない */}
+          {activeTab === "profit" && (
+            <MonthlyProfitCard storeId={isMono ? coinLaundry.id : null} />
           )}
 
           {/* 月別グラフカード（月別売上ヘッダー + 集金総額 + 期間フィルタ + チャート） */}
-          {tab === "monthly" && (
+          {activeTab === "monthly" && (
             <Card.Root
               bg="var(--card-bg, #FFFFFF)"
               border="1px solid"

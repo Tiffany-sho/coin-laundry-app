@@ -60,7 +60,29 @@ export default async function ExpensesPage() {
         </Link>
       </HStack>
 
-      <ExpensesPanel stores={stores ?? []} canEdit={canEdit} />
+      {/*
+        ⚠️ 設定で経費を切ったあとにこの URL を直接開けてしまう（入口は消えるが
+           ページは残る）。空の一覧を出すと壊れたように見えるので明示する。
+        ⚠️ **403 にはしない。** 表示の設定であって認可ではないため
+           （戻せば以前の記録がそのまま出る）。
+      */}
+      {org?.expensesEnabled === false ? (
+        <Box
+          p={6}
+          bg="var(--card-bg, #FFFFFF)"
+          border="1px solid"
+          borderColor="cyan.100"
+          borderRadius="xl"
+        >
+          <Text fontSize="sm" color="var(--text-muted)" lineHeight="1.8">
+            この組織では経費を記録しない設定です。
+            <br />
+            設定 → 組織 から変更できます。
+          </Text>
+        </Box>
+      ) : (
+        <ExpensesPanel stores={stores ?? []} canEdit={canEdit} />
+      )}
     </Box>
   );
 }

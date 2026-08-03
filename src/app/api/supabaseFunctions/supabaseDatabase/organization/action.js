@@ -62,22 +62,42 @@ export async function getMyOrganization() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("organization_members")
-    .select("role, organizations(id, name)")
+    .select("role, organizations(id, name, expenses_enabled)")
     .eq("user_id", user.id)
     .single();
 
   if (error) return { error: "組織情報の取得に失敗しました" };
-  return { data: { ...data.organizations, myRole: data.role } };
+
+  const { expenses_enabled: expensesEnabled, ...org } = data.organizations;
+  return {
+    data: {
+      ...org,
+      myRole: data.role,
+      /*
+        ⚠️ **`!== false` で読む。** 012 より前に作られた行や、列を返さない
+           古い応答では undefined になる。`Boolean(undefined)` は false なので、
+           素直に畳むと**経費を使っている組織から機能が消える。**
+      */
+      expensesEnabled: expensesEnabled !== false,
+    },
+  };
 }
 
-export async function createOrganization(name) {
+/**
+ * 組織を作る。
+ *
+ * ⚠️ **`expensesEnabled` は初期設定で聞いた答え。** 省略＝ true（経費を使う）。
+ *    未指定を false に倒すと、Web の古い初期設定フォームから作られた組織で
+ *    経費が黙って無効になる。
+ */
+export async function createOrganization(name, expensesEnabled = true) {
   const { user } = await getUser();
   if (!user) return { error: "ログインしてください" };
 
   const serviceSupabase = createServiceClient();
   const { data: org, error: orgError } = await serviceSupabase
     .from("organizations")
-    .insert({ name, owner_id: user.id })
+    .insert({ name, owner_id: user.id, expenses_enabled: expensesEnabled !== false })
     .select("id")
     .single();
 
@@ -103,6 +123,43 @@ export async function updateOrganizationName(name) {
 
   if (error) return { error: "組織名の更新に失敗しました" };
   return {};
+}
+
+/**
+ * 経費の機能を使うかを切り替える（012）。
+ *
+ * ⚠️ **これは表示の設定であって認可ではない。** false にしても `expenses` /
+ *    `recurring_expenses` の行は消さないし、経費の API も 403 にしない。
+ *    戻したときに以前の記録がそのまま出るのが正しい挙動で、
+ *    切り替えた瞬間に他の端末が永久に 403 を受け続ける事故も防げる。
+ *
+ * ⚠️ **admin だけが通す。** 組織全員の画面が変わるため。
+ *    ⚠️ `updateOrganizationName` は `owner_id` で絞っているので**オーナーしか
+ *       通らない**が、こちらは `setOrgJoinPassword` と同じで admin なら通る。
+ *       揃っていないのは意図的（改名はオーナーの権限のまま残してある）。
+ */
+export async function updateOrganizationExpensesEnabled(enabled) {
+  const { user } = await getUser();
+  if (!user) return { error: "ログインしてください" };
+
+  const supabase = await createClient();
+  const { data: member, error: memberError } = await supabase
+    .from("organization_members")
+    .select("org_id, role")
+    .eq("user_id", user.id)
+    .single();
+
+  if (memberError || member.role !== "admin") return { error: "権限がありません" };
+
+  const serviceSupabase = createServiceClient();
+  const { error } = await serviceSupabase
+    .from("organizations")
+    // ⚠️ 真偽値に畳んでから入れる。文字列の "false" は DB では true になる
+    .update({ expenses_enabled: enabled === true })
+    .eq("id", member.org_id);
+
+  if (error) return { error: "更新に失敗しました" };
+  return { data: { expensesEnabled: enabled === true } };
 }
 
 export async function getOrganizationMembers() {

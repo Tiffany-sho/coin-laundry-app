@@ -120,3 +120,73 @@ export function profitOf(revenue, expense) {
   const margin = revenue > 0 ? Math.round((profit / revenue) * 1000) / 10 : null;
   return { profit, margin };
 }
+
+/* ------------------------------------------------------------------ */
+/* 月別利益（売上 − 経費）                                             */
+/* ------------------------------------------------------------------ */
+
+/**
+ * 月ごとの経費合計。
+ *
+ * ⚠️ **展開された固定費（`recurring: true`）も足す。** 除くと家賃を含まない
+ *    「経費」になり、利益が実際より大きく出る。
+ * ⚠️ **`date` は JST 深夜 0 時の epoch。** `monthKeyFromEpoch` を通すこと
+ *    （UTC で読むと月初の 1 件が前月に落ちる）。
+ */
+export function expenseTotalsByMonth(expenses) {
+  const map = new Map();
+  for (const item of expenses ?? []) {
+    const amount = item?.amount;
+    const date = item?.date;
+    if (!Number.isFinite(amount) || !Number.isFinite(date)) continue;
+    const key = monthKeyFromEpoch(date);
+    map.set(key, (map.get(key) ?? 0) + amount);
+  }
+  return map;
+}
+
+/**
+ * 直近 `count` か月のキーを古い順で返す。
+ * ⚠️ **データのある月だけ並べない。** 歯抜けだと棒の間隔が月と対応しなくなる。
+ */
+export function recentMonthKeys(count, endKey = currentMonthKey()) {
+  const out = [];
+  for (let i = count - 1; i >= 0; i -= 1) out.push(shiftMonthKey(endKey, -i));
+  return out;
+}
+
+/**
+ * 月別利益の棒を組み立てる。
+ *
+ * ⚠️ **同じ計算がアプリにもある**（`src/components/revenue/profitSeries.ts`）。
+ *    **片方だけ直すと同じ月の利益が Web とアプリで食い違う。** 型エラーは出ない。
+ *
+ * @param revenueMonths `groupByMonth()` の結果（`[{ key, total }]`）
+ * @param expenses      `getExpenses()` の結果（固定費の展開ぶんを含む）
+ * @param monthKeys     並べる月（`recentMonthKeys()`）
+ * @returns `[{ key, label, revenue, expense, profit }]`
+ *          ⚠️ **`profit` は負になり得る。** 0 に丸めないこと
+ */
+export function buildProfitPoints(revenueMonths, expenses, monthKeys) {
+  const revenueByMonth = new Map(
+    (revenueMonths ?? []).map((month) => [month.key, month.total ?? 0])
+  );
+  const expenseByMonth = expenseTotalsByMonth(expenses);
+
+  return (monthKeys ?? []).map((key) => {
+    const revenue = revenueByMonth.get(key) ?? 0;
+    const expense = expenseByMonth.get(key) ?? 0;
+    return { key, label: formatMonthKey(key), revenue, expense, profit: revenue - expense };
+  });
+}
+
+/** 期間の合計。⚠️ `profit` は `revenue - expense` と必ず一致する */
+export function sumProfitPoints(points) {
+  let revenue = 0;
+  let expense = 0;
+  for (const point of points ?? []) {
+    revenue += point?.revenue ?? 0;
+    expense += point?.expense ?? 0;
+  }
+  return { revenue, expense, profit: revenue - expense };
+}
