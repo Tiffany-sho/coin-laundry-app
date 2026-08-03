@@ -53,6 +53,25 @@ async function getOrgStoreIds(orgId) {
   return (data ?? []).map((s) => s.id);
 }
 
+/**
+ * 組織の店舗 ID → 店名。**経費の行に店名を焼いて返すため。**
+ *
+ * ⚠️ **`getStores()` を使わないこと。** あちらは担当店舗（011）で絞るので、
+ *    集金担当者・閲覧者では**担当外の店舗が落ちる。** 経費は担当店舗で
+ *    絞っていない（`docs/contracts.md` の「担当店舗」）ので、
+ *    落ちた店舗の名前が引けず、アプリ・Web が**「（削除された店舗）」と表示していた。**
+ *
+ * ⚠️ **組織で絞ること。** service client なので、絞らないと全組織の店名が取れる。
+ */
+async function getOrgStoreNames(orgId) {
+  const supabase = createServiceClient();
+  const { data } = await supabase
+    .from("laundry_store")
+    .select("id, store")
+    .eq("organization_id", orgId);
+  return new Map((data ?? []).map((s) => [s.id, s.store]));
+}
+
 /* ------------------------------------------------------------------ */
 /* 月の計算                                                            */
 /* ------------------------------------------------------------------ */
@@ -82,10 +101,21 @@ function nextMonthKey(key) {
 /* 単発の経費                                                          */
 /* ------------------------------------------------------------------ */
 
-function toApi(row) {
+/**
+ * @param storeNames 組織の店舗 ID → 店名。⚠️ **担当店舗で絞ったものを渡さないこと**
+ *   （担当外の店舗が「（削除された店舗）」と表示される）
+ */
+function toApi(row, storeNames) {
+  const laundryId = row.laundry_id ?? null;
   return {
     id: row.id,
-    laundryId: row.laundry_id ?? null,
+    laundryId,
+    /**
+     * 対象の店名。**null = 組織全体**（店舗に紐づかない支出）。
+     * ⚠️ **店舗が実際に消えているときだけ undefined になる。**
+     *    受け側はそのときだけ「（削除された店舗）」と出すこと。
+     */
+    laundryName: laundryId ? (storeNames?.get(laundryId) ?? null) : null,
     date: row.date,
     amount: row.amount,
     category: row.category,
@@ -141,11 +171,20 @@ export async function getExpenses(startEpoch, endEpoch, laundryId = null) {
 
   if (queryError) return { error: "経費の取得に失敗しました" };
 
-  const recurring = await expandRecurring(member.org_id, startEpoch, endEpoch, laundryId);
+  /* ⚠️ 担当店舗で絞られない一覧なので、店名も**組織の全店舗**から引く */
+  const storeNames = await getOrgStoreNames(member.org_id);
+
+  const recurring = await expandRecurring(
+    member.org_id,
+    startEpoch,
+    endEpoch,
+    laundryId,
+    storeNames
+  );
   if (recurring.error) return { error: recurring.error };
 
   // 新しい順。⚠️ 展開した固定費と実体を混ぜるので、ここで並べ直す必要がある
-  const items = [...(data ?? []).map(toApi), ...recurring.items].sort(
+  const items = [...(data ?? []).map((row) => toApi(row, storeNames)), ...recurring.items].sort(
     (a, b) => b.date - a.date
   );
 
@@ -185,7 +224,7 @@ export async function createExpense(input) {
     .single();
 
   if (insertError) return { error: "経費の登録に失敗しました" };
-  return { data: toApi(data) };
+  return { data: toApi(data, await getOrgStoreNames(member.org_id)) };
 }
 
 export async function updateExpense(id, input) {
@@ -224,7 +263,7 @@ export async function updateExpense(id, input) {
   if (!data || data.length === 0) {
     return { error: { msg: "経費が見つかりません", status: 404 } };
   }
-  return { data: toApi(data[0]) };
+  return { data: toApi(data[0], await getOrgStoreNames(member.org_id)) };
 }
 
 export async function deleteExpense(id) {
@@ -253,10 +292,13 @@ export async function deleteExpense(id) {
 /* 毎月の固定費                                                        */
 /* ------------------------------------------------------------------ */
 
-function toRecurringApi(row) {
+function toRecurringApi(row, storeNames) {
+  const laundryId = row.laundry_id ?? null;
   return {
     id: row.id,
-    laundryId: row.laundry_id ?? null,
+    laundryId,
+    /* ⚠️ 単発の経費と同じ規約（null = 組織全体）。担当外の店舗も名前が出るように */
+    laundryName: laundryId ? (storeNames?.get(laundryId) ?? null) : null,
     name: row.name,
     amount: row.amount,
     category: row.category,
@@ -282,7 +324,7 @@ function toRecurringApi(row) {
  * ⚠️ **`day_of_month` は 28 まで**（008 の CHECK）。29 以上を許すと、
  *    その日が無い月で `getEpochTimeInSeconds` が翌月へ繰り上がって二重計上になる。
  */
-async function expandRecurring(orgId, startEpoch, endEpoch, laundryId) {
+async function expandRecurring(orgId, startEpoch, endEpoch, laundryId, storeNames) {
   const supabase = createServiceClient();
 
   let query = supabase
@@ -314,6 +356,8 @@ async function expandRecurring(orgId, startEpoch, endEpoch, laundryId) {
           // ⚠️ 実在しない id。アプリはこれで編集しようとしないこと
           id: `recurring:${row.id}:${month}`,
           laundryId: row.laundry_id ?? null,
+          /* ⚠️ 単発と同じ規約。null = 組織全体 / undefined = 消えた店舗 */
+          laundryName: row.laundry_id ? (storeNames?.get(row.laundry_id) ?? null) : null,
           date,
           amount: row.amount,
           category: row.category,
@@ -343,7 +387,8 @@ export async function getRecurringExpenses() {
     .order("created_at", { ascending: false });
 
   if (queryError) return { error: "固定費の取得に失敗しました" };
-  return { data: (data ?? []).map(toRecurringApi) };
+  const storeNames = await getOrgStoreNames(member.org_id);
+  return { data: (data ?? []).map((row) => toRecurringApi(row, storeNames)) };
 }
 
 /**
@@ -418,7 +463,7 @@ export async function createRecurringExpense(input) {
     .single();
 
   if (insertError) return { error: "固定費の登録に失敗しました" };
-  return { data: toRecurringApi(data) };
+  return { data: toRecurringApi(data, await getOrgStoreNames(member.org_id)) };
 }
 
 /**
@@ -466,7 +511,7 @@ export async function updateRecurringExpense(id, input) {
   if (!data || data.length === 0) {
     return { error: { msg: "固定費が見つかりません", status: 404 } };
   }
-  return { data: toRecurringApi(data[0]) };
+  return { data: toRecurringApi(data[0], await getOrgStoreNames(member.org_id)) };
 }
 
 /**

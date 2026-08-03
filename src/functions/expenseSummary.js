@@ -89,6 +89,25 @@ export function byCategory(items) {
   return [...map.values()].sort((a, b) => b.total - a.total);
 }
 
+/**
+ * 経費の「対象」の表示名。
+ *
+ * ⚠️ **サーバが焼き込んだ `laundryName` を最優先する。** 店舗一覧（`getStores()`）は
+ *    担当店舗（011）で絞るので、集金担当者・閲覧者では**担当外の店舗が落ちる。**
+ *    経費は担当店舗で絞っていないため、一覧から引くと**担当外の店舗が全部
+ *    「（削除された店舗）」になる**（実際にそうなっていた）。
+ *
+ * ⚠️ **`laundryName` を返す前の応答では `undefined`。** そのときだけ一覧に落として、
+ *    見つからなければ**「（削除された店舗）」ではなく「他の店舗」**と出す
+ *    （消えたのか担当外なのか区別が付かないので、消えたと言い切らない）。
+ */
+export function expenseTargetName(item, storeNameById = {}) {
+  if (!item?.laundryId) return "組織全体";
+  // サーバが解決済み。null = その店舗はもう存在しない
+  if (item.laundryName !== undefined) return item.laundryName ?? "（削除された店舗）";
+  return storeNameById[item.laundryId] ?? "他の店舗";
+}
+
 /** 店舗ごとに畳む。`laundryId` が null のものは「組織全体」 */
 export function byStore(items, storeNameById = {}) {
   const map = new Map();
@@ -97,7 +116,7 @@ export function byStore(items, storeNameById = {}) {
     if (!map.has(key)) {
       map.set(key, {
         laundryId: key,
-        name: key === null ? "組織全体" : (storeNameById[key] ?? "（削除された店舗）"),
+        name: expenseTargetName(item, storeNameById),
         total: 0,
         count: 0,
       });

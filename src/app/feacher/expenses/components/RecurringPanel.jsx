@@ -19,7 +19,11 @@ import {
   EXPENSE_CATEGORIES,
   categoryColor,
 } from "@/functions/expenseCategories";
-import { currentMonthKey, formatMonthKey } from "@/functions/expenseSummary";
+import {
+  currentMonthKey,
+  expenseTargetName,
+  formatMonthKey,
+} from "@/functions/expenseSummary";
 import {
   createRecurringExpense,
   deleteRecurringExpense,
@@ -435,8 +439,10 @@ const RecurringPanel = ({ stores = [], canEdit }) => {
                 {item.endMonth ? formatMonthKey(item.endMonth) : "継続中"}
               </Text>
               <Text fontSize="xs" color="var(--text-faint)">
+                {/* ⚠️ サーバが焼いた店名を優先する（担当店舗で絞られた一覧からは
+                       担当外の店舗を引けない） */}
                 {item.laundryId
-                  ? `${storeNameById[item.laundryId] ?? "（削除された店舗）"}店`
+                  ? `${expenseTargetName(item, storeNameById)}店`
                   : "組織全体"}
               </Text>
             </Box>

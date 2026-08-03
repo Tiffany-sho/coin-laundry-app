@@ -7,6 +7,7 @@ import * as Icon from "@/app/feacher/Icon";
 import { categoryColor } from "@/functions/expenseCategories";
 import {
   byCategory,
+  expenseTargetName,
   currentMonthKey,
   formatMonthKey,
   monthRange,
@@ -314,7 +315,11 @@ const ExpensesPanel = ({ stores = [], canEdit }) => {
                   {item.note || "（メモなし）"}
                 </Text>
                 <Text fontSize="xs" color="var(--text-faint)" mt={0.5}>
-                  {item.laundryId ? `${storeNameById[item.laundryId] ?? "（削除された店舗）"}店` : "組織全体"}
+                  {/* ⚠️ サーバが焼いた店名を優先する。店舗一覧は担当店舗で絞られるので、
+                         集金担当者・閲覧者では担当外の店舗が引けない */}
+                  {item.laundryId
+                    ? `${expenseTargetName(item, storeNameById)}店`
+                    : "組織全体"}
                 </Text>
               </Box>
 

@@ -3,6 +3,7 @@ import {
   buildProfitPoints,
   byCategory,
   byStore,
+  expenseTargetName,
   currentMonthKey,
   formatMonthKey,
   monthKeyFromEpoch,
@@ -124,10 +125,17 @@ describe("totalAmount / byCategory / byStore", () => {
     expect(rows.find((r) => r.laundryId === "s1").name).toBe("北店");
   });
 
-  it("消えた店舗の経費も落とさない", () => {
+  // ⚠️ 一覧に無い＝「消えた」とは限らない。担当外の店舗も一覧から落ちる（011）
+  it("一覧に無い店舗の経費も落とさない", () => {
     const rows = byStore([{ amount: 100, laundryId: "gone" }], {});
-    expect(rows[0].name).toBe("（削除された店舗）");
+    expect(rows[0].name).toBe("他の店舗");
     expect(rows[0].total).toBe(100);
+  });
+
+  // サーバが店名を焼いていればそれを使う
+  it("laundryName があればそれを使う", () => {
+    const rows = byStore([{ amount: 100, laundryId: "s1", laundryName: "北" }], {});
+    expect(rows[0].name).toBe("北");
   });
 });
 
@@ -232,5 +240,37 @@ describe("buildProfitPoints", () => {
       expense: 500_000,
       profit: 700_000,
     });
+  });
+});
+
+describe("expenseTargetName", () => {
+  it("laundryId が無ければ組織全体", () => {
+    expect(expenseTargetName({ laundryId: null })).toBe("組織全体");
+    expect(expenseTargetName({})).toBe("組織全体");
+  });
+
+  // ⚠️ サーバが焼いた名前を最優先する（担当店舗で絞られた一覧より確か）
+  it("サーバの laundryName を最優先する", () => {
+    expect(expenseTargetName({ laundryId: "s1", laundryName: "北" }, { s1: "南" })).toBe("北");
+  });
+
+  // ⚠️ null は「サーバが探したが見つからなかった」＝本当に消えている
+  it("laundryName が null なら削除された店舗", () => {
+    expect(expenseTargetName({ laundryId: "s1", laundryName: null }, { s1: "南" })).toBe(
+      "（削除された店舗）"
+    );
+  });
+
+  // 古いサーバ・古いキャッシュ（laundryName を持たない）
+  it("laundryName が無ければ一覧に落とす", () => {
+    expect(expenseTargetName({ laundryId: "s1" }, { s1: "南" })).toBe("南");
+  });
+
+  /*
+    ⚠️ ここが今回の直しの本体。担当店舗（011）で絞られた一覧には
+       担当外の店舗が入っていないので、**「削除された」と言い切らない。**
+  */
+  it("laundryName が無く一覧にも無ければ「他の店舗」", () => {
+    expect(expenseTargetName({ laundryId: "s1" }, {})).toBe("他の店舗");
   });
 });
