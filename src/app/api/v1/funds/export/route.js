@@ -2,8 +2,9 @@ import { withAuth, corsPreflight } from "../../_lib/handler";
 import writeXlsxFile from "write-excel-file/node";
 import { getCollectFundsForExport } from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
 import { getOrgPlan } from "@/app/api/supabaseFunctions/supabaseDatabase/organization/action";
-import { recordsToCsv } from "@/functions/csvExport";
-import { buildSheets } from "@/functions/xlsxExport";
+import { getExpenses } from "@/app/api/supabaseFunctions/supabaseDatabase/expenses/action";
+import { recordsToCsv, recordsToCsvWithExpenses } from "@/functions/csvExport";
+import { buildSheets, buildSheetsWithExpenses } from "@/functions/xlsxExport";
 import { formatDateSuffix } from "@/functions/exportData";
 
 export const dynamic = "force-dynamic";
@@ -108,18 +109,63 @@ export const POST = withAuth(async (request) => {
     return { error: "この条件に合う集金データがありません", status: 404 };
   }
 
+  /*
+    経費と月別利益を足すか。**既定は足さない。**
+    ⚠️ CSV は 1 ファイルに 3 つの表を縦に並べる形になり、会計ソフトへ
+       そのまま取り込めなくなる。だから既定を変えず、利用者に選ばせる。
+  */
+  const includeExpenses = body?.includeExpenses === true;
+  let expenses = [];
+
+  if (includeExpenses) {
+    /*
+      ⚠️ **期間は集金と同じものを渡す。** `getExpenses` の `to` は「含む」で、
+         このルートの `endEpoch` も inclusive なのでそのまま合う
+         （`/funds/chart` の `to` だけが排他。向きを取り違えないこと）。
+      ⚠️ **期間の指定が無いときは全期間。** `getExpenses` は期間を必須にして
+         いるので、無制限を表す値を自分で作る（0 〜 十分未来）。
+      ⚠️ **担当店舗（011）でサーバが絞る。** 担当外の経費は返らない。
+    */
+    const from = startEpoch ?? 0;
+    const to = endEpoch ?? Date.now() + 366 * 24 * 60 * 60 * 1000;
+
+    const result = await getExpenses(from, to);
+    if (result.error) {
+      const message = typeof result.error === "string" ? result.error : result.error.msg;
+      return { error: message ?? "経費を取得できませんでした", status: 400 };
+    }
+
+    expenses = result.data ?? [];
+
+    /*
+      ⚠️ **店舗で絞ったら経費も同じ店舗だけにする。**
+         ⚠️ **組織全体の経費（`laundry_id` が NULL）は落とす。** 按分の規則が
+            無いので勝手に割らない、という規約（店舗別の月別利益と同じ）。
+            残すと「1 店舗ぶんの書き出し」に税理士費用が丸ごと乗る。
+    */
+    if (storeIds) {
+      expenses = expenses.filter((e) => e.laundryId && storeIds.includes(e.laundryId));
+    }
+  }
+
   const suffix = formatDateSuffix();
   let file;
 
   if (format === "csv") {
+    const csv = includeExpenses
+      ? recordsToCsvWithExpenses(data, expenses)
+      : recordsToCsv(data);
     file = {
       name: `collecie_${suffix}.csv`,
       // ⚠️ **utf8 を明示する。** csv は先頭に BOM が付き中身も日本語なので、
       //    既定（latin1 相当）で畳むと端末で開いたときに全部化ける
-      base64: Buffer.from(recordsToCsv(data), "utf8").toString("base64"),
+      base64: Buffer.from(csv, "utf8").toString("base64"),
     };
   } else {
-    const buffer = await writeXlsxFile(buildSheets(data, { splitMethod })).toBuffer();
+    const sheets = includeExpenses
+      ? buildSheetsWithExpenses(data, expenses, { splitMethod })
+      : buildSheets(data, { splitMethod });
+    const buffer = await writeXlsxFile(sheets).toBuffer();
     file = { name: `collecie_${suffix}.xlsx`, base64: buffer.toString("base64") };
   }
 
@@ -130,7 +176,16 @@ export const POST = withAuth(async (request) => {
     };
   }
 
-  return { data: { format, ...file, recordCount: data.length } };
+  return {
+    data: {
+      format,
+      ...file,
+      recordCount: data.length,
+      /* ⚠️ 0 件でも返す。「経費も書き出す」を選んだのに数が出ないと、
+            失敗したのか本当に 0 件なのか区別が付かない */
+      expenseCount: includeExpenses ? expenses.length : null,
+    },
+  };
 });
 
 export const OPTIONS = corsPreflight;
