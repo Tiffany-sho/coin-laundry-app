@@ -1,12 +1,20 @@
-// 経費と月別利益の書き出し。集金データの整形（exportData.js）とは**別の表**にする。
+// 経費と月別利益の書き出し。
 //
-// ⚠️ **集金の表に経費の列を足さないこと。** あちらは
+// **集金データと同じシートに、同じ区別で入る**（2026-08-03）。ただし
+// **別の表（別ブロック）**として、空行と「■ 経費」の見出しで区切る。
+//
+// ⚠️ **集金の表に経費の「列」を足さないこと。** あちらは
 //    「設備 + 現金（内訳なし）+ 支払方法 = 合計」が常に成り立つ表で、
 //    確定申告の材料に使われる。経費は行の意味（1 行 = 1 回の集金）が違ううえ、
 //    足すと横の和が合計に一致しなくなる。
 //
+// ⚠️ **同じ列に集金と経費の金額が縦に並ぶ。** 列をまるごと選択して合計すると
+//    **両方が混ざる。** ブロックを分けても消せない性質なので、承知で使うこと。
+//
 // ⚠️ **`"use server"` のモジュールに置かない。** async 関数しか export できず、
 //    ビルドが「ページデータを収集できない」としか言わずに落ちる。
+
+import { epochToDateStr } from "./exportData";
 
 const JST_OFFSET = 32_400_000;
 
@@ -22,13 +30,11 @@ export function formatMonth(key) {
   return `${Number(y)}年${Number(m)}月`;
 }
 
-/** epoch → "YYYY/MM/DD"（JST）。⚠️ exportData.js の epochToDateStr と同じ形にする */
-function dateStr(epoch) {
-  const d = new Date(Number(epoch) + JST_OFFSET);
-  return `${d.getUTCFullYear()}/${String(d.getUTCMonth() + 1).padStart(2, "0")}/${String(
-    d.getUTCDate()
-  ).padStart(2, "0")}`;
-}
+/*
+  日付は **集金データと同じ関数**（`epochToDateStr`）で作る。
+  ⚠️ **同じシートに縦に並ぶので、書式が違うと同じ列に 2 種類の日付が混ざる。**
+     自前で組み直さないこと（2026-08-03 に "YYYY/MM/DD" で書いていて揃わなかった）。
+*/
 
 /**
  * 経費の一覧を表にする。
@@ -48,7 +54,7 @@ export function expensesToTable(expenses) {
   const header = ["日付", "対象", "カテゴリ", "内容", "毎月", "金額"];
 
   const rows = (expenses ?? []).map((e) => [
-    dateStr(e.date),
+    epochToDateStr(e.date),
     scopeLabel(e),
     e.category ?? "",
     // ⚠️ 固定費の note には名前が入るが、無ければカテゴリと同じ。二重に並べない
@@ -58,6 +64,39 @@ export function expensesToTable(expenses) {
   ]);
 
   return { header, rows };
+}
+
+/**
+ * 経費を**集金データと同じ区別**でグループに分ける（`groupRecords` と対になる）。
+ *
+ * ⚠️ **グループのキーを `groupRecords` と必ず一致させる。** ずれると、同じ月・
+ *    同じ店舗なのに別のシートへ分かれる。
+ *      "period" … `epochToYearMonth` の key（"2026-08"）
+ *      "store"  … 店名（`laundryName`）
+ *      "none"   … 1 つ（"all"）
+ *
+ * ⚠️ **`"store"` では組織全体（`laundry_id` が NULL）が行き場を失う。**
+ *    店舗に紐づかない支出なので、どの店舗のシートにも入れられない
+ *    （どれかに入れると 1 店舗ぶんの数字に税理士費用が丸ごと乗り、
+ *    全部に入れると重複する）。**捨てずに `null` キーで返す**ので、
+ *    呼び出し側が「組織全体」の別シートを作ること。
+ *    ⚠️ **黙って落とさない。** 落とすと書き出しから経費が消えたことに気づけない。
+ */
+export function groupExpenses(expenses, splitMethod = "period") {
+  const groups = new Map();
+
+  const push = (key, expense) => {
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(expense);
+  };
+
+  (expenses ?? []).forEach((e) => {
+    if (splitMethod === "none") return push("all", e);
+    if (splitMethod === "store") return push(e.laundryId ? (e.laundryName ?? null) : null, e);
+    return push(monthKey(e.date), e);
+  });
+
+  return groups;
 }
 
 /** 経費 1 件の「対象」。⚠️ `laundryId` が無い = 組織全体（店舗に紐づかない支出） */

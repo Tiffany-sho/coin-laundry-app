@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { expensesToTable, profitToTable } from "./expenseExport";
+import { expensesToTable, groupExpenses, profitToTable } from "./expenseExport";
+import { buildSheetsWithExpenses } from "./xlsxExport";
+import { groupRecords } from "./exportData";
 
 /** JST 深夜 0 時の epoch（`expenses.date` / `collect_funds.date` と同じ規約） */
 const jst = (y, m, d) => Date.UTC(y, m - 1, d) - 32_400_000;
@@ -17,12 +19,18 @@ describe("expensesToTable", () => {
       },
     ]);
     expect(header).toEqual(["日付", "対象", "カテゴリ", "内容", "毎月", "金額"]);
-    expect(rows[0]).toEqual(["2026/08/02", "浅草店", "消耗品", "洗剤", "", 12000]);
+    expect(rows[0]).toEqual(["2026年8月2日", "浅草店", "消耗品", "洗剤", "", 12000]);
   });
 
   it("⚠️ 月初が前月にならない（JST で読む）", () => {
     const { rows } = expensesToTable([{ date: jst(2026, 8, 1), amount: 1 }]);
-    expect(rows[0][0]).toBe("2026/08/01");
+    expect(rows[0][0]).toBe("2026年8月1日");
+  });
+
+  it("⚠️ 日付の書式が集金データと揃っている（同じシートに縦に並ぶため）", () => {
+    const { rows } = expensesToTable([{ date: jst(2026, 8, 2), amount: 1 }]);
+    // exportData.js の epochToDateStr と同じ形（"2026年8月2日"）
+    expect(rows[0][0]).toBe("2026年8月2日");
   });
 
   it("laundryId が無い行は「組織全体」", () => {
@@ -117,5 +125,126 @@ describe("profitToTable", () => {
 
   it("データが無ければ行も合計も出さない", () => {
     expect(profitToTable([], []).rows).toEqual([]);
+  });
+});
+
+/* ------------------------------------------------------------------ */
+/* 集金データと同じ区別で、同じシートに入る                             */
+/* ------------------------------------------------------------------ */
+
+describe("groupExpenses", () => {
+  const items = [
+    { date: jst(2026, 7, 5), laundryId: "s1", laundryName: "浅草", amount: 1 },
+    { date: jst(2026, 8, 5), laundryId: "s2", laundryName: "難波", amount: 2 },
+    { date: jst(2026, 8, 6), laundryId: null, amount: 3 },
+  ];
+
+  it("⚠️ period のキーは groupRecords と同じ 'YYYY-MM'", () => {
+    const mine = groupExpenses(items, "period");
+    expect([...mine.keys()].sort()).toEqual(["2026-07", "2026-08"]);
+
+    // 集金側のキーと突き合わせる（ずれると同じ月が別シートに割れる）
+    const groups = groupRecords([{ date: jst(2026, 8, 1), laundryName: "浅草" }], "period");
+    expect(mine.has(groups[0].key)).toBe(true);
+  });
+
+  it("⚠️ store のキーは店名。groupRecords と同じ", () => {
+    const mine = groupExpenses(items, "store");
+    const groups = groupRecords([{ date: jst(2026, 8, 1), laundryName: "浅草" }], "store");
+    expect(mine.has(groups[0].key)).toBe(true);
+  });
+
+  it("⚠️ store のとき、組織全体は null キーへ逃がす（捨てない）", () => {
+    const mine = groupExpenses(items, "store");
+    expect(mine.get(null)).toHaveLength(1);
+    expect(mine.get(null)[0].amount).toBe(3);
+  });
+
+  it("none は 1 つにまとまる", () => {
+    expect(groupExpenses(items, "none").get("all")).toHaveLength(3);
+  });
+});
+
+describe("buildSheetsWithExpenses", () => {
+  const records = [
+    { date: jst(2026, 7, 10), laundryName: "浅草", totalFunds: 300000, fundsArray: [] },
+    { date: jst(2026, 8, 5), laundryName: "難波", totalFunds: 100000, fundsArray: [] },
+  ];
+
+  /** シート内の「■ 経費」ブロックの位置。無ければ -1 */
+  const expenseBlockAt = (sheet) =>
+    sheet.data.findIndex((row) => row.length === 1 && row[0]?.value === "■ 経費");
+
+  it("経費はその月の集金と同じシートに入る（period）", () => {
+    const sheets = buildSheetsWithExpenses(
+      records,
+      [{ date: jst(2026, 7, 20), laundryId: "s1", laundryName: "浅草", amount: 5000 }],
+      { splitMethod: "period" }
+    );
+    const july = sheets.find((s) => s.sheet === "2026年7月");
+    const aug = sheets.find((s) => s.sheet === "2026年8月");
+
+    expect(expenseBlockAt(july)).toBeGreaterThan(0);
+    // ⚠️ 経費の無い月にブロックを作らない（空の見出しだけが残る）
+    expect(expenseBlockAt(aug)).toBe(-1);
+  });
+
+  it("⚠️ 経費は集金の表の「下」に、空行を挟んで入る（列に混ぜない）", () => {
+    const sheets = buildSheetsWithExpenses(
+      records,
+      [{ date: jst(2026, 7, 20), laundryId: "s1", laundryName: "浅草", amount: 5000 }],
+      { splitMethod: "period" }
+    );
+    const july = sheets.find((s) => s.sheet === "2026年7月");
+    const at = expenseBlockAt(july);
+
+    // 見出しの 1 つ前は空行
+    expect(july.data[at - 1]).toEqual([]);
+    // 見出しより前は集金の行だけ（経費の見出し「日付/対象/…」が混ざっていない）
+    expect(july.data.slice(0, at - 1).some((r) => r[1]?.value === "対象")).toBe(false);
+  });
+
+  it("店舗ごとに分けると、その店舗のシートに入る（store）", () => {
+    const sheets = buildSheetsWithExpenses(
+      records,
+      [{ date: jst(2026, 8, 20), laundryId: "s1", laundryName: "浅草", amount: 5000 }],
+      { splitMethod: "store" }
+    );
+    expect(expenseBlockAt(sheets.find((s) => s.sheet === "浅草店"))).toBeGreaterThan(0);
+    expect(expenseBlockAt(sheets.find((s) => s.sheet === "難波店"))).toBe(-1);
+  });
+
+  it("⚠️ store のとき、組織全体の経費を落とさず別シートへ逃がす", () => {
+    const sheets = buildSheetsWithExpenses(
+      records,
+      [{ date: jst(2026, 8, 20), laundryId: null, amount: 9000 }],
+      { splitMethod: "store" }
+    );
+    const orphan = sheets.find((s) => s.sheet === "組織全体の経費");
+    expect(orphan).toBeDefined();
+    expect(orphan.data).toHaveLength(2); // 見出し + 1 行
+  });
+
+  it("⚠️ 集金の無い月の経費も落とさない（groupRecords は集金からしか作らない）", () => {
+    const sheets = buildSheetsWithExpenses(
+      records,
+      [{ date: jst(2026, 5, 1), laundryId: "s1", laundryName: "浅草", amount: 7000 }],
+      { splitMethod: "period" }
+    );
+    expect(sheets.some((s) => s.sheet === "その他の経費")).toBe(true);
+  });
+
+  it("月別利益は 1 枚だけ独立して付く（期間をまたぐ表なので）", () => {
+    const sheets = buildSheetsWithExpenses(
+      records,
+      [{ date: jst(2026, 7, 20), laundryId: "s1", laundryName: "浅草", amount: 5000 }],
+      { splitMethod: "period" }
+    );
+    expect(sheets.filter((s) => s.sheet === "月別利益")).toHaveLength(1);
+  });
+
+  it("経費が 0 件なら集金だけのシートになる（余計なシートを作らない）", () => {
+    const sheets = buildSheetsWithExpenses(records, [], { splitMethod: "period" });
+    expect(sheets.map((s) => s.sheet)).toEqual(["2026年7月", "2026年8月", "月別利益"]);
   });
 });
