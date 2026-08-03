@@ -30,13 +30,16 @@ import ExpenseDialog from "./ExpenseDialog";
  *
  * ⚠️ **毎月の固定費は展開されて混ざって返る**（`recurring: true`）。実体の行では
  *    ないので **編集・削除できない**。押せる導線を出さないこと。
+ *
+ * ⚠️ **`canAdd`（登録）と `canManage`（編集・削除）は別**（2026-08-03）。
+ *    登録は集金担当者にも許し、直せるのは admin だけ。**1 つにまとめないこと。**
  */
 
 const CategoryDot = ({ category }) => (
   <Box w="8px" h="8px" borderRadius="2px" bg={categoryColor(category)} flexShrink={0} />
 );
 
-const ExpensesPanel = ({ stores = [], canEdit }) => {
+const ExpensesPanel = ({ stores = [], canAdd, canManage }) => {
   const [month, setMonth] = useState(() => currentMonthKey());
   const [items, setItems] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -200,7 +203,7 @@ const ExpensesPanel = ({ stores = [], canEdit }) => {
 
       {/* ── 操作 ── */}
       <HStack gap={3} wrap="wrap">
-        {canEdit && (
+        {canAdd && (
           <Button
             colorPalette="cyan"
             borderRadius="full"
@@ -332,7 +335,8 @@ const ExpensesPanel = ({ stores = [], canEdit }) => {
                 >
                   ¥{item.amount.toLocaleString()}
                 </Text>
-                {canEdit && !item.recurring && (
+                {/* ⚠️ 編集・削除は admin だけ。登録できる集金担当者にも出さない */}
+                {canManage && !item.recurring && (
                   <HStack gap={1}>
                     <Box
                       as="button"

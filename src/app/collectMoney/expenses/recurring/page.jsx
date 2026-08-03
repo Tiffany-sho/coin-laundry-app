@@ -17,6 +17,10 @@ export const metadata = {
  * ⚠️ ここで作るのは**定義だけ**で、経費の実体は作らない。一覧を開くたびに
  *    定義から展開して計算している（`expandRecurring`）。金額を変えると
  *    過去の月まで遡って変わる。
+ *
+ * ⚠️ **管理できるのは admin だけ**（2026-08-03）。単発の経費と違い、
+ *    追加・編集・削除のすべてを絞っている（追加だけ塞いでも、編集で金額を
+ *    書き換えられれば同じことができるため）。一覧は担当店舗（011）で絞られる。
  */
 export default async function RecurringExpensesPage() {
   const [{ data: stores }, { data: org }] = await Promise.all([
@@ -24,7 +28,7 @@ export default async function RecurringExpensesPage() {
     getMyOrganization(),
   ]);
 
-  const canEdit = org?.myRole === "admin" || org?.myRole === "collecter";
+  const canEdit = org?.myRole === "admin";
 
   return (
     <Box maxW="720px" mx="auto" p={{ base: 4, md: 8 }}>

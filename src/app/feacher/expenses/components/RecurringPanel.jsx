@@ -44,6 +44,9 @@ import { showToast } from "@/functions/makeToast/toast";
  *
  * ⚠️ **日付は 1〜28 まで。** 29 以上を許すと、その日が無い月で翌月へ繰り上がり
  *    二重計上になる（008 の CHECK と同じ理由）。
+ *
+ * ⚠️ **`canEdit` は「admin か」。** 単発の経費（集金担当者も登録できる）とは
+ *    条件が違う。サーバも追加・編集・削除のすべてで 403 を返す。
  */
 
 const Label = ({ children }) => (
@@ -397,8 +400,10 @@ const RecurringPanel = ({ stores = [], canEdit }) => {
           p={6}
           textAlign="center"
         >
+          {/* ⚠️ 登録できない人に登録を促さない */}
           <Text fontSize="sm" color="var(--text-faint)">
             毎月の固定費はまだ登録されていません
+            {canEdit ? "" : "（登録できるのは管理者だけです）"}
           </Text>
         </Box>
       )}

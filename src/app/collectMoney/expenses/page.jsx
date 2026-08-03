@@ -14,8 +14,14 @@ export const metadata = {
 /**
  * 経費の一覧。単発の経費と、展開された毎月の固定費が混ざって出る。
  *
- * ⚠️ **閲覧者（viewer）は登録・編集できない。** Server Action 側でも弾いているが、
- *    押せるボタンを出さないために myRole を渡している（表示の出し分けだけ）。
+ * ⚠️ **「足せる人」と「直せる人」が違う**（2026-08-03）。
+ *    - 登録（単発）… admin + 集金担当者。現場で出た支出をその場で記録するため
+ *    - **編集・削除 … admin だけ**
+ *    Server Action 側でも弾いているが、押せるボタンを出さないために両方を渡す
+ *    （表示の出し分けだけ）。**1 つの `canEdit` にまとめないこと。**
+ *
+ * ⚠️ **一覧そのものは担当店舗（011）で絞られている**（`getExpenses`）。
+ *    担当外の店舗の経費はそもそも返らない。
  */
 export default async function ExpensesPage() {
   const [{ data: stores }, { data: org }] = await Promise.all([
@@ -23,7 +29,8 @@ export default async function ExpensesPage() {
     getMyOrganization(),
   ]);
 
-  const canEdit = org?.myRole === "admin" || org?.myRole === "collecter";
+  const canAdd = org?.myRole === "admin" || org?.myRole === "collecter";
+  const canManage = org?.myRole === "admin";
 
   return (
     <Box maxW="720px" mx="auto" p={{ base: 4, md: 8 }}>
@@ -81,7 +88,7 @@ export default async function ExpensesPage() {
           </Text>
         </Box>
       ) : (
-        <ExpensesPanel stores={stores ?? []} canEdit={canEdit} />
+        <ExpensesPanel stores={stores ?? []} canAdd={canAdd} canManage={canManage} />
       )}
     </Box>
   );

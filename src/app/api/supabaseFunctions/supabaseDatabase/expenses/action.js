@@ -3,6 +3,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { createServiceClient } from "@/utils/supabase/service";
 import { getUser } from "../user/action";
+import { getMyStoreScope } from "../memberStores/action";
 import { getEpochTimeInSeconds } from "@/functions/makeDate/date";
 import { fetchAllRows } from "@/functions/fetchAllRows";
 /*
@@ -11,6 +12,7 @@ import { fetchAllRows } from "@/functions/fetchAllRows";
      （`Failed to collect page data for …` としか出ず原因が分かりにくい）。
 */
 import { EXPENSE_CATEGORIES } from "@/functions/expenseCategories";
+import { expenseScopeFilter, inExpenseStoreScope } from "@/functions/expenseScope";
 
 /**
  * 経費。単発（在庫の仕入れ・修理代など）と、毎月の固定費（家賃・水道光熱費）の 2 本立て。
@@ -70,6 +72,71 @@ async function getOrgStoreNames(orgId) {
     .select("id, store")
     .eq("organization_id", orgId);
   return new Map((data ?? []).map((s) => [s.id, s.store]));
+}
+
+/* ------------------------------------------------------------------ */
+/* 担当店舗（011）と権限                                                */
+/* ------------------------------------------------------------------ */
+
+/**
+ * 担当していない店舗の経費を**読ませない**（2026-08-03）。
+ *
+ * ⚠️ **組織全体（`laundry_id` が NULL）は残す。** 店舗の経費ではないため
+ *    「担当していない店舗」に当たらない。落とすと、担当が 0 件の人だけでなく
+ *    **税理士費用のような組織の支出が誰にも見えなくなる**（admin 以外）。
+ *
+ * ⚠️ **絞るのは SQL 側。** 取ってきてから手元で捨てると、PostgREST の
+ *    1000 行上限が**捨てるぶんで埋まって**担当店舗の古い経費が黙って欠ける。
+ *
+ * ⚠️ **`storeIds === null` が「全店舗」**（admin）。空配列とは意味が違うので
+ *    `storeIds?.length` のような書き方で判定しないこと。
+ */
+function applyStoreScope(query, storeIds) {
+  /*
+    ⚠️ 判定は `@/functions/expenseScope` に置いてある（ここは "use server" なので
+       同期の関数を export できない）。**組み立てを画面や別のルートで書き直さないこと。**
+  */
+  const scope = expenseScopeFilter(storeIds);
+  if (scope.kind === "all") return query;
+  if (scope.kind === "orgOnly") return query.is("laundry_id", null);
+  /* `.in()` と「NULL も含める」は OR でしか書けないので `.or()` を使う */
+  return query.or(scope.filter);
+}
+
+/**
+ * 書き込み先の店舗を検証する。
+ *
+ * ⚠️ **組織の店舗であること**（他組織の id を送られたときの防波堤）と
+ *    **自分の担当であること**の**両方**を見る。片方だけだと、
+ *    担当外の店舗に経費を作れてしまい、**作った本人が二度と見られない行**が残る。
+ */
+async function assertStoreAllowed(orgId, storeIds, laundryId) {
+  if (!laundryId) return null;
+  const orgStores = await getOrgStoreIds(orgId);
+  if (!orgStores.includes(laundryId)) {
+    return { msg: "指定された店舗へのアクセス権限がありません", status: 403 };
+  }
+  if (!inExpenseStoreScope(storeIds, laundryId)) {
+    return { msg: "担当していない店舗には記録できません", status: 403 };
+  }
+  return null;
+}
+
+/**
+ * 経費の**編集・削除**と**固定費の管理**は admin だけ（2026-08-03 の決定）。
+ *
+ * ⚠️ **登録（単発）は集金担当者にも許す。** 現場で支出が出たときに記録するのが
+ *    経費の使い方で、そこを塞ぐと機能が admin 専用になってしまう。
+ *    ⚠️ その代わり**書き間違えても本人は直せない**（admin に頼むことになる）。
+ *    これは意図した引き換え。
+ *
+ * ⚠️ **固定費は「毎月ずっと計上される」＝組織の数字を継続的に動かす設定**なので、
+ *    追加も編集も削除も admin に寄せている。追加だけ塞いでも、
+ *    編集で金額を書き換えられれば同じことができる。
+ */
+function requireAdmin(member, what) {
+  if (member.role === "admin") return null;
+  return { error: { msg: `${what}できるのは管理者だけです`, status: 403 } };
 }
 
 /* ------------------------------------------------------------------ */
@@ -147,6 +214,17 @@ export async function getExpenses(startEpoch, endEpoch, laundryId = null) {
   const { error, member } = await getMyMembership();
   if (error) return { error };
 
+  /* 担当店舗（011）。⚠️ `storeIds === null` が「全店舗」（admin） */
+  const { storeIds } = await getMyStoreScope();
+
+  /*
+    ⚠️ **担当外の店舗を名指しされたら 403。** 一覧に出ない店舗でも
+       `?storeId=` を手で付ければ覗けてしまう（`getStore(id)` と同じ穴）。
+  */
+  if (laundryId && !inExpenseStoreScope(storeIds, laundryId)) {
+    return { error: { msg: "担当していない店舗です", status: 403 } };
+  }
+
   const supabase = createServiceClient();
 
   /*
@@ -163,15 +241,19 @@ export async function getExpenses(startEpoch, endEpoch, laundryId = null) {
       .gte("date", startEpoch)
       .lte("date", endEpoch)
       .order("date", { ascending: false });
-    if (laundryId) q = q.eq("laundry_id", laundryId);
-    return q;
+    /* 名指しは上で担当を確認済み。指定なしのときだけ担当店舗＋組織全体に絞る */
+    return laundryId ? q.eq("laundry_id", laundryId) : applyStoreScope(q, storeIds);
   };
 
   const { data, error: queryError } = await fetchAllRows(buildQuery);
 
   if (queryError) return { error: "経費の取得に失敗しました" };
 
-  /* ⚠️ 担当店舗で絞られない一覧なので、店名も**組織の全店舗**から引く */
+  /*
+    ⚠️ 店名は**組織の全店舗**から引く。担当店舗で絞ったものを渡すと、
+       担当外の店舗が「（削除された店舗）」になる（2026-08-03 に実際にそうなっていた）。
+       ⚠️ 行そのものは上で絞っているので、ここが広くても漏れにはならない。
+  */
   const storeNames = await getOrgStoreNames(member.org_id);
 
   const recurring = await expandRecurring(
@@ -179,7 +261,8 @@ export async function getExpenses(startEpoch, endEpoch, laundryId = null) {
     startEpoch,
     endEpoch,
     laundryId,
-    storeNames
+    storeNames,
+    storeIds
   );
   if (recurring.error) return { error: recurring.error };
 
@@ -201,12 +284,10 @@ export async function createExpense(input) {
   const message = validate(input);
   if (message) return { error: { msg: message, status: 400 } };
 
-  if (input.laundryId) {
-    const storeIds = await getOrgStoreIds(member.org_id);
-    if (!storeIds.includes(input.laundryId)) {
-      return { error: { msg: "指定された店舗へのアクセス権限がありません", status: 403 } };
-    }
-  }
+  /* ⚠️ 担当外の店舗に作らせない。作れると**本人が二度と見られない行**が残る */
+  const { storeIds } = await getMyStoreScope();
+  const denied = await assertStoreAllowed(member.org_id, storeIds, input.laundryId);
+  if (denied) return { error: denied };
 
   const supabase = createServiceClient();
   const { data, error: insertError } = await supabase
@@ -227,22 +308,25 @@ export async function createExpense(input) {
   return { data: toApi(data, await getOrgStoreNames(member.org_id)) };
 }
 
+/**
+ * 経費の編集。**admin だけ**（2026-08-03）。
+ *
+ * ⚠️ 集金担当者は**登録はできるが直せない。** 誤りの訂正は admin に寄せている
+ *    （`requireAdmin` の説明を参照）。
+ */
 export async function updateExpense(id, input) {
   const { error, member } = await getMyMembership();
   if (error) return { error };
-  if (member.role === "viewer") {
-    return { error: { msg: "経費を編集する権限がありません", status: 403 } };
-  }
+
+  const forbidden = requireAdmin(member, "経費を編集");
+  if (forbidden) return forbidden;
 
   const message = validate(input);
   if (message) return { error: { msg: message, status: 400 } };
 
-  if (input.laundryId) {
-    const storeIds = await getOrgStoreIds(member.org_id);
-    if (!storeIds.includes(input.laundryId)) {
-      return { error: { msg: "指定された店舗へのアクセス権限がありません", status: 403 } };
-    }
-  }
+  const { storeIds } = await getMyStoreScope();
+  const denied = await assertStoreAllowed(member.org_id, storeIds, input.laundryId);
+  if (denied) return { error: denied };
 
   const supabase = createServiceClient();
   const { data, error: updateError } = await supabase
@@ -266,12 +350,13 @@ export async function updateExpense(id, input) {
   return { data: toApi(data[0], await getOrgStoreNames(member.org_id)) };
 }
 
+/** 経費の削除。**admin だけ**（2026-08-03） */
 export async function deleteExpense(id) {
   const { error, member } = await getMyMembership();
   if (error) return { error };
-  if (member.role === "viewer") {
-    return { error: { msg: "経費を削除する権限がありません", status: 403 } };
-  }
+
+  const forbidden = requireAdmin(member, "経費を削除");
+  if (forbidden) return forbidden;
 
   const supabase = createServiceClient();
   const { data, error: deleteError } = await supabase
@@ -324,14 +409,15 @@ function toRecurringApi(row, storeNames) {
  * ⚠️ **`day_of_month` は 28 まで**（008 の CHECK）。29 以上を許すと、
  *    その日が無い月で `getEpochTimeInSeconds` が翌月へ繰り上がって二重計上になる。
  */
-async function expandRecurring(orgId, startEpoch, endEpoch, laundryId, storeNames) {
+async function expandRecurring(orgId, startEpoch, endEpoch, laundryId, storeNames, storeIds) {
   const supabase = createServiceClient();
 
   let query = supabase
     .from("recurring_expenses")
     .select("id, laundry_id, name, amount, category, day_of_month, start_month, end_month")
     .eq("org_id", orgId);
-  if (laundryId) query = query.eq("laundry_id", laundryId);
+  /* ⚠️ 単発と同じ規約で絞る。ここを忘れると担当外の家賃だけ一覧に残る */
+  query = laundryId ? query.eq("laundry_id", laundryId) : applyStoreScope(query, storeIds);
 
   const { data, error } = await query;
   if (error) return { error: "固定費の取得に失敗しました" };
@@ -374,15 +460,26 @@ async function expandRecurring(orgId, startEpoch, endEpoch, laundryId, storeName
   return { items };
 }
 
+/**
+ * 固定費の**定義**の一覧。
+ *
+ * ⚠️ **展開した結果（`getExpenses`）と同じ範囲に絞る。** 片方だけ絞ると、
+ *    一覧には出ない家賃が「毎月の固定費」の欄にだけ並ぶ。
+ */
 export async function getRecurringExpenses() {
   const { error, member } = await getMyMembership();
   if (error) return { error };
 
+  const { storeIds } = await getMyStoreScope();
+
   const supabase = createServiceClient();
-  const { data, error: queryError } = await supabase
-    .from("recurring_expenses")
-    .select("id, laundry_id, name, amount, category, day_of_month, start_month, end_month")
-    .eq("org_id", member.org_id)
+  const { data, error: queryError } = await applyStoreScope(
+    supabase
+      .from("recurring_expenses")
+      .select("id, laundry_id, name, amount, category, day_of_month, start_month, end_month")
+      .eq("org_id", member.org_id),
+    storeIds
+  )
     .order("start_month", { ascending: false })
     .order("created_at", { ascending: false });
 
@@ -427,22 +524,20 @@ function validateRecurring(input) {
   return null;
 }
 
+/** 固定費の登録。**admin だけ**（2026-08-03。理由は `requireAdmin`） */
 export async function createRecurringExpense(input) {
   const { error, member, user } = await getMyMembership();
   if (error) return { error };
-  if (member.role === "viewer") {
-    return { error: { msg: "固定費を登録する権限がありません", status: 403 } };
-  }
+
+  const forbidden = requireAdmin(member, "固定費を登録");
+  if (forbidden) return forbidden;
 
   const message = validateRecurring(input);
   if (message) return { error: { msg: message, status: 400 } };
 
-  if (input.laundryId) {
-    const storeIds = await getOrgStoreIds(member.org_id);
-    if (!storeIds.includes(input.laundryId)) {
-      return { error: { msg: "指定された店舗へのアクセス権限がありません", status: 403 } };
-    }
-  }
+  const { storeIds } = await getMyStoreScope();
+  const denied = await assertStoreAllowed(member.org_id, storeIds, input.laundryId);
+  if (denied) return { error: denied };
 
   const supabase = createServiceClient();
   const { data, error: insertError } = await supabase
@@ -472,23 +567,23 @@ export async function createRecurringExpense(input) {
  * ⚠️ **金額を変えると過去の月まで遡って変わる。** 展開は定義から毎回計算するため。
  *    「今月から家賃が上がった」を表したいときは、**既存の定義に end_month を入れて
  *    終わらせ、新しい定義を作る。** 画面でもそう案内すること。
+ *
+ * ⚠️ **admin だけ**（2026-08-03）。追加だけ塞いでも、編集で金額を書き換えられれば
+ *    同じことができるので、揃えて絞っている。
  */
 export async function updateRecurringExpense(id, input) {
   const { error, member } = await getMyMembership();
   if (error) return { error };
-  if (member.role === "viewer") {
-    return { error: { msg: "固定費を編集する権限がありません", status: 403 } };
-  }
+
+  const forbidden = requireAdmin(member, "固定費を編集");
+  if (forbidden) return forbidden;
 
   const message = validateRecurring(input);
   if (message) return { error: { msg: message, status: 400 } };
 
-  if (input.laundryId) {
-    const storeIds = await getOrgStoreIds(member.org_id);
-    if (!storeIds.includes(input.laundryId)) {
-      return { error: { msg: "指定された店舗へのアクセス権限がありません", status: 403 } };
-    }
-  }
+  const { storeIds } = await getMyStoreScope();
+  const denied = await assertStoreAllowed(member.org_id, storeIds, input.laundryId);
+  if (denied) return { error: denied };
 
   const supabase = createServiceClient();
   const { data, error: updateError } = await supabase
@@ -519,13 +614,15 @@ export async function updateRecurringExpense(id, input) {
  *
  * ⚠️ **過去の月からも消える**（展開は定義から毎回計算するため）。
  *    「これまでの分は残したい」なら削除ではなく end_month を入れること。画面で案内する。
+ *
+ * ⚠️ **admin だけ**（2026-08-03）。過去の月の数字がまとめて動くため。
  */
 export async function deleteRecurringExpense(id) {
   const { error, member } = await getMyMembership();
   if (error) return { error };
-  if (member.role === "viewer") {
-    return { error: { msg: "固定費を削除する権限がありません", status: 403 } };
-  }
+
+  const forbidden = requireAdmin(member, "固定費を削除");
+  if (forbidden) return forbidden;
 
   const supabase = createServiceClient();
   const { data, error: deleteError } = await supabase
