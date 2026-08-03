@@ -101,6 +101,14 @@ StoreKit がその取引を二度と返さなくなり、検証に失敗した�
 
 ## 13.4 その他の必須項目
 
+⚠️ **掲載情報（App 名・サブタイトル・キーワード・説明文）の正本は
+[`app-store/metadata_ja.md`](app-store/metadata_ja.md)。** 直すときは必ずあちらを直す。
+**お知らせの文言レビューは [`announcements/REVIEW.md`](announcements/REVIEW.md)**
+（⚠️ アプリを更新せずに文面を出せるので、**審査通過後も投稿のたびに通す**）。
+
+⚠️ **サポート URL の欄に `/tokushoho` を入れない。** 販売価格と決済条件を
+Stripe 前提で書いているページなので、**外部での購入条件の提示になる**（3.1.3(a)）。
+
 | 項目 | 対応 |
 |---|---|
 | **Privacy Manifest**（`PrivacyInfo.xcprivacy`）| Expo は `app.json` の `ios.privacyManifests` から生成。収集データ：メールアドレス（アプリ機能）、ユーザー ID（アプリ機能）。**トラッキング目的の収集なし** |
