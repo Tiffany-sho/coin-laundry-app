@@ -18,6 +18,7 @@ import {
   updateMemberRole,
 } from "@/app/api/supabaseFunctions/supabaseDatabase/organization/action";
 import { showToast } from "@/functions/makeToast/toast";
+import MemberStoreAssign from "./MemberStoreAssign";
 
 const ROLE_INFO = {
   admin:     { label: "店舗管理者", bg: "var(--teal-pale, #CFFAFE)", color: "var(--teal-deeper, #155E75)" },
@@ -25,7 +26,15 @@ const ROLE_INFO = {
   viewer:    { label: "閲覧者",     bg: "gray.100",                   color: "gray.700" },
 };
 
-export default function MemberList({ members, currentUserId, onChanged }) {
+export default function MemberList({
+  members,
+  currentUserId,
+  onChanged,
+  /** 割り当てに使う店舗の一覧。⚠️ 管理者から取るので全店舗が入っている */
+  stores = [],
+  /** 見ている人が管理者か。担当店舗の割り当ては管理者にしか出さない */
+  canAssign = false,
+}) {
   const [loadingId, setLoadingId] = useState(null);
 
   const handleRoleChange = async (userId, newRole) => {
@@ -149,6 +158,18 @@ export default function MemberList({ members, currentUserId, onChanged }) {
                 )}
               </HStack>
             </HStack>
+
+            {/* ⚠️ 管理者の行には出さない。管理者は常に全店舗で行を持たないため、
+                   出すと「未設定」に見えてしまう */}
+            {canAssign && !isOwner && (
+              <MemberStoreAssign
+                userId={member.user_id}
+                userName={profile?.username || profile?.full_name || "このメンバー"}
+                stores={stores}
+                assigned={member.storeIds ?? []}
+                onChanged={onChanged}
+              />
+            )}
           </Box>
         );
       })}

@@ -43,6 +43,13 @@ const ExpensesPanel = ({ stores = [], canEdit }) => {
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState(null);
+  /**
+   * どこの支出かで絞る。
+   * ⚠️ **`"all"` が「絞らない」。`null` ではない。** `laundry_id` が NULL の行は
+   *    「組織全体の経費」という**別の意味**なので、兼ねると
+   *    **組織全体の経費だけを見る手段が消える。**
+   */
+  const [scope, setScope] = useState("all");
 
   const storeNameById = Object.fromEntries(stores.map((s) => [s.id, s.store]));
 
@@ -75,8 +82,20 @@ const ExpensesPanel = ({ stores = [], canEdit }) => {
     load();
   };
 
-  const total = totalAmount(items);
-  const categories = byCategory(items);
+  /*
+    ⚠️ **絞り込みはサーバに投げず、取ってきた月ぶんを手元で分ける。**
+       `getExpenses` の `laundryId` は「その店舗のものだけ」を返すので、
+       **「組織全体（laundry_id が NULL）だけ」を取る手段が無い。**
+  */
+  const visible = (items ?? []).filter((item) => {
+    if (scope === "all") return true;
+    if (scope === "org") return item.laundryId == null;
+    return item.laundryId === scope;
+  });
+
+  /* ⚠️ 合計もカテゴリ内訳も絞り込みに追従させる（数字と行が食い違わないように） */
+  const total = totalAmount(visible);
+  const categories = byCategory(visible);
 
   return (
     <VStack align="stretch" gap={5}>
@@ -153,7 +172,7 @@ const ExpensesPanel = ({ stores = [], canEdit }) => {
                 {total.toLocaleString()}
               </Text>
               <Text fontSize="xs" color="var(--text-muted)" alignSelf="flex-end" pb={1}>
-                {items?.length ?? 0}件
+                {visible.length}件
               </Text>
             </HStack>
 
@@ -208,7 +227,32 @@ const ExpensesPanel = ({ stores = [], canEdit }) => {
         </HStack>
       )}
 
-      {!loading && !error && items?.length === 0 && (
+      {/*
+        どこの支出かで絞る。⚠️ **店舗が 1 軒も無いときは出さない**
+           （「すべて」と「組織全体」しか並ばず、押す意味が無い）。
+      */}
+      {!loading && !error && stores.length > 0 && (
+        <HStack gap={2} wrap="wrap">
+          {[
+            { key: "all", label: "すべて" },
+            { key: "org", label: "組織全体" },
+            ...stores.map((store) => ({ key: store.id, label: `${store.store}店` })),
+          ].map((option) => (
+            <Button
+              key={option.key}
+              size="xs"
+              borderRadius="full"
+              variant={scope === option.key ? "solid" : "outline"}
+              colorPalette="cyan"
+              onClick={() => setScope(option.key)}
+            >
+              {option.label}
+            </Button>
+          ))}
+        </HStack>
+      )}
+
+      {!loading && !error && visible.length === 0 && (
         <Box
           bg="var(--card-bg, #FFFFFF)"
           border="1px solid"
@@ -218,14 +262,16 @@ const ExpensesPanel = ({ stores = [], canEdit }) => {
           textAlign="center"
         >
           <Text fontSize="sm" color="var(--text-faint)">
-            この月の経費はまだありません
+            {scope === "all"
+              ? "この月の経費はまだありません"
+              : "この絞り込みに合う経費はありません"}
           </Text>
         </Box>
       )}
 
-      {!loading && !error && items?.length > 0 && (
+      {!loading && !error && visible.length > 0 && (
         <VStack align="stretch" gap={2}>
-          {items.map((item) => (
+          {visible.map((item) => (
             <HStack
               key={item.id}
               bg="var(--card-bg, #FFFFFF)"

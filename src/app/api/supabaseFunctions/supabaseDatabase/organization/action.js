@@ -3,6 +3,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { createServiceClient } from "@/utils/supabase/service";
 import { getUser } from "../user/action";
+import { getOrgMemberStores } from "../memberStores/action";
 import { PLAN_LIMITS, PLAN_MEMBER_LIMITS } from "@/functions/plans";
 import { Resend } from "resend";
 
@@ -66,14 +67,56 @@ export async function getMyOrganization() {
     .single();
 
   if (error) return { error: "組織情報の取得に失敗しました" };
-  return { data: { ...data.organizations, myRole: data.role } };
+
+  /*
+    ⚠️ **012 で足した列は「別のクエリ」で取る。上の select に混ぜないこと。**
+       混ぜると、マイグレーション未適用の環境で PostgREST が 42703 を返して
+       **`getMyOrganization` ごと失敗する。** 呼び出し側はどこも
+       `orgResult.data?.myRole ?? "viewer"` と書いているので、
+       **店舗管理者が全員 閲覧者になる。** 2026-08-03 に実際にそうなった。
+       ⚠️ `getOrgPlan` が 003 のときに同じ理由で同じ形にしてある。**真似ること。**
+
+    ⚠️ ここが失敗しても「経費を使う」として続行してよい（既定と同じ向き）。
+  */
+  const { data: settings } = await createServiceClient()
+    .from("organizations")
+    .select("expenses_enabled")
+    .eq("id", data.organizations.id)
+    .maybeSingle();
+
+  return {
+    data: {
+      ...data.organizations,
+      myRole: data.role,
+      /*
+        ⚠️ **`!== false` で読む。** 012 より前に作られた行や、列を返せなかった
+           ときは undefined になる。`Boolean(undefined)` は false なので、
+           素直に畳むと**経費を使っている組織から機能が消える。**
+      */
+      expensesEnabled: settings?.expenses_enabled !== false,
+    },
+  };
 }
 
-export async function createOrganization(name) {
+/**
+ * 組織を作る。
+ *
+ * ⚠️ **`expensesEnabled` は初期設定で聞いた答え。** 省略＝ true（経費を使う）。
+ *    未指定を false に倒すと、Web の古い初期設定フォームから作られた組織で
+ *    経費が黙って無効になる。
+ */
+export async function createOrganization(name, expensesEnabled = true) {
   const { user } = await getUser();
   if (!user) return { error: "ログインしてください" };
 
   const serviceSupabase = createServiceClient();
+  /*
+    ⚠️ **012 の列を insert に混ぜない。** 混ぜると、マイグレーション未適用の
+       環境で 42703 が返って**組織の作成そのものが失敗する**（初期設定が
+       最後まで進めなくなる）。作ってから別に書く。
+    ⚠️ ここが失敗しても既定（true = 経費を使う）で残るだけなので、
+       組織の作成は成功させる。
+  */
   const { data: org, error: orgError } = await serviceSupabase
     .from("organizations")
     .insert({ name, owner_id: user.id })
@@ -81,6 +124,17 @@ export async function createOrganization(name) {
     .single();
 
   if (orgError) return { error: "組織の作成に失敗しました" };
+
+  /*
+    経費を使わない選択のときだけ書き込む。⚠️ **失敗しても続行する**
+    （012 未適用なら既定の true と同じ状態になるだけ。組織を作れないほうが困る）。
+  */
+  if (expensesEnabled === false) {
+    await serviceSupabase
+      .from("organizations")
+      .update({ expenses_enabled: false })
+      .eq("id", org.id);
+  }
 
   const { error: memberError } = await serviceSupabase
     .from("organization_members")
@@ -104,6 +158,43 @@ export async function updateOrganizationName(name) {
   return {};
 }
 
+/**
+ * 経費の機能を使うかを切り替える（012）。
+ *
+ * ⚠️ **これは表示の設定であって認可ではない。** false にしても `expenses` /
+ *    `recurring_expenses` の行は消さないし、経費の API も 403 にしない。
+ *    戻したときに以前の記録がそのまま出るのが正しい挙動で、
+ *    切り替えた瞬間に他の端末が永久に 403 を受け続ける事故も防げる。
+ *
+ * ⚠️ **admin だけが通す。** 組織全員の画面が変わるため。
+ *    ⚠️ `updateOrganizationName` は `owner_id` で絞っているので**オーナーしか
+ *       通らない**が、こちらは `setOrgJoinPassword` と同じで admin なら通る。
+ *       揃っていないのは意図的（改名はオーナーの権限のまま残してある）。
+ */
+export async function updateOrganizationExpensesEnabled(enabled) {
+  const { user } = await getUser();
+  if (!user) return { error: "ログインしてください" };
+
+  const supabase = await createClient();
+  const { data: member, error: memberError } = await supabase
+    .from("organization_members")
+    .select("org_id, role")
+    .eq("user_id", user.id)
+    .single();
+
+  if (memberError || member.role !== "admin") return { error: "権限がありません" };
+
+  const serviceSupabase = createServiceClient();
+  const { error } = await serviceSupabase
+    .from("organizations")
+    // ⚠️ 真偽値に畳んでから入れる。文字列の "false" は DB では true になる
+    .update({ expenses_enabled: enabled === true })
+    .eq("id", member.org_id);
+
+  if (error) return { error: "更新に失敗しました" };
+  return { data: { expensesEnabled: enabled === true } };
+}
+
 export async function getOrganizationMembers() {
   const { user } = await getUser();
   if (!user) return { error: "ログインしてください" };
@@ -122,11 +213,26 @@ export async function getOrganizationMembers() {
   const { data: rawData, error } = await supabase.rpc("get_org_members");
   if (error) return { error: "メンバー情報の取得に失敗しました" };
 
+  /*
+    担当店舗（011）を貼る。
+    ⚠️ **admin のときだけ引く。** 割り当ての画面は管理者専用で、
+       他のメンバーには「誰がどの店舗を担当しているか」を出す画面が無い。
+    ⚠️ **admin 自身の storeIds は常に空。** admin は行を持たない（＝全店舗）ので、
+       画面では「未設定」ではなく**「全店舗」**と出すこと。取り違えると
+       管理者に「担当店舗がありません」と表示される。
+  */
+  let assignments = {};
+  if (myMember.role === "admin") {
+    const { data: byUser } = await getOrgMemberStores();
+    assignments = byUser ?? {};
+  }
+
   const data = rawData.map((row) => ({
     id: row.id,
     user_id: row.user_id,
     role: row.role,
     joined_at: row.joined_at,
+    storeIds: assignments[row.user_id] ?? [],
     profiles: { id: row.user_id, username: row.username, full_name: row.full_name },
   }));
 

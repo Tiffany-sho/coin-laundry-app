@@ -75,6 +75,15 @@ export async function getLaundryState(laundryId) {
   const { user } = await getUser();
   if (!user) return { error: "ログインしてください" };
 
+  /*
+    ⚠️ **2026-08-03 まで店舗の確認が 1 つも無かった。** ログインさえしていれば
+       `laundryId` を渡すだけで**他組織の在庫状態まで読めていた**（RLS 頼みだが、
+       この経路は `laundryId` で直に引くだけなので組織をまたげる）。
+       担当店舗を入れるついでに、組織と担当の両方をここで見る。
+  */
+  const storeIds = await getOrgStoreIds();
+  if (!storeIds.includes(laundryId)) return { error: "アクセス権限がありません" };
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("laundry_state")
@@ -145,6 +154,8 @@ export async function updateMachinesState(laundryId, machines) {
           body: label,
           url: `/manage/${laundryId}`,
           exceptUserId: user.id,
+          // 担当していない人へ送らない（開いても 403 になる画面へ誘導しないため）
+          laundryId,
         })
       );
     }
@@ -201,6 +212,8 @@ export async function updateStockState(laundryId, { detergent, softener, extra_s
           body: `${nowLow.join("・")}が残りわずかです`,
           url: `/manage/${laundryId}`,
           exceptUserId: user.id,
+          // 担当していない人へ送らない（開いても 403 になる画面へ誘導しないため）
+          laundryId,
         })
       );
     }

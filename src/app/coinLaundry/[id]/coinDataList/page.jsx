@@ -13,12 +13,15 @@ const Page = async ({ params }) => {
     getOrgPlan(),
   ]);
   if (error) return <ErrorPage title={error.msg} status={error.status} />;
+  /* ⚠️ 未指定＝使う。`!== false` で読む（012 より前の行は列を持たない） */
+  const expensesEnabled = orgResult.data?.expensesEnabled !== false;
   return (
     <MoneyDataList
       valiant="aStore"
       coinLaundry={data}
       myRole={orgResult.data?.myRole ?? "viewer"}
       plan={planInfo?.plan ?? "free"}
+      expensesEnabled={expensesEnabled}
     />
   );
 };

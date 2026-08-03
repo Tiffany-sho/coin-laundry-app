@@ -5,8 +5,17 @@ import { useState } from "react";
 import { useUploadProfiles } from "../context/UploadProfilesContext";
 import * as Icon from "@/app/feacher/Icon";
 
+/**
+ * 組織の作成。組織名と、経費を記録するか（012）をここで聞く。
+ *
+ * ⚠️ **経費の質問を別のステップに切り出さない。** ステップ数は
+ *    `UploadProfilesContext` の `totalSteps` と進捗バーが握っていて、
+ *    増やすと **admin と非管理者で分母が変わる**（非管理者はこの画面に来ない）。
+ *    ⚠️ アプリ側は画面が狭いので独立したステップにしてある。**構成が違うのは意図的。**
+ */
 const OrgSetupForm = () => {
-  const { handleNext, handleBack, orgName, setOrgName } = useUploadProfiles();
+  const { handleNext, handleBack, orgName, setOrgName, trackExpenses, setTrackExpenses } =
+    useUploadProfiles();
   const [msg, setMsg] = useState("");
 
   const handleSubmit = () => {
@@ -65,6 +74,52 @@ const OrgSetupForm = () => {
           fontSize="md"
           _focusVisible={{ borderColor: "cyan.400", boxShadow: "0 0 0 3px rgba(6,182,212,0.15)" }}
         />
+      </Field.Root>
+
+      {/*
+        経費を記録するか。⚠️ **既定は「記録する」**（迷った人が使えるほうへ倒す）。
+        ⚠️ 後から設定 → 組織で変えられることを必ず書く。書かないと
+           「ここで決めたら戻せない」と思われて、選ぶだけで手が止まる。
+      */}
+      <Field.Root>
+        <Field.Label fontSize="sm" fontWeight="semibold" color="var(--text-main)" mb={2}>
+          経費を記録しますか？
+        </Field.Label>
+        <VStack align="stretch" gap={2} w="full">
+          {[
+            { value: true, title: "記録する", note: "収益ページに「月別利益」が出ます" },
+            { value: false, title: "記録しない", note: "売上だけを管理します" },
+          ].map((option) => {
+            const on = trackExpenses === option.value;
+            return (
+              <Box
+                key={String(option.value)}
+                as="button"
+                type="button"
+                textAlign="left"
+                onClick={() => setTrackExpenses(option.value)}
+                border="2px solid"
+                borderColor={on ? "cyan.400" : "var(--divider)"}
+                bg={on ? "cyan.50" : "white"}
+                borderRadius="lg"
+                px={4}
+                py={3}
+                transition="all 0.15s"
+                _hover={{ borderColor: on ? "cyan.400" : "gray.300" }}
+              >
+                <Text fontSize="sm" fontWeight="bold" color="var(--text-main)">
+                  {option.title}
+                </Text>
+                <Text fontSize="xs" color="var(--text-muted)" mt={0.5}>
+                  {option.note}
+                </Text>
+              </Box>
+            );
+          })}
+        </VStack>
+        <Text fontSize="xs" color="var(--text-muted)" mt={2}>
+          ※設定後も変更できます
+        </Text>
       </Field.Root>
 
       <HStack gap={3} w="full">

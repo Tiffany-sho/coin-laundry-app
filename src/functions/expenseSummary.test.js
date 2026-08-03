@@ -1,5 +1,6 @@
 import { describe, expect, it, vi, afterEach } from "vitest";
 import {
+  buildProfitPoints,
   byCategory,
   byStore,
   currentMonthKey,
@@ -7,7 +8,9 @@ import {
   monthKeyFromEpoch,
   monthRange,
   profitOf,
+  recentMonthKeys,
   shiftMonthKey,
+  sumProfitPoints,
   totalAmount,
 } from "./expenseSummary";
 import { getEpochTimeInSeconds } from "./makeDate/date";
@@ -144,5 +147,90 @@ describe("profitOf", () => {
 
   it("未定義でも落ちない", () => {
     expect(profitOf(undefined, undefined)).toEqual({ profit: 0, margin: null });
+  });
+});
+
+/* ------------------------------------------------------------------ */
+/* 月別利益（売上 − 経費）                                             */
+/* ------------------------------------------------------------------ */
+
+describe("recentMonthKeys", () => {
+  it("古い順に並べ、指定した月で終わる", () => {
+    expect(recentMonthKeys(3, "2026-01")).toEqual(["2025-11", "2025-12", "2026-01"]);
+  });
+});
+
+describe("buildProfitPoints", () => {
+  // ⚠️ date は JST 深夜 0 時の epoch。UTC で読むと月初が前月に落ちる
+  const jst = (y, m, d) => Date.UTC(y, m - 1, d) - 32_400_000;
+
+  const revenue = [
+    { key: "2026-05", total: 500_000 },
+    { key: "2026-06", total: 400_000 },
+    { key: "2026-07", total: 300_000 },
+  ];
+  const expenses = [
+    { date: jst(2026, 5, 1), amount: 100_000 },
+    { date: jst(2026, 5, 27), amount: 50_000 },
+    { date: jst(2026, 7, 15), amount: 350_000 },
+  ];
+  const months = ["2026-05", "2026-06", "2026-07"];
+
+  it("月ごとに 売上 − 経費 を出す", () => {
+    const points = buildProfitPoints(revenue, expenses, months);
+    expect(points.map((p) => p.profit)).toEqual([350_000, 400_000, -50_000]);
+  });
+
+  // ⚠️ 赤字を 0 に丸めると、赤字の月が黒字に見える
+  it("赤字は負のまま返す", () => {
+    const points = buildProfitPoints(revenue, expenses, months);
+    expect(points[2]).toMatchObject({ revenue: 300_000, expense: 350_000, profit: -50_000 });
+  });
+
+  // ⚠️ 歯抜けだと棒の間隔が月と対応しなくなる
+  it("データの無い月も必ず並べる", () => {
+    const points = buildProfitPoints([], [], ["2026-01", "2026-02"]);
+    expect(points).toHaveLength(2);
+    expect(points[0]).toMatchObject({ revenue: 0, expense: 0, profit: 0 });
+  });
+
+  // ⚠️ 月初・月末が隣の月に落ちないこと（JST で数える）
+  it("月末の経費がその月に入る", () => {
+    const points = buildProfitPoints([], [{ date: jst(2026, 6, 30), amount: 1000 }], ["2026-06", "2026-07"]);
+    expect(points[0].expense).toBe(1000);
+    expect(points[1].expense).toBe(0);
+  });
+
+  // ⚠️ 展開した固定費も足す（除くと家賃を含まない「経費」になる）
+  it("展開された固定費も数える", () => {
+    const points = buildProfitPoints(
+      [{ key: "2026-07", total: 100_000 }],
+      [
+        { date: jst(2026, 7, 27), amount: 60_000, recurring: true },
+        { date: jst(2026, 7, 5), amount: 10_000 },
+      ],
+      ["2026-07"]
+    );
+    expect(points[0].profit).toBe(30_000);
+  });
+
+  // ⚠️ 永続キャッシュから欠けた項目が復元されると NaN になる
+  it("金額や日付が欠けた行は数えない（NaN にしない）", () => {
+    const points = buildProfitPoints(
+      [{ key: "2026-07", total: 100 }],
+      [{ amount: 50 }, { date: jst(2026, 7, 1) }, null],
+      ["2026-07"]
+    );
+    expect(points[0].expense).toBe(0);
+    expect(points[0].profit).toBe(100);
+  });
+
+  it("期間の合計は各月の和と一致する", () => {
+    const points = buildProfitPoints(revenue, expenses, months);
+    expect(sumProfitPoints(points)).toEqual({
+      revenue: 1_200_000,
+      expense: 500_000,
+      profit: 700_000,
+    });
   });
 });

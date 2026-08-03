@@ -346,9 +346,24 @@ export async function getRecurringExpenses() {
   return { data: (data ?? []).map(toRecurringApi) };
 }
 
+/**
+ * 固定費の表示名。
+ *
+ * ⚠️ **`name` は任意。** 2026-08-03 にアプリの入力欄を外した（カテゴリで足りる。
+ *    「家賃」という固定費に「家賃」と名前を付けるだけの欄になっていた）。
+ *    ⚠️ **列は NOT NULL のままなので、無ければカテゴリで埋める。**
+ *       null を入れると 23502 で失敗する。
+ * ⚠️ **Web の入力欄は残してある**（`RecurringPanel.jsx`）。名前を送ってくる
+ *    経路が残っているので、**送られたら尊重する。**
+ */
+function recurringName(input) {
+  const given = String(input?.name ?? "").trim();
+  return given === "" ? String(input?.category ?? "") : given;
+}
+
 function validateRecurring(input) {
-  if (!input?.name || String(input.name).trim() === "") return "名前を入力してください";
-  if (String(input.name).length > MAX_NAME_LENGTH) {
+  // ⚠️ 名前は任意。ただし送ってきたなら長さは見る
+  if (String(input?.name ?? "").length > MAX_NAME_LENGTH) {
     return `名前は ${MAX_NAME_LENGTH} 文字以内にしてください`;
   }
   if (!Number.isInteger(input.amount) || input.amount < 0) return "金額が不正です";
@@ -390,7 +405,8 @@ export async function createRecurringExpense(input) {
     .insert({
       org_id: member.org_id,
       laundry_id: input.laundryId ?? null,
-      name: String(input.name).trim(),
+      // ⚠️ 名前が無ければカテゴリで埋める（列は NOT NULL）
+      name: recurringName(input),
       amount: input.amount,
       category: input.category,
       day_of_month: input.dayOfMonth,
@@ -434,7 +450,8 @@ export async function updateRecurringExpense(id, input) {
     .from("recurring_expenses")
     .update({
       laundry_id: input.laundryId ?? null,
-      name: String(input.name).trim(),
+      // ⚠️ 名前が無ければカテゴリで埋める（列は NOT NULL）
+      name: recurringName(input),
       amount: input.amount,
       category: input.category,
       day_of_month: input.dayOfMonth,

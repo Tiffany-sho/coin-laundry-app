@@ -9,7 +9,8 @@ import { registerProfile } from "@/app/api/supabaseFunctions/supabaseDatabase/pr
 import { createOrganization } from "@/app/api/supabaseFunctions/supabaseDatabase/organization/action";
 
 const CheckProfiles = () => {
-  const { handleNext, handleBack, fullname, username, collectMethod, role, orgName } = useUploadProfiles();
+  const { handleNext, handleBack, fullname, username, collectMethod, role, orgName, trackExpenses } =
+    useUploadProfiles();
   const [loading, setLoading] = useState(false);
 
   const handleRegister = async () => {
@@ -20,7 +21,7 @@ const CheckProfiles = () => {
       if (profileError) throw new Error(typeof profileError === "string" ? profileError : "ユーザ登録に失敗しました");
 
       if (role === "admin") {
-        const { error: orgError } = await createOrganization(orgName);
+        const { error: orgError } = await createOrganization(orgName, trackExpenses);
         if (orgError) throw new Error(orgError);
       }
 
@@ -114,8 +115,17 @@ const CheckProfiles = () => {
           </Badge>
         }
       />
+      {/* ⚠️ 組織の設定なので admin のときだけ出す（非管理者には聞いていない）。
+             ⚠️ 2 つ並べるので Fragment で包む。素で並べると JSX の構文エラーになる */}
       {role === "admin" && (
-        <InfoItem icon={<Icon.LuBuilding2 />} label="組織名" value={orgName} />
+        <>
+          <InfoItem icon={<Icon.LuBuilding2 />} label="組織名" value={orgName} />
+          <InfoItem
+            icon={<Icon.LuWallet />}
+            label="経費"
+            value={trackExpenses ? "記録する" : "記録しない"}
+          />
+        </>
       )}
 
       <HStack gap={3} w="full" mt={2}>

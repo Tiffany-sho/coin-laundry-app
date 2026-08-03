@@ -21,9 +21,11 @@ import {
   getOrganizationInvitations,
   deleteInvitation,
   updateOrganizationName,
+  updateOrganizationExpensesEnabled,
 } from "@/app/api/supabaseFunctions/supabaseDatabase/organization/action";
 import { showToast } from "@/functions/makeToast/toast";
 import MemberList from "./MemberList";
+import { getStores } from "@/app/api/supabaseFunctions/supabaseDatabase/laundryStore/action";
 import InviteForm from "./InviteForm";
 
 export default function OrganizationSettings({ currentUserId, currentUsername }) {
@@ -34,19 +36,26 @@ export default function OrganizationSettings({ currentUserId, currentUsername })
   const [editingName, setEditingName] = useState(false);
   const [orgName, setOrgName] = useState("");
   const [savingName, setSavingName] = useState(false);
+  const [savingExpenses, setSavingExpenses] = useState(false);
+  /* 担当店舗の割り当てに使う。⚠️ 管理者から取るので全店舗が入る */
+  const [stores, setStores] = useState([]);
+  const [myRole, setMyRole] = useState(null);
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
-    const [orgRes, membersRes, invRes] = await Promise.all([
+    const [orgRes, membersRes, invRes, storesRes] = await Promise.all([
       getMyOrganization(),
       getOrganizationMembers(),
       getOrganizationInvitations(),
+      getStores(),
     ]);
     if (orgRes.data) {
       setOrg(orgRes.data);
       setOrgName(orgRes.data.name);
     }
     if (membersRes.data) setMembers(membersRes.data);
+    setMyRole(membersRes.myRole ?? null);
+    if (storesRes?.data) setStores(storesRes.data);
     if (invRes.data) setInvitations(invRes.data);
     setLoading(false);
   }, []);
@@ -66,6 +75,34 @@ export default function OrganizationSettings({ currentUserId, currentUsername })
       fetchAll();
     }
     setSavingName(false);
+  };
+
+  /**
+   * 経費を記録するかの切り替え（012）。
+   *
+   * ⚠️ **やめるときだけ確認する。** 組織の全員の収益ページから「月別利益」と
+   *    経費の入口が消えるため。始めるときは増える方向なので確認しない。
+   */
+  const handleToggleExpenses = async () => {
+    const next = !org.expensesEnabled;
+    if (
+      !next &&
+      !window.confirm(
+        "経費の記録をやめますか？\n\n収益ページから「月別利益」と経費の入口が消えます。登録済みの経費は消えないので、いつでも元に戻せます。"
+      )
+    ) {
+      return;
+    }
+
+    setSavingExpenses(true);
+    const { error } = await updateOrganizationExpensesEnabled(next);
+    if (error) {
+      showToast("error", error);
+    } else {
+      showToast("success", next ? "経費を記録します" : "経費の記録をやめました");
+      fetchAll();
+    }
+    setSavingExpenses(false);
   };
 
   const handleDeleteInvitation = async (id) => {
@@ -151,6 +188,62 @@ export default function OrganizationSettings({ currentUserId, currentUsername })
 
       <Separator borderColor="var(--divider, #F1F5F9)" />
 
+      {/*
+        経費を記録するか（012）。初期設定で聞いた答えをここで変えられる。
+
+        ⚠️ **切っても経費のデータは消えない。** 表示の設定なので、戻せば以前の
+           記録がそのまま出る。**その旨を必ず画面に書く**（消えると思われると
+           怖くて誰も触らなくなる）。
+        ⚠️ **変更できるのは admin だけ**（Server Action 側でも弾いている）。
+      */}
+      <Box>
+        <HStack justify="space-between" mb={3}>
+          <Heading as="h3" fontSize="md" color="var(--teal-deeper, #155E75)">
+            経費
+          </Heading>
+        </HStack>
+        <Box
+          p={4}
+          bg="var(--teal-pale, #CFFAFE)"
+          borderRadius="lg"
+          border="1px solid"
+          borderColor="cyan.100"
+        >
+          <HStack justify="space-between" align="start" gap={4}>
+            <Box>
+              <Text fontWeight="semibold" color="var(--teal-deeper, #155E75)">
+                経費を記録する
+              </Text>
+              <Text fontSize="xs" color="var(--text-muted)" mt={1} lineHeight="1.7">
+                家賃・仕入れなどの支出を登録すると、収益ページに「月別利益」が出ます。
+                {myRole === "admin"
+                  ? "やめても登録済みの経費は消えないので、いつでも戻せます。"
+                  : "変更できるのは管理者だけです。"}
+              </Text>
+            </Box>
+            <Button
+              size="sm"
+              flexShrink={0}
+              variant={org.expensesEnabled ? "solid" : "outline"}
+              colorPalette="cyan"
+              borderRadius="full"
+              disabled={myRole !== "admin" || savingExpenses}
+              onClick={handleToggleExpenses}
+            >
+              {savingExpenses ? (
+                <Spinner size="xs" />
+              ) : org.expensesEnabled ? (
+                "記録する"
+              ) : (
+                "記録しない"
+              )}
+            </Button>
+          </HStack>
+        </Box>
+      </Box>
+
+      <Separator borderColor="var(--divider, #F1F5F9)" />
+
       {/* メンバー一覧 */}
       <Box>
         <HStack justify="space-between" mb={3}>
@@ -162,6 +255,8 @@ export default function OrganizationSettings({ currentUserId, currentUsername })
           members={members}
           currentUserId={currentUserId}
           onChanged={fetchAll}
+          stores={stores}
+          canAssign={myRole === "admin"}
         />
       </Box>
 

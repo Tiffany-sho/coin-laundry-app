@@ -24,18 +24,39 @@ const CHUNK = 100;
  * @param {string} params.url   タップしたときに開く expo-router のパス
  * @param {string} [params.exceptUserId]  操作した本人。自分の操作の通知は要らない
  */
-export async function pushToOrg({ orgId, prefKey, title, body, url, exceptUserId }) {
+export async function pushToOrg({ orgId, prefKey, title, body, url, exceptUserId, laundryId }) {
   try {
     const supabase = createServiceClient();
 
     const { data: members } = await supabase
       .from("organization_members")
-      .select("user_id")
+      .select("user_id, role")
       .eq("org_id", orgId);
 
-    const userIds = (members ?? [])
-      .map((m) => m.user_id)
-      .filter((id) => id !== exceptUserId);
+    let candidates = (members ?? []).filter((m) => m.user_id !== exceptUserId);
+
+    /*
+      ⚠️ **店舗に紐づく通知は、その店舗の担当者にだけ送る**（011）。
+         送らないと、開いても 403 になる店舗の「洗剤が残りわずかです」が届く。
+         **通知はタップして画面へ飛ぶ**ので、権限の外へ誘導することになる。
+
+      ⚠️ **admin は担当店舗を持たない**（常に全店舗）ので、必ず残す。
+         `member_stores` に admin の行は無いため、素朴に絞ると管理者にだけ
+         通知が届かなくなる。
+      ⚠️ `laundryId` を渡さない通知（組織全体の話）はここを素通りする。
+    */
+    if (laundryId) {
+      const { data: assigned } = await supabase
+        .from("member_stores")
+        .select("user_id")
+        .eq("org_id", orgId)
+        .eq("laundry_id", laundryId);
+
+      const allowed = new Set((assigned ?? []).map((row) => row.user_id));
+      candidates = candidates.filter((m) => m.role === "admin" || allowed.has(m.user_id));
+    }
+
+    const userIds = candidates.map((m) => m.user_id);
 
     if (userIds.length === 0) return;
 
