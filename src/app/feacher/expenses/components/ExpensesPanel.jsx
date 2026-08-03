@@ -31,8 +31,12 @@ import ExpenseDialog from "./ExpenseDialog";
  * ⚠️ **毎月の固定費は展開されて混ざって返る**（`recurring: true`）。実体の行では
  *    ないので **編集・削除できない**。押せる導線を出さないこと。
  *
- * ⚠️ **`canAdd`（登録）と `canManage`（編集・削除）は別**（2026-08-03）。
- *    登録は集金担当者にも許し、直せるのは admin だけ。**1 つにまとめないこと。**
+ * ⚠️ **`canAdd`（登録）と `canManage`（削除）は別**（2026-08-03）。
+ *    登録は集金担当者にも許し、消せるのは admin だけ。**1 つにまとめないこと。**
+ *
+ * ⚠️ **編集の可否は行ごとに違う。** admin は全部、集金担当者は
+ *    **自分が登録した当月の分だけ。** 判定はサーバがして `editable` で返すので、
+ *    **画面で組み立て直さないこと**（同じ規則を 2 か所に置くとずれる）。
  */
 
 const CategoryDot = ({ category }) => (
@@ -335,8 +339,16 @@ const ExpensesPanel = ({ stores = [], canAdd, canManage }) => {
                 >
                   ¥{item.amount.toLocaleString()}
                 </Text>
-                {/* ⚠️ 編集・削除は admin だけ。登録できる集金担当者にも出さない */}
-                {canManage && !item.recurring && (
+                {/*
+                  ⚠️ **編集と削除で条件が違う。**
+                     編集 … サーバが行ごとに返す `editable`（admin は全部、
+                            集金担当者は自分が登録した当月の分だけ）
+                     削除 … admin だけ（`canManage`）
+                     ⚠️ **`editable` の規則をここに書き直さないこと**（サーバとずれる）。
+                     ⚠️ 古い応答では `editable` が無いので `canManage` に倒す
+                        （**true に倒さない**）。
+                */}
+                {!item.recurring && (item.editable ?? canManage) && (
                   <HStack gap={1}>
                     <Box
                       as="button"
@@ -354,19 +366,21 @@ const ExpensesPanel = ({ stores = [], canAdd, canManage }) => {
                     >
                       <Icon.LuPencil size={14} />
                     </Box>
-                    <Box
-                      as="button"
-                      type="button"
-                      onClick={() => remove(item)}
-                      p={1.5}
-                      borderRadius="md"
-                      color="var(--text-faint)"
-                      cursor="pointer"
-                      _hover={{ bg: "red.50", color: "red.500" }}
-                      aria-label="削除"
-                    >
-                      <Icon.LuTrash2 size={14} />
-                    </Box>
+                    {canManage && (
+                      <Box
+                        as="button"
+                        type="button"
+                        onClick={() => remove(item)}
+                        p={1.5}
+                        borderRadius="md"
+                        color="var(--text-faint)"
+                        cursor="pointer"
+                        _hover={{ bg: "red.50", color: "red.500" }}
+                        aria-label="削除"
+                      >
+                        <Icon.LuTrash2 size={14} />
+                      </Box>
+                    )}
                   </HStack>
                 )}
               </VStack>

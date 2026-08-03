@@ -12,7 +12,13 @@ import { fetchAllRows } from "@/functions/fetchAllRows";
      （`Failed to collect page data for …` としか出ず原因が分かりにくい）。
 */
 import { EXPENSE_CATEGORIES } from "@/functions/expenseCategories";
-import { expenseScopeFilter, inExpenseStoreScope } from "@/functions/expenseScope";
+import {
+  canEditExpense,
+  expenseScopeFilter,
+  inExpenseStoreScope,
+  isCurrentJstMonth,
+  jstMonthKey,
+} from "@/functions/expenseScope";
 
 /**
  * 経費。単発（在庫の仕入れ・修理代など）と、毎月の固定費（家賃・水道光熱費）の 2 本立て。
@@ -123,12 +129,13 @@ async function assertStoreAllowed(orgId, storeIds, laundryId) {
 }
 
 /**
- * 経費の**編集・削除**と**固定費の管理**は admin だけ（2026-08-03 の決定）。
+ * **固定費の管理**と**経費の削除**は admin だけ（2026-08-03 の決定）。
  *
- * ⚠️ **登録（単発）は集金担当者にも許す。** 現場で支出が出たときに記録するのが
- *    経費の使い方で、そこを塞ぐと機能が admin 専用になってしまう。
- *    ⚠️ その代わり**書き間違えても本人は直せない**（admin に頼むことになる）。
- *    これは意図した引き換え。
+ * ⚠️ **単発の経費だけは条件が違う。** 登録は集金担当者にも許し、
+ *    編集も**自分が登録した当月の分**まで許す（`canEditExpense`）。
+ *    現場で支出が出たときに記録するのが経費の使い方で、
+ *    直せないと書き間違いのたびに admin を呼ぶことになるため。
+ *    ⚠️ **ここ（`requireAdmin`）を単発の編集に使い回さないこと。**
  *
  * ⚠️ **固定費は「毎月ずっと計上される」＝組織の数字を継続的に動かす設定**なので、
  *    追加も編集も削除も admin に寄せている。追加だけ塞いでも、
@@ -142,13 +149,6 @@ function requireAdmin(member, what) {
 /* ------------------------------------------------------------------ */
 /* 月の計算                                                            */
 /* ------------------------------------------------------------------ */
-
-/** epoch（JST 深夜 0 時）→ "YYYY-MM"。⚠️ JST で読む（UTC で読むと月初が前月になる） */
-const JST_OFFSET = 32_400_000;
-function monthKeyFromEpoch(epoch) {
-  const d = new Date(epoch + JST_OFFSET);
-  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
-}
 
 /** "YYYY-MM" → { year, month }（month は 1 始まり） */
 function parseMonthKey(key) {
@@ -171,8 +171,10 @@ function nextMonthKey(key) {
 /**
  * @param storeNames 組織の店舗 ID → 店名。⚠️ **担当店舗で絞ったものを渡さないこと**
  *   （担当外の店舗が「（削除された店舗）」と表示される）
+ * @param viewer `{ role, userId }`。**この行を直せるかを畳んで返すため。**
+ *   ⚠️ 省略すると `editable` は false になる（**開くほうへ倒さない**）
  */
-function toApi(row, storeNames) {
+function toApi(row, storeNames, viewer) {
   const laundryId = row.laundry_id ?? null;
   return {
     id: row.id,
@@ -187,8 +189,17 @@ function toApi(row, storeNames) {
     amount: row.amount,
     category: row.category,
     note: row.note ?? null,
-    /** ⚠️ 展開した固定費と区別するための印。アプリはこれで編集可否を出し分ける */
+    /** ⚠️ 展開した固定費と区別するための印。実体が無いので編集できない */
     recurring: false,
+    /**
+     * この行を**直せるか**。admin は全部、集金担当者は自分が登録した当月の分だけ。
+     *
+     * ⚠️ **画面はこれを見るだけにする。** 同じ規則をアプリと Web に書くと
+     *    必ずずれる（判定は `@/functions/expenseScope` の `canEditExpense` 1 か所）。
+     * ⚠️ **古い応答・永続キャッシュでは `undefined`。** 受け側は
+     *    `editable ?? 管理者か` に倒すこと（**true に倒さない**）。
+     */
+    editable: canEditExpense(viewer?.role, viewer?.userId, row),
   };
 }
 
@@ -211,7 +222,7 @@ function validate({ date, amount, category, note }) {
  * @param startEpoch 含む / @param endEpoch **含む**（⚠️ /funds/chart の to は排他なので逆）
  */
 export async function getExpenses(startEpoch, endEpoch, laundryId = null) {
-  const { error, member } = await getMyMembership();
+  const { error, member, user } = await getMyMembership();
   if (error) return { error };
 
   /* 担当店舗（011）。⚠️ `storeIds === null` が「全店舗」（admin） */
@@ -236,7 +247,7 @@ export async function getExpenses(startEpoch, endEpoch, laundryId = null) {
   const buildQuery = () => {
     let q = supabase
       .from("expenses")
-      .select("id, laundry_id, date, amount, category, note")
+      .select("id, laundry_id, date, amount, category, note, created_by")
       .eq("org_id", member.org_id)
       .gte("date", startEpoch)
       .lte("date", endEpoch)
@@ -266,10 +277,14 @@ export async function getExpenses(startEpoch, endEpoch, laundryId = null) {
   );
   if (recurring.error) return { error: recurring.error };
 
+  /* 誰がどれを直せるか。⚠️ 行ごとに変わる（自分が登録した当月の分だけ） */
+  const viewer = { role: member.role, userId: user.id };
+
   // 新しい順。⚠️ 展開した固定費と実体を混ぜるので、ここで並べ直す必要がある
-  const items = [...(data ?? []).map((row) => toApi(row, storeNames)), ...recurring.items].sort(
-    (a, b) => b.date - a.date
-  );
+  const items = [
+    ...(data ?? []).map((row) => toApi(row, storeNames, viewer)),
+    ...recurring.items,
+  ].sort((a, b) => b.date - a.date);
 
   return { data: items };
 }
@@ -301,34 +316,73 @@ export async function createExpense(input) {
       note: input.note ?? null,
       created_by: user.id,
     })
-    .select("id, laundry_id, date, amount, category, note")
+    .select("id, laundry_id, date, amount, category, note, created_by")
     .single();
 
   if (insertError) return { error: "経費の登録に失敗しました" };
-  return { data: toApi(data, await getOrgStoreNames(member.org_id)) };
+  return {
+    data: toApi(data, await getOrgStoreNames(member.org_id), {
+      role: member.role,
+      userId: user.id,
+    }),
+  };
 }
 
 /**
- * 経費の編集。**admin だけ**（2026-08-03）。
+ * 経費の編集。**admin は全部、集金担当者は自分が登録した当月の分だけ**（2026-08-03）。
  *
- * ⚠️ 集金担当者は**登録はできるが直せない。** 誤りの訂正は admin に寄せている
- *    （`requireAdmin` の説明を参照）。
+ * ⚠️ **「登録できるのに直せない」を埋めるための緩和で、権限を戻したのではない。**
+ *    当月に限るのは、**締めた過去の月の数字が後から動くのを防ぐ**ため。
+ *
+ * ⚠️ **既存の行を必ず読んでから判定する。** `created_by` と元の `date` は
+ *    リクエストの中に無い（クライアントの申告を信じてはいけない）。
+ *
+ * ⚠️ **移動先の月も見る。** 見ないと、当月の行を**先月の日付に付け替えて**
+ *    過去の月を動かせてしまう（編集できる範囲から自分で抜け出せる）。
+ *
+ * ⚠️ **削除は今も admin だけ。** 直せる範囲を広げただけで、消す操作は広げていない。
  */
 export async function updateExpense(id, input) {
-  const { error, member } = await getMyMembership();
+  const { error, member, user } = await getMyMembership();
   if (error) return { error };
 
-  const forbidden = requireAdmin(member, "経費を編集");
-  if (forbidden) return forbidden;
+  if (member.role === "viewer") {
+    return { error: { msg: "経費を編集する権限がありません", status: 403 } };
+  }
 
   const message = validate(input);
   if (message) return { error: { msg: message, status: 400 } };
+
+  const supabase = createServiceClient();
+
+  if (member.role !== "admin") {
+    /* ⚠️ 組織で絞ってから読む。id だけだと他組織の行の有無が分かってしまう */
+    const { data: existing } = await supabase
+      .from("expenses")
+      .select("created_by, date")
+      .eq("id", id)
+      .eq("org_id", member.org_id)
+      .maybeSingle();
+
+    if (!existing) return { error: { msg: "経費が見つかりません", status: 404 } };
+
+    if (!canEditExpense(member.role, user.id, existing)) {
+      return {
+        error: {
+          msg: "自分が登録した今月の経費だけ編集できます",
+          status: 403,
+        },
+      };
+    }
+    if (!isCurrentJstMonth(input.date)) {
+      return { error: { msg: "日付は今月の範囲で指定してください", status: 403 } };
+    }
+  }
 
   const { storeIds } = await getMyStoreScope();
   const denied = await assertStoreAllowed(member.org_id, storeIds, input.laundryId);
   if (denied) return { error: denied };
 
-  const supabase = createServiceClient();
   const { data, error: updateError } = await supabase
     .from("expenses")
     .update({
@@ -341,16 +395,26 @@ export async function updateExpense(id, input) {
     // ⚠️ org_id を必ず条件に入れる。id だけだと他組織の行を書き換えられる
     .eq("id", id)
     .eq("org_id", member.org_id)
-    .select("id, laundry_id, date, amount, category, note");
+    .select("id, laundry_id, date, amount, category, note, created_by");
 
   if (updateError) return { error: "経費の更新に失敗しました" };
   if (!data || data.length === 0) {
     return { error: { msg: "経費が見つかりません", status: 404 } };
   }
-  return { data: toApi(data[0], await getOrgStoreNames(member.org_id)) };
+  return {
+    data: toApi(data[0], await getOrgStoreNames(member.org_id), {
+      role: member.role,
+      userId: user.id,
+    }),
+  };
 }
 
-/** 経費の削除。**admin だけ**（2026-08-03） */
+/**
+ * 経費の削除。**admin だけ**（2026-08-03）。
+ *
+ * ⚠️ **編集を緩めたときも、ここは広げていない。** 直すのと消すのは別。
+ *    集金担当者が間違えた行は、金額・カテゴリ・日付を直して使う形になる。
+ */
 export async function deleteExpense(id) {
   const { error, member } = await getMyMembership();
   if (error) return { error };
@@ -422,8 +486,8 @@ async function expandRecurring(orgId, startEpoch, endEpoch, laundryId, storeName
   const { data, error } = await query;
   if (error) return { error: "固定費の取得に失敗しました" };
 
-  const from = monthKeyFromEpoch(startEpoch);
-  const to = monthKeyFromEpoch(endEpoch);
+  const from = jstMonthKey(startEpoch);
+  const to = jstMonthKey(endEpoch);
   const items = [];
 
   for (const row of data ?? []) {

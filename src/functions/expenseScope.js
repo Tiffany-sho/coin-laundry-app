@@ -48,3 +48,51 @@ export function inExpenseStoreScope(storeIds, laundryId) {
   if (storeIds === null || storeIds === undefined) return true;
   return (Array.isArray(storeIds) ? storeIds : []).includes(laundryId);
 }
+
+/* ------------------------------------------------------------------ */
+/* 誰がどれを直せるか                                                   */
+/* ------------------------------------------------------------------ */
+
+const JST_OFFSET = 32_400_000;
+
+/**
+ * epoch → JST の "YYYY-MM"。
+ *
+ * ⚠️ **`expenses.date`（JST 深夜 0 時の epoch）にも `Date.now()`（実時刻）にも
+ *    同じ式が使える。** どちらも「9 時間足して UTC として読む」で JST の
+ *    暦日になるため。⚠️ **UTC のまま読むと月初が前月になる。**
+ */
+export function jstMonthKey(epoch) {
+  const d = new Date(Number(epoch) + JST_OFFSET);
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+}
+
+/** その日付が JST の当月か */
+export function isCurrentJstMonth(epoch, now = Date.now()) {
+  return Number.isFinite(Number(epoch)) && jstMonthKey(epoch) === jstMonthKey(now);
+}
+
+/**
+ * 単発の経費を**直してよいか**（2026-08-03）。
+ *
+ * | | |
+ * |---|---|
+ * | admin | 全部 |
+ * | 集金担当者 | **自分が登録した、当月の分だけ** |
+ * | 閲覧者 | 不可 |
+ *
+ * ⚠️ **「登録できるのに直せない」を埋めるための緩和で、権限を戻したのではない。**
+ *    当月に限るのは、締めた過去の月の数字が後から動くのを防ぐため。
+ *
+ * ⚠️ **`created_by` が null の行は直せない**（008 は `ON DELETE SET NULL` なので、
+ *    登録した人が退会すると null になる）。**閉じるほうへ倒す。**
+ *
+ * ⚠️ **サーバとアプリで二重に判定しない。** 応答の `editable` に畳んで返し、
+ *    画面はそれを見るだけにする（同じ規則を 2 リポジトリに置くと必ずずれる）。
+ */
+export function canEditExpense(role, userId, row, now = Date.now()) {
+  if (role === "admin") return true;
+  if (role !== "collecter") return false;
+  if (!userId || !row?.created_by || row.created_by !== userId) return false;
+  return isCurrentJstMonth(row.date, now);
+}
