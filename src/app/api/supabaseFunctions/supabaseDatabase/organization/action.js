@@ -5,6 +5,7 @@ import { createServiceClient } from "@/utils/supabase/service";
 import { getUser } from "../user/action";
 import { getOrgMemberStores } from "../memberStores/action";
 import { PLAN_LIMITS, PLAN_MEMBER_LIMITS } from "@/functions/plans";
+import { sortMembers } from "@/functions/memberOrder";
 import { Resend } from "resend";
 
 /**
@@ -227,14 +228,22 @@ export async function getOrganizationMembers() {
     assignments = byUser ?? {};
   }
 
-  const data = rawData.map((row) => ({
-    id: row.id,
-    user_id: row.user_id,
-    role: row.role,
-    joined_at: row.joined_at,
-    storeIds: assignments[row.user_id] ?? [],
-    profiles: { id: row.user_id, username: row.username, full_name: row.full_name },
-  }));
+  /*
+    ⚠️ **並べるのはここ 1 か所。** Web の組織設定とアプリの組織ページが
+       同じこの関数を見ているので、両方に一度で効く。
+       **画面ごとに並べ直さないこと**（片方だけ直すと順番が食い違う）。
+    ⚠️ 順は 管理者 → 集金担当者 → 閲覧者。同じロールの中は参加が早い順。
+  */
+  const data = sortMembers(
+    rawData.map((row) => ({
+      id: row.id,
+      user_id: row.user_id,
+      role: row.role,
+      joined_at: row.joined_at,
+      storeIds: assignments[row.user_id] ?? [],
+      profiles: { id: row.user_id, username: row.username, full_name: row.full_name },
+    }))
+  );
 
   return { data, orgId: myMember.org_id, myRole: myMember.role };
 }
