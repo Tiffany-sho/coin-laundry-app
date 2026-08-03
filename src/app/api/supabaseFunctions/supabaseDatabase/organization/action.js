@@ -62,23 +62,38 @@ export async function getMyOrganization() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("organization_members")
-    .select("role, organizations(id, name, expenses_enabled)")
+    .select("role, organizations(id, name)")
     .eq("user_id", user.id)
     .single();
 
   if (error) return { error: "組織情報の取得に失敗しました" };
 
-  const { expenses_enabled: expensesEnabled, ...org } = data.organizations;
+  /*
+    ⚠️ **012 で足した列は「別のクエリ」で取る。上の select に混ぜないこと。**
+       混ぜると、マイグレーション未適用の環境で PostgREST が 42703 を返して
+       **`getMyOrganization` ごと失敗する。** 呼び出し側はどこも
+       `orgResult.data?.myRole ?? "viewer"` と書いているので、
+       **店舗管理者が全員 閲覧者になる。** 2026-08-03 に実際にそうなった。
+       ⚠️ `getOrgPlan` が 003 のときに同じ理由で同じ形にしてある。**真似ること。**
+
+    ⚠️ ここが失敗しても「経費を使う」として続行してよい（既定と同じ向き）。
+  */
+  const { data: settings } = await createServiceClient()
+    .from("organizations")
+    .select("expenses_enabled")
+    .eq("id", data.organizations.id)
+    .maybeSingle();
+
   return {
     data: {
-      ...org,
+      ...data.organizations,
       myRole: data.role,
       /*
-        ⚠️ **`!== false` で読む。** 012 より前に作られた行や、列を返さない
-           古い応答では undefined になる。`Boolean(undefined)` は false なので、
+        ⚠️ **`!== false` で読む。** 012 より前に作られた行や、列を返せなかった
+           ときは undefined になる。`Boolean(undefined)` は false なので、
            素直に畳むと**経費を使っている組織から機能が消える。**
       */
-      expensesEnabled: expensesEnabled !== false,
+      expensesEnabled: settings?.expenses_enabled !== false,
     },
   };
 }
@@ -95,13 +110,31 @@ export async function createOrganization(name, expensesEnabled = true) {
   if (!user) return { error: "ログインしてください" };
 
   const serviceSupabase = createServiceClient();
+  /*
+    ⚠️ **012 の列を insert に混ぜない。** 混ぜると、マイグレーション未適用の
+       環境で 42703 が返って**組織の作成そのものが失敗する**（初期設定が
+       最後まで進めなくなる）。作ってから別に書く。
+    ⚠️ ここが失敗しても既定（true = 経費を使う）で残るだけなので、
+       組織の作成は成功させる。
+  */
   const { data: org, error: orgError } = await serviceSupabase
     .from("organizations")
-    .insert({ name, owner_id: user.id, expenses_enabled: expensesEnabled !== false })
+    .insert({ name, owner_id: user.id })
     .select("id")
     .single();
 
   if (orgError) return { error: "組織の作成に失敗しました" };
+
+  /*
+    経費を使わない選択のときだけ書き込む。⚠️ **失敗しても続行する**
+    （012 未適用なら既定の true と同じ状態になるだけ。組織を作れないほうが困る）。
+  */
+  if (expensesEnabled === false) {
+    await serviceSupabase
+      .from("organizations")
+      .update({ expenses_enabled: false })
+      .eq("id", org.id);
+  }
 
   const { error: memberError } = await serviceSupabase
     .from("organization_members")
