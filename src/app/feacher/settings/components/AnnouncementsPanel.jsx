@@ -9,6 +9,7 @@ import {
   formatAnnouncementDate,
   isUnread,
   latestPublishedAt,
+  unreadSince,
 } from "@/functions/announcements";
 import {
   markAnnouncementsSeen,
@@ -129,7 +130,7 @@ const AnnouncementRow = ({ item, unread, defaultOpen }) => {
   );
 };
 
-const AnnouncementsPanel = ({ items = [] }) => {
+const AnnouncementsPanel = ({ items = [], accountCreatedAt = null }) => {
   const lastSeenAt = useLastSeenAt();
 
   /**
@@ -183,7 +184,9 @@ const AnnouncementsPanel = ({ items = [] }) => {
           key={item.id}
           item={item}
           /* ハイドレートで線が確定するまでは印を出さない（全件未読に見えるのを防ぐ） */
-          unread={entered && isUnread(item, seenOnEnter.current)}
+          /* ⚠️ バッジ（AnnouncementsNavRow）と同じ線で判定すること。
+                片方だけ生の線を使うと「バッジは 0 なのに新着の印が残る」 */
+          unread={entered && isUnread(item, unreadSince(seenOnEnter.current, accountCreatedAt))}
           /* 先頭だけ開いて出す。全部閉じていると何も読めない画面になる */
           defaultOpen={i === 0}
         />

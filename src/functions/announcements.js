@@ -66,7 +66,33 @@ export function latestPublishedAt(items) {
   return latest;
 }
 
-/** 既読の線より新しいものの件数。0 ならバッジを出さない */
+/**
+ * 未読とみなす下限。**既読の線と「アカウントを作った時刻」の新しいほう。**
+ *
+ * ⚠️ **登録より前に公開されたお知らせを未読にしない**（2026-08-05）。
+ *    既読の線は端末ローカルで、新規登録した直後は必ず 0。そのままだと
+ *    **過去のお知らせが全部未読**になり、初めて開いた画面にいきなり
+ *    バッジが付いた状態で始まる。自分が使い始める前の告知なので、
+ *    「まだ読んでいない」と言われても意味が無い。
+ *
+ * ⚠️ **`accountCreatedAt` が無いときは 0 に倒す**＝これまでどおり全部未読。
+ *    ここで「今」に倒すと、無い間に公開されたお知らせが**永久に未読にならない。**
+ *
+ * ⚠️ **iOS アプリ側にも同じ関数がある**（`announcementsRead.ts` の `unreadSince`）。
+ *    片方だけ変えると、同じ人が Web とアプリで違う未読件数を見ることになる。
+ */
+export function unreadSince(lastSeenAt, accountCreatedAt) {
+  const line = Number.isFinite(lastSeenAt) ? lastSeenAt : 0;
+  const created = toEpochMs(accountCreatedAt);
+  return Math.max(line, created);
+}
+
+/**
+ * 既読の線より新しいものの件数。0 ならバッジを出さない。
+ *
+ * ⚠️ 第 2 引数には **`unreadSince()` を通した値**を渡すこと。生の `lastSeenAt` を
+ *    渡すと、新規登録した人に過去の告知が全部未読として出る。
+ */
 export function unreadCount(items, lastSeenAt) {
   const line = Number.isFinite(lastSeenAt) ? lastSeenAt : 0;
   let count = 0;
@@ -76,7 +102,7 @@ export function unreadCount(items, lastSeenAt) {
   return count;
 }
 
-/** 1 件が未読か */
+/** 1 件が未読か。⚠️ `unreadCount` と同じ線で判定すること（印とバッジがずれる） */
 export function isUnread(item, lastSeenAt) {
   const line = Number.isFinite(lastSeenAt) ? lastSeenAt : 0;
   return toEpochMs(item?.published_at ?? item?.publishedAt) > line;

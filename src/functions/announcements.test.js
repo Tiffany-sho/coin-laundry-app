@@ -6,6 +6,7 @@ import {
   latestPublishedAt,
   toEpochMs,
   unreadCount,
+  unreadSince,
 } from "./announcements";
 
 // Server Action は ISO 文字列、BFF は epoch を返す。どちらでも同じ結果になること。
@@ -104,5 +105,50 @@ describe("formatAnnouncementDate", () => {
   it("壊れた値は空文字（画面に Invalid Date を出さない）", () => {
     expect(formatAnnouncementDate("not a date")).toBe("");
     expect(formatAnnouncementDate(null)).toBe("");
+  });
+});
+
+describe("unreadSince（登録前のお知らせを未読にしない）", () => {
+  const JAN = Date.parse("2026-01-01T00:00:00Z");
+  const JUL = Date.parse("2026-07-01T00:00:00Z");
+  const AUG = Date.parse("2026-08-01T00:00:00Z");
+
+  it("既読の線が 0 でも、登録より前は未読にしない", () => {
+    // 7月に登録した人にとって 1月の告知は「読んでいない」ではなく「関係が無い」
+    expect(unreadSince(0, JUL)).toBe(JUL);
+    expect(unreadCount([iso("2026-01-01T00:00:00Z")], unreadSince(0, JUL))).toBe(0);
+  });
+
+  it("登録より後のお知らせは未読になる", () => {
+    expect(unreadCount([epoch(AUG)], unreadSince(0, JUL))).toBe(1);
+  });
+
+  it("既読の線のほうが新しければそちらが勝つ", () => {
+    expect(unreadSince(AUG, JUL)).toBe(AUG);
+    expect(unreadCount([epoch(AUG)], unreadSince(AUG, JUL))).toBe(0);
+  });
+
+  /**
+   * ⚠️ **無いときは 0（＝全部未読）に倒す。** 「今」に倒すと、値が取れない間に
+   *    公開されたお知らせが永久に未読にならない。
+   */
+  it.each([[null], [undefined], ["", ], ["ではない日付"]])(
+    "登録時刻が取れないときは絞らない（%s）",
+    (createdAt) => {
+      expect(unreadSince(0, createdAt)).toBe(0);
+      expect(unreadCount([epoch(JAN)], unreadSince(0, createdAt))).toBe(1);
+    }
+  );
+
+  it("ISO 文字列でも epoch でも同じ結果になる", () => {
+    expect(unreadSince(0, "2026-07-01T00:00:00Z")).toBe(unreadSince(0, JUL));
+  });
+
+  it("バッジと『新着』の印が同じ線で判定される", () => {
+    // ⚠️ ここがずれると「バッジは 0 なのに一覧に新着の印が残る」
+    const line = unreadSince(0, JUL);
+    const item = iso("2026-01-01T00:00:00Z");
+    expect(unreadCount([item], line)).toBe(0);
+    expect(isUnread(item, line)).toBe(false);
   });
 });

@@ -23,9 +23,28 @@ export const GET = withAuth(async (request, context, user) => {
     getCollectSchedule(),
   ]);
 
+  /**
+   * アカウントを作った時刻（epoch ミリ秒）。
+   *
+   * アプリは「登録より前に公開されたお知らせ」を未読にしないためだけに使う。
+   *
+   * ⚠️ **ISO 文字列のまま返さない。** アプリ側で `new Date(<文字列>)` を通すことになり、
+   *    Hermes のパースに寄りかかる（日付が全画面 NaN になった事故と同じ入口。
+   *    `docs/ios/…` と アプリの docs/traps.md を参照）。
+   * ⚠️ **パースできなければ null。** `Date.parse` は失敗すると NaN を返し、
+   *    NaN は JSON で null になるので握り潰されて気づけない。明示的に落とす。
+   * ⚠️ DB を引いていない（`auth.users` の情報が `user` に既に入っている）。
+   *    クエリを足さないこと。
+   */
+  const createdAtMs = Date.parse(user.created_at ?? "");
+
   return {
     data: {
-      user: { id: user.id, email: user.email },
+      user: {
+        id: user.id,
+        email: user.email,
+        createdAt: Number.isFinite(createdAtMs) ? createdAtMs : null,
+      },
       profile: profile?.data ?? null,
       organization: organization?.data ?? null,
       plan: plan?.data ?? null,

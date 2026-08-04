@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Box, Flex, HStack, Text } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
-import { unreadCount } from "@/functions/announcements";
+import { unreadCount, unreadSince } from "@/functions/announcements";
 import { useLastSeenAt } from "../hooks/useAnnouncementsRead";
 
 /**
@@ -15,9 +15,11 @@ import { useLastSeenAt } from "../hooks/useAnnouncementsRead";
  * ⚠️ 未読の線は localStorage にしか無い。SSR では 0 になるため初回描画は
  *    「全件未読」の件数が出る。ハイドレート後に正しい件数へ寄る。
  */
-const AnnouncementsNavRow = ({ items = [] }) => {
+const AnnouncementsNavRow = ({ items = [], accountCreatedAt = null }) => {
   const lastSeenAt = useLastSeenAt();
-  const count = unreadCount(items, lastSeenAt);
+  /* ⚠️ 登録より前のお知らせを未読にしない。生の lastSeenAt を渡さないこと
+        （新規登録した人の設定画面が最初からバッジ付きで始まる） */
+  const count = unreadCount(items, unreadSince(lastSeenAt, accountCreatedAt));
 
   return (
     <Link href="/settings/news">

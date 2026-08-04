@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { Box, HStack, Text, VStack } from "@chakra-ui/react";
 import Link from "next/link";
 import { getAnnouncements } from "@/app/api/supabaseFunctions/supabaseDatabase/announcements/action";
+import { getUser } from "@/app/api/supabaseFunctions/supabaseDatabase/user/action";
 import AnnouncementsPanel, {
   AnnouncementsHeading,
 } from "@/app/feacher/settings/components/AnnouncementsPanel";
@@ -25,6 +26,9 @@ export const metadata = {
  */
 export default async function SettingsNewsPage() {
   const { data, error } = await getAnnouncements();
+  /* ⚠️ 登録より前のお知らせに「新着」の印を付けないために要る。
+        cache() 済みなので、この 1 本のために追加のリクエストは飛ばない */
+  const { user } = await getUser();
 
   return (
     <Box maxW="720px" mx="auto" p={{ base: 4, md: 8 }}>
@@ -62,7 +66,7 @@ export default async function SettingsNewsPage() {
           </HStack>
         </VStack>
       ) : (
-        <AnnouncementsPanel items={data ?? []} />
+        <AnnouncementsPanel items={data ?? []} accountCreatedAt={user?.created_at ?? null} />
       )}
     </Box>
   );

@@ -64,7 +64,10 @@ export default async function SettingsPage({ searchParams }) {
         {isAdmin && <CollectScheduleDisplay schedule={schedule} />}
 
         <AppSettingsCard collectMethod={profile?.collectMethod} />
-        <OtherActionsCard announcements={announcements ?? []} />
+        <OtherActionsCard
+          announcements={announcements ?? []}
+          accountCreatedAt={user?.created_at ?? null}
+        />
 
         {/* 管理者向け：注意が必要な操作（登録から3日以内のみ表示） */}
         {isAdmin && isWithinThreeDays && <DangerActionsCard />}

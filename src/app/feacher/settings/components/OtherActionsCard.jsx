@@ -26,7 +26,7 @@ const NavRow = ({ href, icon, label, description }) => (
   </Link>
 );
 
-export default function OtherActionsCard({ announcements = [] }) {
+export default function OtherActionsCard({ announcements = [], accountCreatedAt = null }) {
   return (
     <Card.Root w="full" bg="var(--card-bg, #FFFFFF)" borderRadius="xl"
       boxShadow="var(--shadow-sm)" border="1px solid" borderColor="cyan.100">
@@ -37,7 +37,7 @@ export default function OtherActionsCard({ announcements = [] }) {
         <VStack align="stretch" gap={3}>
 
           {/* 未読バッジのためだけにクライアント側。見た目は下の NavRow と揃えてある */}
-          <AnnouncementsNavRow items={announcements} />
+          <AnnouncementsNavRow items={announcements} accountCreatedAt={accountCreatedAt} />
 
           <Separator borderColor="var(--divider)" />
 
