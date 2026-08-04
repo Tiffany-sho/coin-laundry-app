@@ -50,7 +50,32 @@ Deno.serve(async (request) => {
    * 本番のスケジュールや通知時刻を一時的に書き換えて確かめる必要をなくすため。
    * ⚠️ 合言葉が要るので誰でも叩けるわけではないが、**送信は絶対に行わないこと**。
    */
-  const dryRun = new URL(request.url).searchParams.get("dryRun") === "1";
+  const params = new URL(request.url).searchParams;
+  const dryRun = params.get("dryRun") === "1";
+
+  /**
+   * 検証用の**本送信**。`?force=1` で dryRun と同じ絞り込みを外したうえで、
+   * **実際に Expo へ送る。** 集金日でなくても、通知時刻でなくても、その場で届く。
+   *
+   * 実機で通知の経路を試すときに、集金予定日を明日に書き換えたり
+   * `reminderHour` を今の時刻に合わせたりする必要をなくすため。
+   * ⚠️ **本番 APNs は TestFlight / App Store のビルドでしか通らない。**
+   *    開発ビルドはサンドボックス APNs で、経路が別物。
+   *
+   * ⚠️ **合言葉（CRON_SECRET）が要るが、叩けば本物の通知が飛ぶ。**
+   *    組織のメンバー全員に届くので、試すときは `?userId=` で絞ること。
+   * ⚠️ **`dryRun` と併用したら送らない**（`dryRun` が勝つ）。
+   */
+  const force = params.get("force") === "1" && !dryRun;
+
+  /**
+   * 送る相手を 1 人に絞る（任意）。⚠️ **`force` のときだけ効く。**
+   * 通常の定時実行に混ざると、その組織の他のメンバーへ届かなくなる。
+   */
+  const onlyUserId = force ? params.get("userId") : null;
+
+  /** 日付・時刻・集金済みの判定を飛ばすか。⚠️ 送るかどうかとは別物 */
+  const bypassSchedule = dryRun || force;
 
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
@@ -87,8 +112,8 @@ Deno.serve(async (request) => {
     seen.push({ daysUntil: next?.daysUntil ?? null, type: schedule?.type ?? null });
     if (next && (next.daysUntil === 0 || next.daysUntil === 1)) {
       targets.push({ orgId: org.id, daysUntil: next.daysUntil });
-    } else if (dryRun && next) {
-      // 空撃ちでは日付を問わず通す。⚠️ daysUntil は 0 にすること。
+    } else if (bypassSchedule && next) {
+      // 空撃ち・本送信テストでは日付を問わず通す。⚠️ daysUntil は 0 にすること。
       //    1 にすると「集金済みか」を見るクエリが走らず、そこだけ検証できない
       targets.push({ orgId: org.id, daysUntil: 0 });
     }
@@ -156,8 +181,9 @@ Deno.serve(async (request) => {
     }
   }
 
-  // 空撃ちでは絞らない。上のクエリを実際に走らせて壊れていないかだけ確かめる
-  const sendable = dryRun
+  // 空撃ち・本送信テストでは絞らない。上のクエリを実際に走らせて壊れていないかだけ確かめる
+  // ⚠️ force のときも外す。集金を登録済みだと alreadyCollected で消えて試せなくなる
+  const sendable = bypassSchedule
     ? targets
     : targets.filter((t) => t.daysUntil === 1 || !alreadyCollected.has(t.orgId));
   if (sendable.length === 0) {
@@ -206,10 +232,14 @@ Deno.serve(async (request) => {
     const prefs = (profile.notification_prefs ?? {}) as Record<string, unknown>;
     const enabled = prefs.collectReminder !== false; // 既定は true
     const at = typeof prefs.reminderHour === "number" ? prefs.reminderHour : 8;
-    if (enabled && (dryRun || at === hour)) wantsNotification.add(profile.id);
+    if (enabled && (bypassSchedule || at === hour)) wantsNotification.add(profile.id);
   }
 
-  const recipients = members.filter((m) => wantsNotification.has(m.user_id));
+  // ⚠️ userId は force のときだけ効く（onlyUserId が null に潰してある）。
+  //    定時実行で効くと、その組織の他のメンバーへ届かなくなる
+  const recipients = members.filter(
+    (m) => wantsNotification.has(m.user_id) && (!onlyUserId || m.user_id === onlyUserId)
+  );
   if (recipients.length === 0) {
     return new Response(
       JSON.stringify({
@@ -220,6 +250,7 @@ Deno.serve(async (request) => {
         profiles: (profiles ?? []).length,
         jstHour: hour,
         dryRun,
+        force,
       }),
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
@@ -249,6 +280,7 @@ Deno.serve(async (request) => {
         alreadyCollected: alreadyCollected.size,
         jstHour: hour,
         dryRun,
+        force,
       }),
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
