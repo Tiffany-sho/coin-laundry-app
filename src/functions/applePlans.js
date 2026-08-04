@@ -10,16 +10,38 @@
  *
  * ⚠️ 商品 ID は App Store Connect で一度作ると**二度と変更・再利用できない**。
  *    命名を決め直したくなっても既存 ID は消せないので、最初に確定させること。
+ *
+ * ⚠️ **`pro` のキーと商品 ID の綴りが揃っていないのは意図的**（2026-08-04）。
+ *    順位（Level）の設定を直すために `com.collecie.app.pro.monthly` を作り直せず、
+ *    `...pronormal.monthly` を新規に作ったため。
+ *    **プランのキーを `pronormal` に変えないこと。** `organizations.plan` の
+ *    CHECK 制約（010）・`PLAN_LIMITS`・`PLAN_MEMBER_LIMITS`・`PLAN_NAMES`・
+ *    既存の行がすべて `pro` を使っており、変えるとマイグレーションが要る。
  */
 export const APPLE_PRODUCT_IDS = {
-  pro: "com.collecie.app.pro.monthly",
+  pro: "com.collecie.app.pronormal.monthly",
   proplus: "com.collecie.app.proplus.monthly",
   max: "com.collecie.app.max.monthly",
 };
 
-export const PLAN_BY_PRODUCT_ID = Object.fromEntries(
-  Object.entries(APPLE_PRODUCT_IDS).map(([plan, productId]) => [productId, plan])
-);
+/**
+ * 過去に使っていた商品 ID。
+ *
+ * ⚠️ **消さないこと。** 既に購入された取引は今もこの ID を名乗ってくるし、
+ *    App Store Server Notification も古い ID で飛んでくる。落とすと
+ *    `toPlanPatch` が null を返して **「未知の商品です」で 400**になる。
+ */
+export const LEGACY_APPLE_PRODUCT_IDS = {
+  "com.collecie.app.pro.monthly": "pro",
+};
+
+/** ⚠️ 現行の ID が勝つように、legacy を先に展開する */
+export const PLAN_BY_PRODUCT_ID = {
+  ...LEGACY_APPLE_PRODUCT_IDS,
+  ...Object.fromEntries(
+    Object.entries(APPLE_PRODUCT_IDS).map(([plan, productId]) => [productId, plan])
+  ),
+};
 
 /** 購読グループ。アップグレード / ダウングレードを Apple 側で処理させるため 1 つにまとめる */
 export const APPLE_SUBSCRIPTION_GROUP = "collecie_plan";

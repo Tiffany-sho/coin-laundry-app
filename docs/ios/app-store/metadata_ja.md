@@ -184,9 +184,20 @@ Apple は名前とサブタイトルも索引に入れるため、重ねると 1
 | iPad 対応 | 無し（iPhone 専用） | 現場は iPhone 前提 |
 | サインイン情報 | ⚠️ **デモアカウントが必須** | 未ログイン画面を廃止したので、**起動して最初に出るのが素のログイン壁**。動かないと審査員は何も見られない |
 
-⚠️ **サブスク商品は 3 つ。** `com.collecie.app.pro.monthly` /
+⚠️ **サブスク商品は 3 つ。** `com.collecie.app.pronormal.monthly` /
 `com.collecie.app.proplus.monthly` / `com.collecie.app.max.monthly`。
 購読グループは `collecie_plan`。**商品 ID は一度作ると変更も再利用もできない。**
+
+⚠️ **Pro だけ `pronormal` なのは 2026-08-04 の作り直しによる。**
+順位（Level）の設定を直すために `com.collecie.app.pro.monthly` を作り直せず、
+新しい ID を起こした。**プランのキーは `pro` のまま**で、
+`applePlans.js` / `products.ts` の対応表が両方を引けるようにしてある
+（旧 ID を消すと、既存の購入と Server Notification が free 扱いになる）。
+
+⚠️ **順位（Level）を必ず確認すること。** 同じ購読グループの中で
+**Max が最上位 / Pro+ が中位 / Pro が最下位**。
+順位が揃っていないと、**切り替えが「次回更新まで持ち越し」になり、
+購入は成立するのにプランが変わらない**（2026-08-04 に実際に踏んだ）。
 
 ---
 

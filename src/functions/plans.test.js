@@ -51,12 +51,30 @@ describe("プランの表", () => {
 
 describe("Apple の商品 ID との対応", () => {
   /**
-   * ⚠️ **プランキーは商品 ID の中身と同じ綴りにしてある。**
+   * ⚠️ **綴りの規則ではなく、実際の文字列で固定する。**
    *    サーバは PLAN_BY_PRODUCT_ID の引きを organizations.plan にそのまま入れるので、
-   *    片方だけ直すと購入は成立するのにプランが上がらない。
+   *    App Store Connect と 1 文字でも違うと購入は成立するのにプランが上がらない。
+   *
+   * ⚠️ **`pro` だけ `pronormal` なのは 2026-08-04 の作り直しによる**（順位の設定を
+   *    直すために ID を起こし直した）。**プランキーは `pro` のまま**なので、
+   *    「キー＝商品 ID の中身」という規則はもう成り立たない。
+   *    `com.collecie.app.${plan}.monthly` の形で書き直さないこと。
    */
-  it.each(["pro", "proplus", "max"])("%s に商品 ID がある", (plan) => {
-    expect(APPLE_PRODUCT_IDS[plan]).toBe(`com.collecie.app.${plan}.monthly`);
+  it.each([
+    ["pro", "com.collecie.app.pronormal.monthly"],
+    ["proplus", "com.collecie.app.proplus.monthly"],
+    ["max", "com.collecie.app.max.monthly"],
+  ])("%s の商品 ID が %s", (plan, productId) => {
+    expect(APPLE_PRODUCT_IDS[plan]).toBe(productId);
+  });
+
+  /**
+   * ⚠️ **旧 ID を落とさない。** 既に購入された取引と App Store Server
+   *    Notification は今も古い ID を名乗ってくる。引けなくなると
+   *    `toPlanPatch` が null を返し、「未知の商品です」で 400 になる。
+   */
+  it("販売を終えた商品 ID も引ける", () => {
+    expect(PLAN_BY_PRODUCT_ID["com.collecie.app.pro.monthly"]).toBe("pro");
   });
 
   it("商品 ID から引いたプランが PLAN_LIMITS に載っている", () => {
