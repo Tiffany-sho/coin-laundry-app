@@ -145,18 +145,27 @@ const MoneyDataList = ({
               )}
               <ChangeStores />
               <Dialog.Root placement="center" scrollBehavior="inside">
+                {/*
+                  ⚠️ **塗りつぶしにする**（2026-08-05）。ほかの操作と同じ枠線だけの
+                     ボタンで、しかもスマホでは「DL」としか出ておらず、
+                     **確定申告の材料を出す入口だと気づかれていなかった。**
+                  ⚠️ **スマホでも「書き出し」と語で出す。** アイコンだけ・略語だけに
+                     しないこと（何が起きるか分からないボタンになる）。
+                */}
                 <Dialog.Trigger asChild>
                   <Button
                     size="sm"
-                    variant="outline"
                     colorPalette="cyan"
                     borderRadius="full"
                     fontWeight="semibold"
                     fontSize={{ base: "xs", md: "sm" }}
+                    boxShadow="0 2px 8px rgba(8,145,178,0.28)"
                   >
                     <LuDownload size={14} />
-                    <Box as="span" display={{ base: "none", md: "inline" }}>収益データダウンロード</Box>
-                    <Box as="span" display={{ base: "inline", md: "none" }}>DL</Box>
+                    <Box as="span" display={{ base: "none", md: "inline" }}>
+                      データを書き出す
+                    </Box>
+                    <Box as="span" display={{ base: "inline", md: "none" }}>書き出し</Box>
                   </Button>
                 </Dialog.Trigger>
                 <Portal>

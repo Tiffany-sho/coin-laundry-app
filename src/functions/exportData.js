@@ -34,6 +34,34 @@ export function defaultDateRange() {
   return { start: toDateInputValue(start), end: toDateInputValue(end) };
 }
 
+/**
+ * 書き出しの期間プリセット。**アプリの `ExportSheet` と同じ並び。**
+ *
+ * ⚠️ **「1か月」は今月だけ**（直近 N か月の N=1）。ほかと数え方を変えないこと。
+ * ⚠️ アプリと片方だけ増やすと、同じ組織なのに選べる期間が Web とアプリで違う。
+ */
+export const EXPORT_PERIODS = [
+  { months: 1, label: "1か月" },
+  { months: 3, label: "3か月" },
+  { months: 6, label: "6か月" },
+  { months: 12, label: "1年" },
+  { months: 60, label: "5年" },
+];
+
+/**
+ * 直近 N か月の日付範囲（`<input type="date">` に入れる文字列）。
+ *
+ * ⚠️ **終端は今日。** 未来まで広げても集金は増えないうえ、
+ *    ファイル名の日付と食い違って見える。
+ */
+export function periodRange(months) {
+  const end = new Date();
+  const start = new Date(end);
+  start.setMonth(start.getMonth() - (months - 1));
+  start.setDate(1);
+  return { start: toDateInputValue(start), end: toDateInputValue(end) };
+}
+
 // ダウンロードファイル名に付ける YYYYMMDD
 export function formatDateSuffix(date = new Date()) {
   return `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, "0")}${String(

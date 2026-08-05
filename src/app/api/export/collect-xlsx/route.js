@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import writeXlsxFile from "write-excel-file/node";
 import { getCollectFundsForExport } from "@/app/api/supabaseFunctions/supabaseDatabase/collectFunds/action";
 import { getOrgPlan } from "@/app/api/supabaseFunctions/supabaseDatabase/organization/action";
-import { buildSheets } from "@/functions/xlsxExport";
+import { buildSheets, buildSheetsWithExpenses } from "@/functions/xlsxExport";
+import { fetchExportExpenses } from "@/functions/exportExpenses";
 
 export async function POST(request) {
   const { data: planInfo, error: planError } = await getOrgPlan();
@@ -16,7 +17,16 @@ export async function POST(request) {
     );
   }
 
-  const { startEpoch, endEpoch, storeIds, splitMethod } = await request.json();
+  const { startEpoch, endEpoch, storeIds, splitMethod, includeExpenses } =
+    await request.json();
+
+  /*
+    ⚠️ **知らない値は "period" に倒す（エラーにしない）。** 古い画面が新しい値を
+       送ってきたときに書き出しごと失敗させないため。
+    ⚠️ `"none"` は「1 シートにまとめる」。1 店舗ぶんを `"store"` で代用しないこと
+       （改名した店舗が 1 店舗なのに 2 シートに割れる）。
+  */
+  const split = ["period", "store", "none"].includes(splitMethod) ? splitMethod : "period";
 
   const { data, error } = await getCollectFundsForExport(
     startEpoch ?? null,
@@ -29,9 +39,18 @@ export async function POST(request) {
     return NextResponse.json({ error: "ダウンロードするデータがありません" }, { status: 404 });
   }
 
-  const sheets = buildSheets(data, {
-    splitMethod: splitMethod === "store" ? "store" : "period",
-  });
+  let sheets;
+  if (includeExpenses === true) {
+    const result = await fetchExportExpenses(
+      startEpoch ?? null,
+      endEpoch ?? null,
+      Array.isArray(storeIds) && storeIds.length > 0 ? storeIds : null
+    );
+    if (result.error) return NextResponse.json({ error: result.error }, { status: 400 });
+    sheets = buildSheetsWithExpenses(data, result.expenses, { splitMethod: split });
+  } else {
+    sheets = buildSheets(data, { splitMethod: split });
+  }
 
   const buffer = await writeXlsxFile(sheets).toBuffer();
 

@@ -6,7 +6,13 @@ import { Tooltip } from "@/components/ui/tooltip";
 import * as Icon from "@/app/feacher/Icon";
 import { getStores } from "@/app/api/supabaseFunctions/supabaseDatabase/laundryStore/action";
 import { buildCsvFiles } from "@/functions/csvExport";
-import { dateToEpoch, defaultDateRange, formatDateSuffix } from "@/functions/exportData";
+import {
+  EXPORT_PERIODS,
+  dateToEpoch,
+  defaultDateRange,
+  formatDateSuffix,
+  periodRange,
+} from "@/functions/exportData";
 import { planAtLeast } from "@/functions/plans";
 
 // ── download helpers (client-side) ────────────────────────────────────────────
@@ -42,13 +48,23 @@ const dateInputStyle = {
 
 export default function ExportPanel({ plan = "free", storeId = null }) {
   const [fileFormat, setFileFormat] = useState("csv"); // "csv" | "xlsx"
-  const [splitMethod, setSplitMethod] = useState("period"); // "period" | "store"
+  /** ⚠️ `"none"` は「分けない」。1 店舗ぶんを `"store"` で代用しないこと
+   *    （店舗を改名していると 1 店舗なのに 2 シートに割れる） */
+  const [splitMethod, setSplitMethod] = useState("period"); // "period" | "store" | "none"
   const { start: defaultStart, end: defaultEnd } = defaultDateRange();
   const [startDate, setStartDate] = useState(defaultStart);
   const [endDate, setEndDate] = useState(defaultEnd);
   const [stores, setStores] = useState([]);
   const [selectedStoreIds, setSelectedStoreIds] = useState([]);
   const [loading, setLoading] = useState(false);
+  /**
+   * 経費と月別利益も出すか。**既定は false**（アプリと同じ）。
+   *
+   * ⚠️ 足すと表が 3 つになる（集金 / 経費 / 月別利益）。**CSV は 1 ファイルに
+   *    縦に並ぶので「1 ファイル = 1 表」ではなくなり、会計ソフトへそのまま
+   *    取り込めなくなる。** だから既定を変えず、選ばせて注意も出す。
+   */
+  const [includeExpenses, setIncludeExpenses] = useState(false);
 
   /* ⚠️ プラン名を並べない。足すたびに直し漏れる（plans.js の planAtLeast を参照） */
   const isPro = planAtLeast(plan, "pro");
@@ -78,6 +94,7 @@ export default function ExportPanel({ plan = "free", storeId = null }) {
         startEpoch: dateToEpoch(startDate),
         endEpoch: dateToEpoch(endDate),
         storeIds: selectedStoreIds.length > 0 ? selectedStoreIds : null,
+        includeExpenses,
         ...(isXlsx ? { splitMethod } : {}),
       });
 
@@ -97,7 +114,22 @@ export default function ExportPanel({ plan = "free", storeId = null }) {
         return;
       }
 
-      const { data } = await res.json();
+      const payload = await res.json();
+
+      /*
+        ⚠️ **経費を含めたときはサーバが 1 本の CSV を返す**（`csv`）。
+           経費と月別利益は集金の表と行の意味も列の数も違うので、
+           月ごと・店舗ごとに分けたファイルそれぞれに混ぜても意味を成さない。
+           **応答の形が変わるので `csv` の有無で分けること。**
+      */
+      if (typeof payload.csv === "string") {
+        await downloadFiles([
+          { name: `collecie_${formatDateSuffix()}.csv`, csv: payload.csv },
+        ]);
+        return;
+      }
+
+      const { data } = payload;
       if (!data || data.length === 0) {
         alert("ダウンロードするデータがありません");
         return;
@@ -138,6 +170,29 @@ export default function ExportPanel({ plan = "free", storeId = null }) {
           <Text fontSize="xs" color="var(--text-muted)" fontWeight="semibold" mb={2}>
             期間
           </Text>
+          {/*
+            ⚠️ **プリセットを先に出す。** 日付を 2 つとも手で選ぶのは
+               「先月ぶんが欲しい」だけの人には重い（アプリは最初から
+               プリセットだけにしてある）。日付入力も残して細かく決められるようにする。
+          */}
+          <HStack gap={2} wrap="wrap" mb={3}>
+            {EXPORT_PERIODS.map((preset) => (
+              <Button
+                key={preset.months}
+                size="xs"
+                variant="outline"
+                colorPalette="cyan"
+                borderRadius="full"
+                onClick={() => {
+                  const { start, end } = periodRange(preset.months);
+                  setStartDate(start);
+                  setEndDate(end);
+                }}
+              >
+                {preset.label}
+              </Button>
+            ))}
+          </HStack>
           <HStack gap={2} wrap="wrap" align="flex-end">
             <Box>
               <Text fontSize="xs" color="var(--text-faint)" mb={1}>
@@ -274,12 +329,66 @@ export default function ExportPanel({ plan = "free", storeId = null }) {
             >
               店舗ごと
             </Button>
+            {/* ⚠️ 1 店舗ぶんを「店舗ごと」で代用しない。店舗を改名していると
+                   1 店舗なのに 2 シートに割れる（グループのキーが店名のため） */}
+            <Button
+              size="sm"
+              variant={splitMethod === "none" ? "solid" : "outline"}
+              colorPalette="cyan"
+              borderRadius="full"
+              onClick={() => setSplitMethod("none")}
+            >
+              分けない
+            </Button>
           </HStack>
           <Text fontSize="xs" color="var(--text-faint)" mt={2}>
-            {fileFormat === "xlsx"
-              ? `1つのExcelファイルにまとめ、${splitMethod === "period" ? "月" : "店舗"}ごとにシートを分けます`
-              : `${splitMethod === "period" ? "月" : "店舗"}ごとに別々のCSVファイルをダウンロードします`}
+            {splitMethod === "none"
+              ? fileFormat === "xlsx"
+                ? "1つのシートにまとめます"
+                : "1つのCSVファイルにまとめます"
+              : fileFormat === "xlsx"
+                ? `1つのExcelファイルにまとめ、${splitMethod === "period" ? "月" : "店舗"}ごとにシートを分けます`
+                : `${splitMethod === "period" ? "月" : "店舗"}ごとに別々のCSVファイルをダウンロードします`}
           </Text>
+        </Box>
+
+        {/* 経費と月別利益 */}
+        <Box>
+          <Text fontSize="xs" color="var(--text-muted)" fontWeight="semibold" mb={2}>
+            経費と月別利益
+          </Text>
+          <HStack gap={2}>
+            <Button
+              size="sm"
+              variant={includeExpenses ? "outline" : "solid"}
+              colorPalette="cyan"
+              borderRadius="full"
+              onClick={() => setIncludeExpenses(false)}
+            >
+              含めない
+            </Button>
+            <Button
+              size="sm"
+              variant={includeExpenses ? "solid" : "outline"}
+              colorPalette="cyan"
+              borderRadius="full"
+              onClick={() => setIncludeExpenses(true)}
+            >
+              含める
+            </Button>
+          </HStack>
+          {/*
+            ⚠️ **CSV のときは必ず注意を出す。** 3 つの表が 1 ファイルに縦に並ぶので
+               「1 ファイル = 1 表」ではなくなり、会計ソフトへそのまま取り込めない。
+               分けて読みたい人には Excel を勧めること（あちらはシートが分かれる）。
+          */}
+          {includeExpenses && (
+            <Text fontSize="xs" color="var(--text-faint)" mt={2} lineHeight="1.7">
+              集金・経費・月別利益の3つの表を出します。
+              {fileFormat === "csv" &&
+                "CSVは1つのファイルに縦に並ぶため、会計ソフトへそのまま取り込めません。分けて読むにはExcelをお使いください。"}
+            </Text>
+          )}
         </Box>
 
         {/* Download */}
