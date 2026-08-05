@@ -64,6 +64,87 @@ export function formatMonthKey(key) {
   return `${year}年${month}月`;
 }
 
+/* ------------------------------------------------------------------ */
+/* 月ごと / 年ごと（2026-08-05。アプリの expensePeriod.ts と同じ考え方）   */
+/* ------------------------------------------------------------------ */
+
+/**
+ * 表示の単位。
+ * ⚠️ **アプリの `ExpenseUnit` と同じ値**（`"month"` / `"year"`）。
+ *    片方だけ増やすと、同じ組織なのに見え方が Web とアプリで変わる。
+ */
+
+/** "YYYY" → `getExpenses` に渡す期間。⚠️ **終了は「含む」**（monthRange と同じ規約） */
+export function yearRange(year) {
+  const start = getEpochTimeInSeconds(year, 1, 1);
+  const nextFirst = getEpochTimeInSeconds(year + 1, 1, 1);
+  return { start, end: nextFirst - 24 * 60 * 60 * 1000 };
+}
+
+export function currentYear(now = Date.now()) {
+  return new Date(now + JST_OFFSET).getUTCFullYear();
+}
+
+/**
+ * 単位に応じた「1 面ぶん」の期間と見出し。
+ * ⚠️ **画面側に月と年の分岐を撒かない。** ここで作ったものを受け取るだけにする。
+ */
+export function expensePeriod(unit, cursor) {
+  return unit === "year"
+    ? { ...yearRange(cursor), label: `${cursor}年` }
+    : { ...monthRange(cursor), label: formatMonthKey(cursor) };
+}
+
+/** 送り。月モードは "YYYY-MM" の加減算、年モードは西暦そのもの */
+export function shiftCursor(unit, cursor, offset) {
+  return unit === "year" ? cursor + offset : shiftMonthKey(cursor, offset);
+}
+
+/** いま開くべき位置 */
+export function currentCursor(unit, now = Date.now()) {
+  return unit === "year" ? currentYear(now) : currentMonthKey(now);
+}
+
+/**
+ * 単位を切り替えたときの移動先。
+ * ⚠️ **今の位置を保つ。** 2026-03 を見ているときに「年」へ切り替えたら 2026 年を出す。
+ *    今月・今年へ飛ばすと、過去を調べている途中の人が見ていた場所を見失う。
+ * ⚠️ 年 → 月は、**今年なら今月**（1 月に飛ばすと空の月が出ることが多い）。
+ */
+export function convertCursor(cursor, from, to, now = Date.now()) {
+  if (from === to) return cursor;
+  if (to === "year") return parseMonthKey(cursor).year;
+  if (cursor === currentYear(now)) return currentMonthKey(now);
+  return `${cursor}-01`;
+}
+
+/** 先へ送れるか。⚠️ **未来は見せない**（空の期間を無限にめくれてしまう） */
+export function canGoNext(unit, cursor, now = Date.now()) {
+  return unit === "year" ? cursor < currentYear(now) : cursor < currentMonthKey(now);
+}
+
+/**
+ * 年モードで出す「月ごとの小計」。**新しい順。**
+ *
+ * ⚠️ **年モードで明細を 1 行ずつ並べない。** 1 年ぶんは数百行になり得るので、
+ *    月の小計にして押したらその月へ降りられるようにする（アプリと同じ）。
+ * ⚠️ **展開された固定費も数える。** 除くと家賃を含まない「年の経費」になる。
+ * ⚠️ **金額が数値であることまで確かめる**（欠けていると NaN が画面に出る）。
+ */
+export function monthlyTotals(items) {
+  const map = new Map();
+  for (const item of items ?? []) {
+    if (!Number.isFinite(item?.date)) continue;
+    const amount = Number.isFinite(item?.amount) ? item.amount : 0;
+    const key = monthKeyFromEpoch(item.date);
+    const row = map.get(key) ?? { total: 0, count: 0 };
+    map.set(key, { total: row.total + amount, count: row.count + 1 });
+  }
+  return [...map.entries()]
+    .sort((a, b) => (a[0] < b[0] ? 1 : -1))
+    .map(([key, row]) => ({ key, label: formatMonthKey(key), ...row }));
+}
+
 /** 合計金額 */
 export function totalAmount(items) {
   let total = 0;

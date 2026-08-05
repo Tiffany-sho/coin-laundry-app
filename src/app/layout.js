@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import NavbarWrapper from "@/app/feacher/partials/Navber/NavbarWrapper";
 import FooterNavbarWrapper from "@/app/feacher/partials/FooterNavbar/FooterNavbarWrapper";
 import NavVisibilityWrapper from "@/app/feacher/partials/NavVisibilityWrapper";
+import SettingsGearWrapper from "@/app/feacher/partials/SettingsGear/SettingsGearWrapper";
 import SplashScreen from "@/app/feacher/splash/SplashScreen";
 import SWRegistration from "@/app/feacher/pwa/SWRegistration";
 import styles from "./layout.module.css";
@@ -101,6 +102,14 @@ export default function RootLayout({ children }) {
             <NavVisibilityWrapper>
               <Suspense fallback={null}>
                 <NavbarWrapper />
+              </Suspense>
+              {/*
+                ⚠️ **スマホでの設定の唯一の入口**（2026-08-05 にフッターから外した）。
+                   NavVisibilityWrapper の中に置くので、集金フォームと
+                   アプリ用の法務ページには出ない（あちらはナビを出さない画面）。
+              */}
+              <Suspense fallback={null}>
+                <SettingsGearWrapper />
               </Suspense>
             </NavVisibilityWrapper>
             <main className={styles.mainContent}>{children}</main>

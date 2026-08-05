@@ -11,10 +11,11 @@ import { useEffect, useRef, useState } from "react";
  *    毎日触る記録なのに 収益 → 経費 の 2 タップが要っていた
  *    （アプリは 2026-08-03 に同じ理由でタブへ昇格させてある）。
  *
- * ⚠️ **設定は残す。** アプリは設定をホームの歯車へ移したが、**Web の上部ナビは
- *    769px 以下で `display: none`** なので、フッターから外すと
- *    **スマホから設定へ二度と辿り着けない。** 数を 5 に戻すために
- *    設定を落とさないこと。
+ * ⚠️ **設定は 2026-08-05 にここから外した。** 代わりに**全ページの右上へ
+ *    固定の歯車**を置いてある（`SettingsGear`。アプリと同じ形）。
+ *    ⚠️ **あの歯車がスマホでの唯一の入口。** 上部ナビは 769px 以下で
+ *       `display: none` なので、歯車を消すと設定へ二度と辿り着けない
+ *       （サインアウト・組織の設定・プラン・通知がすべてその奥）。
  *
  * ⚠️ **数を変えたら CSS も追従する。** グリッドの列数と丸い印の位置は
  *    `--nav-count` から計算している（`FooterNavber.module.css`）。
@@ -25,12 +26,16 @@ const ALL_NAV_ITEMS = [
   { href: "/collectMoney", icon: <Icon.BiCoinStack />,                  label: "収益" },
   { href: "/inventory",    icon: <Icon.LuPackage />,                    label: "管理" },
   { href: "/expenses",     icon: <Icon.LuWallet />,                     label: "経費" },
-  { href: "/settings",     icon: <Icon.LuSettings />,                   label: "設定" },
 ];
 
+/**
+ * 組織に入っていない人向け。
+ * ⚠️ **ここには設定を残す。** …と思いたくなるが、`FooterNavbarWrapper` が
+ *    `hasOrg` が false のときフッターごと出さないので、**この配列は今どこからも
+ *    使われていない。** 設定へは右上の歯車から行く（`SettingsGear`）。
+ */
 const RESTRICTED_NAV_ITEMS = [
-  { href: "/",         icon: <Icon.IoHomeOutline />, label: "ホーム" },
-  { href: "/settings", icon: <Icon.LuSettings />,    label: "設定" },
+  { href: "/", icon: <Icon.IoHomeOutline />, label: "ホーム" },
 ];
 
 const FooterNavbar = ({ hasOrg = true }) => {

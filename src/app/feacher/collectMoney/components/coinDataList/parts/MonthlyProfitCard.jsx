@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Box, HStack, Skeleton, Text, VStack } from "@chakra-ui/react";
+import { Box, Button, HStack, Skeleton, Text, VStack } from "@chakra-ui/react";
 import {
   Bar,
   BarChart,
@@ -213,15 +213,26 @@ export default function MonthlyProfitCard({ storeId = null }) {
               {storeId
                 ? "この店舗に紐づけた経費だけを引いています。組織全体の経費は含まれません。"
                 : "毎月の固定費も計上されます。"}
-              {noExpenses && !storeId && (
-                <>
-                  {" "}
-                  <Link href="/collectMoney/expenses" style={{ color: "var(--teal)", fontWeight: 600 }}>
-                    経費を登録する
-                  </Link>
-                </>
-              )}
             </Text>
+
+            {/*
+              経費への入口。**このカードの中に集約してある**（2026-08-05。アプリと同じ）。
+              棒が「売上 − 経費」なので、経費を見たくなるのはここを見た瞬間。
+
+              ⚠️ **収益ページのヘッダに戻さない。** 2 か所に置くと、経費を使わない
+                 組織での出し分け（012）も 2 か所で見ることになる。
+              ⚠️ **「経費が無いとき」だけ出す形にしない**（以前がそうだった）。
+                 経費が入っている人ほど内訳を見たくなるのに、**入っている人には
+                 入口が出ない**という逆の作りになっていた。
+              ⚠️ 文言は「登録する」ではなく「見る」。登録の入口は経費ページ側の
+                 ボタンで、ここから直接は足せない。
+            */}
+            <Link href="/expenses" style={{ alignSelf: "flex-start" }}>
+              <Button size="xs" variant="outline" colorPalette="cyan" borderRadius="full">
+                <Icon.LuWallet size={13} />
+                {noExpenses && !storeId ? "経費を登録する" : "経費の一覧を見る"}
+              </Button>
+            </Link>
           </>
         )}
       </VStack>

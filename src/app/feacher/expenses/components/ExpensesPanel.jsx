@@ -2,18 +2,21 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Box, Button, HStack, Skeleton, Text, VStack } from "@chakra-ui/react";
-import Link from "next/link";
 import * as Icon from "@/app/feacher/Icon";
 import { categoryColor } from "@/functions/expenseCategories";
 import {
   byCategory,
+  canGoNext,
+  convertCursor,
+  currentCursor,
+  expensePeriod,
   expenseTargetName,
-  currentMonthKey,
-  formatMonthKey,
-  monthRange,
-  shiftMonthKey,
+  monthlyTotals,
+  shiftCursor,
   totalAmount,
 } from "@/functions/expenseSummary";
+import RevenueTabs from "@/app/feacher/collectMoney/components/coinDataList/parts/RevenueTabs";
+import ExpenseCategoryDonut from "./ExpenseCategoryDonut";
 import { createNowData } from "@/functions/makeDate/date";
 import {
   deleteExpense,
@@ -23,7 +26,20 @@ import { showToast } from "@/functions/makeToast/toast";
 import ExpenseDialog from "./ExpenseDialog";
 
 /**
- * 経費の一覧。月ごとに見る。
+ * 経費の一覧。**月ごと / 年ごとに切り替えて見る**（2026-08-05）。
+ *
+ * ⚠️ **並びは iOS 版に合わせてある:**
+ *      絞り込み → 月 / 年 → 期間送り + ドーナツ + 明細 →（下に）毎月の固定費
+ *    ⚠️ **絞り込みを一覧の直前に戻さない。** 合計とドーナツも絞り込みに追従するので、
+ *       絞る操作より後ろに置くと**数字が変わった理由が読めない。**
+ *
+ * ⚠️ **年モードでは明細を並べず月の小計にする。** 1 年ぶんは数百行になり得る。
+ *    押すとその月の月モードへ降りる。
+ *
+ * ⚠️ **登録ボタンは右下に固定**（アプリの FAB と同じ）。**「毎月の固定費」は
+ *    ここから足さない**（下の `RecurringPanel` が自分の登録ボタンを持っている。
+ *    1 つにまとめると、固定費は admin だけなので**集金担当者には片方が
+ *    必ず 403 になる**）。
  *
  * ⚠️ **必ず月で切って取る。** 経費は増え続けるので、切らないと PostgREST の
  *    1000 行上限で古いものから黙って欠ける（`getExpenses` 側のコメント参照）。
@@ -43,8 +59,20 @@ const CategoryDot = ({ category }) => (
   <Box w="8px" h="8px" borderRadius="2px" bg={categoryColor(category)} flexShrink={0} />
 );
 
+const UNITS = [
+  { value: "month", label: "月ごと" },
+  { value: "year", label: "年ごと" },
+];
+
 const ExpensesPanel = ({ stores = [], canAdd, canManage }) => {
-  const [month, setMonth] = useState(() => currentMonthKey());
+  /**
+   * 月ごとに見るか年ごとに見るか（2026-08-05。アプリと同じ）。
+   * ⚠️ 送りの位置（`cursor`）は月モードなら "YYYY-MM"、年モードなら西暦。
+   *    **型が変わるので、単位と一緒に持ち回ること**（`expenseSummary` の
+   *    `expensePeriod` / `shiftCursor` を必ず通す）。
+   */
+  const [unit, setUnit] = useState("month");
+  const [cursor, setCursor] = useState(() => currentCursor("month"));
   const [items, setItems] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -61,10 +89,12 @@ const ExpensesPanel = ({ stores = [], canAdd, canManage }) => {
 
   const storeNameById = Object.fromEntries(stores.map((s) => [s.id, s.store]));
 
+  const period = expensePeriod(unit, cursor);
+
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
-    const { start, end } = monthRange(month);
+    const { start, end } = expensePeriod(unit, cursor);
     const { data, error } = await getExpenses(start, end);
     if (error) {
       setError(typeof error === "string" ? error : (error.msg ?? "取得に失敗しました"));
@@ -73,7 +103,7 @@ const ExpensesPanel = ({ stores = [], canAdd, canManage }) => {
       setItems(data ?? []);
     }
     setLoading(false);
-  }, [month]);
+  }, [unit, cursor]);
 
   useEffect(() => {
     load();
@@ -104,142 +134,22 @@ const ExpensesPanel = ({ stores = [], canAdd, canManage }) => {
   /* ⚠️ 合計もカテゴリ内訳も絞り込みに追従させる（数字と行が食い違わないように） */
   const total = totalAmount(visible);
   const categories = byCategory(visible);
+  /* 年モードで出す月の小計。⚠️ **明細を 1 年ぶん並べない**（数百行になり得る） */
+  const months = unit === "year" ? monthlyTotals(visible) : [];
+  const forward = canGoNext(unit, cursor);
 
   return (
     <VStack align="stretch" gap={5}>
-      {/* ── 月の行き来 ── */}
-      <HStack justify="space-between" gap={2}>
-        <Button
-          size="sm"
-          variant="outline"
-          borderRadius="full"
-          onClick={() => setMonth((m) => shiftMonthKey(m, -1))}
-          aria-label="前の月"
-        >
-          <Icon.LuChevronLeft size={16} />
-        </Button>
-
-        <VStack gap={0}>
-          <Text fontSize={{ base: "md", md: "lg" }} fontWeight="bold" color="var(--teal-deeper)">
-            {formatMonthKey(month)}
-          </Text>
-          {month !== currentMonthKey() && (
-            <Box
-              as="button"
-              type="button"
-              onClick={() => setMonth(currentMonthKey())}
-              fontSize="xs"
-              color="var(--teal)"
-              cursor="pointer"
-              _hover={{ textDecoration: "underline" }}
-            >
-              今月へ戻る
-            </Box>
-          )}
-        </VStack>
-
-        <Button
-          size="sm"
-          variant="outline"
-          borderRadius="full"
-          onClick={() => setMonth((m) => shiftMonthKey(m, 1))}
-          aria-label="次の月"
-        >
-          <Icon.LuChevronRight size={16} />
-        </Button>
-      </HStack>
-
-      {/* ── 合計とカテゴリ内訳 ── */}
-      <Box
-        bg="var(--card-bg, #FFFFFF)"
-        border="1px solid"
-        borderColor="cyan.100"
-        borderRadius="xl"
-        boxShadow="var(--shadow-sm)"
-        p={{ base: 4, md: 6 }}
-      >
-        <Text fontSize="sm" fontWeight="semibold" color="var(--teal-deeper)" mb={2}>
-          経費合計
-        </Text>
-
-        {loading ? (
-          <Skeleton height="10" width="50%" borderRadius="lg" />
-        ) : (
-          <>
-            <HStack align="baseline" gap={1} mb={categories.length ? 4 : 0}>
-              <Text fontSize={{ base: "lg", md: "xl" }} fontWeight="semibold" color="var(--text-muted)">
-                ¥
-              </Text>
-              <Text
-                fontSize={{ base: "3xl", md: "4xl" }}
-                fontWeight="black"
-                lineHeight="1"
-                letterSpacing="tight"
-                color="var(--text-main)"
-              >
-                {total.toLocaleString()}
-              </Text>
-              <Text fontSize="xs" color="var(--text-muted)" alignSelf="flex-end" pb={1}>
-                {visible.length}件
-              </Text>
-            </HStack>
-
-            {categories.length > 0 && (
-              <VStack align="stretch" gap={1.5} pt={3} borderTop="1px solid" borderColor="var(--divider)">
-                {categories.map((row) => (
-                  <HStack key={row.category} justify="space-between" gap={2}>
-                    <HStack gap={1.5} minW={0}>
-                      <CategoryDot category={row.category} />
-                      <Text fontSize="xs" color="var(--text-muted)">
-                        {row.category}
-                      </Text>
-                    </HStack>
-                    <Text fontSize="xs" fontWeight="semibold" color="var(--text-main)" flexShrink={0}>
-                      ¥{row.total.toLocaleString()}
-                    </Text>
-                  </HStack>
-                ))}
-              </VStack>
-            )}
-          </>
-        )}
-      </Box>
-
-      {/* ── 操作 ── */}
-      <HStack gap={3} wrap="wrap">
-        {canAdd && (
-          <Button
-            colorPalette="cyan"
-            borderRadius="full"
-            size="sm"
-            onClick={() => {
-              setEditing(null);
-              setDialogOpen(true);
-            }}
-          >
-            <Icon.LuPlus size={16} /> 経費を登録
-          </Button>
-        )}
-        {/*
-          ⚠️ **「毎月の固定費」へのリンクは置かない**（2026-08-05）。
-             固定費は同じページの下に折り込んだので、押しても同じページに留まる
-             リンクになってしまう（アプリと同じ形に揃えた）。
-        */}
-      </HStack>
-
-      {/* ── 一覧 ── */}
-      {error && (
-        <HStack gap={2} color="var(--text-muted)">
-          <Icon.LuTriangleAlert size={18} />
-          <Text fontSize="sm">{error}</Text>
-        </HStack>
-      )}
-
       {/*
-        どこの支出かで絞る。⚠️ **店舗が 1 軒も無いときは出さない**
-           （「すべて」と「組織全体」しか並ばず、押す意味が無い）。
+        並びは iOS 版に合わせてある（2026-08-05）:
+          絞り込み → 月 / 年 → 期間送り + ドーナツ + 明細 →（下に）毎月の固定費
+        ⚠️ **絞り込みを一覧の直前に戻さない。** 合計とドーナツも絞り込みに
+           追従するので、**絞る操作より後ろに置くと数字が変わった理由が読めない。**
       */}
-      {!loading && !error && stores.length > 0 && (
+
+      {/* ── どこの支出かで絞る ──
+          ⚠️ **店舗が 1 軒も無いときは出さない**（「すべて」と「組織全体」しか並ばない） */}
+      {stores.length > 0 && (
         <HStack gap={2} wrap="wrap">
           {[
             { key: "all", label: "すべて" },
@@ -260,6 +170,121 @@ const ExpensesPanel = ({ stores = [], canAdd, canManage }) => {
         </HStack>
       )}
 
+      {/* ── 月ごと / 年ごと ──
+          ⚠️ 切り替えても見ている場所を保つ（`convertCursor`）。今月・今年へ飛ばすと
+             過去を調べている途中の人が見ていた場所を見失う */}
+      <RevenueTabs
+        tabs={UNITS}
+        value={unit}
+        onChange={(next) => {
+          setCursor((c) => convertCursor(c, unit, next));
+          setUnit(next);
+        }}
+      />
+
+      {/* ── 期間の送り + ドーナツ ── */}
+      <Box
+        bg="var(--card-bg, #FFFFFF)"
+        border="1px solid"
+        borderColor="cyan.100"
+        borderRadius="xl"
+        boxShadow="var(--shadow-sm)"
+        p={{ base: 4, md: 6 }}
+      >
+        <HStack justify="space-between" gap={2} mb={2}>
+          <Button
+            size="sm"
+            variant="outline"
+            borderRadius="full"
+            onClick={() => setCursor((c) => shiftCursor(unit, c, -1))}
+            aria-label="前へ"
+          >
+            <Icon.LuChevronLeft size={16} />
+          </Button>
+
+          <Text fontSize={{ base: "md", md: "lg" }} fontWeight="bold" color="var(--teal-deeper)">
+            {period.label}
+          </Text>
+
+          {/* ⚠️ **未来へは送らせない。** 空の期間を無限にめくれてしまう */}
+          <Button
+            size="sm"
+            variant="outline"
+            borderRadius="full"
+            disabled={!forward}
+            onClick={() => setCursor((c) => shiftCursor(unit, c, 1))}
+            aria-label="次へ"
+          >
+            <Icon.LuChevronRight size={16} />
+          </Button>
+        </HStack>
+
+        {loading ? (
+          <Skeleton height="48" borderRadius="lg" />
+        ) : (
+          <ExpenseCategoryDonut
+            categories={categories}
+            total={total}
+            count={visible.length}
+          />
+        )}
+      </Box>
+
+      {/* ── 一覧 ── */}
+      {error && (
+        <HStack gap={2} color="var(--text-muted)">
+          <Icon.LuTriangleAlert size={18} />
+          <Text fontSize="sm">{error}</Text>
+        </HStack>
+      )}
+
+      {/* ── 年モードは月の小計 ── */}
+      {!loading && !error && unit === "year" && months.length > 0 && (
+        <VStack align="stretch" gap={2}>
+          {months.map((row) => (
+            <HStack
+              key={row.key}
+              as="button"
+              type="button"
+              /* ⚠️ 単位ごと切り替える。カーソルだけ変えると年が月として読まれる */
+              onClick={() => {
+                setUnit("month");
+                setCursor(row.key);
+              }}
+              bg="var(--card-bg, #FFFFFF)"
+              border="1px solid"
+              borderColor="cyan.100"
+              borderRadius="xl"
+              boxShadow="var(--shadow-sm)"
+              p={4}
+              gap={3}
+              cursor="pointer"
+              transition="all 0.15s"
+              _hover={{ borderColor: "cyan.300" }}
+            >
+              <Box flex="1" minW={0} textAlign="left">
+                <Text fontSize="sm" fontWeight="semibold" color="var(--text-main)">
+                  {row.label}
+                </Text>
+                <Text fontSize="xs" color="var(--text-faint)">
+                  {row.count}件
+                </Text>
+              </Box>
+              <Text
+                fontSize={{ base: "md", md: "lg" }}
+                fontWeight="bold"
+                color="var(--text-main)"
+                fontFamily="'Space Mono', monospace"
+                flexShrink={0}
+              >
+                ¥{row.total.toLocaleString()}
+              </Text>
+              <Icon.LuChevronRight size={16} color="var(--teal)" />
+            </HStack>
+          ))}
+        </VStack>
+      )}
+
       {!loading && !error && visible.length === 0 && (
         <Box
           bg="var(--card-bg, #FFFFFF)"
@@ -270,14 +295,17 @@ const ExpensesPanel = ({ stores = [], canAdd, canManage }) => {
           textAlign="center"
         >
           <Text fontSize="sm" color="var(--text-faint)">
-            {scope === "all"
-              ? "この月の経費はまだありません"
-              : "この絞り込みに合う経費はありません"}
+            {scope !== "all"
+              ? "この絞り込みに合う経費はありません"
+              : unit === "year"
+                ? "この年の経費はまだありません"
+                : "この月の経費はまだありません"}
           </Text>
         </Box>
       )}
 
-      {!loading && !error && visible.length > 0 && (
+      {/* ⚠️ 明細は月モードだけ。年モードは上の小計から降りてもらう */}
+      {!loading && !error && unit === "month" && visible.length > 0 && (
         <VStack align="stretch" gap={2}>
           {visible.map((item) => (
             <HStack
@@ -390,6 +418,40 @@ const ExpensesPanel = ({ stores = [], canAdd, canManage }) => {
       )}
 
       {loading && <Skeleton height="20" borderRadius="xl" />}
+
+      {/*
+        経費の追加。**右下に固定**（2026-08-05。アプリの FAB と同じ）。
+        ⚠️ **「毎月の固定費」はここから足さない。** あちらはページ下の
+           「毎月の固定費」に自分の登録ボタンを持っている（`RecurringPanel`）。
+           1 つのボタンに 2 択を持たせると、**集金担当者には片方が必ず 403 になる**
+           （固定費は admin だけ）。
+        ⚠️ **`bottom` は収益ページの書き出しボタン・店舗一覧の「＋」と同じ値。**
+           フッターナビの上に載せるための逃げなので、片方だけ変えると
+           ページによってボタンの高さが変わる。
+      */}
+      {canAdd && (
+        <Button
+          position="fixed"
+          bottom={{ base: "15%", md: "5%" }}
+          right={{ base: "5%", md: "5%" }}
+          zIndex="1350"
+          colorPalette="cyan"
+          borderRadius="full"
+          fontWeight="semibold"
+          fontSize={{ base: "sm", md: "md" }}
+          px={{ base: 5, md: 6 }}
+          h={{ base: "52px", md: "56px" }}
+          boxShadow="0 4px 15px rgba(8,145,178,0.35)"
+          _active={{ transform: "scale(0.96)" }}
+          transition="all 0.2s"
+          onClick={() => {
+            setEditing(null);
+            setDialogOpen(true);
+          }}
+        >
+          <Icon.LuPlus size={18} /> 経費を登録
+        </Button>
+      )}
 
       {/* key を変えて開くたびに初期値を入れ直す（編集 → 新規で前の値が残るのを防ぐ） */}
       {dialogOpen && (

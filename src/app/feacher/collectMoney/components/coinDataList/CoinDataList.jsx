@@ -18,7 +18,7 @@ import {
   Stack,
   Skeleton,
 } from "@chakra-ui/react";
-import { LuPlus, LuDownload, LuCalendarDays, LuWallet } from "@/app/feacher/Icon";
+import { LuPlus, LuDownload, LuCalendarDays } from "@/app/feacher/Icon";
 import { useUploadPage } from "../../context/UploadPageContext";
 import { toaster } from "@/components/ui/toaster";
 import MoneyDataCard from "./DrawerContext/CoinDataCard";
@@ -126,23 +126,13 @@ const MoneyDataList = ({
               {valiant === "manyStore" && `収益レポート`}
             </Heading>
             <HStack gap={2}>
-              {/* 経費は組織単位なので収益レポート側にだけ置く。
-                  ⚠️ 経費を使わない組織では入口ごと出さない（012） */}
-              {!isMono && expensesEnabled && (
-                <Link href="/collectMoney/expenses" _hover={{ textDecoration: "none" }}>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    colorPalette="cyan"
-                    borderRadius="full"
-                    fontWeight="semibold"
-                    fontSize={{ base: "xs", md: "sm" }}
-                  >
-                    <LuWallet size={14} />
-                    <Box as="span" display={{ base: "none", md: "inline" }}>経費</Box>
-                  </Button>
-                </Link>
-              )}
+              {/*
+                ⚠️ **経費への入口はここに置かない**（2026-08-05）。
+                   「月別利益」カードの中に集約してある（アプリと同じ）。棒が
+                   「売上 − 経費」なので、経費を見たくなるのはあれを見た瞬間。
+                   ⚠️ 2 か所に置くと、経費を使わない組織での出し分け（012）も
+                      2 か所で見ることになる。
+              */}
               <ChangeStores />
               <Dialog.Root placement="center" scrollBehavior="inside">
                 {/*
@@ -152,20 +142,34 @@ const MoneyDataList = ({
                   ⚠️ **スマホでも「書き出し」と語で出す。** アイコンだけ・略語だけに
                      しないこと（何が起きるか分からないボタンになる）。
                 */}
+                {/*
+                  ⚠️ **右下に固定する**（2026-08-05）。ヘッダに並べていた頃は
+                     ほかの操作に埋もれ、**確定申告の材料を出す入口だと
+                     気づかれていなかった。**
+                  ⚠️ **`bottom` は店舗一覧の「＋」（`AddBtn`）と同じ値にする。**
+                     フッターナビの上に載せるための逃げなので、片方だけ変えると
+                     ページによってボタンの高さが変わる。
+                  ⚠️ **`zIndex` はフッターナビより上、ダイアログより下。**
+                     上げすぎると書き出しのダイアログの上にボタンが浮く。
+                */}
                 <Dialog.Trigger asChild>
                   <Button
-                    size="sm"
+                    position="fixed"
+                    bottom={{ base: "15%", md: "5%" }}
+                    right={{ base: "5%", md: "5%" }}
+                    zIndex="1350"
                     colorPalette="cyan"
                     borderRadius="full"
                     fontWeight="semibold"
-                    fontSize={{ base: "xs", md: "sm" }}
-                    boxShadow="0 2px 8px rgba(8,145,178,0.28)"
+                    fontSize={{ base: "sm", md: "md" }}
+                    px={{ base: 5, md: 6 }}
+                    h={{ base: "52px", md: "56px" }}
+                    boxShadow="0 4px 15px rgba(8,145,178,0.35)"
+                    _active={{ transform: "scale(0.96)" }}
+                    transition="all 0.2s"
                   >
-                    <LuDownload size={14} />
-                    <Box as="span" display={{ base: "none", md: "inline" }}>
-                      データを書き出す
-                    </Box>
-                    <Box as="span" display={{ base: "inline", md: "none" }}>書き出し</Box>
+                    <LuDownload size={18} />
+                    書き出し
                   </Button>
                 </Dialog.Trigger>
                 <Portal>
