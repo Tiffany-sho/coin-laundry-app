@@ -14,7 +14,15 @@ export default function EquipmentClientPage({ storeStates, canEdit, embedded = f
   ).length;
 
   return (
-    <VStack align="stretch" gap={5} maxW="600px" mx="auto">
+    <VStack
+      align="stretch"
+      gap={5}
+      /* ⚠️ **埋め込まれているときは幅を持たない。** 親（ManageClientPage）が
+            上限を決めている。ここでも持つと**狭いほうが勝ち**、親を広げても
+            カードの幅が変わらない */
+      maxW={embedded ? undefined : "600px"}
+      mx={embedded ? undefined : "auto"}
+    >
       {!embedded && (
         <HStack gap={3}>
           <Box

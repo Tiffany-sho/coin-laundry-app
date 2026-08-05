@@ -46,8 +46,17 @@ export default function ManageClientPage({ stocks, storeStates, canEdit }) {
     0
   );
 
+  /*
+    ⚠️ **幅の上限はここ 1 か所だけで決める。** 中の
+       `InventoryClientPage` / `EquipmentClientPage` は `embedded` のとき
+       自分では `maxW` を持たない。**両方が持つと狭いほうが勝つ**ので、
+       ここだけ広げても**カードの幅は 1px も変わらない**（実際にそうなっていた）。
+    ⚠️ 900px は在庫カードの中身（警告ラインの行が横に長い）に合わせた値。
+       ⚠️ **`100%` にしないこと。** ワイドモニタで 1 行が伸びきり、
+          店舗名と個数が画面の端と端に離れて対応が読めなくなる。
+  */
   return (
-    <VStack align="stretch" gap={5} maxW="600px" mx="auto">
+    <VStack align="stretch" gap={5} maxW="900px" mx="auto">
       <HStack gap={3}>
         <Box
           style={{ background: "linear-gradient(135deg, #0891B2 0%, #0E7490 100%)" }}
