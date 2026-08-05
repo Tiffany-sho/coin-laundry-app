@@ -322,12 +322,36 @@ const RecurringDialog = ({ open, onOpenChange, item, stores, onSaved }) => {
   );
 };
 
-const RecurringPanel = ({ stores = [], canEdit }) => {
+/**
+ * @param addOpen 「新規登録」のダイアログを**外から**開けるようにする（2026-08-05）。
+ *   経費ページの「＋」が「単発 / 固定費」の 2 択になり、固定費を選んだときに
+ *   ここを開く必要があるため。
+ *   ⚠️ **編集は外から開けない。** 編集は行ごとの操作なので、対象の行を知っている
+ *      この中でしか決められない。`addOpen` は**新規のときだけ**効く。
+ * @param onAddOpenChange 閉じたことを親に返す。⚠️ **渡し忘れると閉じられなくなる**
+ *   （親が true を握ったままになる）。
+ */
+const RecurringPanel = ({ stores = [], canEdit, addOpen = false, onAddOpenChange }) => {
   const [items, setItems] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [dialogOpen, setDialogOpen] = useState(false);
+  /** この中から開いた分。⚠️ 外から開かれた分（`addOpen`）とは別に持つ */
+  const [ownOpen, setOwnOpen] = useState(false);
   const [editing, setEditing] = useState(null);
+
+  const dialogOpen = ownOpen || addOpen;
+  /*
+    ⚠️ **閉じるときは両方に伝える。** 外から開かれた場合、親の状態を戻さないと
+       ダイアログが二度と閉じない（`addOpen` が true のままになる）。
+  */
+  const setDialogOpen = (next) => {
+    if (next) {
+      setOwnOpen(true);
+      return;
+    }
+    setOwnOpen(false);
+    onAddOpenChange?.(false);
+  };
 
   const storeNameById = Object.fromEntries(stores.map((s) => [s.id, s.store]));
 
@@ -498,12 +522,14 @@ const RecurringPanel = ({ stores = [], canEdit }) => {
           </HStack>
         ))}
 
+      {/* ⚠️ 外から開かれたとき（addOpen）は必ず新規。直前に編集していた行を
+             引きずると、「固定費を追加」を押したのに編集画面が出る */}
       {dialogOpen && (
         <RecurringDialog
-          key={editing?.id ?? "new"}
+          key={addOpen ? "new-external" : (editing?.id ?? "new")}
           open={dialogOpen}
           onOpenChange={setDialogOpen}
-          item={editing}
+          item={addOpen ? null : editing}
           stores={stores}
           onSaved={load}
         />

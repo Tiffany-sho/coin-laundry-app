@@ -3,8 +3,7 @@ export const dynamic = "force-dynamic";
 import { Box, HStack, Heading, Text } from "@chakra-ui/react";
 import { getStores } from "@/app/api/supabaseFunctions/supabaseDatabase/laundryStore/action";
 import { getMyOrganization } from "@/app/api/supabaseFunctions/supabaseDatabase/organization/action";
-import ExpensesPanel from "@/app/feacher/expenses/components/ExpensesPanel";
-import RecurringPanel from "@/app/feacher/expenses/components/RecurringPanel";
+import ExpensesBody from "@/app/feacher/expenses/components/ExpensesBody";
 import * as Icon from "@/app/feacher/Icon";
 
 export const metadata = {
@@ -86,23 +85,12 @@ export default async function ExpensesPage() {
           </Text>
         </Box>
       ) : (
-        <>
-          <ExpensesPanel stores={stores ?? []} canAdd={canAdd} canManage={canManage} />
-
-          {/* ⚠️ 固定費の管理は admin だけ（追加・編集・削除とも。理由はサーバの requireAdmin） */}
-          <Box mt={10}>
-            <HStack gap={2} mb={1}>
-              <Icon.LuRefreshCw size={18} color="var(--teal)" />
-              <Heading as="h2" fontSize="lg" fontWeight="bold" color="var(--teal-deeper)">
-                毎月の固定費
-              </Heading>
-            </HStack>
-            <Text fontSize="xs" color="var(--text-muted)" mb={4}>
-              家賃・水道光熱費など、毎月かかる支出。ここで登録すると上の一覧に自動で計上されます。
-            </Text>
-            <RecurringPanel stores={stores ?? []} canEdit={canManage} />
-          </Box>
-        </>
+        /*
+          ⚠️ **中身は 1 つのクライアント component にまとめてある**（`ExpensesBody`）。
+             「＋」は上のパネル、固定費のダイアログは下のパネルが持っているので、
+             2 択を仲介する state をここ（server component）では持てない。
+        */
+        <ExpensesBody stores={stores ?? []} canAdd={canAdd} canManage={canManage} />
       )}
     </Box>
   );

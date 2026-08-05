@@ -91,22 +91,30 @@ const CoinLaundryList = ({ coinLaundry, myRole }) => {
           </Button>
 
           {myRole !== "viewer" && (
-            <Button
-              asChild
-              w="100%"
-              size={{ base: "sm", md: "md" }}
-              fontWeight="semibold"
-              color="white"
-              style={{ background: "linear-gradient(135deg, #0891B2 0%, #0E7490 100%)", flex: 1 }}
-              _hover={{ transform: "translateY(-1px)", boxShadow: "0 4px 12px rgba(8,145,178,0.28)" }}
-              transition="all 0.2s"
-            >
-              {/* ⚠️ 直接 Link にしない。支払方法がある店舗では何を集金するか聞く
-                     （入口が 4 か所あり、1 つでも素通しにするとそこだけ既定になる） */}
-              <CollectStartButton store={coinLaundry}>
+            /*
+              ⚠️ **`asChild` に `CollectStartButton` を渡さない。** あちらは
+                 「中身 + ダイアログ」の 2 要素（Fragment）を返すので、`asChild` は
+                 props を差し込む先を 1 つに決められず、**塗りも角丸も flex も
+                 全部落ちる。** 実際にそれで崩れていた（2026-08-05）。
+              ⚠️ 包む向きは店舗詳細（`MonoCard`）と同じ。
+                 `CollectStartButton` の外側は `display: contents` なので、
+                 中の `Button` がそのまま親 Flex の子になり `flex: 1` が効く。
+              ⚠️ 直接 Link にしない。支払方法がある店舗では何を集金するか聞く
+                 （入口が 4 か所あり、1 つでも素通しにするとそこだけ既定になる）。
+            */
+            <CollectStartButton store={coinLaundry}>
+              <Button
+                w="100%"
+                size={{ base: "sm", md: "md" }}
+                fontWeight="semibold"
+                color="white"
+                style={{ background: "linear-gradient(135deg, #0891B2 0%, #0E7490 100%)", flex: 1 }}
+                _hover={{ transform: "translateY(-1px)", boxShadow: "0 4px 12px rgba(8,145,178,0.28)" }}
+                transition="all 0.2s"
+              >
                 <Icon.TbCoinYenFilled /> 集金へ
-              </CollectStartButton>
-            </Button>
+              </Button>
+            </CollectStartButton>
           )}
         </Flex>
       </Card.Footer>

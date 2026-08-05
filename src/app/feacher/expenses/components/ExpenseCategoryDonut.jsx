@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, HStack, Text, VStack } from "@chakra-ui/react";
+import { Box, Flex, HStack, Text, VStack } from "@chakra-ui/react";
 import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
 import { categoryColor } from "@/functions/expenseCategories";
 
@@ -24,8 +24,20 @@ export default function ExpenseCategoryDonut({ categories, total, count }) {
   );
 
   return (
-    <Box>
-      <Box position="relative" h={{ base: "180px", md: "200px" }}>
+    /*
+      ⚠️ **狭いときは縦、広いときは横に並べる**（2026-08-05）。
+         内訳を常に下へ置くと、カテゴリが多い月で**円と内訳が縦に長く伸びて
+         下の「毎月の固定費」まで遠くなる。**
+      ⚠️ **円のほうを縮ませない**（`flexShrink={0}`）。内訳のカテゴリ名が長いと
+         円が潰れて中央の合計が読めなくなる。
+    */
+    <Flex direction={{ base: "column", md: "row" }} gap={{ base: 3, md: 6 }} align="center">
+      <Box
+        position="relative"
+        h={{ base: "180px", md: "200px" }}
+        w={{ base: "100%", md: "200px" }}
+        flexShrink={0}
+      >
         {data.length > 0 && (
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
@@ -76,8 +88,10 @@ export default function ExpenseCategoryDonut({ categories, total, count }) {
         </VStack>
       </Box>
 
+      {/* ⚠️ 横に並べたときは内訳が残りの幅を取る（`flex="1"`）。
+             付けないと中身の幅にしか広がらず、右側が空いて見える */}
       {data.length > 0 && (
-        <VStack align="stretch" gap={1.5} mt={3}>
+        <VStack align="stretch" gap={1.5} flex="1" w="100%" minW={0}>
           {data.map((row) => (
             <HStack key={row.category} justify="space-between" gap={2}>
               <HStack gap={1.5} minW={0}>
@@ -99,6 +113,6 @@ export default function ExpenseCategoryDonut({ categories, total, count }) {
           ))}
         </VStack>
       )}
-    </Box>
+    </Flex>
   );
 }

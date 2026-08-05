@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Box, Button, HStack, Skeleton, Text, VStack } from "@chakra-ui/react";
+import { Box, Button, HStack, Menu, Portal, Skeleton, Text, VStack } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
 import { categoryColor } from "@/functions/expenseCategories";
 import {
@@ -64,7 +64,12 @@ const UNITS = [
   { value: "year", label: "年ごと" },
 ];
 
-const ExpensesPanel = ({ stores = [], canAdd, canManage }) => {
+/**
+ * @param onAddRecurring 固定費の登録を親に頼む。**渡すと「＋」が 2 択になる。**
+ *   ⚠️ **渡してよいのは admin のときだけ**（固定費は admin 限定で、
+ *      集金担当者に出すと片方が必ず 403 になる）。判定は親（`ExpensesBody`）が持つ。
+ */
+const ExpensesPanel = ({ stores = [], canAdd, canManage, onAddRecurring }) => {
   /**
    * 月ごとに見るか年ごとに見るか（2026-08-05。アプリと同じ）。
    * ⚠️ 送りの位置（`cursor`）は月モードなら "YYYY-MM"、年モードなら西暦。
@@ -430,27 +435,89 @@ const ExpensesPanel = ({ stores = [], canAdd, canManage }) => {
            ページによってボタンの高さが変わる。
       */}
       {canAdd && (
-        <Button
+        <Box
           position="fixed"
           bottom={{ base: "15%", md: "5%" }}
           right={{ base: "5%", md: "5%" }}
           zIndex="1350"
-          colorPalette="cyan"
-          borderRadius="full"
-          fontWeight="semibold"
-          fontSize={{ base: "sm", md: "md" }}
-          px={{ base: 5, md: 6 }}
-          h={{ base: "52px", md: "56px" }}
-          boxShadow="0 4px 15px rgba(8,145,178,0.35)"
-          _active={{ transform: "scale(0.96)" }}
-          transition="all 0.2s"
-          onClick={() => {
-            setEditing(null);
-            setDialogOpen(true);
-          }}
         >
-          <Icon.LuPlus size={18} /> 経費を登録
-        </Button>
+          {/*
+            ⚠️ **2 択を出すのは固定費も登録できる人だけ。** 集金担当者に出すと
+               片方（固定費）が必ず 403 になる。`onAddRecurring` を渡すかどうかで
+               親が決めているので、**ここで役割を判定し直さないこと。**
+          */}
+          {onAddRecurring ? (
+            <Menu.Root positioning={{ placement: "top-end" }}>
+              <Menu.Trigger asChild>
+                <Button
+                  colorPalette="cyan"
+                  borderRadius="full"
+                  fontWeight="semibold"
+                  fontSize={{ base: "sm", md: "md" }}
+                  px={{ base: 5, md: 6 }}
+                  h={{ base: "52px", md: "56px" }}
+                  boxShadow="0 4px 15px rgba(8,145,178,0.35)"
+                  _active={{ transform: "scale(0.96)" }}
+                  transition="all 0.2s"
+                >
+                  <Icon.LuPlus size={18} /> 経費を登録
+                </Button>
+              </Menu.Trigger>
+              <Portal>
+                <Menu.Positioner>
+                  <Menu.Content borderRadius="xl" minW="240px" py={2}>
+                    <Menu.Item
+                      value="once"
+                      py={2.5}
+                      onClick={() => {
+                        setEditing(null);
+                        setDialogOpen(true);
+                      }}
+                    >
+                      <Box>
+                        <Text fontSize="sm" fontWeight="semibold" color="var(--text-main)">
+                          経費を登録
+                        </Text>
+                        <Text fontSize="xs" color="var(--text-muted)">
+                          仕入れ・修繕など、その都度の支出
+                        </Text>
+                      </Box>
+                    </Menu.Item>
+                    <Menu.Item value="recurring" py={2.5} onClick={onAddRecurring}>
+                      <Box>
+                        <Text fontSize="sm" fontWeight="semibold" color="var(--text-main)">
+                          毎月の固定費を登録
+                        </Text>
+                        <Text fontSize="xs" color="var(--text-muted)">
+                          家賃・水道光熱費など、毎月かかるもの
+                        </Text>
+                      </Box>
+                    </Menu.Item>
+                  </Menu.Content>
+                </Menu.Positioner>
+              </Portal>
+            </Menu.Root>
+          ) : (
+            /* ⚠️ 選ぶものが 1 つしか無いなら聞かない（1 タップ増えるだけ） */
+            <Button
+              colorPalette="cyan"
+              borderRadius="full"
+              fontWeight="semibold"
+              fontSize={{ base: "sm", md: "md" }}
+              px={{ base: 5, md: 6 }}
+              h={{ base: "52px", md: "56px" }}
+              boxShadow="0 4px 15px rgba(8,145,178,0.35)"
+              _active={{ transform: "scale(0.96)" }}
+              transition="all 0.2s"
+              onClick={() => {
+                setEditing(null);
+                setDialogOpen(true);
+              }}
+            >
+              <Icon.LuPlus size={18} /> 経費を登録
+            </Button>
+          )}
+        </Box>
       )}
 
       {/* key を変えて開くたびに初期値を入れ直す（編集 → 新規で前の値が残るのを防ぐ） */}
