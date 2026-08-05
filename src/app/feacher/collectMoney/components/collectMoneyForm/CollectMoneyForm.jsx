@@ -14,14 +14,24 @@ import CashlessInputs from "./CardContext/CashlessInputs";
 import DraftBanner from "./parts/DraftBanner";
 import useDraft from "../../hooks/useDraft";
 import useCollectMethod from "../../hooks/useCollectMethod";
+import { normalizeScope, showsCash, showsCashless } from "@/functions/collectScope";
 import * as Icon from "@/app/feacher/Icon";
 
 const SectionDivider = () => (
   <Box h="1px" bg="var(--divider, #F1F5F9)" />
 );
 
-const CollectMoneyForm = ({ coinLaundry }) => {
+/**
+ * @param scope 何を記録するか（`?scope=` から来る）。
+ *   ⚠️ **未指定は `"both"`**（`normalizeScope`）。ブックマークや通知など
+ *      scope を持たない経路から開かれたときに、**入力欄が黙って消えている**
+ *      状態にしないため。アプリと同じ規約。
+ */
+const CollectMoneyForm = ({ coinLaundry, scope: rawScope }) => {
   const router = useRouter();
+  const scope = normalizeScope(rawScope);
+  const withCash = showsCash(scope);
+  const withCashless = showsCashless(scope);
 
   const [epoc, setEpoc] = useState(Date.now());
   const [msg, setMsg] = useState("");
@@ -76,6 +86,25 @@ const CollectMoneyForm = ({ coinLaundry }) => {
     discardDraft();
   };
 
+  /*
+    scope に合わせた「実際に送る値」。**ここで 1 度だけ作る。**
+    ⚠️ フッターと確認ダイアログはこれをそのまま使う。下流に scope の分岐を
+       撒くと、**画面の見込み額と登録される金額が食い違う**（両方が同じ
+       state から別々に計算しているため、片方だけ直すと必ずずれる）。
+    ⚠️ **現金のみ**… 機器ごとのぶんも含めてキャッシュレスを落とす。
+       欄を消すだけでは、合計入力で入れてから切り替えた分が state に残る。
+    ⚠️ **現金以外のみ**… 現金は必ず 0。集金方式（機種別 / 合計）も無関係に
+       なるので合計入力として送る（アプリと同じ規約）。
+  */
+  const submitChecked = withCash ? checked : false;
+  const submitMoneyTotal = withCash ? moneyTotal : 0;
+  const submitMachines = withCash
+    ? withCashless
+      ? machinesAndFunds
+      : machinesAndFunds.map(({ cashless: _drop, ...rest }) => rest)
+    : [];
+  const submitCashless = withCashless ? cashless : {};
+
   return (
     <VStack spacing={0} minH="100vh" bg="var(--app-bg, #F0F9FF)">
       <CollectMoneyHeader storeName={coinLaundry.store} />
@@ -110,17 +139,26 @@ const CollectMoneyForm = ({ coinLaundry }) => {
             <EpochTimeSelector epoc={epoc} setEpoc={setEpoc} />
           </Box>
 
-          <SectionDivider />
+          {/*
+            ⚠️ **現金を記録しないときは集金方式ごと出さない。** 機種別 / 合計は
+               どちらも「硬貨をどう数えるか」の話なので、現金以外だけを記録する
+               ときは選ばせる意味が無い。
+          */}
+          {withCash && (
+            <>
+              <SectionDivider />
+              <CollectMethodCard
+                checked={checked}
+                fixed={fixed}
+                loading={loading}
+                onMethodChange={handleMethodChange}
+                onFixedChange={handleFixedChange}
+              />
+            </>
+          )}
 
-          {/* 集金方式 */}
-          <CollectMethodCard
-            checked={checked}
-            fixed={fixed}
-            loading={loading}
-            onMethodChange={handleMethodChange}
-            onFixedChange={handleFixedChange}
-          />
-
+          {withCash && (
+            <>
           <SectionDivider />
 
           {/* 金額入力 */}
@@ -135,7 +173,9 @@ const CollectMoneyForm = ({ coinLaundry }) => {
               <MachineAndMoney
                 machinesAndFunds={machinesAndFunds}
                 setMachinesAndFunds={setMachinesAndFunds}
-                methods={activeMethods}
+                /* ⚠️ 現金のみのときは機器ごとのキャッシュレス欄も出さない。
+                      出すと「現金のみ」と言いながらキャッシュレスを入れられる */
+                methods={withCashless ? activeMethods : []}
               />
             ) : (
               <MoneyTotal
@@ -144,6 +184,8 @@ const CollectMoneyForm = ({ coinLaundry }) => {
               />
             )}
           </Box>
+            </>
+          )}
 
           {/*
             キャッシュレス（店舗に支払方法が登録されているときだけ出る）。
@@ -152,7 +194,7 @@ const CollectMoneyForm = ({ coinLaundry }) => {
                正とする（`hasMachineCashless`）ので、**集金レベルに入れた分は
                黙って消える。**
           */}
-          {activeMethods.length > 0 && !checked && (
+          {withCashless && activeMethods.length > 0 && (!checked || !withCash) && (
             <>
               <SectionDivider />
               <CashlessInputs
@@ -180,10 +222,11 @@ const CollectMoneyForm = ({ coinLaundry }) => {
       </Box>
 
       <CollectMoneyFooter
-        machinesAndFunds={machinesAndFunds}
-        checked={checked}
-        moneyTotal={moneyTotal}
-        cashless={cashless}
+        machinesAndFunds={submitMachines}
+        checked={submitChecked}
+        moneyTotal={submitMoneyTotal}
+        cashless={submitCashless}
+        scope={scope}
         coinLaundry={coinLaundry}
         epoc={epoc}
         setMsg={setMsg}

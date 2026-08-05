@@ -37,6 +37,7 @@ import TotalRevenueCard from "./parts/TotalRevenueCard";
 import MachineBreakdownCard from "./parts/MachineBreakdownCard";
 import MethodBreakdownCard from "./parts/MethodBreakdownCard";
 import RevenueTabs from "./parts/RevenueTabs";
+import CollectStartButton from "@/app/feacher/collectMoney/components/collectMoneyForm/parts/CollectStartButton";
 import CollecterFilter from "./parts/CollecterFilter";
 import useStoreRevenue from "../../hooks/useStoreRevenue";
 
@@ -195,10 +196,8 @@ const MoneyDataList = ({
 
           {valiant === "aStore" && (
             <Box display={{ base: "none", md: "block" }}>
-              <Link
-                href={`/collectMoney/${coinLaundry.id}/newData`}
-                _hover={{ textDecoration: "none" }}
-              >
+              {/* ⚠️ 直接 Link にしない。支払方法がある店舗では何を集金するか聞く */}
+              <CollectStartButton store={coinLaundry}>
                 <Button
                   size="lg"
                   colorPalette="cyan"
@@ -208,7 +207,7 @@ const MoneyDataList = ({
                 >
                   <LuPlus /> 新規集金を記録
                 </Button>
-              </Link>
+              </CollectStartButton>
             </Box>
           )}
         </Flex>
@@ -342,10 +341,8 @@ const MoneyDataList = ({
 
               {valiant === "aStore" && (
                 <Box display={{ base: "block", md: "none" }}>
-                  <Link
-                    href={`/collectMoney/${coinLaundry.id}/newData`}
-                    _hover={{ textDecoration: "none" }}
-                  >
+                  {/* ⚠️ 直接 Link にしない。支払方法がある店舗では何を集金するか聞く */}
+                  <CollectStartButton store={coinLaundry}>
                     <Button
                       w="full"
                       size="md"
@@ -355,7 +352,7 @@ const MoneyDataList = ({
                     >
                       <LuPlus /> 新規集金を記録
                     </Button>
-                  </Link>
+                  </CollectStartButton>
                 </Box>
               )}
 

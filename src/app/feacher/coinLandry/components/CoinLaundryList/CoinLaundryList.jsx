@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Button, Card, Flex, Image, Box, Text, HStack } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
+import CollectStartButton from "@/app/feacher/collectMoney/components/collectMoneyForm/parts/CollectStartButton";
 import PaymentMethodChips from "@/app/feacher/coinLandry/components/PaymentMethodChips";
 
 const CoinLaundryList = ({ coinLaundry, myRole }) => {
@@ -100,9 +101,11 @@ const CoinLaundryList = ({ coinLaundry, myRole }) => {
               _hover={{ transform: "translateY(-1px)", boxShadow: "0 4px 12px rgba(8,145,178,0.28)" }}
               transition="all 0.2s"
             >
-              <Link href={`/collectMoney/${coinLaundry.id}/newData`}>
+              {/* ⚠️ 直接 Link にしない。支払方法がある店舗では何を集金するか聞く
+                     （入口が 4 か所あり、1 つでも素通しにするとそこだけ既定になる） */}
+              <CollectStartButton store={coinLaundry}>
                 <Icon.TbCoinYenFilled /> 集金へ
-              </Link>
+              </CollectStartButton>
             </Button>
           )}
         </Flex>

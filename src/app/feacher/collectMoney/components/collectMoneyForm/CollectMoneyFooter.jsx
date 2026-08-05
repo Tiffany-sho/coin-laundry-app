@@ -7,6 +7,12 @@ const CollectMoneyFooter = ({
   checked,
   moneyTotal,
   cashless,
+  /**
+   * 何を記録するか。⚠️ **金額そのものは既に絞られた状態で渡ってくる**
+   *    （`CollectMoneyForm` の `submit*`）。ここで使うのは「入力があるか」の
+   *    判定だけで、**合計の計算に scope の分岐を持ち込まないこと。**
+   */
+  scope = "both",
   coinLaundry,
   epoc,
   setMsg,
@@ -45,11 +51,19 @@ const CollectMoneyFooter = ({
     : Number(moneyTotal) || 0;
   const total = cashTotal + cashlessTotal;
 
-  const hasData = checked
-    ? machinesAndFunds.some(
-        (item) => item.funds !== null || item.weight !== null || sumValues(item.cashless) > 0
-      )
-    : moneyTotal != null && moneyTotal !== "";
+  /*
+    ⚠️ **現金以外のみのときは moneyTotal を見ない。** あちらは常に 0 が
+       入っているので、`!= null` で見ると**何も入力していなくても
+       「入力済み」**になり、¥0 の集金を登録できてしまう。
+  */
+  const hasData =
+    scope === "cashless"
+      ? sumValues(cashless) > 0
+      : checked
+        ? machinesAndFunds.some(
+            (item) => item.funds !== null || item.weight !== null || sumValues(item.cashless) > 0
+          )
+        : moneyTotal != null && moneyTotal !== "";
 
   return (
     <HStack

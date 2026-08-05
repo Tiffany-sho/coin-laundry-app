@@ -1,5 +1,6 @@
 import Link from "next/link";
 import * as Icon from "@/app/feacher/Icon";
+import CollectStartButton from "@/app/feacher/collectMoney/components/collectMoneyForm/parts/CollectStartButton";
 import ImageCarousel from "./ImageCarusel/ImageCarusel";
 import ActionMenu from "./ActionMenu/ActionMenu";
 import {
@@ -73,7 +74,8 @@ const MonoCard = ({ coinLaundry, myRole }) => {
 
             {canEdit && (
               <Flex justifyContent="center" pt={2}>
-                <Link href={`/collectMoney/${coinLaundry.id}/newData`}>
+                {/* ⚠️ 直接 Link にしない。支払方法がある店舗では何を集金するか聞く */}
+                <CollectStartButton store={coinLaundry}>
                   <Button
                     size="lg"
                     color="white"
@@ -88,7 +90,7 @@ const MonoCard = ({ coinLaundry, myRole }) => {
                     <Icon.PiHandCoinsLight size={24} />
                     集金を開始
                   </Button>
-                </Link>
+                </CollectStartButton>
               </Flex>
             )}
           </VStack>
