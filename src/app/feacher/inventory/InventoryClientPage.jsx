@@ -1,10 +1,18 @@
 "use client";
 import { Box, VStack, HStack, Heading, Text } from "@chakra-ui/react";
-import Link from "next/link";
 import * as Icon from "@/app/feacher/Icon";
 import InventoryStoreCard from "./InventoryStoreCard";
 
-export default function InventoryClientPage({ stocks, canEdit }) {
+/**
+ * ⚠️ **`embedded` は「管理」ページの中に置かれているという意味**（2026-08-05）。
+ *    そのとき見出しと「設備管理へ」のリンクを出さない。親（`ManageClientPage`）が
+ *    見出しと切り替えを持っているので、出すと**同じ画面に見出しが 2 つ並び、
+ *    リンクを踏んでも同じページに留まる。**
+ * ⚠️ `/inventory` を直接開いた場合は `embedded` が付かないので従来どおり出る…
+ *    という作りにはしていない（あちらはリダイレクトで `/inventory` へ集約した）。
+ *    ⚠️ **単体で使う経路を復活させるなら、リンク先も一緒に見直すこと。**
+ */
+export default function InventoryClientPage({ stocks, canEdit, embedded = false }) {
   const lowStockCount = stocks.filter((s) => {
     const t = s.stock_thresholds ?? {};
     return (
@@ -16,34 +24,30 @@ export default function InventoryClientPage({ stocks, canEdit }) {
 
   return (
     <VStack align="stretch" gap={5} maxW="600px" mx="auto">
-      <HStack justify="space-between" align="center">
-        <HStack gap={3}>
-          <Box
-            style={{ background: "linear-gradient(135deg, #0891B2 0%, #0E7490 100%)" }}
-            color="white"
-            borderRadius="xl"
-            p={2.5}
-          >
-            <Icon.LuPackage size={22} />
-          </Box>
-          <VStack align="start" gap={0}>
-            <Heading
-              fontSize={{ base: "xl", md: "2xl" }}
-              fontWeight="bold"
-              color="var(--teal-deeper)"
+      {!embedded && (
+        <HStack justify="space-between" align="center">
+          <HStack gap={3}>
+            <Box
+              style={{ background: "linear-gradient(135deg, #0891B2 0%, #0E7490 100%)" }}
+              color="white"
+              borderRadius="xl"
+              p={2.5}
             >
-              在庫管理
-            </Heading>
-            <Text fontSize="xs" color="var(--text-muted)">全店舗の在庫状況</Text>
-          </VStack>
-        </HStack>
-        <Link href="/equipment">
-          <HStack gap={1} color="var(--teal)" fontSize="sm" fontWeight="semibold">
-            <Text>設備管理</Text>
-            <Icon.LuChevronRight size={16} />
+              <Icon.LuPackage size={22} />
+            </Box>
+            <VStack align="start" gap={0}>
+              <Heading
+                fontSize={{ base: "xl", md: "2xl" }}
+                fontWeight="bold"
+                color="var(--teal-deeper)"
+              >
+                在庫管理
+              </Heading>
+              <Text fontSize="xs" color="var(--text-muted)">全店舗の在庫状況</Text>
+            </VStack>
           </HStack>
-        </Link>
-      </HStack>
+        </HStack>
+      )}
 
       {lowStockCount > 0 ? (
         <Box

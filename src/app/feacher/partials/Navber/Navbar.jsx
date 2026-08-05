@@ -52,14 +52,16 @@ const Navbar = ({ user, hasOrg = true }) => {
                     <span>収益</span>
                   </Link>
                 </li>
+                {/* ⚠️ 在庫と設備は 2026-08-05 に「管理」1 枚へ統合した
+                       （フッターナビとアプリは元から 1 つだった） */}
                 <li>
                   <Link href="/inventory" className={styles.navItem}>
-                    <span>在庫</span>
+                    <span>管理</span>
                   </Link>
                 </li>
                 <li>
-                  <Link href="/equipment" className={styles.navItem}>
-                    <span>設備</span>
+                  <Link href="/expenses" className={styles.navItem}>
+                    <span>経費</span>
                   </Link>
                 </li>
                 <li>

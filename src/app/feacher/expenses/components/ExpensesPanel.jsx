@@ -220,11 +220,11 @@ const ExpensesPanel = ({ stores = [], canAdd, canManage }) => {
             <Icon.LuPlus size={16} /> 経費を登録
           </Button>
         )}
-        <Link href="/collectMoney/expenses/recurring">
-          <Button variant="outline" colorPalette="cyan" borderRadius="full" size="sm">
-            <Icon.LuRefreshCw size={15} /> 毎月の固定費
-          </Button>
-        </Link>
+        {/*
+          ⚠️ **「毎月の固定費」へのリンクは置かない**（2026-08-05）。
+             固定費は同じページの下に折り込んだので、押しても同じページに留まる
+             リンクになってしまう（アプリと同じ形に揃えた）。
+        */}
       </HStack>
 
       {/* ── 一覧 ── */}

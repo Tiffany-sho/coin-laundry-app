@@ -20,7 +20,15 @@ export const UploadPageProvider = ({ children }) => {
    *    取得は常に全期間で、ここは切り詰めるだけにすること。
    */
   const [historyLimit, setHistoryLimit] = useState(initialLimit(true));
-  const [startEpoch, setStartEpoch] = useState(changeEpocFromNowYearMonth(-6));
+  /**
+   * 月別売上の既定の期間。**直近 12 か月**（2026-08-05 に 6 か月から変えた）。
+   *
+   * ⚠️ **アプリの `usePeriodPager`（`DEFAULT_MONTHS = 12`）と揃えてある。**
+   *    片方だけ直すと、同じ組織の同じ画面が Web とアプリで違う期間を出す。
+   * ⚠️ 6 か月だと**前年同月と並べられない。** 季節で動く商売なので、
+   *    去年の同じ月が画面に入っているかどうかで読み取れることが変わる。
+   */
+  const [startEpoch, setStartEpoch] = useState(changeEpocFromNowYearMonth(-12));
   const [endEpoch, setEndEpoch] = useState(null);
   const [data, setData] = useState(null);
   const [displayData, setDisplayData] = useState([]);

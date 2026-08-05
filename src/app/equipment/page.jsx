@@ -1,33 +1,13 @@
-import { getMachinesStates } from "@/app/api/supabaseFunctions/supabaseDatabase/laundryState/action";
-import { getMyOrganization } from "@/app/api/supabaseFunctions/supabaseDatabase/organization/action";
-import EquipmentClientPage from "@/app/feacher/equipment/EquipmentClientPage";
-import { Box } from "@chakra-ui/react";
 import { redirect } from "next/navigation";
 
-export const dynamic = "force-dynamic";
-export const metadata = { title: "設備管理 | Collecie" };
-
-export default async function EquipmentPage() {
-  const [machinesResult, orgResult] = await Promise.all([
-    getMachinesStates(),
-    getMyOrganization(),
-  ]);
-
-  if (orgResult.error === "ログインしてください") {
-    redirect("/auth/login");
-  }
-
-  const storeStates = machinesResult.data ?? [];
-  const myRole = orgResult.data?.myRole ?? "viewer";
-
-  return (
-    <Box
-      p={{ base: 4, md: 6 }}
-      pb={{ base: 28, md: 8 }}
-      bg="var(--app-bg, #F0F9FF)"
-      minH="100vh"
-    >
-      <EquipmentClientPage storeStates={storeStates} canEdit={myRole !== "viewer"} />
-    </Box>
-  );
+/**
+ * 旧「設備管理」ページ。**2026-08-05 に `/inventory` へ統合した。**
+ *
+ * ⚠️ **消さずにリダイレクトで残す。** 上部ナビ・ブックマーク・
+ *    フッターナビの `isActive` がこの URL を知っている。
+ * ⚠️ `?tab=equipment` を付けて渡す。付けないと在庫が開き、
+ *    **「設備管理」を押したのに在庫が出る**ことになる。
+ */
+export default function LegacyEquipmentPage() {
+  redirect("/inventory?tab=equipment");
 }

@@ -130,7 +130,13 @@ const CoinLaundryClientPage = ({ stores, myRole, planInfo }) => {
           </Box>
         </Container>
       </Box>
-      {myRole !== "viewer" && <AddBtn atLimit={atLimit} />}
+      {/*
+        ⚠️ **admin だけ。`!== "viewer"` で書かない**（2026-08-05）。
+           `createStore` が `myRole !== "admin"` を弾くので、集金担当者に出すと
+           **押して住所も設備も入れ終えてから「権限がありません」で落ちる。**
+           アプリ側は最初から admin 限定にしてあり、ここだけ漏れていた。
+      */}
+      {myRole === "admin" && <AddBtn atLimit={atLimit} />}
     </>
   );
 };

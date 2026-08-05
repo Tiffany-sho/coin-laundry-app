@@ -6,11 +6,25 @@ import * as Icon from "@/app/feacher/Icon";
 import styles from "./FooterNavber.module.css";
 import { useEffect, useRef, useState } from "react";
 
+/**
+ * ⚠️ **経費を 2026-08-05 に足した。** それまで `/collectMoney/expenses` にあり、
+ *    毎日触る記録なのに 収益 → 経費 の 2 タップが要っていた
+ *    （アプリは 2026-08-03 に同じ理由でタブへ昇格させてある）。
+ *
+ * ⚠️ **設定は残す。** アプリは設定をホームの歯車へ移したが、**Web の上部ナビは
+ *    769px 以下で `display: none`** なので、フッターから外すと
+ *    **スマホから設定へ二度と辿り着けない。** 数を 5 に戻すために
+ *    設定を落とさないこと。
+ *
+ * ⚠️ **数を変えたら CSS も追従する。** グリッドの列数と丸い印の位置は
+ *    `--nav-count` から計算している（`FooterNavber.module.css`）。
+ */
 const ALL_NAV_ITEMS = [
   { href: "/",             icon: <Icon.IoHomeOutline />,                label: "ホーム" },
   { href: "/coinLaundry",  icon: <Icon.MdOutlineLocalLaundryService />, label: "店舗" },
   { href: "/collectMoney", icon: <Icon.BiCoinStack />,                  label: "収益" },
   { href: "/inventory",    icon: <Icon.LuPackage />,                    label: "管理" },
+  { href: "/expenses",     icon: <Icon.LuWallet />,                     label: "経費" },
   { href: "/settings",     icon: <Icon.LuSettings />,                   label: "設定" },
 ];
 
@@ -74,9 +88,18 @@ const FooterNavbar = ({ hasOrg = true }) => {
 
   return (
     <nav className={`${styles.footerNavbar} ${!isVisible ? styles.hidden : ""}`}>
+      {/*
+        ⚠️ **列数を CSS に書かず、ここから渡す。** 以前は CSS が `repeat(5, 1fr)` と
+           `left: calc(idx * 20% + 10%)` を直に持っていたので、**組織未所属の
+           2 項目のときに丸い印が項目の中心から外れていた**（2 列なのに 5 列の
+           前提で位置を計算していた）。項目を増減させるたびに 2 か所を直す形にしない。
+      */}
       <div
         className={styles.container}
-        style={{ "--active-idx": activeIndex >= 0 ? activeIndex : 0 }}
+        style={{
+          "--active-idx": activeIndex >= 0 ? activeIndex : 0,
+          "--nav-count": NAV_ITEMS.length,
+        }}
       >
         {activeIndex >= 0 && <div className={styles.pill} />}
         {NAV_ITEMS.map(({ href, icon, label }) => (

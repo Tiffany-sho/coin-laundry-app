@@ -18,9 +18,11 @@
   transform: translateY(100%);
 }
 
+/* ⚠️ 列数は JS から --nav-count で渡す。ここに数を書くと項目を増減したときに
+      2 か所を直すことになり、実際に「2 項目のとき丸い印がずれる」を作っていた */
 .container {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(var(--nav-count, 5), 1fr);
   align-items: center;
   position: relative;
   max-width: 100%;
@@ -31,10 +33,12 @@
 .pill {
   position: absolute;
   top: 50%;
-  left: calc(var(--active-idx, 0) * 20% + 10%);
+  left: calc((var(--active-idx, 0) + 0.5) * (100% / var(--nav-count, 5)));
   transform: translate(-50%, -50%);
-  width: 62px;
-  height: 62px;
+  /* ⚠️ 62px 固定にしない。項目が 6 つになると 1 マス（狭い端末で約 60px）を
+        はみ出して隣に重なる。マス幅から 6px 引いた値を上限にする */
+  width: min(62px, calc(100% / var(--nav-count, 5) - 6px));
+  aspect-ratio: 1 / 1;
   border-radius: 50%;
   background: var(--teal-pale, #CFFAFE);
   transition: left 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);

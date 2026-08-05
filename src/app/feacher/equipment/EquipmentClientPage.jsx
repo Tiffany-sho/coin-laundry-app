@@ -1,10 +1,10 @@
 "use client";
 import { Box, VStack, HStack, Heading, Text } from "@chakra-ui/react";
-import Link from "next/link";
 import * as Icon from "@/app/feacher/Icon";
 import EquipmentStoreCard from "./EquipmentStoreCard";
 
-export default function EquipmentClientPage({ storeStates, canEdit }) {
+/** ⚠️ `embedded` の意味は `InventoryClientPage` と同じ（見出しと相互リンクを出さない） */
+export default function EquipmentClientPage({ storeStates, canEdit, embedded = false }) {
   const totalBroken = storeStates.reduce(
     (acc, s) => acc + (s.machines?.filter((m) => m.break).length ?? 0),
     0
@@ -15,7 +15,7 @@ export default function EquipmentClientPage({ storeStates, canEdit }) {
 
   return (
     <VStack align="stretch" gap={5} maxW="600px" mx="auto">
-      <HStack justify="space-between" align="center">
+      {!embedded && (
         <HStack gap={3}>
           <Box
             style={{ background: "linear-gradient(135deg, #0891B2 0%, #0E7490 100%)" }}
@@ -36,13 +36,7 @@ export default function EquipmentClientPage({ storeStates, canEdit }) {
             <Text fontSize="xs" color="var(--text-muted)">全店舗の機器状態</Text>
           </VStack>
         </HStack>
-        <Link href="/inventory">
-          <HStack gap={1} color="var(--teal)" fontSize="sm" fontWeight="semibold">
-            <Text>在庫管理</Text>
-            <Icon.LuChevronRight size={16} />
-          </HStack>
-        </Link>
-      </HStack>
+      )}
 
       {totalBroken > 0 ? (
         <Box

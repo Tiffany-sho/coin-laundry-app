@@ -1,71 +1,11 @@
-export const dynamic = "force-dynamic";
-
-import { Box, HStack, Heading, Text } from "@chakra-ui/react";
-import Link from "next/link";
-import { getStores } from "@/app/api/supabaseFunctions/supabaseDatabase/laundryStore/action";
-import { getMyOrganization } from "@/app/api/supabaseFunctions/supabaseDatabase/organization/action";
-import RecurringPanel from "@/app/feacher/expenses/components/RecurringPanel";
-import * as Icon from "@/app/feacher/Icon";
-
-export const metadata = {
-  title: "毎月の固定費 | Collecie",
-};
+import { redirect } from "next/navigation";
 
 /**
- * 毎月の固定費の定義。
+ * 旧「毎月の固定費」ページ。**2026-08-05 に `/expenses` の中へ折り込んだ。**
  *
- * ⚠️ ここで作るのは**定義だけ**で、経費の実体は作らない。一覧を開くたびに
- *    定義から展開して計算している（`expandRecurring`）。金額を変えると
- *    過去の月まで遡って変わる。
- *
- * ⚠️ **管理できるのは admin だけ**（2026-08-03）。単発の経費と違い、
- *    追加・編集・削除のすべてを絞っている（追加だけ塞いでも、編集で金額を
- *    書き換えられれば同じことができるため）。一覧は担当店舗（011）で絞られる。
+ * ⚠️ アプリは 2026-08-03 に同じことをしている（同じ「経費」なのに
+ *    固定費だけ行き先が違うのをやめた）。⚠️ **消さずに残す**（ブックマーク）。
  */
-export default async function RecurringExpensesPage() {
-  const [{ data: stores }, { data: org }] = await Promise.all([
-    getStores(),
-    getMyOrganization(),
-  ]);
-
-  const canEdit = org?.myRole === "admin";
-
-  return (
-    <Box maxW="720px" mx="auto" p={{ base: 4, md: 8 }}>
-      <HStack justify="space-between" align="start" mb={6} gap={4}>
-        <Box>
-          <HStack gap={3} mb={1}>
-            <Icon.LuRefreshCw size={22} color="var(--teal)" />
-            <Heading
-              as="h1"
-              fontSize={{ base: "xl", md: "2xl" }}
-              fontWeight="bold"
-              color="var(--teal-deeper)"
-            >
-              毎月の固定費
-            </Heading>
-          </HStack>
-          <Text fontSize="sm" color="var(--text-muted)">
-            家賃・水道光熱費など、毎月かかる支出
-          </Text>
-        </Box>
-
-        <Link href="/collectMoney/expenses">
-          <HStack
-            gap={1}
-            color="var(--text-muted)"
-            fontSize="sm"
-            cursor="pointer"
-            flexShrink={0}
-            _hover={{ color: "var(--text-main)" }}
-          >
-            <Icon.LuChevronLeft size={16} />
-            <Text>経費へ</Text>
-          </HStack>
-        </Link>
-      </HStack>
-
-      <RecurringPanel stores={stores ?? []} canEdit={canEdit} />
-    </Box>
-  );
+export default function LegacyRecurringPage() {
+  redirect("/expenses");
 }

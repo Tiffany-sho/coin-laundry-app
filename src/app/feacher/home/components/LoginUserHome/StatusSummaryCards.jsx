@@ -81,7 +81,8 @@ const StatusSummaryCards = async () => {
     <Grid templateColumns="repeat(2, 1fr)" gap={3} alignItems="stretch">
       <GridItem>
         <StatusCard
-          href="/equipment"
+          /* ⚠️ タブを名指しする。付けないと在庫が開き「設備状況を押したのに在庫が出る」 */
+          href="/inventory?tab=equipment"
           icon={<Icon.LuWrench size={16} />}
           label="設備状況"
           hasError={!!machinesResult.error}
