@@ -1,4 +1,4 @@
--- 013: 組織への参加を「申請 → オーナーが承認」に変える（2026-08-06）
+-- 013: 組織への参加を「申請 → 店舗管理者が承認」に変える（2026-08-06）
 --
 -- それまでの経路は 2 つあった。どちらも 013 で畳む。
 --
@@ -10,11 +10,12 @@
 --
 -- 新しい経路は 1 本だけ。
 --
---   従業員が「管理者のメール」を入れて申請 → **オーナー**が権限を選んで承認
+--   従業員が「管理者のメール」を入れて申請 → **店舗管理者（admin）**が権限を選んで承認
 --
--- ⚠️ **承認できるのはオーナー（organizations.owner_id）だけ。** admin 全員ではない。
---    組織名の変更と同じ条件で、メンバーの権限変更・削除（admin 全員）とは**条件が違う。**
---    揃っていないのは意図的。
+-- ⚠️ **承認できるのは admin。** メンバーの権限変更・削除と同じ条件。
+--    ⚠️ **オーナー（organizations.owner_id）限定にしない。** オーナーは組織を
+--       作った 1 人だけで**譲渡する手段が無い**ため、限定すると
+--       **オーナー不在の間は誰も組織に参加できなくなる。**
 --
 -- 適用:
 --   npx supabase link --project-ref <ref>      -- ⚠️ .temp があっても毎回要る
@@ -29,12 +30,12 @@ CREATE TABLE IF NOT EXISTS public.organization_join_requests (
                 CHECK (status IN ('pending', 'approved', 'rejected')),
   created_at  timestamptz NOT NULL DEFAULT now(),
   decided_at  timestamptz,
-  -- 承認・却下した人。⚠️ ON DELETE SET NULL（オーナーが抜けても履歴を残す）
+  -- 承認・却下した人。⚠️ ON DELETE SET NULL（その人が抜けても履歴を残す）
   decided_by  uuid REFERENCES public.profiles(id) ON DELETE SET NULL
 );
 
 COMMENT ON TABLE public.organization_join_requests IS
-  '組織への参加申請。従業員が出し、オーナー（organizations.owner_id）だけが承認できる。'
+  '組織への参加申請。従業員が出し、店舗管理者（role = admin）が承認できる。'
   ' 承認時に権限（collecter / viewer）を選ぶので、この表には権限を持たせない。';
 
 /*
@@ -46,7 +47,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS organization_join_requests_pending_uniq
   ON public.organization_join_requests (org_id, user_id)
   WHERE status = 'pending';
 
-/* オーナーが自分の組織の保留中を引くための索引 */
+/* 店舗管理者が自分の組織の保留中を引くための索引 */
 CREATE INDEX IF NOT EXISTS organization_join_requests_org_status_idx
   ON public.organization_join_requests (org_id, status);
 
@@ -59,7 +60,7 @@ ALTER TABLE public.organization_join_requests ENABLE ROW LEVEL SECURITY;
 
   ⚠️ ここに置くのは「本人が自分の申請を読む・出す」だけ。
      **一覧・承認・却下は Server Action が service role で行う**ので、
-     オーナー向けの SELECT ポリシーは要らない（作ると可視範囲が広がるだけ）。
+     承認する側向けの SELECT ポリシーは要らない（作ると可視範囲が広がるだけ）。
   ⚠️ **UPDATE / DELETE のポリシーは作らない。** 申請者が自分で
      `status` を 'approved' に書き換えられてしまう。
 */

@@ -31,7 +31,7 @@ import { getStores } from "@/app/api/supabaseFunctions/supabaseDatabase/laundryS
 export default function OrganizationSettings({ currentUserId, currentUsername }) {
   const [org, setOrg] = useState(null);
   const [members, setMembers] = useState([]);
-  /** 保留中の参加申請（013）。⚠️ オーナーでなければ常に空 */
+  /** 保留中の参加申請（013）。⚠️ 店舗管理者でなければ常に空 */
   const [invitations, setInvitations] = useState([]);
   const [decidingId, setDecidingId] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -48,7 +48,7 @@ export default function OrganizationSettings({ currentUserId, currentUsername })
     const [orgRes, membersRes, invRes, storesRes] = await Promise.all([
       getMyOrganization(),
       getOrganizationMembers(),
-      /* ⚠️ オーナーでなければ空配列が返る（エラーではない）。下で件数 0 として扱う */
+      /* ⚠️ 店舗管理者でなければ空配列が返る（エラーではない）。下で件数 0 として扱う */
       getJoinRequests(),
       getStores(),
     ]);
@@ -299,10 +299,11 @@ export default function OrganizationSettings({ currentUserId, currentUsername })
       */}
 
       {/*
-        参加申請（013）。⚠️ **オーナーにしか出ない。**
-        `getJoinRequests` がオーナー以外へ空配列を返すので、ここは件数だけ見ればよい。
-        ⚠️ **admin にも出さないこと。** 承認できないのに一覧だけ見えると、
-           押しても「オーナーのみ承認できます」で失敗するボタンになる。
+        参加申請（013）。⚠️ **店舗管理者（admin）にしか出ない。**
+        `getJoinRequests` が admin 以外へ空配列を返すので、ここは件数だけ見ればよい。
+        ⚠️ **オーナー限定にしない**（2026-08-06 に owner_id から変えた）。
+           オーナーは組織を作った 1 人だけで譲渡する手段が無いため、
+           限定すると**オーナー不在の間は誰も組織に参加できなくなる。**
       */}
       {invitations.length > 0 && (
         <>
@@ -336,7 +337,8 @@ export default function OrganizationSettings({ currentUserId, currentUsername })
                     {/*
                       ⚠️ **承認は権限とセットで押させる。** 「承認」だけにすると
                          あとからメンバー管理で直す手間が必ず発生する。
-                      ⚠️ **`admin` を選択肢に入れない**（オーナーの座を配れてしまう）。
+                      ⚠️ **`admin` を選択肢に入れない。** 承認だけで管理者を増やせてしまう。
+                         昇格はメンバー管理から行う。
                     */}
                     <HStack gap={2} flexWrap="wrap">
                       <Button

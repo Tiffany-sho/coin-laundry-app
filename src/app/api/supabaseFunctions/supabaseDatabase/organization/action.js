@@ -170,8 +170,8 @@ export async function updateOrganizationName(name) {
  *    ⚠️ `updateOrganizationName` は `owner_id` で絞っているので**オーナーしか
  *       通らない**が、こちらは admin なら通る。
  *       揃っていないのは意図的（改名はオーナーの権限のまま残してある）。
- *    ⚠️ 参加申請の承認（013）も `owner_id` で絞っている。**条件が 3 通りある**ので
- *       「admin なら全部できる」と考えないこと。
+ *    ⚠️ **オーナー限定なのは「組織名の変更」と「組織の削除」だけ。**
+ *       参加申請の承認（013）は admin。**条件が 2 通りある**ので混同しないこと。
  */
 export async function updateOrganizationExpensesEnabled(enabled) {
   const { user } = await getUser();
@@ -309,8 +309,10 @@ export async function updateMemberRole(userId, role) {
 //       しかも即座にメンバーになれた
 //    どちらも撤去し、**従業員が申請 → オーナーが承認**に統一した。
 //
-// ⚠️ **承認できるのはオーナー（organizations.owner_id）だけ。**
-//    メンバーの権限変更・削除は admin 全員なので**条件が違う。** 意図的。
+// ⚠️ **承認できるのは店舗管理者（admin）。** メンバーの権限変更・削除と同じ条件。
+//    ⚠️ **オーナー（organizations.owner_id）限定にしない**（2026-08-06 に変えた）。
+//       オーナーは組織を作った 1 人だけで**譲渡する手段が無い**ため、
+//       限定すると**オーナー不在の間は誰も組織に参加できなくなる。**
 
 /** 承認時に選べる権限。⚠️ `admin` を入れないこと（オーナーの座を配れてしまう） */
 const APPROVABLE_ROLES = ["collecter", "viewer"];
@@ -418,7 +420,7 @@ export async function requestJoinOrg(adminEmail) {
             設定 → 組織 から、権限を選んで承認してください。
           </p>
           <p style="font-size: 13px; color: #a0aec0; margin-top: 24px;">
-            承認できるのは組織のオーナーだけです。
+            承認できるのは店舗管理者だけです。
           </p>
         </div>
       `,
@@ -475,24 +477,30 @@ export async function cancelMyJoinRequest() {
 }
 
 /**
- * 自分の組織に届いている保留中の申請。**オーナーだけ。**
+ * 自分の組織に届いている保留中の申請。**店舗管理者（admin）だけ。**
  *
- * ⚠️ **admin には出さない。** 承認できないのに一覧だけ見えると、
- *    「押しても 403 になるボタン」を出すことになる。
+ * ⚠️ **オーナー限定にしない**（2026-08-06 に owner_id から変えた）。
+ *    オーナーは組織を作った 1 人だけで**譲渡する手段が無い**ので、
+ *    限定すると**オーナー不在の間は誰も組織に参加できなくなる。**
+ *    admin はメンバーの権限変更・削除ができるので、**人を増やせるのも
+ *    そこに揃える**ほうが説明しやすい。
+ * ⚠️ **集金担当者・閲覧者には出さない。** 承認できないのに一覧だけ見えると、
+ *    「押しても失敗するボタン」を出すことになる。
  */
 export async function getJoinRequests() {
   const { user } = await getUser();
   if (!user) return { error: "ログインしてください" };
 
   const serviceSupabase = createServiceClient();
-  const { data: org } = await serviceSupabase
-    .from("organizations")
-    .select("id")
-    .eq("owner_id", user.id)
+  const { data: me } = await serviceSupabase
+    .from("organization_members")
+    .select("org_id, role")
+    .eq("user_id", user.id)
     .maybeSingle();
 
-  // ⚠️ オーナーでないときは空配列。エラーにすると画面がエラー表示になる
-  if (!org) return { data: [] };
+  // ⚠️ admin でないときは空配列。エラーにすると画面がエラー表示になる
+  if (!me || me.role !== "admin") return { data: [] };
+  const org = { id: me.org_id };
 
   const { data, error } = await serviceSupabase
     .from("organization_join_requests")
@@ -515,7 +523,11 @@ export async function getJoinRequests() {
 }
 
 /**
- * 申請を承認・却下する。**オーナーだけ。**
+ * 申請を承認・却下する。**店舗管理者（admin）だけ。**
+ *
+ * ⚠️ **オーナー限定にしない**（理由は `getJoinRequests` を参照）。
+ * ⚠️ **`role` に `admin` を許さない。** 許すと承認だけで管理者を増やせる。
+ *    昇格は `updateMemberRole` を通す（そちらは admin だけが呼べる）。
  *
  * @param requestId 申請の id
  * @param decision  "approve" | "reject"
@@ -526,13 +538,14 @@ export async function decideJoinRequest(requestId, decision, role) {
   if (!user) return { error: "ログインしてください" };
 
   const serviceSupabase = createServiceClient();
-  const { data: org } = await serviceSupabase
-    .from("organizations")
-    .select("id")
-    .eq("owner_id", user.id)
+  const { data: me } = await serviceSupabase
+    .from("organization_members")
+    .select("org_id, role")
+    .eq("user_id", user.id)
     .maybeSingle();
 
-  if (!org) return { error: "オーナーのみ承認できます" };
+  if (!me || me.role !== "admin") return { error: "店舗管理者のみ承認できます" };
+  const org = { id: me.org_id };
 
   /*
     ⚠️ **申請の org_id で絞る。** id だけで引くと、他組織の申請を

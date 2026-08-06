@@ -77,7 +77,7 @@ const StaffFinish = () => (
       <Text fontSize="sm" color="gray.600" textAlign="center" lineHeight="1.7">
         設定から組織への参加を申請してください。
         <br />
-        オーナーが承認すると参加できます。
+        店舗管理者が承認すると参加できます。
       </Text>
     </VStack>
 

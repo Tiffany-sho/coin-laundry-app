@@ -115,7 +115,7 @@ export default function JoinOrgForm() {
         </Heading>
         <Text fontSize="sm" color="var(--text-muted)" lineHeight="1.8">
           {pending.orgName ? `「${pending.orgName}」の` : ""}
-          オーナーが承認すると参加できます。
+          店舗管理者が承認すると参加できます。
           <br />
           承認されたらこのページを再読み込みしてください。
         </Text>
@@ -163,7 +163,7 @@ export default function JoinOrgForm() {
 
       <Text fontSize="sm" color="var(--text-muted)" mb={4} lineHeight="1.8">
         管理者のメールアドレスを入力して申請してください。
-        組織のオーナーが承認すると参加できます。
+        組織の店舗管理者が承認すると参加できます。
       </Text>
 
       <form onSubmit={handleSubmit}>
