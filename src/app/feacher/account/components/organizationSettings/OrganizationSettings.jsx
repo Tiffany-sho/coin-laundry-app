@@ -59,7 +59,16 @@ export default function OrganizationSettings({ currentUserId, currentUsername })
     if (membersRes.data) setMembers(membersRes.data);
     setMyRole(membersRes.myRole ?? null);
     if (storesRes?.data) setStores(storesRes.data);
-    if (invRes.data) setInvitations(invRes.data);
+    /*
+      ⚠️ **失敗を握り潰さない。** `if (invRes.data)` としか見ていなかったため、
+         PostgREST の埋め込みエラー（`profiles` への外部キーが 2 本あって
+         関係を決められない）が**「申請 0 件」と見分けが付かなかった。**
+         セクションごと出ないので、**画面には何の手掛かりも残らない。**
+      ⚠️ **`data` が空配列のときは正常**（admin でない／申請が無い）。
+         エラーのときだけ出すこと。
+    */
+    setInvitations(invRes.data ?? []);
+    if (invRes.error) showToast("error", invRes.error);
     setLoading(false);
   }, []);
 

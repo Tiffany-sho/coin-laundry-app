@@ -502,9 +502,18 @@ export async function getJoinRequests() {
   if (!me || me.role !== "admin") return { data: [] };
   const org = { id: me.org_id };
 
+  /*
+    ⚠️ **`profiles!user_id` と関係を名指しすること。** この表は `profiles` への
+       外部キーを **2 本**持っている（`user_id` と `decided_by`）ので、
+       素の `profiles(...)` では PostgREST が**どちらか決められずエラーになる。**
+       ⚠️ **エラーは画面に出ない。** 呼び出し側は `if (res.data)` としか見ないので、
+          **「申請 0 件」と区別が付かない**（2026-08-06 に実際にこれで詰まった）。
+       ⚠️ **`decided_by` を足したときに壊れた**ので、**この表に `profiles` への
+          外部キーを増やすときは、ここの名指しも見直すこと。**
+  */
   const { data, error } = await serviceSupabase
     .from("organization_join_requests")
-    .select("id, created_at, profiles(username, full_name)")
+    .select("id, created_at, profiles!user_id(username, full_name)")
     .eq("org_id", org.id)
     .eq("status", "pending")
     .order("created_at", { ascending: true })
