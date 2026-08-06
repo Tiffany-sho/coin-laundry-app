@@ -20,7 +20,7 @@ import { categoryColor } from "@/functions/expenseCategories";
  */
 export default function ExpenseCategoryDonut({ categories, total, count }) {
   const data = (categories ?? []).filter(
-    (row) => Number.isFinite(row?.total) && row.total > 0
+    (row) => Number.isFinite(row?.total) && row.total > 0,
   );
 
   return (
@@ -29,46 +29,54 @@ export default function ExpenseCategoryDonut({ categories, total, count }) {
          内訳を常に下へ置くと、カテゴリが多い月で**円と内訳が縦に長く伸びて
          下の「毎月の固定費」まで遠くなる。**
       ⚠️ **円のほうを縮ませない**（`flexShrink={0}`）。内訳のカテゴリ名が長いと
-         円が潰れて中央の合計が読めなくなる。
+         円が潰れて扇が楕円になる。
     */
-    <Flex direction={{ base: "column", md: "row" }} gap={{ base: 3, md: 6 }} align="center">
-      <Box
-        position="relative"
-        h={{ base: "180px", md: "200px" }}
-        w={{ base: "100%", md: "200px" }}
-        flexShrink={0}
-      >
-        {data.length > 0 && (
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={data}
-                dataKey="total"
-                nameKey="category"
-                innerRadius="62%"
-                outerRadius="92%"
-                startAngle={90}
-                endAngle={-270}
-                /* ⚠️ アニメーションを切る。月を送るたびに扇が回り直して落ち着かない */
-                isAnimationActive={false}
-                stroke="none"
-              >
-                {data.map((row) => (
-                  <Cell key={row.category} fill={categoryColor(row.category)} />
-                ))}
-              </Pie>
-            </PieChart>
-          </ResponsiveContainer>
-        )}
+    <Flex
+      direction={{ base: "column", md: "row" }}
+      gap={{ base: 3, md: 6 }}
+      align="center"
+    >
+      {/* ⚠️ 円と合計を 1 つの列にまとめる。横に 3 つ並べると内訳の幅が足りなくなる */}
+      <VStack gap={1} flexShrink={0} w={{ base: "100%", md: "200px" }}>
+        <Box h={{ base: "180px", md: "200px" }} w="100%">
+          {data.length > 0 && (
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={data}
+                  dataKey="total"
+                  nameKey="category"
+                  innerRadius="62%"
+                  outerRadius="92%"
+                  startAngle={90}
+                  endAngle={-270}
+                  /* ⚠️ アニメーションを切る。月を送るたびに扇が回り直して落ち着かない */
+                  isAnimationActive={false}
+                  stroke="none"
+                >
+                  {data.map((row) => (
+                    <Cell
+                      key={row.category}
+                      fill={categoryColor(row.category)}
+                    />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+          )}
+        </Box>
 
-        {/* ⚠️ 中央の合計は円が無いとき（経費 0 件）も出す。¥0 と分かるほうがよい */}
-        <VStack
-          position="absolute"
-          inset="0"
-          justify="center"
-          gap={0}
-          pointerEvents="none"
-        >
+        {/*
+        ⚠️ **合計を円の中に入れない**（2026-08-06）。それまでドーナツの穴に
+           重ねていたが、**穴（約 124px）より数字のほうが長くなる。**
+           `¥1,234,567` は 3xl（30px）で約 165px あり、はみ出して読めなくなる。
+        ⚠️ **穴を広げて解決しない。** `innerRadius` を上げると輪が細って
+           扇の色の差が分からなくなる（12 カテゴリを色で見分ける図なので致命的）。
+        ⚠️ **経費 0 件でも出す。** ¥0 と分かるほうがよい。
+        ⚠️ **出すのはこの 1 か所だけ。** 見出しにも出すと同じ数字が 2 回並ぶ。
+        ⚠️ アプリの `ExpenseCategoryPie.tsx` も円の下に出している。**揃えること。**
+      */}
+        <VStack gap={0}>
           <Text fontSize="xs" color="var(--text-muted)">
             経費合計
           </Text>
@@ -86,7 +94,7 @@ export default function ExpenseCategoryDonut({ categories, total, count }) {
             {count}件
           </Text>
         </VStack>
-      </Box>
+      </VStack>
 
       {/* ⚠️ 横に並べたときは内訳が残りの幅を取る（`flex="1"`）。
              付けないと中身の幅にしか広がらず、右側が空いて見える */}
@@ -106,7 +114,12 @@ export default function ExpenseCategoryDonut({ categories, total, count }) {
                   {row.category}
                 </Text>
               </HStack>
-              <Text fontSize="xs" fontWeight="semibold" color="var(--text-main)" flexShrink={0}>
+              <Text
+                fontSize="xs"
+                fontWeight="semibold"
+                color="var(--text-main)"
+                flexShrink={0}
+              >
                 ¥{row.total.toLocaleString()}
               </Text>
             </HStack>
