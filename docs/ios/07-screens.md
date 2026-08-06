@@ -53,12 +53,12 @@ app/
 │   └── settings/
 │       ├── index.tsx                 # ⚙️ 設定
 │       ├── account.tsx
-│       ├── organization.tsx          # 🔒 メンバー・招待・参加パスワード
+│       ├── organization.tsx          # 🔒 メンバー・参加申請の承認（013）
 │       ├── collect-schedule.tsx      # 🔒
 │       ├── notifications.tsx         # ★アプリ固有：通知設定
-│       ├── plan.tsx                  # read-only
+│       ├── plan.tsx                  # ⚠️ read-only ではない。StoreKit の購入導線
 │       ├── log.tsx
-│       └── webview.tsx               # 利用規約 / プライバシー / 特商法
+│       └── legal.tsx                 # ⚠️ webview.tsx は削除済み。アプリ内のテキスト
 └── collect/
     └── [storeId].tsx                 # 💰 集金入力（フルスクリーンモーダル）
 ```

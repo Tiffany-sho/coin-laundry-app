@@ -11,7 +11,12 @@
 
 ## 8.1 既存テーブル（変更なし）
 
-`organizations` / `organization_members` / `organization_invitations` / `laundry_store` / `laundry_state` / `collect_funds` / `action_message` / `profiles` は**そのまま使う**。JSONB カラムの形は現行実装に完全に従う。
+`organizations` / `organization_members` / `laundry_store` / `laundry_state` / `collect_funds` / `action_message` / `profiles` は**そのまま使う**。JSONB カラムの形は現行実装に完全に従う。
+
+⚠️ **`organization_invitations` と `organizations.join_password` は 2026-08-06（013）に使うのをやめた。**
+テーブルと列は**残してあるが、新しく参照するコードを書かないこと**（書いた時点で
+「一度配れば誰でも使える合鍵」が復活する）。参加は
+`organization_join_requests`（申請 → admin が承認）の 1 本だけ。
 
 ```ts
 // packages/core/types.d.ts（JSDoc でも可。プロジェクトは JS のため型は参考情報）

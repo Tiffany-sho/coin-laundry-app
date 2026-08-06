@@ -109,14 +109,24 @@ export function withAuth(fn) {
 |---|---|---|---|
 | POST | `/org` | `createOrganization(name)` | |
 | PATCH | `/org` | `updateOrganizationName(name)` | 🔒 |
-| POST | `/org/join` | `requestJoinOrg(adminEmail, password)` | 組織参加 |
+| GET/POST/DELETE | `/org/join` | `getMyJoinRequest` / `requestJoinOrg(adminEmail)` / `cancelMyJoinRequest` | 申請の確認・申請・取り下げ。⚠️ **POST に渡すのは `adminEmail` だけ**（`password` を受ける形に戻さない）。⚠️ GET は申請が無ければ **`null`。エラーではない** |
 | GET | `/org/members` | `getOrganizationMembers()` | |
 | PATCH | `/org/members/:userId` | `updateMemberRole(userId, role)` | 🔒 |
 | DELETE | `/org/members/:userId` | `removeMember(userId)` | 🔒 |
-| GET/POST/DELETE | `/org/invitations[/:id]` | `getOrganizationInvitations` / `inviteMember` / `deleteInvitation` | 🔒 |
+| GET | `/org/join-requests` | `getJoinRequests()` | 🔒 ⚠️ **admin 以外には空配列**（403 ではない） |
+| POST | `/org/join-requests/:id` | `decideJoinRequest(id, decision, role)` | 🔒 承認・却下。**権限は承認する側が選ぶ**（`collecter` / `viewer`。⚠️ `admin` は選べない） |
 | GET/PUT | `/org/collect-schedule` | `getCollectSchedule` / `updateCollectSchedule` | PUT は 🔒 |
-| GET/PUT | `/org/join-password` | `getOrgJoinPassword` / `setOrgJoinPassword` | 🔒 |
 | GET | `/org/messages` | `getOrgMessages(orgId)` | 操作ログ |
+
+⚠️ **2026-08-06（013）に消したルート。復活させないこと。**
+
+| 消したもの | なぜ |
+|---|---|
+| `/org/invitations[/:id]`（メール招待） | 相手が未登録だと送れず、届かない・期限切れ・迷惑メールと詰まりどころが多かった |
+| `/org/join-password`（参加パスワード） | admin が一度配れば**誰でも使える無期限の合鍵**。しかも即座にメンバーになれた |
+
+⚠️ **`organizations.join_password` 列と `organization_invitations` テーブルは残してある。**
+**新しく参照するコードを書いた時点で合鍵が復活する。**
 
 ### アカウント・プラン
 
