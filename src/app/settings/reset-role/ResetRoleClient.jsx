@@ -70,7 +70,7 @@ export default function ResetRoleClient({ orgDetails }) {
           </Box>
           <Text fontSize="sm" color="var(--text-main)" lineHeight="1.7">
             誤って「店舗管理者」として登録してしまった場合、このページから組織を削除して役割をリセットできます。
-            リセット後は組織に参加していない状態になるので、管理者から招待を受けて「集金担当者」として参加し直してください。
+            リセット後は組織に参加していない状態になるので、管理者のメールアドレスを入力して参加を申請し直してください。
           </Text>
         </HStack>
       </Box>
@@ -115,7 +115,7 @@ export default function ResetRoleClient({ orgDetails }) {
             `組織「${orgName}」`,
             `${storeCount} 店舗の全データ（集金記録・在庫・機器情報）`,
             `${memberCount} 人分の組織所属情報`,
-            "未承諾の招待リンク",
+            "保留中の参加申請",
             "アクションログ",
           ].map((item) => (
             <HStack key={item} gap={2.5} align="start">

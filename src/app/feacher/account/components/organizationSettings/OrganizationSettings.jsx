@@ -10,28 +10,30 @@ import {
   Button,
   Input,
   Spinner,
-  Badge,
+
   Flex,
   Separator,
+  Switch,
 } from "@chakra-ui/react";
 import * as Icon from "@/app/feacher/Icon";
 import {
   getMyOrganization,
   getOrganizationMembers,
-  getOrganizationInvitations,
-  deleteInvitation,
+  getJoinRequests,
+  decideJoinRequest,
   updateOrganizationName,
   updateOrganizationExpensesEnabled,
 } from "@/app/api/supabaseFunctions/supabaseDatabase/organization/action";
 import { showToast } from "@/functions/makeToast/toast";
 import MemberList from "./MemberList";
 import { getStores } from "@/app/api/supabaseFunctions/supabaseDatabase/laundryStore/action";
-import InviteForm from "./InviteForm";
 
 export default function OrganizationSettings({ currentUserId, currentUsername }) {
   const [org, setOrg] = useState(null);
   const [members, setMembers] = useState([]);
+  /** 保留中の参加申請（013）。⚠️ オーナーでなければ常に空 */
   const [invitations, setInvitations] = useState([]);
+  const [decidingId, setDecidingId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editingName, setEditingName] = useState(false);
   const [orgName, setOrgName] = useState("");
@@ -46,7 +48,8 @@ export default function OrganizationSettings({ currentUserId, currentUsername })
     const [orgRes, membersRes, invRes, storesRes] = await Promise.all([
       getMyOrganization(),
       getOrganizationMembers(),
-      getOrganizationInvitations(),
+      /* ⚠️ オーナーでなければ空配列が返る（エラーではない）。下で件数 0 として扱う */
+      getJoinRequests(),
       getStores(),
     ]);
     if (orgRes.data) {
@@ -105,14 +108,23 @@ export default function OrganizationSettings({ currentUserId, currentUsername })
     setSavingExpenses(false);
   };
 
-  const handleDeleteInvitation = async (id) => {
-    const { error } = await deleteInvitation(id);
+  /**
+   * 参加申請を承認・却下する（013）。
+   * ⚠️ **`decision` と `role` を取り違えないこと。** 却下では `role` を使わない。
+   */
+  const handleDecide = async (id, decision, role) => {
+    setDecidingId(id);
+    const { data, error } = await decideJoinRequest(id, decision, role);
     if (error) {
       showToast("error", error);
+    } else if (decision === "reject") {
+      showToast("success", "申請を却下しました");
+      fetchAll();
     } else {
-      showToast("success", "招待を取り消しました");
+      showToast("success", `${data.name} さんを追加しました`);
       fetchAll();
     }
+    setDecidingId(null);
   };
 
   if (loading) {
@@ -221,23 +233,39 @@ export default function OrganizationSettings({ currentUserId, currentUsername })
                   : "変更できるのは管理者だけです。"}
               </Text>
             </Box>
-            <Button
-              size="sm"
-              flexShrink={0}
-              variant={org.expensesEnabled ? "solid" : "outline"}
-              colorPalette="cyan"
-              borderRadius="full"
-              disabled={myRole !== "admin" || savingExpenses}
-              onClick={handleToggleExpenses}
-            >
-              {savingExpenses ? (
-                <Spinner size="xs" />
-              ) : org.expensesEnabled ? (
-                "記録する"
-              ) : (
-                "記録しない"
-              )}
-            </Button>
+            {/*
+              ⚠️ **ボタンにしないこと**（2026-08-06 に直した）。
+                 それまでは `記録する` / `記録しない` を**現在の状態として**
+                 ボタンに出していたが、**ボタンは「押すとこうなる」と読まれる。**
+                 有効なときに「記録する」と出るので、押すと止まる＝**表示と操作が
+                 正反対**になっていた。見出しも「経費を記録する」で重複していた。
+              ⚠️ アプリ（`src/components/settings/ExpensesSection.tsx`）は
+                 最初からスイッチ。**同じ設定が Web とアプリで別の形にならないこと。**
+              ⚠️ **保存中に disabled にしない。** 応答を待つ間トグルが動かないと
+                 「固まってから切り替わる」ように見える（アプリ側と同じ判断）。
+                 誤操作はやめるときの確認ダイアログで防いでいる。
+            */}
+            <Flex align="center" gap={2} flexShrink={0}>
+              {savingExpenses && <Spinner size="xs" color="var(--teal, #0891B2)" />}
+              <Switch.Root
+                checked={org.expensesEnabled}
+                onCheckedChange={handleToggleExpenses}
+                disabled={myRole !== "admin"}
+                size="lg"
+                aria-label="経費を記録する"
+              >
+                <Switch.HiddenInput />
+                <Switch.Control
+                  bg={org.expensesEnabled ? "var(--teal, #0891B2)" : "gray.300"}
+                  _hover={{
+                    bg: org.expensesEnabled ? "var(--teal-dark, #0E7490)" : "gray.400",
+                  }}
+                  transition="all 0.2s"
+                >
+                  <Switch.Thumb bg="white" shadow="md" />
+                </Switch.Control>
+              </Switch.Root>
+            </Flex>
           </HStack>
         </Box>
       </Box>
@@ -262,56 +290,85 @@ export default function OrganizationSettings({ currentUserId, currentUsername })
 
       <Separator borderColor="var(--divider, #F1F5F9)" />
 
-      {/* 招待フォーム */}
-      <InviteForm
-        orgName={org.name}
-        inviterName={currentUsername}
-        onInvited={fetchAll}
-      />
+      {/*
+        ⚠️ **メール招待は 2026-08-06 に廃止した**（013）。相手が未登録だと送れず、
+           届かない・期限切れ・迷惑メール、と詰まりどころが多かった。
+           **今はメンバーを増やす経路が「申請 → 承認」の 1 本だけ。**
+        ⚠️ **「招待する」フォームを足し直さないこと。** 足すと経路が 2 つに戻り、
+           プランの人数制限を 2 か所で見ることになる。
+      */}
 
-      {/* 保留中の招待 */}
+      {/*
+        参加申請（013）。⚠️ **オーナーにしか出ない。**
+        `getJoinRequests` がオーナー以外へ空配列を返すので、ここは件数だけ見ればよい。
+        ⚠️ **admin にも出さないこと。** 承認できないのに一覧だけ見えると、
+           押しても「オーナーのみ承認できます」で失敗するボタンになる。
+      */}
       {invitations.length > 0 && (
         <>
           <Separator borderColor="var(--divider, #F1F5F9)" />
           <Box>
-            <Heading as="h3" fontSize="md" color="var(--teal-deeper, #155E75)" mb={3}>
-              保留中の招待
+            <Heading as="h3" fontSize="md" color="var(--teal-deeper, #155E75)" mb={1}>
+              参加申請（{invitations.length}件）
             </Heading>
+            <Text fontSize="xs" color="var(--text-muted)" mb={3} lineHeight="1.7">
+              権限を選んで承認すると、その人が組織に加わります。
+            </Text>
             <VStack align="stretch" gap={2}>
-              {invitations.map((inv) => (
+              {invitations.map((req) => (
                 <Box
-                  key={inv.id}
+                  key={req.id}
                   p={3}
                   bg="yellow.50"
                   borderRadius="lg"
                   border="1px solid"
                   borderColor="yellow.200"
                 >
-                  <HStack justify="space-between">
+                  <VStack align="stretch" gap={2}>
                     <VStack align="start" gap={0}>
                       <Text fontSize="sm" fontWeight="medium" color="var(--text-main, #1E3A5F)">
-                        {inv.email}
+                        {req.name}
                       </Text>
-                      <HStack gap={2}>
-                        <Badge fontSize="2xs" colorPalette="yellow" variant="subtle">
-                          {inv.role === "collecter" ? "集金担当者" : "閲覧者"}
-                        </Badge>
-                        <Text fontSize="2xs" color="var(--text-faint, #94A3B8)">
-                          {new Date(inv.expires_at).toLocaleDateString("ja-JP")} 期限
-                        </Text>
-                      </HStack>
+                      <Text fontSize="2xs" color="var(--text-faint, #94A3B8)">
+                        {new Date(req.createdAt).toLocaleDateString("ja-JP")} 申請
+                      </Text>
                     </VStack>
-                    <Button
-                      size="xs"
-                      variant="ghost"
-                      color="red.400"
-                      onClick={() => handleDeleteInvitation(inv.id)}
-                      _hover={{ bg: "red.50" }}
-                    >
-                      <Icon.LuX size={14} />
-                      取り消し
-                    </Button>
-                  </HStack>
+                    {/*
+                      ⚠️ **承認は権限とセットで押させる。** 「承認」だけにすると
+                         あとからメンバー管理で直す手間が必ず発生する。
+                      ⚠️ **`admin` を選択肢に入れない**（オーナーの座を配れてしまう）。
+                    */}
+                    <HStack gap={2} flexWrap="wrap">
+                      <Button
+                        size="xs"
+                        colorPalette="cyan"
+                        loading={decidingId === req.id}
+                        onClick={() => handleDecide(req.id, "approve", "collecter")}
+                      >
+                        集金担当者として承認
+                      </Button>
+                      <Button
+                        size="xs"
+                        variant="outline"
+                        colorPalette="cyan"
+                        loading={decidingId === req.id}
+                        onClick={() => handleDecide(req.id, "approve", "viewer")}
+                      >
+                        閲覧者として承認
+                      </Button>
+                      <Button
+                        size="xs"
+                        variant="ghost"
+                        color="red.400"
+                        _hover={{ bg: "red.50" }}
+                        loading={decidingId === req.id}
+                        onClick={() => handleDecide(req.id, "reject")}
+                      >
+                        <Icon.LuX size={14} />
+                        却下
+                      </Button>
+                    </HStack>
+                  </VStack>
                 </Box>
               ))}
             </VStack>

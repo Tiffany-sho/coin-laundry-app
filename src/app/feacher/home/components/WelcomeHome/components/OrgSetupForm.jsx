@@ -44,7 +44,7 @@ const OrgSetupForm = () => {
         <Text fontSize="sm" color="var(--text-muted)" lineHeight="1.7">
           集金チームを管理する組織を作成します。
           <br />
-          後からスタッフを招待できます。
+          スタッフからの参加申請を承認して追加できます。
         </Text>
       </VStack>
 

@@ -75,17 +75,17 @@ const StaffFinish = () => (
         初期設定が完了しました！
       </Text>
       <Text fontSize="sm" color="gray.600" textAlign="center" lineHeight="1.7">
-        店舗管理者から招待リンクが届いたら
+        設定から組織への参加を申請してください。
         <br />
-        クリックして組織に参加してください。
+        オーナーが承認すると参加できます。
       </Text>
     </VStack>
 
     <VStack align="stretch" gap={3}>
       {[
-        { icon: <Icon.LuMail size={15} />, text: "管理者に招待リンクの送付を依頼する" },
-        { icon: <Icon.LuSmartphone size={15} />, text: "届いたリンクをタップして参加する" },
-        { icon: <Icon.LuCheck size={15} />, text: "参加後に集金・管理ができるようになります" },
+        { icon: <Icon.LuMail size={15} />, text: "管理者のメールアドレスを聞く" },
+        { icon: <Icon.LuSmartphone size={15} />, text: "設定から参加を申請する" },
+        { icon: <Icon.LuCheck size={15} />, text: "承認されると集金・管理ができるようになります" },
       ].map(({ icon, text }, i) => (
         <Flex key={i} align="center" gap={3} p={3} bg="white" borderRadius="lg">
           <Flex

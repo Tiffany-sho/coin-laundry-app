@@ -5,17 +5,15 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getUser } from "@/app/api/supabaseFunctions/supabaseDatabase/user/action";
 import { getProfile } from "@/app/api/supabaseFunctions/supabaseDatabase/profiles/action";
-import { getMyOrganization, getOrgJoinPassword } from "@/app/api/supabaseFunctions/supabaseDatabase/organization/action";
+import { getMyOrganization } from "@/app/api/supabaseFunctions/supabaseDatabase/organization/action";
 import OrganizationSettings from "@/app/feacher/account/components/organizationSettings/OrganizationSettings";
-import OrgJoinPasswordCard from "@/app/feacher/settings/components/OrgJoinPasswordCard";
 import * as Icon from "@/app/feacher/Icon";
 
 export default async function OrganizationEditPage() {
   const { user } = await getUser();
-  const [{ data: profile }, { data: org }, { data: joinPassword }] = await Promise.all([
+  const [{ data: profile }, { data: org }] = await Promise.all([
     getProfile(),
     getMyOrganization(),
-    getOrgJoinPassword(),
   ]);
 
   if (org?.myRole !== "admin") redirect("/settings");
@@ -42,8 +40,6 @@ export default async function OrganizationEditPage() {
           currentUsername={profile?.username || profile?.full_name || "オーナー"}
         />
       </Box>
-
-      <OrgJoinPasswordCard currentPassword={joinPassword} />
     </Box>
   );
 }

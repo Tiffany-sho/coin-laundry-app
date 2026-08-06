@@ -1,8 +1,25 @@
 import { withAuth, corsPreflight } from "../../_lib/handler";
-import { requestJoinOrg } from "@/app/api/supabaseFunctions/supabaseDatabase/organization/action";
-import { logAction } from "@/app/api/supabaseFunctions/supabaseDatabase/actionMessage/action";
+import {
+  requestJoinOrg,
+  getMyJoinRequest,
+  cancelMyJoinRequest,
+} from "@/app/api/supabaseFunctions/supabaseDatabase/organization/action";
 
 export const dynamic = "force-dynamic";
+
+/**
+ * 組織への参加申請（013、2026-08-06）。
+ *
+ * ⚠️ **参加パスワードは廃止した。** 送るのは管理者のメールアドレスだけ。
+ *    ⚠️ **`password` を受け付ける形に戻さないこと。** 合鍵が復活する。
+ * ⚠️ **ここではメンバーにならない。** 行が増えるのはオーナーの承認
+ *    （`POST /org/join-requests/[id]`）だけ。
+ *
+ * ⚠️ **アクションログに書かない。** 参加が成立するのは承認のときで、
+ *    ここで書くと**組織に入っていない人の操作**になり `org_id` が null になる
+ *    （組織のログに出ない行だけが増える）。記録は承認側で行う。
+ */
+export const GET = withAuth(async () => await getMyJoinRequest());
 
 export const POST = withAuth(async (request) => {
   let body;
@@ -11,21 +28,13 @@ export const POST = withAuth(async (request) => {
   } catch {
     return { error: "リクエストの形式が不正です", status: 400 };
   }
-  if (!body?.adminEmail || !body?.password) {
-    return { error: "管理者のメールアドレスと参加パスワードを入力してください", status: 400 };
+  if (!body?.adminEmail) {
+    return { error: "管理者のメールアドレスを入力してください", status: 400 };
   }
-  const result = await requestJoinOrg(body.adminEmail, body.password);
-
-  /**
-   * ⚠️ **パスワードも管理者のメールアドレスも書かない。** 前者は当然として、
-   *    後者もログを読める全員に管理者の連絡先を配ることになる。
-   *
-   * ⚠️ 記録できるのは**参加が成立したあと**だから。logAction は
-   *    organization_members から org_id を引くので、ここより前に呼ぶと
-   *    まだ所属が無く org_id が null になり、組織のログに出ない。
-   */
-  if (!result?.error) await logAction("組織に参加しました");
-  return result;
+  return await requestJoinOrg(body.adminEmail);
 });
+
+/** 申請の取り下げ。⚠️ 自分の pending だけ（Server Action 側で絞っている） */
+export const DELETE = withAuth(async () => await cancelMyJoinRequest());
 
 export const OPTIONS = corsPreflight;

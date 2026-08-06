@@ -11,20 +11,19 @@ import { Resend } from "resend";
 /**
  * この組織にもう 1 人メンバーを増やせるか。増やせないときだけ文字列を返す。
  *
- * ⚠️ **メンバーが増える経路は 3 つある。**
- *      1. inviteMember      … 招待を作る
- *      2. acceptInvitation  … 招待を受ける（実際に行が増えるのはここ）
- *      3. requestJoinOrg    … 参加パスワードで直接入る
- *    **どれか 1 つでも素通しにすると制限が意味を持たない。**
- *    実際、2026-08-01 まで 3 つとも plan を見ておらず、free でも人数無制限だった。
- *    1 だけ塞いでも 3 が開いているので、必ず 3 か所とも通すこと。
+ * ⚠️ **メンバーが増える経路は `decideJoinRequest` の承認だけ**（013、2026-08-06）。
+ *    それまでは 3 つ（inviteMember / acceptInvitation / requestJoinOrg）あり、
+ *    2026-08-01 まで**どれも plan を見ておらず free でも人数無制限だった。**
+ *    経路を 1 本にしたので、**呼ぶ場所もここ 1 か所。**
+ *    ⚠️ **「メンバーを追加する」経路を新しく作らないこと。** 作った時点で
+ *       判定が 2 か所に分かれ、片方を直し忘れる（それが 2026-08-01 の事故そのもの）。
  *
- * ⚠️ **2 でも必ず確認する。** Pro のときに作った招待が残ったまま free へ下がる
- *    ことがあるので、「作れた ＝ 受けられる」ではない。
+ * ⚠️ **申請の時点では呼ばない。承認の直前に呼ぶ。** 申請が溜まっている間に
+ *    プランが下がることも、他の申請を先に承認して埋まることもある。
+ *    ⚠️ 申請時に弾くと、**上限に達している組織かどうかが申請しただけで分かる。**
  *
- * ⚠️ **保留中の招待は数えていない。** free の上限が 1 人（＝オーナーが居る時点で
- *    常に満杯）なので招待自体を作れず、溜まりようがないため。
- *    **Pro に有限の上限を入れるなら、ここで招待の件数も足すこと。**
+ * ⚠️ **保留中の申請は数えていない。** 行が増えるのは承認のときだけなので、
+ *    申請がいくつ溜まっても上限には影響しない。
  *
  * ⚠️ **サービスクライアントで引く。** 呼び出し元のユーザー権限では
  *    organizations を読めないことがある。
@@ -169,8 +168,10 @@ export async function updateOrganizationName(name) {
  *
  * ⚠️ **admin だけが通す。** 組織全員の画面が変わるため。
  *    ⚠️ `updateOrganizationName` は `owner_id` で絞っているので**オーナーしか
- *       通らない**が、こちらは `setOrgJoinPassword` と同じで admin なら通る。
+ *       通らない**が、こちらは admin なら通る。
  *       揃っていないのは意図的（改名はオーナーの権限のまま残してある）。
+ *    ⚠️ 参加申請の承認（013）も `owner_id` で絞っている。**条件が 3 通りある**ので
+ *       「admin なら全部できる」と考えないこと。
  */
 export async function updateOrganizationExpensesEnabled(enabled) {
   const { user } = await getUser();
@@ -299,144 +300,309 @@ export async function updateMemberRole(userId, role) {
   return {};
 }
 
-export async function inviteMember(email, role) {
+// ─── 参加申請（013） ─────────────────────────────────────────
+//
+// ⚠️ **2026-08-06 に経路を 1 本にした。** それまでは 2 つあった:
+//    1. メール招待（token 付きリンク）… 相手が未登録だと送れず、
+//       届かない・期限切れ・迷惑メール、と詰まりどころが多かった
+//    2. 参加パスワード … admin が一度配れば誰でも使える**無期限の合鍵**で、
+//       しかも即座にメンバーになれた
+//    どちらも撤去し、**従業員が申請 → オーナーが承認**に統一した。
+//
+// ⚠️ **承認できるのはオーナー（organizations.owner_id）だけ。**
+//    メンバーの権限変更・削除は admin 全員なので**条件が違う。** 意図的。
+
+/** 承認時に選べる権限。⚠️ `admin` を入れないこと（オーナーの座を配れてしまう） */
+const APPROVABLE_ROLES = ["collecter", "viewer"];
+
+/**
+ * 参加を申請する。**入力は管理者のメールアドレスだけ。**
+ *
+ * ⚠️ **ここでメンバーにしない。** 行が増えるのは `decideJoinRequest` の承認だけ。
+ * ⚠️ **プランの上限はここで見ない。** 「増やすとき」に見る規約なので承認側で見る。
+ *    ここで弾くと、上限に達している組織かどうかが**申請しただけで分かってしまう。**
+ */
+export async function requestJoinOrg(adminEmail) {
   const { user } = await getUser();
   if (!user) return { error: "ログインしてください" };
 
+  const email = String(adminEmail ?? "").trim();
+  if (!email) return { error: "管理者のメールアドレスを入力してください" };
+
   const supabase = await createClient();
-  const { data: myMember, error: myError } = await supabase
+
+  const { data: existing } = await supabase
     .from("organization_members")
-    .select("org_id, role")
+    .select("org_id")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
+  if (existing) return { error: "すでに組織に所属しています" };
 
-  if (myError || myMember.role !== "admin") return { error: "権限がありません" };
-
-  if (role === "admin") return { error: "店舗管理者は招待できません。集金担当者または閲覧者を選択してください。" };
-  const VALID_ROLES = ["collecter", "viewer"];
-  if (!VALID_ROLES.includes(role)) return { error: "無効なロールです" };
-
-  // Collecieに登録済みのユーザーかチェック
   const serviceSupabase = createServiceClient();
 
-  // ⚠️ 相手を探す前にプランで弾く。招待メールを送ってから断ると相手が混乱する
-  const capacityError = await memberCapacityError(serviceSupabase, myMember.org_id);
-  if (capacityError) return { error: capacityError };
+  /*
+    ⚠️ **見つからないことを隠さない。** 隠すと、打ち間違えた人が
+       「申請したのに何も起きない」まま待ち続ける。
+       ⚠️ 引き換えに「そのメールが Collecie の管理者か」は分かってしまうが、
+          **実際に入れるかは承認が決める**ので、ここは分かるほうを採った。
+  */
+  const { data: usersData, error: listError } = await serviceSupabase.auth.admin.listUsers({
+    page: 1,
+    perPage: 1000,
+  });
+  if (listError) return { error: "管理者の検索に失敗しました" };
 
-  const { data: usersData } = await serviceSupabase.auth.admin.listUsers({ page: 1, perPage: 1000 });
-  const userExists = usersData?.users?.some((u) => u.email === email);
-  if (!userExists) return { error: "このメールアドレスはCollecieに登録されていません。先にアカウントを作成してもらってください。" };
-
-  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
-
-  const { data, error } = await supabase
-    .from("organization_invitations")
-    .insert({ org_id: myMember.org_id, email, role, invited_by: user.id, expires_at: expiresAt })
-    .select("token, org_id, organizations(name)")
-    .single();
-
-  if (error) return { error: "招待の作成に失敗しました" };
-  return { data };
-}
-
-export async function getOrganizationInvitations() {
-  const { user } = await getUser();
-  if (!user) return { error: "ログインしてください" };
-
-  const supabase = await createClient();
-  const { data: myMember, error: myError } = await supabase
-    .from("organization_members")
-    .select("org_id, role")
-    .eq("user_id", user.id)
-    .single();
-
-  if (myError || myMember.role !== "admin") return { error: "権限がありません" };
-
-  const { data, error } = await supabase
-    .from("organization_invitations")
-    .select("id, email, role, created_at, expires_at, accepted_at, token")
-    .eq("org_id", myMember.org_id)
-    .is("accepted_at", null)
-    .order("created_at", { ascending: false });
-
-  if (error) return { error: "招待一覧の取得に失敗しました" };
-  return { data };
-}
-
-export async function deleteInvitation(id) {
-  const { user } = await getUser();
-  if (!user) return { error: "ログインしてください" };
-
-  const supabase = await createClient();
-  const { data: myMember, error: myError } = await supabase
-    .from("organization_members")
-    .select("org_id, role")
-    .eq("user_id", user.id)
-    .single();
-
-  if (myError || myMember.role !== "admin") return { error: "権限がありません" };
-
-  const { error } = await supabase
-    .from("organization_invitations")
-    .delete()
-    .eq("id", id)
-    .eq("org_id", myMember.org_id);
-
-  if (error) return { error: "招待の削除に失敗しました" };
-  return {};
-}
-
-export async function getInvitation(token) {
-  const supabase = createServiceClient();
-  const { data, error } = await supabase
-    .from("organization_invitations")
-    .select("id, org_id, email, role, expires_at, accepted_at, organizations(name), profiles!invited_by(username)")
-    .eq("token", token)
-    .single();
-
-  if (error) return { error: "招待情報の取得に失敗しました" };
-  return { data };
-}
-
-export async function acceptInvitation(token) {
-  const { user } = await getUser();
-  if (!user) return { error: "ログインしてください" };
-
-  const supabase = createServiceClient();
-  const { data: invitation, error: invError } = await supabase
-    .from("organization_invitations")
-    .select("*")
-    .eq("token", token)
-    .single();
-
-  if (invError || !invitation) return { error: "招待が見つかりません" };
-  if (invitation.accepted_at) return { error: "この招待はすでに使用済みです" };
-  if (new Date(invitation.expires_at) < new Date()) return { error: "招待の有効期限が切れています" };
-  if (invitation.email && user.email !== invitation.email) {
-    return { error: "この招待はあなた宛てではありません" };
+  const adminAuthUser = usersData?.users?.find((u) => u.email === email);
+  if (!adminAuthUser) {
+    return { error: "そのメールアドレスの管理者が見つかりませんでした" };
   }
 
+  const { data: membership } = await serviceSupabase
+    .from("organization_members")
+    .select("org_id, organizations!inner(id, name)")
+    .eq("user_id", adminAuthUser.id)
+    .eq("role", "admin")
+    .maybeSingle();
+
+  if (!membership) {
+    return { error: "そのメールアドレスの管理者が見つかりませんでした" };
+  }
+
+  const org = membership.organizations;
+
   /*
-    ⚠️ **作った時点ではなく受ける時点で確認する。** Pro のときに作った招待が
-       残ったまま free へ下がっているとここを通ってしまう。
-    ⚠️ 招待は消さずに残す。プランを戻せばそのまま使えるほうが親切で、
-       期限切れなら既に上で弾かれている。
+    ⚠️ **却下された申請は残っているので `status` で絞る。** 絞らないと
+       一度断られた人が二度と申請できない（013 の部分ユニークと同じ考え方）。
   */
-  const capacityError = await memberCapacityError(supabase, invitation.org_id);
+  const { data: pending } = await serviceSupabase
+    .from("organization_join_requests")
+    .select("id")
+    .eq("org_id", org.id)
+    .eq("user_id", user.id)
+    .eq("status", "pending")
+    .maybeSingle();
+  if (pending) return { error: "すでに申請中です。承認をお待ちください。" };
+
+  const { error: insertError } = await serviceSupabase
+    .from("organization_join_requests")
+    .insert({ org_id: org.id, user_id: user.id, status: "pending" });
+
+  if (insertError) return { error: "申請の送信に失敗しました" };
+
+  /*
+    ⚠️ **オーナーに知らせる経路がこれしか無い。** 申請はアプリにも Web にも
+       出るが、**見に行かないと気づけない。** 失敗しても申請は成立させる。
+    ⚠️ 宛先はオーナーではなく「申請先として入力された管理者」。
+       オーナーと同一とは限らないが、**入力された本人には届く。**
+  */
+  try {
+    const { data: profile } = await serviceSupabase
+      .from("profiles")
+      .select("username, full_name")
+      .eq("id", user.id)
+      .maybeSingle();
+    const displayName = profile?.full_name || profile?.username || "新しいメンバー";
+
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    await resend.emails.send({
+      from: "Collecie <noreply@collecie.com>",
+      to: email,
+      subject: `【Collecie】${displayName} さんから参加申請が届きました`,
+      html: `
+        <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; background: #f9fafb; border-radius: 12px;">
+          <h1 style="font-size: 20px; font-weight: bold; color: #1a202c; margin-bottom: 8px;">参加申請が届きました</h1>
+          <p style="color: #4a5568; margin-bottom: 16px;">
+            <strong>${displayName}</strong> さんが <strong>${org.name}</strong> への参加を申請しました。
+          </p>
+          <p style="color: #4a5568;">
+            設定 → 組織 から、権限を選んで承認してください。
+          </p>
+          <p style="font-size: 13px; color: #a0aec0; margin-top: 24px;">
+            承認できるのは組織のオーナーだけです。
+          </p>
+        </div>
+      `,
+    });
+  } catch (_) {
+    // ⚠️ メールの失敗で申請を失敗させない（申請自体は成立している）
+  }
+
+  return { data: { orgName: org.name } };
+}
+
+/**
+ * 自分が出している申請。組織未所属の画面で「承認待ち」を出すために使う。
+ * ⚠️ **無いことは正常。** `null` を返す（`error` にしない）。
+ */
+export async function getMyJoinRequest() {
+  const { user } = await getUser();
+  if (!user) return { error: "ログインしてください" };
+
+  const serviceSupabase = createServiceClient();
+  const { data, error } = await serviceSupabase
+    .from("organization_join_requests")
+    .select("id, status, created_at, organizations(name)")
+    .eq("user_id", user.id)
+    .eq("status", "pending")
+    .maybeSingle();
+
+  if (error) return { error: "申請の取得に失敗しました" };
+  if (!data) return { data: null };
+
+  return {
+    data: {
+      id: data.id,
+      status: data.status,
+      orgName: data.organizations?.name ?? null,
+      createdAt: new Date(data.created_at).getTime(),
+    },
+  };
+}
+
+/** 申請を取り下げる。⚠️ 自分の pending だけ。承認済みは触らせない */
+export async function cancelMyJoinRequest() {
+  const { user } = await getUser();
+  if (!user) return { error: "ログインしてください" };
+
+  const { error } = await createServiceClient()
+    .from("organization_join_requests")
+    .delete()
+    .eq("user_id", user.id)
+    .eq("status", "pending");
+
+  if (error) return { error: "申請の取り下げに失敗しました" };
+  return {};
+}
+
+/**
+ * 自分の組織に届いている保留中の申請。**オーナーだけ。**
+ *
+ * ⚠️ **admin には出さない。** 承認できないのに一覧だけ見えると、
+ *    「押しても 403 になるボタン」を出すことになる。
+ */
+export async function getJoinRequests() {
+  const { user } = await getUser();
+  if (!user) return { error: "ログインしてください" };
+
+  const serviceSupabase = createServiceClient();
+  const { data: org } = await serviceSupabase
+    .from("organizations")
+    .select("id")
+    .eq("owner_id", user.id)
+    .maybeSingle();
+
+  // ⚠️ オーナーでないときは空配列。エラーにすると画面がエラー表示になる
+  if (!org) return { data: [] };
+
+  const { data, error } = await serviceSupabase
+    .from("organization_join_requests")
+    .select("id, created_at, profiles(username, full_name)")
+    .eq("org_id", org.id)
+    .eq("status", "pending")
+    .order("created_at", { ascending: true })
+    // ⚠️ 上限を切る。申請は増え続けるので、切らないと 1000 行の壁に当たる
+    .limit(100);
+
+  if (error) return { error: "申請一覧の取得に失敗しました" };
+
+  return {
+    data: (data ?? []).map((row) => ({
+      id: row.id,
+      name: row.profiles?.full_name || row.profiles?.username || "名称未設定",
+      createdAt: new Date(row.created_at).getTime(),
+    })),
+  };
+}
+
+/**
+ * 申請を承認・却下する。**オーナーだけ。**
+ *
+ * @param requestId 申請の id
+ * @param decision  "approve" | "reject"
+ * @param role      承認時の権限。⚠️ `collecter` / `viewer` のみ
+ */
+export async function decideJoinRequest(requestId, decision, role) {
+  const { user } = await getUser();
+  if (!user) return { error: "ログインしてください" };
+
+  const serviceSupabase = createServiceClient();
+  const { data: org } = await serviceSupabase
+    .from("organizations")
+    .select("id")
+    .eq("owner_id", user.id)
+    .maybeSingle();
+
+  if (!org) return { error: "オーナーのみ承認できます" };
+
+  /*
+    ⚠️ **申請の org_id で絞る。** id だけで引くと、他組織の申請を
+       自分の組織へ承認できてしまう。
+  */
+  const { data: request } = await serviceSupabase
+    .from("organization_join_requests")
+    .select("id, user_id, status")
+    .eq("id", requestId)
+    .eq("org_id", org.id)
+    .maybeSingle();
+
+  if (!request) return { error: "申請が見つかりません" };
+  if (request.status !== "pending") return { error: "この申請は処理済みです" };
+
+  if (decision === "reject") {
+    const { error } = await serviceSupabase
+      .from("organization_join_requests")
+      .update({ status: "rejected", decided_at: new Date().toISOString(), decided_by: user.id })
+      .eq("id", request.id);
+    if (error) return { error: "却下に失敗しました" };
+    return { data: { decision: "reject" } };
+  }
+
+  if (!APPROVABLE_ROLES.includes(role)) return { error: "無効な権限です" };
+
+  /*
+    ⚠️ **承認の直前に上限を見る。** 申請が溜まっている間にプランが下がることも、
+       他の申請を先に承認して埋まることもある。「申請できた ＝ 入れる」ではない。
+  */
+  const capacityError = await memberCapacityError(serviceSupabase, org.id);
   if (capacityError) return { error: capacityError };
 
-  const { error: memberError } = await supabase
+  const { error: memberError } = await serviceSupabase
     .from("organization_members")
-    .insert({ org_id: invitation.org_id, user_id: user.id, role: invitation.role });
+    .insert({ org_id: org.id, user_id: request.user_id, role });
 
-  if (memberError) return { error: "組織への参加に失敗しました。すでにメンバーの可能性があります。" };
+  if (memberError) {
+    return { error: "組織への追加に失敗しました。すでにメンバーの可能性があります。" };
+  }
 
-  await supabase
-    .from("organization_invitations")
-    .update({ accepted_at: new Date().toISOString() })
-    .eq("token", token);
+  await serviceSupabase
+    .from("organization_join_requests")
+    .update({ status: "approved", decided_at: new Date().toISOString(), decided_by: user.id })
+    .eq("id", request.id);
 
-  return {};
+  /*
+    ⚠️ **承認後に残っている他組織への pending を消す。** 1 人が複数の組織へ
+       申請できるので、放っておくと**すでにメンバーなのに承認できる申請**が残り、
+       別のオーナーが承認して失敗する（`organization_members` は 1 人 1 組織）。
+  */
+  await serviceSupabase
+    .from("organization_join_requests")
+    .delete()
+    .eq("user_id", request.user_id)
+    .eq("status", "pending");
+
+  const { data: profile } = await serviceSupabase
+    .from("profiles")
+    .select("username, full_name")
+    .eq("id", request.user_id)
+    .maybeSingle();
+
+  return {
+    data: {
+      decision: "approve",
+      role,
+      name: profile?.full_name || profile?.username || "名称未設定",
+    },
+  };
 }
 
 export async function getCollectSchedule() {
@@ -490,144 +656,6 @@ export async function updateCollectSchedule(schedule) {
     .eq("id", member.org_id);
 
   if (error) return { error: "スケジュールの更新に失敗しました" };
-  return {};
-}
-
-// ─── 参加パスワード ───────────────────────────────────────────
-
-export async function getOrgJoinPassword() {
-  const { user } = await getUser();
-  if (!user) return { error: "ログインしてください" };
-
-  const supabase = await createClient();
-  const { data: member, error: memberError } = await supabase
-    .from("organization_members")
-    .select("org_id, role")
-    .eq("user_id", user.id)
-    .single();
-
-  if (memberError || member.role !== "admin") return { error: "権限がありません" };
-
-  const serviceSupabase = createServiceClient();
-  const { data: org, error: orgError } = await serviceSupabase
-    .from("organizations")
-    .select("join_password")
-    .eq("id", member.org_id)
-    .single();
-
-  if (orgError) return { error: "取得に失敗しました" };
-  return { data: org.join_password ?? null };
-}
-
-export async function setOrgJoinPassword(password) {
-  const { user } = await getUser();
-  if (!user) return { error: "ログインしてください" };
-
-  const supabase = await createClient();
-  const { data: member, error: memberError } = await supabase
-    .from("organization_members")
-    .select("org_id, role")
-    .eq("user_id", user.id)
-    .single();
-
-  if (memberError || member.role !== "admin") return { error: "権限がありません" };
-
-  const value = password && password.trim() !== "" ? password.trim() : null;
-
-  const serviceSupabase = createServiceClient();
-  const { error } = await serviceSupabase
-    .from("organizations")
-    .update({ join_password: value })
-    .eq("id", member.org_id);
-
-  if (error) return { error: "更新に失敗しました" };
-  return {};
-}
-
-export async function requestJoinOrg(adminEmail, joinPassword) {
-  const { user } = await getUser();
-  if (!user) return { error: "ログインしてください" };
-
-  const supabase = await createClient();
-
-  // すでに組織に所属していないか確認
-  const { data: existing } = await supabase
-    .from("organization_members")
-    .select("org_id")
-    .eq("user_id", user.id)
-    .maybeSingle();
-  if (existing) return { error: "すでに組織に所属しています" };
-
-  const serviceSupabase = createServiceClient();
-
-  // 管理者メールアドレスからユーザーを探す
-  const { data: usersData, error: listError } = await serviceSupabase.auth.admin.listUsers({ page: 1, perPage: 1000 });
-  if (listError) return { error: "ユーザーの検索に失敗しました" };
-
-  const adminAuthUser = usersData?.users?.find((u) => u.email === adminEmail);
-  if (!adminAuthUser) return { error: "メールアドレスまたはパスワードが正しくありません" };
-
-  // 管理者の組織と参加パスワードを確認
-  const { data: membership, error: memberError } = await serviceSupabase
-    .from("organization_members")
-    .select("org_id, organizations!inner(id, name, join_password)")
-    .eq("user_id", adminAuthUser.id)
-    .eq("role", "admin")
-    .single();
-
-  if (memberError || !membership) return { error: "メールアドレスまたはパスワードが正しくありません" };
-
-  const org = membership.organizations;
-  if (!org.join_password || org.join_password !== joinPassword) {
-    return { error: "メールアドレスまたはパスワードが正しくありません" };
-  }
-
-  /*
-    ⚠️ **ここを忘れると招待を塞いだ意味が無くなる。** 参加パスワードは admin が
-       一度配れば誰でも使えるので、招待側だけ止めても人数は増やせてしまう。
-    ⚠️ 認証（メール + パスワード）が通った**あと**に置く。先に置くと、
-       上限に達している組織かどうかがパスワード無しで分かってしまう。
-  */
-  const capacityError = await memberCapacityError(serviceSupabase, org.id);
-  if (capacityError) return { error: capacityError };
-
-  // 組織に集金担当者として追加
-  const { error: addError } = await serviceSupabase
-    .from("organization_members")
-    .insert({ org_id: org.id, user_id: user.id, role: "collecter" });
-
-  if (addError) return { error: "組織への参加に失敗しました。すでにメンバーの可能性があります。" };
-
-  // 管理者にメール通知
-  try {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("username, full_name")
-      .eq("id", user.id)
-      .single();
-    const displayName = profile?.full_name || profile?.username || user.email;
-
-    const resend = new Resend(process.env.RESEND_API_KEY);
-    await resend.emails.send({
-      from: "Collecie <noreply@collecie.com>",
-      to: adminEmail,
-      subject: `【Collecie】${displayName} さんが ${org.name} に参加しました`,
-      html: `
-        <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; background: #f9fafb; border-radius: 12px;">
-          <h1 style="font-size: 20px; font-weight: bold; color: #1a202c; margin-bottom: 8px;">新しいメンバーが参加しました</h1>
-          <p style="color: #4a5568; margin-bottom: 16px;">
-            <strong>${displayName}</strong> さんが <strong>${org.name}</strong> に集金担当者として参加しました。
-          </p>
-          <p style="font-size: 13px; color: #a0aec0; margin-top: 24px;">
-            Collecie の設定ページからロールの変更や管理ができます。
-          </p>
-        </div>
-      `,
-    });
-  } catch (_) {
-    // メール失敗は参加成功をブロックしない
-  }
-
   return {};
 }
 

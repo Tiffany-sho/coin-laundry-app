@@ -7,7 +7,12 @@ export async function middleware(request) {
   const { pathname } = request.nextUrl;
 
   const protectedPaths = ["/account", "/coinLaundry", "/collectMoney", "/settings", "/inventory", "/equipment"];
-  const publicAuthPaths = ["/auth/invite"];
+  /*
+    ⚠️ **2026-08-06 に空になった。** `/auth/invite`（メール招待のリンク）を
+       廃止したため（013 で「申請 → オーナーが承認」に置き換えた）。
+    ⚠️ **配列ごと消さないこと。** 下の `isPublicAuth` が参照している。
+  */
+  const publicAuthPaths = [];
 
   const isProtected = protectedPaths.some((path) => pathname.startsWith(path));
   const isPublicAuth = publicAuthPaths.some((path) => pathname.startsWith(path));
