@@ -7,43 +7,80 @@ export const metadata = {
   description: "Collecie の使い方ガイド。各ページの説明と操作手順をまとめています。",
 };
 
+/**
+ * ⚠️ **章立てはナビの並びに合わせてある**（2026-08-07 に組み直した）。
+ *    それまでは「集金記録 / 在庫管理 / 設備管理」という**もう存在しない画面名**で
+ *    書かれていて、在庫と設備が別ページだった頃（〜2026-08-05）のままだった。
+ *    ⚠️ **ナビを変えたらここも変えること**（`FooterNavber.jsx` の `ALL_NAV_ITEMS`）。
+ *
+ * ⚠️ **「メンバーと権限」だけはナビに無い章。** 参加の手順が
+ *    設定 → 組織 の奥にあり、招待される側と承認する側で見る画面が違うため、
+ *    設定の一項目に埋めると辿り着けない。
+ */
 const SECTIONS = [
-  { id: "home",      label: "ホーム",       icon: "IoHomeOutline" },
-  { id: "store",     label: "店舗管理",     icon: "LiaStoreSolid" },
-  { id: "collect",   label: "集金記録",     icon: "BiCoinStack" },
-  { id: "inventory", label: "在庫管理",     icon: "LuPackage" },
-  { id: "equipment", label: "設備管理",     icon: "LuWrench" },
-  { id: "settings",  label: "設定",         icon: "LuSettings" },
+  { id: "home",     label: "ホーム" },
+  { id: "store",    label: "店舗" },
+  { id: "revenue",  label: "収益" },
+  { id: "expenses", label: "経費" },
+  { id: "manage",   label: "管理" },
+  { id: "members",  label: "メンバーと権限" },
+  { id: "settings", label: "設定" },
 ];
 
 const Step = ({ num, children }) => (
   <HStack align="start" gap={3}>
     <Flex
       w="22px" h="22px" borderRadius="full" flexShrink={0}
-      bg="var(--teal)" color="white" fontSize="11px" fontWeight="bold"
+      bg="var(--teal, #0891B2)" color="white" fontSize="11px" fontWeight="bold"
       align="center" justify="center" mt="2px"
     >
       {num}
     </Flex>
-    <Text fontSize="sm" color="var(--text-main)" lineHeight="1.7">{children}</Text>
+    <Text fontSize="sm" color="var(--text-main, #1E3A5F)" lineHeight="1.7">{children}</Text>
   </HStack>
 );
 
-const SectionCard = ({ id, icon, title, description, steps, screenshot, screenshotAlt, note }) => (
+const Note = ({ children }) => (
+  <HStack
+    p={3} bg="cyan.50" borderRadius="lg"
+    border="1px solid" borderColor="cyan.200"
+    align="start" gap={2}
+  >
+    <Box color="var(--teal, #0891B2)" flexShrink={0} mt="2px">
+      <Icon.LuInfo size={14} />
+    </Box>
+    <Text fontSize="xs" color="var(--teal-deeper, #155E75)" lineHeight="1.7">{children}</Text>
+  </HStack>
+);
+
+/**
+ * ⚠️ **`notes` は配列**（旧 `note` の単数から変えた）。1 つの章に注意書きが
+ *    2 つ以上あるとき、以前は 1 文に詰め込むしかなく長い塊になっていた。
+ * ⚠️ **`screenshots` も配列**。集金の入力とレポートのように、
+ *    1 つの章に複数の画面がぶら下がるため。空なら「準備中」の枠を出す。
+ *
+ * ⚠️ **`screenshots` は縦長（スマホ）だけ。横長は `wideScreenshot` へ。**
+ *    右の欄は 280px 固定なので、**PC の画面（1498×704）を入れると 280×131 まで
+ *    縮んで何も読めない。** 横長は本文の下に全幅で敷く。
+ */
+const SectionCard = ({
+  id, icon, title, description, steps,
+  screenshots = [], wideScreenshot = null, notes = [],
+}) => (
   <Box
     id={id}
-    bg="var(--card-bg)"
+    bg="var(--card-bg, #FFFFFF)"
     borderRadius="18px"
     border="1px solid"
     borderColor="cyan.100"
-    boxShadow="var(--shadow-sm)"
+    boxShadow="var(--shadow-sm, 0 2px 12px rgba(8,145,178,0.08))"
     overflow="hidden"
     scrollMarginTop="80px"
   >
     <HStack
       px={5} py={4}
       borderBottom="1px solid"
-      borderColor="var(--divider)"
+      borderColor="var(--divider, #F1F5F9)"
       gap={3}
       style={{ background: "linear-gradient(135deg, #0891B2 0%, #0E7490 100%)" }}
     >
@@ -58,12 +95,12 @@ const SectionCard = ({ id, icon, title, description, steps, screenshot, screensh
         align="start"
       >
         <VStack align="stretch" gap={4} flex="1" minW={0}>
-          <Text fontSize="sm" color="var(--text-muted)" lineHeight="1.8">
+          <Text fontSize="sm" color="var(--text-muted, #64748B)" lineHeight="1.8">
             {description}
           </Text>
           {steps.length > 0 && (
             <Box>
-              <Text fontSize="xs" fontWeight="bold" color="var(--teal)" textTransform="uppercase" letterSpacing="wider" mb={3}>
+              <Text fontSize="xs" fontWeight="bold" color="var(--teal, #0891B2)" textTransform="uppercase" letterSpacing="wider" mb={3}>
                 使い方
               </Text>
               <VStack align="stretch" gap={2.5}>
@@ -73,32 +110,35 @@ const SectionCard = ({ id, icon, title, description, steps, screenshot, screensh
               </VStack>
             </Box>
           )}
-          {note && (
-            <HStack
-              p={3} bg="cyan.50" borderRadius="lg"
-              border="1px solid" borderColor="cyan.200"
-              align="start" gap={2}
-            >
-              <Box color="var(--teal)" flexShrink={0} mt="2px">
-                <Icon.LuInfo size={14} />
-              </Box>
-              <Text fontSize="xs" color="var(--teal-deeper)" lineHeight="1.7">{note}</Text>
-            </HStack>
+          {notes.length > 0 && (
+            <VStack align="stretch" gap={2}>
+              {notes.map((note, i) => (
+                <Note key={i}>{note}</Note>
+              ))}
+            </VStack>
           )}
         </VStack>
 
-        {screenshot ? (
-          <Box
+        {screenshots.length > 0 ? (
+          <VStack
             flexShrink={0}
             w={{ base: "full", md: "280px" }}
-            borderRadius="xl"
-            overflow="hidden"
-            border="1px solid"
-            borderColor="cyan.100"
-            boxShadow="var(--shadow-sm)"
+            gap={3}
+            align="stretch"
           >
-            <Image src={screenshot} alt={screenshotAlt} w="full" objectFit="cover" />
-          </Box>
+            {screenshots.map((shot) => (
+              <Box
+                key={shot.src}
+                borderRadius="xl"
+                overflow="hidden"
+                border="1px solid"
+                borderColor="cyan.100"
+                boxShadow="var(--shadow-sm, 0 2px 12px rgba(8,145,178,0.08))"
+              >
+                <Image src={shot.src} alt={shot.alt} w="full" objectFit="cover" />
+              </Box>
+            ))}
+          </VStack>
         ) : (
           <Box
             flexShrink={0}
@@ -119,48 +159,104 @@ const SectionCard = ({ id, icon, title, description, steps, screenshot, screensh
           </Box>
         )}
       </Flex>
+
+      {/* 横長（PC の画面）。⚠️ 右の 280px の欄に入れると読めない大きさになる */}
+      {wideScreenshot && (
+        <Box mt={5}>
+          <Box
+            borderRadius="xl"
+            overflow="hidden"
+            border="1px solid"
+            borderColor="cyan.100"
+            boxShadow="var(--shadow-sm, 0 2px 12px rgba(8,145,178,0.08))"
+          >
+            <Image src={wideScreenshot.src} alt={wideScreenshot.alt} w="full" />
+          </Box>
+          <Text fontSize="xs" color="var(--text-faint, #94A3B8)" mt={2} textAlign="center">
+            {wideScreenshot.caption}
+          </Text>
+        </Box>
+      )}
     </Box>
   </Box>
 );
 
 export default function HelpPage() {
   return (
-    <Box bg="var(--app-bg)" minH="100vh" pb={{ base: "120px", md: "48px" }}>
+    <Box bg="var(--app-bg, #F0F9FF)" minH="100vh" pb={{ base: "120px", md: "48px" }}>
       <Box maxW="800px" mx="auto" px={{ base: 4, md: 6 }} py={{ base: 6, md: 10 }}>
 
         {/* ヘッダー */}
         <VStack align="stretch" gap={2} mb={8}>
           <HStack justify="space-between" align="center">
             <HStack gap={2}>
-              <Box color="var(--teal)"><Icon.LuInfo size={20} /></Box>
-              <Text fontSize={{ base: "xl", md: "2xl" }} fontWeight="bold" color="var(--teal-deeper)">
+              <Box color="var(--teal, #0891B2)"><Icon.LuInfo size={20} /></Box>
+              <Text fontSize={{ base: "xl", md: "2xl" }} fontWeight="bold" color="var(--teal-deeper, #155E75)">
                 ヘルプ・使い方ガイド
               </Text>
             </HStack>
             <Link href="/settings">
-              <HStack gap={1} color="var(--text-muted)" fontSize="sm" cursor="pointer"
-                _hover={{ color: "var(--text-main)" }} flexShrink={0}>
+              <HStack gap={1} color="var(--text-muted, #64748B)" fontSize="sm" cursor="pointer"
+                _hover={{ color: "var(--text-main, #1E3A5F)" }} flexShrink={0}>
                 <Icon.LuChevronLeft size={16} />
                 <Text>戻る</Text>
               </HStack>
             </Link>
           </HStack>
-          <Text fontSize="sm" color="var(--text-muted)">
+          <Text fontSize="sm" color="var(--text-muted, #64748B)">
             Collecie の各ページの説明と操作手順をまとめています。
           </Text>
         </VStack>
 
-        {/* 目次 */}
+        {/*
+          画面の行き来。
+          ⚠️ **設定への行き方を必ず書く。** スマホでは下のタブに「設定」が無く、
+             **右上の歯車が唯一の入口**なので（`SettingsGear`）、
+             書いていないとサインアウトも組織の設定も見つけられない。
+        */}
         <Box
-          bg="var(--card-bg)"
+          bg="var(--card-bg, #FFFFFF)"
           borderRadius="16px"
           border="1px solid"
           borderColor="cyan.100"
-          boxShadow="var(--shadow-sm)"
+          boxShadow="var(--shadow-sm, 0 2px 12px rgba(8,145,178,0.08))"
+          p={5}
+          mb={4}
+        >
+          <Text fontSize="sm" fontWeight="bold" color="var(--teal-deeper, #155E75)" mb={2}>
+            画面の行き来
+          </Text>
+          <Text fontSize="xs" color="var(--text-muted, #64748B)" lineHeight="1.8" mb={3}>
+            スマホでは画面下、PC では画面上のメニューから
+            「ホーム」「店舗」「収益」「管理」「経費」の 5 つを行き来します。
+          </Text>
+          <HStack
+            p={3} bg="cyan.50" borderRadius="lg"
+            border="1px solid" borderColor="cyan.200"
+            align="start" gap={2}
+          >
+            <Box color="var(--teal, #0891B2)" flexShrink={0} mt="2px">
+              <Icon.LuSettings size={14} />
+            </Box>
+            <Text fontSize="xs" color="var(--teal-deeper, #155E75)" lineHeight="1.7">
+              <Box as="span" fontWeight="bold">設定は下のタブにはありません。</Box>
+              {" "}スマホでは画面右上の歯車アイコンから開きます。PC では上のメニューの「設定」です。
+              サインアウト・組織・プラン・お知らせはすべてこの中にあります。
+            </Text>
+          </HStack>
+        </Box>
+
+        {/* 目次 */}
+        <Box
+          bg="var(--card-bg, #FFFFFF)"
+          borderRadius="16px"
+          border="1px solid"
+          borderColor="cyan.100"
+          boxShadow="var(--shadow-sm, 0 2px 12px rgba(8,145,178,0.08))"
           p={5}
           mb={6}
         >
-          <Text fontSize="sm" fontWeight="bold" color="var(--teal-deeper)" mb={3}>
+          <Text fontSize="sm" fontWeight="bold" color="var(--teal-deeper, #155E75)" mb={3}>
             目次
           </Text>
           <Flex wrap="wrap" gap={2}>
@@ -169,14 +265,14 @@ export default function HelpPage() {
                 <Box
                   px={3} py={1.5}
                   bg="cyan.50"
-                  color="var(--teal)"
+                  color="var(--teal, #0891B2)"
                   borderRadius="full"
                   fontSize="sm"
                   fontWeight="semibold"
                   border="1px solid"
                   borderColor="cyan.200"
                   transition="all 0.15s"
-                  _hover={{ bg: "var(--teal)", color: "white", borderColor: "var(--teal)" }}
+                  _hover={{ bg: "var(--teal, #0891B2)", color: "white", borderColor: "var(--teal, #0891B2)" }}
                 >
                   {s.label}
                 </Box>
@@ -193,87 +289,131 @@ export default function HelpPage() {
             id="home"
             icon={<Icon.IoHomeOutline />}
             title="ホーム"
-            description="ログイン後に表示されるダッシュボードです。次の集金日までのカウントダウン、過去1ヶ月の集金記録、在庫・設備のアラートなどを一画面で確認できます。"
+            description="ログイン後の最初の画面です。次の集金日までのカウントダウン、今月の売上、在庫と設備の要対応、直近の集金記録が一画面にまとまっています。"
             steps={[
               "「集金カウントダウン」で次の集金日と残り日数を確認します。",
-              "「直近の集金記録」で過去1ヶ月の集金履歴を確認します。",
-              "「在庫アラート」に赤いバッジが表示されている場合は在庫が少ない店舗があります。在庫管理ページで補充してください。",
-              "「クイックアクション」から集金入力など頻繁に使う操作にすばやく移動できます。",
+              "売上カードで今月の集金額を確認します。",
+              "「クイックアクション」から、集金の記録・在庫の更新・店舗一覧・レポートへ 1 タップで移動できます。",
+              "「今日の対応状況」に在庫切れや故障中の機器の件数が出ます。数字が付いていたら「管理」で対応します。",
+              "「直近の集金記録」で最近の集金履歴を確認します。",
             ]}
-            note="集金カウントダウンは設定ページで集金スケジュール（毎週○曜日 / 毎月○日）を設定すると表示されます。"
-            screenshot={null}
-            screenshotAlt="ホーム画面"
+            notes={[
+              "集金カウントダウンは、設定の「集金スケジュール」（毎週◯曜日 / 毎月◯日）を登録すると表示されます。",
+              "クイックアクションの「集金を記録」「在庫を更新」は、閲覧者には表示されません。",
+            ]}
           />
 
-          {/* 店舗管理 */}
+          {/* 店舗 */}
           <SectionCard
             id="store"
-            icon={<Icon.LiaStoreSolid />}
-            title="店舗管理"
-            description="コインランドリー店舗の登録・編集・閲覧を行うページです。店舗名・所在地・設置機器・写真を管理できます。登録した店舗が集金・在庫・設備管理のベースになります。"
+            icon={<Icon.MdOutlineLocalLaundryService />}
+            title="店舗"
+            description="コインランドリー店舗の登録・編集を行うページです。ここで登録した店舗が、集金・在庫・設備・経費すべての土台になります。設置機器と支払方法も店舗ごとに設定します。"
             steps={[
-              "「＋ 店舗を追加」ボタンから新規店舗を登録します。",
-              "店舗名・場所・概要を入力し、設置されている機器（洗濯乾燥機・乾燥機など）の台数を設定します。",
-              "店舗の写真を最大5枚アップロードできます（JPEG/PNG）。",
-              "登録済みの店舗カードをタップすると詳細ページに移動し、その店舗の集金履歴や在庫状況を確認できます。",
-              "詳細ページ右上の編集ボタンから店舗情報を変更できます。",
+              "店舗一覧の右下にある「＋」から新規登録します。",
+              "店舗名・場所・概要を入力します。",
+              "「設置機器」に洗濯乾燥機・乾燥機などの名前と台数を登録します。ここで登録した機器が、集金入力と設備の画面に並びます。",
+              "「支払方法」に PayPay・クレジットカードなど現金以外の受け取り方を登録します。現金は登録しなくても常に記録されます。",
+              "店舗の写真を 5 枚までアップロードできます。",
+              "店舗カードから詳細ページへ進むと、その店舗だけの売上と集金履歴が見られます。編集は詳細ページの編集ボタンから行います。",
             ]}
-            note="Freeプランでは3店舗、Proプランでは5店舗、Pro+プランでは10店舗まで、Maxプランでは無制限に登録できます。"
-            screenshot={null}
-            screenshotAlt="店舗一覧"
+            notes={[
+              "登録できる店舗数はプランごとに、Free は 3 店舗、Pro は 5 店舗、Pro+ は 10 店舗、Max は無制限です。",
+              "支払方法を一覧から外しても、過去の集金記録からは消えません。「使わなくなった支払方法」として残るので、押せばいつでも戻せます。",
+            ]}
           />
 
-          {/* 集金記録 */}
+          {/* 収益 */}
           <SectionCard
-            id="collect"
+            id="revenue"
             icon={<Icon.BiCoinStack />}
-            title="集金記録"
-            description="各店舗の集金データを記録し、売上グラフや月次サマリーで収益を分析するページです。機器別集金と総額集金の2つの方法に対応しています。"
+            title="収益"
+            description="集金を記録し、売上を分析するページです。上に総額のカード、まん中に切り替え式のグラフ、下に売上履歴が並びます。"
             steps={[
-              "集金一覧ページから対象の店舗を選び「集金を記録」ボタンを押します。",
-              "集金方法が「機器別」の場合：各機器の収益を個別に入力します。",
-              "集金方法が「総額」の場合：その日の合計金額を1つ入力します。",
-              "入力後「登録」を押すと記録が保存され、グラフに反映されます。",
-              "「店舗別売上グラフ」「月次サマリー」で収益の推移を確認できます。",
-              "「エクスポート」ボタン（Proプラン以上）でCSV/Excelに出力できます。",
+              "集金を記録するには、店舗の詳細ページ・店舗一覧・ホームのクイックアクションのいずれかから「集金を記録」を押します。",
+              "支払方法を登録した店舗では「何を集金しますか？」と聞かれます。「現金のみ」「現金以外のみ」「両方」から選びます。",
+              "集金方法が「機械別」なら機器ごとの金額を、「まとめて」ならその日の合計額を入力して登録します。",
+              "グラフのタブを切り替えて、店舗別・月別・支払方法別・月別利益を見比べます（店舗ごとのページでは機器別も出ます）。",
+              "「売上履歴」で過去の記録を一覧できます。行を押すと明細が開きます。集金者での絞り込みもできます。",
+              "画面右下の「書き出し」から CSV / Excel に出力できます（Pro プラン以上）。",
             ]}
-            note="集金方法（機器別 / 総額）は設定ページのアカウント設定、または初回セットアップ時に選択します。後から変更も可能です。"
-            screenshot="/screenshots/collect-input.jpeg"
-            screenshotAlt="集金入力画面"
+            notes={[
+              "「月別利益」は売上から経費を引いた額です。経費を使わない設定の組織では、このタブごと表示されません。",
+              "「機器別」は店舗ごとのページにだけ出ます。全店舗で出すと、店舗をまたいで同じ名前の別の機器が合算されてしまうためです。",
+              "書き出しでは「経費と月別利益も含める」を選べます。会計ソフトへそのまま取り込むときは、集金だけの表になる既定のままが安全です。",
+            ]}
+            screenshots={[
+              { src: "/screenshots/collect-input.jpeg", alt: "集金入力画面" },
+              { src: "/screenshots/monthly-sales.jpeg", alt: "月別売上グラフ" },
+            ]}
+            wideScreenshot={{
+              src: "/screenshots/revenue-report-pc.png",
+              alt: "PC で見た収益レポート",
+              caption: "PC で見た収益レポート。グラフのタブと売上履歴が 1 画面に並びます。",
+            }}
           />
 
-          {/* 在庫管理 */}
+          {/* 経費 */}
           <SectionCard
-            id="inventory"
+            id="expenses"
+            icon={<Icon.LuWallet />}
+            title="経費"
+            description="家賃・仕入れ・水道光熱費などの支出を記録するページです。ここに登録した金額が、収益ページの「月別利益」（売上 − 経費）に反映されます。その都度の支出と、毎月かかる固定費の 2 種類を扱います。"
+            steps={[
+              "「＋」を押して、単発の経費か毎月の固定費かを選びます。",
+              "金額・日付・カテゴリ（仕入れ・水道光熱費・家賃など 12 種類）を入力します。必要なら店舗も選びます。店舗を選ばなければ組織全体の支出になります。",
+              "円グラフの横に出る内訳で、その月に何にいくら使ったかを確認します。",
+              "「毎月の固定費」に家賃などを登録しておくと、毎月自動で上の一覧に計上されます。",
+            ]}
+            notes={[
+              "単発の経費は集金担当者も登録できます。自分が登録した当月分だけ、あとから修正できます。削除と固定費の管理は管理者だけです。",
+              "経費を使うかどうかは組織ごとに切り替えられます（設定 →「組織」→「経費を記録する」）。やめても登録済みの経費は消えないので、いつでも元に戻せます。",
+              "担当店舗が決まっているメンバーには、担当外の店舗の経費は表示されません。店舗を選ばずに登録した組織全体の支出は、全員に表示されます。",
+            ]}
+          />
+
+          {/* 管理 */}
+          <SectionCard
+            id="manage"
             icon={<Icon.LuPackage />}
-            title="在庫管理"
-            description="全店舗の洗剤・柔軟剤の在庫数を一画面で管理するページです。カスタム在庫（例：コイン袋・消耗品）の追加や、警告ライン（少なくなったら通知する閾値）の設定もできます。"
+            title="管理"
+            description="全店舗の「在庫」と「設備」を 1 枚にまとめたページです。上のタブで切り替えます。洗剤・柔軟剤の残りと、機器の故障状況を、集金担当者と管理者がその場で共有できます。"
             steps={[
-              "各店舗のカードに表示されている在庫数をタップして現在の数に更新します。",
-              "在庫数が警告ライン以下になるとバッジが赤くなり、ホーム画面にもアラートが表示されます。",
-              "「警告ライン設定」から洗剤・柔軟剤それぞれの閾値を変更できます。",
-              "「カスタム在庫を追加」からオリジナルの在庫項目（例：紙袋、コイン）を登録できます。",
+              "「在庫」タブで、店舗ごとの洗剤・柔軟剤の残りを、その場の数に更新します。",
+              "「警告ライン（以下で警告）」を設定すると、その数以下になったときに赤いバッジとホームのアラートが出ます。",
+              "「在庫を追加」から、コイン袋・消耗品などオリジナルの在庫項目を登録できます。",
+              "「設備」タブで、機器のスイッチを切り替えて「稼働中 / 故障中」を記録します。",
+              "故障中にすると「故障内容」を書き込めます。修理が終わったらスイッチを戻してください。",
             ]}
-            note="在庫数の更新は集金スタッフも行えます。補充のタイミングを管理者がホームから確認できます。"
-            screenshot="/screenshots/inventory.jpeg"
-            screenshotAlt="在庫管理画面"
+            notes={[
+              "タブのラベルに付く数字は要対応の件数です（例：「在庫（2）」は、在庫が警告ライン以下の店舗が 2 つあるという意味）。開かなくても向こう側の状況が分かります。",
+              "ホームの「今日の対応状況」から押すと、該当するタブが開いた状態でこのページに来ます。",
+              "機器そのものの登録は店舗ページから行います。台数を設定すると自動でここに並びます。",
+            ]}
+            screenshots={[
+              { src: "/screenshots/inventory.jpeg", alt: "在庫タブ" },
+              { src: "/screenshots/equipment.jpeg", alt: "設備タブ" },
+            ]}
           />
 
-          {/* 設備管理 */}
+          {/* メンバーと権限 */}
           <SectionCard
-            id="equipment"
-            icon={<Icon.LuWrench />}
-            title="設備管理"
-            description="全店舗の機器（洗濯乾燥機・乾燥機など）の稼働状態を管理するページです。故障中・点検中の機器を記録しておくことで、集金スタッフと管理者がリアルタイムに状況を共有できます。"
+            id="members"
+            icon={<Icon.LuUsers />}
+            title="メンバーと権限"
+            description="複数人で使うための設定です。従業員が参加を申請し、店舗管理者が承認すると組織に加わります。メンバーごとに権限と担当店舗を決められます。"
             steps={[
-              "各店舗のカードに設置機器の一覧が表示されます。",
-              "機器の状態トグルを切り替えて「正常」「故障中」を記録します。",
-              "故障中の機器がある店舗はアイコンが赤く表示されます。",
-              "修理完了後はトグルを「正常」に戻してください。",
+              "参加する人：Collecie のアカウントを作り、設定の「組織に参加する」に管理者のメールアドレスを入力して申請します。承認されるまでは待ちの画面のままです。",
+              "承認する人（管理者）：設定 →「組織」の「参加申請」に届きます。「集金担当者として承認」か「閲覧者として承認」を押すと、その権限で組織に加わります。",
+              "権限はあとから「メンバー」の一覧で変更できます。",
+              "各メンバーの「担当店舗」を開き、その人が扱う店舗にチェックを入れて保存します。",
             ]}
-            note="機器の登録は店舗管理ページから行います。台数を設定すると自動的に設備管理に表示されます。"
-            screenshot="/screenshots/equipment.jpeg"
-            screenshotAlt="設備管理画面"
+            notes={[
+              "権限は 3 種類です。管理者はすべての操作、集金担当者は集金の記録・自分の記録の修正・単発の経費の登録、閲覧者は閲覧のみができます。",
+              "担当店舗が未設定のメンバーには何も表示されません。店舗を新しく登録しても自動では割り当てられないので、この画面で選び直してください。管理者は常に全店舗が対象です。",
+              "メールでの招待と参加パスワードは廃止しました。メンバーを増やす経路は「申請 → 承認」の 1 本だけです。",
+              "Free プランで組織に所属できるのはご本人 1 人までです。メンバーを増やすには Pro プラン以上が必要です。",
+            ]}
           />
 
           {/* 設定 */}
@@ -281,29 +421,32 @@ export default function HelpPage() {
             id="settings"
             icon={<Icon.LuSettings />}
             title="設定"
-            description="アカウント情報・組織・集金スケジュール・プランを管理するページです。組織に複数メンバーを招待して役割（管理者・集金担当・閲覧者）を割り当てられます。"
+            description="アカウント・組織・集金スケジュール・プランの設定と、お知らせやフィードバックの入口です。スマホでは画面右上の歯車から、PC では上のメニューの「設定」から開きます。"
             steps={[
-              "「アカウント」タブ：氏名・ユーザー名・集金方法を変更できます。",
-              "「組織」タブ：組織名の変更、メンバーの招待（メールアドレスで送付）、役割の変更・削除ができます。",
-              "「集金スケジュール」タブ：毎週○曜日または毎月○日を選択してスケジュールを設定します。ホームのカウントダウンに反映されます。",
-              "「プラン」タブ：Free / Pro / Pro+ / Max の確認とアップグレードができます。",
+              "「アカウント」で氏名・ユーザー名を変更します。",
+              "「アプリ設定」の集金方法で、機械別に記録するか、まとめて記録するかを選びます。",
+              "「集金スケジュール」で毎週◯曜日または毎月◯日を登録します。ホームのカウントダウンに反映されます（管理者のみ）。",
+              "「プラン」で Free / Pro / Pro+ / Max の確認とアップグレードができます（管理者のみ）。",
+              "「組織」で組織名・メンバー・参加申請と、経費を記録するかどうかを管理します（管理者のみ）。",
+              "「その他」から、開発者からのお知らせ・アクションログ・フィードバック・規約類の確認と、サインアウトができます。",
             ]}
-            note="招待されたメンバーはメール内のリンクからアカウントを作成し、組織に参加できます。役割は「管理者」「集金担当者」「閲覧者」の3種類です。Freeプランで組織に所属できるのはご本人1人までのため、メンバーを招待するにはProプラン以上が必要です。"
-            screenshot={null}
-            screenshotAlt="設定画面"
+            notes={[
+              "アクションログには、誰がいつ何をしたかが記録されます。集金の取り違えや在庫の食い違いを追うときに使ってください。",
+              "誤って店舗管理者として登録してしまった場合の作り直しは、アカウント作成から 3 日以内だけ設定ページの下部に表示されます。",
+            ]}
           />
 
         </VStack>
 
         {/* フッター */}
-        <Box mt={10} pt={6} borderTop="1px solid" borderColor="var(--divider)" textAlign="center">
-          <Text fontSize="sm" color="var(--text-muted)" mb={2}>
-            解決しない場合はフィードバックボタンからご報告ください
+        <Box mt={10} pt={6} borderTop="1px solid" borderColor="var(--divider, #F1F5F9)" textAlign="center">
+          <Text fontSize="sm" color="var(--text-muted, #64748B)" mb={2}>
+            解決しない場合はフィードバックからご報告ください
           </Text>
-          <Text fontSize="xs" color="var(--text-faint)">
-            画面右下の{" "}
-            <Box as="span" color="var(--teal)" fontWeight="semibold">チャットアイコン</Box>
-            {" "}からバグ報告・機能リクエストを送ることができます。
+          <Text fontSize="xs" color="var(--text-faint, #94A3B8)">
+            設定 →{" "}
+            <Box as="span" color="var(--teal, #0891B2)" fontWeight="semibold">フィードバック</Box>
+            {" "}から、バグ報告・機能のご要望を送ることができます。
           </Text>
         </Box>
 
