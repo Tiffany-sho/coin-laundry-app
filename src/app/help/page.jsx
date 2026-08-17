@@ -59,13 +59,13 @@ const Note = ({ children }) => (
  * ⚠️ **`screenshots` も配列**。集金の入力とレポートのように、
  *    1 つの章に複数の画面がぶら下がるため。空なら「準備中」の枠を出す。
  *
- * ⚠️ **`screenshots` は縦長（スマホ）だけ。横長は `wideScreenshot` へ。**
- *    右の欄は 280px 固定なので、**PC の画面（1498×704）を入れると 280×131 まで
- *    縮んで何も読めない。** 横長は本文の下に全幅で敷く。
+ * ⚠️ **`screenshots` は縦長（スマホ）だけにすること。** 右の欄は 280px 固定なので、
+ *    **横長の PC 画面（1498×704）を入れると 280×131 まで縮んで何も読めない。**
+ *    載せる必要が出たら、右の欄ではなく本文の下に全幅で敷く形にすること。
  */
 const SectionCard = ({
   id, icon, title, description, steps,
-  screenshots = [], wideScreenshot = null, notes = [],
+  screenshots = [], notes = [],
 }) => (
   <Box
     id={id}
@@ -159,24 +159,6 @@ const SectionCard = ({
           </Box>
         )}
       </Flex>
-
-      {/* 横長（PC の画面）。⚠️ 右の 280px の欄に入れると読めない大きさになる */}
-      {wideScreenshot && (
-        <Box mt={5}>
-          <Box
-            borderRadius="xl"
-            overflow="hidden"
-            border="1px solid"
-            borderColor="cyan.100"
-            boxShadow="var(--shadow-sm, 0 2px 12px rgba(8,145,178,0.08))"
-          >
-            <Image src={wideScreenshot.src} alt={wideScreenshot.alt} w="full" />
-          </Box>
-          <Text fontSize="xs" color="var(--text-faint, #94A3B8)" mt={2} textAlign="center">
-            {wideScreenshot.caption}
-          </Text>
-        </Box>
-      )}
     </Box>
   </Box>
 );
@@ -301,6 +283,9 @@ export default function HelpPage() {
               "集金カウントダウンは、設定の「集金スケジュール」（毎週◯曜日 / 毎月◯日）を登録すると表示されます。",
               "クイックアクションの「集金を記録」「在庫を更新」は、閲覧者には表示されません。",
             ]}
+            screenshots={[
+              { src: "/screenshots/home.png", alt: "ホーム画面" },
+            ]}
           />
 
           {/* 店舗 */}
@@ -320,6 +305,10 @@ export default function HelpPage() {
             notes={[
               "登録できる店舗数はプランごとに、Free は 3 店舗、Pro は 5 店舗、Pro+ は 10 店舗、Max は無制限です。",
               "支払方法を一覧から外しても、過去の集金記録からは消えません。「使わなくなった支払方法」として残るので、押せばいつでも戻せます。",
+            ]}
+            screenshots={[
+              { src: "/screenshots/store-list.png", alt: "店舗一覧" },
+              { src: "/screenshots/store-detail.png", alt: "店舗の詳細ページ" },
             ]}
           />
 
@@ -343,14 +332,9 @@ export default function HelpPage() {
               "書き出しでは「経費と月別利益も含める」を選べます。会計ソフトへそのまま取り込むときは、集金だけの表になる既定のままが安全です。",
             ]}
             screenshots={[
-              { src: "/screenshots/collect-input.jpeg", alt: "集金入力画面" },
-              { src: "/screenshots/monthly-sales.jpeg", alt: "月別売上グラフ" },
+              { src: "/screenshots/collect-input.png", alt: "集金入力画面。機種別の金額とキャッシュレスの内訳" },
+              { src: "/screenshots/revenue-report.png", alt: "収益レポート。総額収益とグラフのタブ" },
             ]}
-            wideScreenshot={{
-              src: "/screenshots/revenue-report-pc.png",
-              alt: "PC で見た収益レポート",
-              caption: "PC で見た収益レポート。グラフのタブと売上履歴が 1 画面に並びます。",
-            }}
           />
 
           {/* 経費 */}
@@ -369,6 +353,9 @@ export default function HelpPage() {
               "単発の経費は集金担当者も登録できます。自分が登録した当月分だけ、あとから修正できます。削除と固定費の管理は管理者だけです。",
               "経費を使うかどうかは組織ごとに切り替えられます（設定 →「組織」→「経費を記録する」）。やめても登録済みの経費は消えないので、いつでも元に戻せます。",
               "担当店舗が決まっているメンバーには、担当外の店舗の経費は表示されません。店舗を選ばずに登録した組織全体の支出は、全員に表示されます。",
+            ]}
+            screenshots={[
+              { src: "/screenshots/expenses.png", alt: "経費ページ。カテゴリ別のドーナツと内訳" },
             ]}
           />
 
@@ -391,8 +378,8 @@ export default function HelpPage() {
               "機器そのものの登録は店舗ページから行います。台数を設定すると自動でここに並びます。",
             ]}
             screenshots={[
-              { src: "/screenshots/inventory.jpeg", alt: "在庫タブ" },
-              { src: "/screenshots/equipment.jpeg", alt: "設備タブ" },
+              { src: "/screenshots/manage-stock.png", alt: "管理ページの在庫タブ" },
+              { src: "/screenshots/manage-equipment.png", alt: "管理ページの設備タブ" },
             ]}
           />
 
