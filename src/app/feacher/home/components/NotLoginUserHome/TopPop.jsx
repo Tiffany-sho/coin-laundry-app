@@ -148,10 +148,10 @@ const TopPop = () => {
               filter="drop-shadow(0 20px 48px rgba(0,0,0,0.55))"
             >
               <Image
-                src="/screenshots/monthly-sales.jpeg"
-                alt="Collecie 集金入力画面"
-                width={694}
-                height={1361}
+                src="/screenshots/revenue-report.png"
+                alt="Collecie 収益レポート（スマホ）"
+                width={1179}
+                height={2556}
                 style={{ width: "100%", height: "auto", display: "block" }}
               />
             </Box>
