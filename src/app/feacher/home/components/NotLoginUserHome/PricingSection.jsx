@@ -56,16 +56,23 @@ const PlanCard = ({ plan }) => {
       <Box
         borderRadius="2xl"
         p={{ base: 6, md: 8 }}
-        style={{ background: "linear-gradient(140deg, #0E7490 0%, #0891B2 60%, #06B6D4 100%)" }}
-        boxShadow="0 16px 48px rgba(14,116,144,0.4)"
+        /*
+          ⚠️ **淡い地にした**（2026-08-17）。⚠️ **ほかのプランは白いカード**なので、
+             ここを白にすると「おすすめ」が見分けられなくなる。淡いシアン地 +
+             ティールの枠 + 持ち上げ（translateY）の 3 つで差を付けている。
+        */
+        style={{ background: "linear-gradient(140deg, #ECFEFF 0%, #CFFAFE 100%)" }}
+        border="2px solid"
+        borderColor="var(--teal, #0891B2)"
+        boxShadow="0 16px 40px rgba(14,116,144,0.20)"
         transform={{ base: "none", md: "translateY(-10px)" }}
         position="relative"
       >
         {badge && (
           <Box
             display="inline-block"
-            bg="white"
-            color="var(--teal-dark)"
+            bg="var(--teal, #0891B2)"
+            color="white"
             fontSize="xs"
             fontWeight="bold"
             px={3}
@@ -76,36 +83,37 @@ const PlanCard = ({ plan }) => {
             {badge}
           </Box>
         )}
-        <Heading fontSize="xl" color="white" mb={2}>{name}</Heading>
+        <Heading fontSize="xl" color="var(--teal-deeper, #155E75)" mb={2}>{name}</Heading>
         <Flex align="baseline" gap={1} mb={1}>
-          <Text fontSize="3xl" fontWeight="800" color="white" fontFamily="'Space Mono', monospace">
+          <Text fontSize="3xl" fontWeight="800" color="var(--teal-deeper, #155E75)" fontFamily="'Space Mono', monospace">
             {price}
           </Text>
-          <Text fontSize="sm" color="rgba(255,255,255,0.75)">{period}</Text>
+          <Text fontSize="sm" color="var(--text-muted, #64748B)">{period}</Text>
         </Flex>
         {trial && (
-          <Text fontSize="xs" color="rgba(255,255,255,0.7)" mb={6}>{trial}</Text>
+          <Text fontSize="xs" color="var(--text-muted, #64748B)" mb={6}>{trial}</Text>
         )}
         <VStack align="stretch" gap={2} mb={7}>
           {rows.map((r) => (
-            <Flex key={r.label} align="center" py={2} borderBottom="1px solid" borderColor="rgba(255,255,255,0.15)">
+            <Flex key={r.label} align="center" py={2} borderBottom="1px solid" borderColor="rgba(8,145,178,0.18)">
               {r.ok
-                ? <Box color="white" mr={2} flexShrink={0} display="inline-flex" alignItems="center"><Icon.LuCheck size={15} /></Box>
-                : <Box color="rgba(255,255,255,0.4)" mr={2} flexShrink={0} display="inline-flex" alignItems="center"><Icon.LuMinus size={15} /></Box>
+                ? <Box color="var(--teal, #0891B2)" mr={2} flexShrink={0} display="inline-flex" alignItems="center"><Icon.LuCheck size={15} /></Box>
+                : <Box color="var(--text-faint, #94A3B8)" mr={2} flexShrink={0} display="inline-flex" alignItems="center"><Icon.LuMinus size={15} /></Box>
               }
-              <Text fontSize="sm" color={r.ok ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.45)"} flex={1}>
+              <Text fontSize="sm" color={r.ok ? "var(--text-main, #1E3A5F)" : "var(--text-faint, #94A3B8)"} flex={1}>
                 {r.label}
               </Text>
               {r.value && (
-                <Text fontSize="xs" color="rgba(255,255,255,0.7)" fontWeight="600">{r.value}</Text>
+                <Text fontSize="xs" color="var(--text-muted, #64748B)" fontWeight="600">{r.value}</Text>
               )}
             </Flex>
           ))}
         </VStack>
         <Link href={ctaHref}>
+          {/* ⚠️ 淡い地になったので、ここは塗りのティールにしないとボタンに見えない */}
           <Box
-            bg="white"
-            color="var(--teal-deeper)"
+            bg="var(--teal, #0891B2)"
+            color="white"
             borderRadius="xl"
             py={3.5}
             textAlign="center"
@@ -113,7 +121,7 @@ const PlanCard = ({ plan }) => {
             fontWeight="bold"
             cursor="pointer"
             transition="all 0.2s"
-            _hover={{ bg: "var(--teal-pale)", transform: "translateY(-1px)" }}
+            _hover={{ bg: "var(--teal-dark, #0E7490)", transform: "translateY(-1px)" }}
           >
             {cta}
           </Box>

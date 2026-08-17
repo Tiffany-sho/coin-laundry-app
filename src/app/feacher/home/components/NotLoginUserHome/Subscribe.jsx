@@ -11,14 +11,18 @@ const Subscribe = () => {
       borderRadius="2xl"
       position="relative"
       overflow="hidden"
-      style={{ background: "linear-gradient(140deg, #0E7490 0%, #0891B2 55%, #06B6D4 100%)" }}
+      /* ⚠️ 淡い地にした（2026-08-17）。上に乗る白文字・白ボタンも反転済み */
+      style={{ background: "linear-gradient(140deg, #ECFEFF 0%, #CFFAFE 100%)" }}
+      border="1px solid"
+      borderColor="cyan.200"
     >
+      {/* ⚠️ 淡い地では白が消えるのでティールの薄い影にする */}
       <Box
         position="absolute"
         top="-70px" right="-70px"
         w="240px" h="240px"
         borderRadius="full"
-        bg="rgba(255,255,255,0.07)"
+        bg="rgba(8,145,178,0.08)"
         pointerEvents="none"
       />
       <Box
@@ -26,7 +30,7 @@ const Subscribe = () => {
         bottom="-50px" left="-50px"
         w="180px" h="180px"
         borderRadius="full"
-        bg="rgba(255,255,255,0.06)"
+        bg="rgba(8,145,178,0.07)"
         pointerEvents="none"
       />
 
@@ -35,14 +39,14 @@ const Subscribe = () => {
           <VStack gap={3}>
             <Heading
               fontSize={{ base: "2xl", md: "3xl" }}
-              color="white"
+              color="var(--teal-deeper, #155E75)"
               letterSpacing="-0.01em"
             >
               まずは無料で試してみませんか
             </Heading>
             <Text
               fontSize={{ base: "md", md: "lg" }}
-              color="rgba(255,255,255,0.82)"
+              color="var(--text-muted, #64748B)"
               lineHeight="1.8"
             >
               3店舗まで永久無料。今すぐ始められます。<br />
@@ -53,18 +57,18 @@ const Subscribe = () => {
           <Link href="/auth/login">
             <Box
               px={10} py={4}
-              bg="white"
-              color="var(--teal-deeper)"
+              bg="var(--teal, #0891B2)"
+              color="white"
               borderRadius="xl"
               fontSize="md"
               fontWeight="bold"
-              boxShadow="0 4px 24px rgba(0,0,0,0.18)"
+              boxShadow="0 4px 20px rgba(8,145,178,0.32)"
               cursor="pointer"
               transition="all 0.2s"
               _hover={{
                 transform: "translateY(-2px)",
-                boxShadow: "0 8px 32px rgba(0,0,0,0.24)",
-                bg: "var(--teal-pale)",
+                boxShadow: "0 8px 28px rgba(8,145,178,0.42)",
+                bg: "var(--teal-dark, #0E7490)",
               }}
             >
               無料アカウントを作成
@@ -74,8 +78,8 @@ const Subscribe = () => {
           <HStack gap={{ base: 4, md: 8 }} flexWrap="wrap" justify="center">
             {["3店舗まで永久無料", "6か月トライアル"].map((item) => (
               <HStack key={item} gap={1.5}>
-                <Icon.LuCheck size={14} color="rgba(255,255,255,0.8)" />
-                <Text fontSize="sm" color="rgba(255,255,255,0.8)">{item}</Text>
+                <Icon.LuCheck size={14} color="var(--teal, #0891B2)" />
+                <Text fontSize="sm" color="var(--text-muted, #64748B)">{item}</Text>
               </HStack>
             ))}
           </HStack>

@@ -7,13 +7,19 @@ const TopPop = () => {
     <Box
       position="relative"
       overflow="hidden"
+      /*
+        ⚠️ **淡い地にした**（2026-08-17）。以前は `#155E75 → #0891B2 → #06B6D4` の
+           濃いシアンで、画面の高さいっぱい（`minH="100vh"`）を濃色が占めていた。
+        ⚠️ **地を薄くしたら、上に乗る白文字と白ボタンを必ず反転させること。**
+           下の見出し・本文・ボタン・箇条書きの点はすべてこの地の上にある。
+      */
       style={{
-        background: "linear-gradient(140deg, #155E75 0%, #0891B2 55%, #06B6D4 100%)",
+        background: "linear-gradient(140deg, #ECFEFF 0%, #CFFAFE 100%)",
       }}
     >
-      {/* 装飾円 */}
-      <Box position="absolute" top="-120px" right="-120px" w="480px" h="480px" borderRadius="full" bg="rgba(255,255,255,0.06)" pointerEvents="none" />
-      <Box position="absolute" bottom="-80px" left="-80px" w="320px" h="320px" borderRadius="full" bg="rgba(255,255,255,0.05)" pointerEvents="none" />
+      {/* 装飾円。⚠️ 淡い地では白が消えるのでティールの薄い影にする */}
+      <Box position="absolute" top="-120px" right="-120px" w="480px" h="480px" borderRadius="full" bg="rgba(8,145,178,0.07)" pointerEvents="none" />
+      <Box position="absolute" bottom="-80px" left="-80px" w="320px" h="320px" borderRadius="full" bg="rgba(8,145,178,0.06)" pointerEvents="none" />
 
       <Container maxW="container.xl" position="relative">
         <Flex
@@ -35,11 +41,12 @@ const TopPop = () => {
           >
             <Box
               px={4} py={1.5}
-              bg="rgba(255,255,255,0.18)"
+              bg="var(--card-bg, #FFFFFF)"
               borderRadius="full"
-              border="1px solid rgba(255,255,255,0.35)"
+              border="1px solid"
+              borderColor="cyan.200"
             >
-              <Text fontSize="sm" color="white" fontWeight="semibold" letterSpacing="0.02em">
+              <Text fontSize="sm" color="var(--teal-deeper, #155E75)" fontWeight="semibold" letterSpacing="0.02em">
                 コインランドリー集金管理アプリ Collecie
               </Text>
             </Box>
@@ -47,7 +54,7 @@ const TopPop = () => {
             <Heading
               as="h1"
               fontSize={{ base: "4xl", md: "5xl", lg: "6xl" }}
-              color="white"
+              color="var(--teal-deeper, #155E75)"
               lineHeight="1.15"
               fontWeight="bold"
               letterSpacing="-0.02em"
@@ -59,7 +66,7 @@ const TopPop = () => {
 
             <Text
               fontSize={{ base: "md", md: "lg" }}
-              color="rgba(255,255,255,0.85)"
+              color="var(--text-muted, #64748B)"
               lineHeight="1.9"
               maxW="460px"
             >
@@ -69,18 +76,22 @@ const TopPop = () => {
             </Text>
 
             <HStack gap={3} flexWrap="wrap">
+              {/*
+                ⚠️ **主 CTA は塗りのティールのまま残す。** 地を淡くしたので、
+                   白地のボタンだと背景と同化して押しどころが消える。
+              */}
               <Link href="/auth/login">
                 <Box
                   px={8} py={3.5}
-                  bg="white"
-                  color="var(--teal-deeper)"
+                  bg="var(--teal, #0891B2)"
+                  color="white"
                   borderRadius="xl"
                   fontSize="md"
                   fontWeight="bold"
-                  boxShadow="0 4px 24px rgba(0,0,0,0.18)"
+                  boxShadow="0 4px 20px rgba(8,145,178,0.32)"
                   cursor="pointer"
                   transition="all 0.2s"
-                  _hover={{ transform: "translateY(-2px)", boxShadow: "0 8px 32px rgba(0,0,0,0.28)" }}
+                  _hover={{ bg: "var(--teal-dark, #0E7490)", transform: "translateY(-2px)", boxShadow: "0 8px 28px rgba(8,145,178,0.42)" }}
                 >
                   無料で始める →
                 </Box>
@@ -88,14 +99,16 @@ const TopPop = () => {
               <Link href="/auth/login">
                 <Box
                   px={8} py={3.5}
-                  color="white"
+                  bg="var(--card-bg, #FFFFFF)"
+                  color="var(--teal-dark, #0E7490)"
                   borderRadius="xl"
                   fontSize="md"
                   fontWeight="semibold"
-                  border="2px solid rgba(255,255,255,0.55)"
+                  border="2px solid"
+                  borderColor="cyan.300"
                   cursor="pointer"
                   transition="all 0.2s"
-                  _hover={{ bg: "rgba(255,255,255,0.1)", borderColor: "white" }}
+                  _hover={{ bg: "var(--teal-pale, #CFFAFE)", borderColor: "var(--teal, #0891B2)" }}
                 >
                   ログイン
                 </Box>
@@ -105,8 +118,8 @@ const TopPop = () => {
             <HStack gap={{ base: 4, md: 6 }} flexWrap="wrap">
               {["Proプランは6か月無料", "3店舗まで永久無料"].map((label) => (
                 <HStack key={label} gap={2}>
-                  <Box w="6px" h="6px" borderRadius="full" bg="rgba(255,255,255,0.65)" flexShrink={0} />
-                  <Text fontSize="sm" color="rgba(255,255,255,0.82)">{label}</Text>
+                  <Box w="6px" h="6px" borderRadius="full" bg="var(--teal, #0891B2)" flexShrink={0} />
+                  <Text fontSize="sm" color="var(--text-muted, #64748B)">{label}</Text>
                 </HStack>
               ))}
             </HStack>
@@ -125,7 +138,8 @@ const TopPop = () => {
             <Box
               borderRadius="2xl"
               overflow="hidden"
-              boxShadow="0 24px 64px rgba(0,0,0,0.45)"
+              /* ⚠️ 影は黒からティールへ。淡い地に黒い影を落とすと汚れて見える */
+              boxShadow="0 24px 64px rgba(14,116,144,0.28)"
             >
               <Image
                 src="/screenshots/revenue-report-pc.png"
@@ -145,7 +159,7 @@ const TopPop = () => {
               bottom="-20px"
               right={{ base: "-8px", lg: "-16px" }}
               w={{ base: "100px", lg: "140px" }}
-              filter="drop-shadow(0 20px 48px rgba(0,0,0,0.55))"
+              filter="drop-shadow(0 20px 40px rgba(14,116,144,0.35))"
             >
               <Image
                 src="/screenshots/revenue-report.png"

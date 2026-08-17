@@ -84,13 +84,19 @@ const Procedure = () => {
                     STEP {step.number}
                   </Text>
 
+                  {/*
+                    ⚠️ 淡い地にした（2026-08-17）。⚠️ **カード自体が `--app-bg`（#F0F9FF）**
+                       なので、地だけ淡くすると輪郭が消える。枠線を足して形を残すこと。
+                  */}
                   <Flex
                     w="56px" h="56px"
                     borderRadius="xl"
-                    style={{ background: "linear-gradient(140deg, #0E7490 0%, #0891B2 100%)" }}
+                    bg="var(--teal-pale, #CFFAFE)"
+                    border="1px solid"
+                    borderColor="cyan.300"
                     align="center"
                     justify="center"
-                    color="white"
+                    color="var(--teal-deeper, #155E75)"
                     mx={{ base: 0, md: "auto" }}
                     flexShrink={0}
                   >
