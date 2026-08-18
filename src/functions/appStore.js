@@ -19,10 +19,12 @@
  */
 
 /**
- * 例: "https://apps.apple.com/jp/app/collecie/id1234567890"
- * ⚠️ **空のままにしない。** 分かった時点でここだけ直せばよい。
+ * ⚠️ **末尾の `id<数字>` だけが本体。** 手前の `collecie` はただの飾りで、
+ *    Apple は ID で引き当てて正しい URL へ転送する。**アプリ名を変えても壊れない。**
+ * ⚠️ **`/jp/` のままでよい。** 配信地域が日本のみなので、他地域から開くと
+ *    「お住まいの国では利用できません」と出るが、それが実態と合っている。
  */
-export const APP_STORE_URL = "";
+export const APP_STORE_URL = "https://apps.apple.com/jp/app/collecie/id6796202962";
 
 /** 導線を出してよいか。⚠️ 呼び出し側は必ずこれで包むこと */
 export function hasAppStoreLink() {
