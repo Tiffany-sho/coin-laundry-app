@@ -17,6 +17,9 @@ import {
   Button,
   Stack,
   Skeleton,
+  Grid,
+  GridItem,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { LuPlus, LuDownload, LuCalendarDays } from "@/app/feacher/Icon";
 import { useUploadPage } from "../../context/UploadPageContext";
@@ -104,8 +107,126 @@ const MoneyDataList = ({
     setTotalRevenue(total);
   }, [data]);
 
+  /**
+   * PC かどうか。
+   *
+   * ⚠️ **しきい値は `xl`（1280px）。** `lg`（992px）で 2 列にすると 1 枚あたり
+   *    470px ほどしか取れず、店舗別の横棒グラフで店舗名が潰れる。
+   * ⚠️ **SSR では `base`（false）が返る。** PC でも一瞬スマホ構成が出てから
+   *    入れ替わる。`display` で出し分ければ避けられるが、下の理由で採らない。
+   */
+  const isWide = useBreakpointValue({ base: false, xl: true }) ?? false;
+
+  /*
+    グラフは**要素として組み立てておき、PC とスマホで置き場所だけ変える。**
+
+    ⚠️ **同じ中身を 2 か所に書かないこと。** タブ用とダッシュボード用で
+       別々に書くと、片方だけ直して数字の出どころが食い違う。
+    ⚠️ **CSS の `display` で出し分けないこと。** 両方を描くと隠れている側も
+       マウントされ、**同じデータを 2 度取りに行く**（タブ 1 枚 + ダッシュボード 4 枚）。
+    ⚠️ ここで作るだけならマウントされない。描画された 1 つだけが動く。
+  */
+  const storeChart = <StoreRevenueChart stores={storeRevenue} loading={revenueLoading} />;
+  const machineChart = isMono ? <MachineBreakdownCard storeId={coinLaundry.id} /> : null;
+  const methodChart = <MethodBreakdownCard storeId={isMono ? coinLaundry.id : null} />;
+  const profitChart = <MonthlyProfitCard storeId={isMono ? coinLaundry.id : null} />;
+  const monthlyChart = (
+    <Card.Root
+      bg="var(--card-bg, #FFFFFF)"
+      border="1px solid"
+      borderColor="cyan.100"
+      boxShadow="var(--shadow-sm)"
+      borderRadius="xl"
+    >
+      <Card.Body p={{ base: 4, md: 6 }}>
+        <VStack align="stretch" gap={4}>
+          {/* ヘッダー */}
+          <HStack gap={2}>
+            <Box color="var(--teal)">
+              <LuCalendarDays size={15} />
+            </Box>
+            <Text fontWeight="semibold" color="var(--text-main)" fontSize="sm">
+              月別売上
+            </Text>
+          </HStack>
+
+          <VStack align="stretch" gap={2}>
+            <HStack justify="space-between" align="center">
+              <Text
+                fontSize="xs"
+                fontWeight="semibold"
+                color="var(--text-muted)"
+                textTransform="uppercase"
+                letterSpacing="widest"
+              >
+                集金総額
+              </Text>
+              <PeriodFilterButton />
+            </HStack>
+
+            <HStack align="baseline" gap={1}>
+              <Text
+                fontSize={{ base: "lg", md: "xl" }}
+                fontWeight="semibold"
+                color="var(--text-muted)"
+              >
+                ¥
+              </Text>
+              {totalRevenue !== null ? (
+                <Text
+                  fontSize={{ base: "4xl", md: "5xl" }}
+                  fontWeight="black"
+                  lineHeight="1"
+                  letterSpacing="tight"
+                >
+                  {totalRevenue.toLocaleString()}
+                </Text>
+              ) : (
+                <Skeleton height="10" width="40%" borderRadius="lg" />
+              )}
+              <Text
+                fontSize={{ base: "md", md: "lg" }}
+                fontWeight="medium"
+                color="var(--text-muted)"
+                alignSelf="flex-end"
+                pb={0.5}
+              >
+                円
+              </Text>
+              {data && (
+                <Text fontSize="xs" color="var(--text-muted)" alignSelf="flex-end" pb={1}>
+                  累計{" "}
+                  <Text as="span" fontWeight="bold" color="var(--text-main)">
+                    {data.length}
+                  </Text>{" "}
+                  回
+                </Text>
+              )}
+            </HStack>
+
+            <PeriodNav />
+          </VStack>
+
+          {valiant === "aStore" && <MonoCoinDataChart id={coinLaundry.id} myRole={myRole} />}
+          {valiant === "manyStore" && <ManyCoinDataChart />}
+        </VStack>
+      </Card.Body>
+    </Card.Root>
+  );
+
   return (
-    <Box py={{ base: 6, md: 8 }} px={{ base: 4, md: 6 }} overflow="hidden" maxW="100%">
+    /*
+      ⚠️ **PC では横幅を使い切る。** ただし上限は付ける（`1720px`）。
+         無制限にすると 4K で 1 行が伸びきり、左端のラベルと右端の数字が
+         離れすぎて目で追えなくなる（在庫カードで同じことが起きている）。
+    */
+    <Box
+      py={{ base: 6, md: 8 }}
+      px={{ base: 4, md: 6, xl: 8 }}
+      overflow="hidden"
+      maxW={{ base: "100%", xl: "1720px" }}
+      mx="auto"
+    >
       <VStack align="stretch" gap={6}>
 
         {/* ── ヘッダー ── */}
@@ -232,114 +353,41 @@ const MoneyDataList = ({
           storeId={isMono ? coinLaundry.id : null}
         />
 
-        {/* ── グラフ切り替え ── */}
-        <RevenueTabs tabs={tabs} value={activeTab} onChange={setTab} />
+        {/*
+          ── グラフ ──
 
-        {/* ── 選ばれたグラフ 1 枚だけを描く ── */}
-        <Box minW={0}>
-          {/* 店舗別（組織全体のみ） */}
-          {activeTab === "store" && !isMono && (
-            <StoreRevenueChart stores={storeRevenue} loading={revenueLoading} />
-          )}
+          ⚠️ **PC とスマホで構成が違う**（2026-08-18 に PC を作り直した）。
+             スマホはタブで 1 枚ずつ。PC は**全部を並べたダッシュボード**で、
+             タブそのものを出さない。狭い画面の作りのまま横に引き伸ばすと、
+             ワイドモニタで 1 枚が間延びして**余白ばかりのページ**になっていた。
 
-          {/* 機器別（店舗ページのみ） */}
-          {activeTab === "machine" && isMono && <MachineBreakdownCard storeId={coinLaundry.id} />}
-
-          {/* 支払方法別。組織全体では店舗をまたいで名前で 1 本にまとまる */}
-          {activeTab === "method" && (
-            <MethodBreakdownCard storeId={isMono ? coinLaundry.id : null} />
-          )}
-
-          {/* 月別利益（売上 − 経費）。⚠️ 経費を使わない組織にはタブごと出ない */}
-          {activeTab === "profit" && (
-            <MonthlyProfitCard storeId={isMono ? coinLaundry.id : null} />
-          )}
-
-          {/* 月別グラフカード（月別売上ヘッダー + 集金総額 + 期間フィルタ + チャート） */}
-          {activeTab === "monthly" && (
-            <Card.Root
-              bg="var(--card-bg, #FFFFFF)"
-              border="1px solid"
-              borderColor="cyan.100"
-              boxShadow="var(--shadow-sm)"
-              borderRadius="xl"
-            >
-              <Card.Body p={{ base: 4, md: 6 }}>
-                <VStack align="stretch" gap={4}>
-                  {/* ヘッダー */}
-                  <HStack gap={2}>
-                    <Box color="var(--teal)">
-                      <LuCalendarDays size={15} />
-                    </Box>
-                    <Text fontWeight="semibold" color="var(--text-main)" fontSize="sm">
-                      月別売上
-                    </Text>
-                  </HStack>
-
-                  <VStack align="stretch" gap={2}>
-                    <HStack justify="space-between" align="center">
-                      <Text
-                        fontSize="xs"
-                        fontWeight="semibold"
-                        color="var(--text-muted)"
-                        textTransform="uppercase"
-                        letterSpacing="widest"
-                      >
-                        集金総額
-                      </Text>
-                      <PeriodFilterButton />
-                    </HStack>
-
-                    <HStack align="baseline" gap={1}>
-                      <Text
-                        fontSize={{ base: "lg", md: "xl" }}
-                        fontWeight="semibold"
-                        color="var(--text-muted)"
-                      >
-                        ¥
-                      </Text>
-                      {totalRevenue !== null ? (
-                        <Text
-                          fontSize={{ base: "4xl", md: "5xl" }}
-                          fontWeight="black"
-                          lineHeight="1"
-                          letterSpacing="tight"
-                        >
-                          {totalRevenue.toLocaleString()}
-                        </Text>
-                      ) : (
-                        <Skeleton height="10" width="40%" borderRadius="lg" />
-                      )}
-                      <Text
-                        fontSize={{ base: "md", md: "lg" }}
-                        fontWeight="medium"
-                        color="var(--text-muted)"
-                        alignSelf="flex-end"
-                        pb={0.5}
-                      >
-                        円
-                      </Text>
-                      {data && (
-                        <Text fontSize="xs" color="var(--text-muted)" alignSelf="flex-end" pb={1}>
-                          累計{" "}
-                          <Text as="span" fontWeight="bold" color="var(--text-main)">
-                            {data.length}
-                          </Text>{" "}
-                          回
-                        </Text>
-                      )}
-                    </HStack>
-
-                    <PeriodNav />
-                  </VStack>
-
-                  {valiant === "aStore" && <MonoCoinDataChart id={coinLaundry.id} myRole={myRole} />}
-                  {valiant === "manyStore" && <ManyCoinDataChart />}
-                </VStack>
-              </Card.Body>
-            </Card.Root>
-          )}
-        </Box>
+          ⚠️ **列幅は 5 : 7。** 右に時系列（月別）を置く。折れ線・積み上げ棒は
+             横に長いほど読めるので、内訳系より広い列を与えている。
+          ⚠️ **Grid の子には必ず `minW={0}`。** 付けないと Recharts の
+             `ResponsiveContainer` が親幅を測れず、中身の幅まで膨らんで
+             列からはみ出す（CLAUDE.md の「Grid / Flex 子要素のオーバーフロー」）。
+        */}
+        {isWide ? (
+          <Grid templateColumns="minmax(0, 5fr) minmax(0, 7fr)" gap={5} alignItems="start">
+            <GridItem minW={0}>{isMono ? machineChart : storeChart}</GridItem>
+            <GridItem minW={0}>{monthlyChart}</GridItem>
+            <GridItem minW={0}>{methodChart}</GridItem>
+            {/* ⚠️ 経費を使わない組織では 3 枚。1 枚だけの行になるが、
+                   空のカードを置くより無いほうが読みやすい */}
+            {expensesEnabled && <GridItem minW={0}>{profitChart}</GridItem>}
+          </Grid>
+        ) : (
+          <>
+            <RevenueTabs tabs={tabs} value={activeTab} onChange={setTab} />
+            <Box minW={0}>
+              {activeTab === "store" && !isMono && storeChart}
+              {activeTab === "machine" && isMono && machineChart}
+              {activeTab === "method" && methodChart}
+              {activeTab === "profit" && profitChart}
+              {activeTab === "monthly" && monthlyChart}
+            </Box>
+          </>
+        )}
 
         {/* ── 売上履歴（タブの外。常に手前に置く） ── */}
         <Box minW={0}>
