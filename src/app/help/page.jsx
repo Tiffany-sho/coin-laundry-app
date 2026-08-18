@@ -1,5 +1,6 @@
-import { Box, Flex, HStack, Image, Text, VStack } from "@chakra-ui/react";
+import { Box, Flex, HStack, Text, VStack } from "@chakra-ui/react";
 import Link from "next/link";
+import NextImage from "next/image";
 import * as Icon from "@/app/feacher/Icon";
 
 export const metadata = {
@@ -126,16 +127,22 @@ const SectionCard = ({
             gap={3}
             align="stretch"
           >
+            {/*
+              ⚠️ **枠（ボーダー・角丸・影）を付けないこと。** スクショは
+                 端末の枠込みで書き出してあり、**背景が透過している**。
+                 四角い枠を回すと、透けた角の外側に線だけが浮いて見える。
+                 影も同じ理由で画像側に任せる。
+            */}
             {screenshots.map((shot) => (
-              <Box
-                key={shot.src}
-                borderRadius="xl"
-                overflow="hidden"
-                border="1px solid"
-                borderColor="cyan.100"
-                boxShadow="var(--shadow-sm, 0 2px 12px rgba(8,145,178,0.08))"
-              >
-                <Image src={shot.src} alt={shot.alt} w="full" objectFit="cover" />
+              <Box key={shot.src}>
+                <NextImage
+                  src={shot.src}
+                  alt={shot.alt}
+                  width={shot.w}
+                  height={shot.h}
+                  sizes="(max-width: 768px) 92vw, 280px"
+                  style={{ width: "100%", height: "auto", display: "block" }}
+                />
               </Box>
             ))}
           </VStack>
@@ -283,9 +290,6 @@ export default function HelpPage() {
               "集金カウントダウンは、設定の「集金スケジュール」（毎週◯曜日 / 毎月◯日）を登録すると表示されます。",
               "クイックアクションの「集金を記録」「在庫を更新」は、閲覧者には表示されません。",
             ]}
-            screenshots={[
-              { src: "/screenshots/home.png", alt: "ホーム画面" },
-            ]}
           />
 
           {/* 店舗 */}
@@ -307,8 +311,8 @@ export default function HelpPage() {
               "支払方法を一覧から外しても、過去の集金記録からは消えません。「使わなくなった支払方法」として残るので、押せばいつでも戻せます。",
             ]}
             screenshots={[
-              { src: "/screenshots/store-list.png", alt: "店舗一覧" },
-              { src: "/screenshots/store-detail.png", alt: "店舗の詳細ページ" },
+              { src: "/screenshots/store-list.png", alt: "店舗一覧", w: 1320, h: 2868 },
+              { src: "/screenshots/store-detail.png", alt: "店舗の詳細ページ", w: 1320, h: 2868 },
             ]}
           />
 
@@ -332,8 +336,8 @@ export default function HelpPage() {
               "書き出しでは「経費と月別利益も含める」を選べます。会計ソフトへそのまま取り込むときは、集金だけの表になる既定のままが安全です。",
             ]}
             screenshots={[
-              { src: "/screenshots/collect-input.png", alt: "集金入力画面。機種別の金額とキャッシュレスの内訳" },
-              { src: "/screenshots/revenue-report.png", alt: "収益レポート。総額収益とグラフのタブ" },
+              { src: "/screenshots/collect-input.png", alt: "集金入力画面。機種別の金額とキャッシュレスの内訳", w: 1320, h: 2868 },
+              { src: "/screenshots/revenue-report.png", alt: "収益レポート。総額収益とグラフのタブ", w: 1320, h: 2868 },
             ]}
           />
 
@@ -355,7 +359,7 @@ export default function HelpPage() {
               "担当店舗が決まっているメンバーには、担当外の店舗の経費は表示されません。店舗を選ばずに登録した組織全体の支出は、全員に表示されます。",
             ]}
             screenshots={[
-              { src: "/screenshots/expenses.png", alt: "経費ページ。カテゴリ別のドーナツと内訳" },
+              { src: "/screenshots/expenses.png", alt: "経費ページ。カテゴリ別のドーナツと内訳", w: 1320, h: 2868 },
             ]}
           />
 
@@ -378,8 +382,8 @@ export default function HelpPage() {
               "機器そのものの登録は店舗ページから行います。台数を設定すると自動でここに並びます。",
             ]}
             screenshots={[
-              { src: "/screenshots/manage-stock.png", alt: "管理ページの在庫タブ" },
-              { src: "/screenshots/manage-equipment.png", alt: "管理ページの設備タブ" },
+              { src: "/screenshots/manage-stock.png", alt: "管理ページの在庫タブ", w: 1320, h: 2868 },
+              { src: "/screenshots/manage-equipment.png", alt: "管理ページの設備タブ", w: 1320, h: 2868 },
             ]}
           />
 
@@ -420,6 +424,9 @@ export default function HelpPage() {
             notes={[
               "アクションログには、誰がいつ何をしたかが記録されます。集金の取り違えや在庫の食い違いを追うときに使ってください。",
               "誤って店舗管理者として登録してしまった場合の作り直しは、アカウント作成から 3 日以内だけ設定ページの下部に表示されます。",
+            ]}
+            screenshots={[
+              { src: "/screenshots/settings.png", alt: "設定ページ", w: 1320, h: 2868 },
             ]}
           />
 

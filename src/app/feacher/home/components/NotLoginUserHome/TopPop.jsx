@@ -152,20 +152,19 @@ const TopPop = () => {
             </Box>
 
             {/* スマホ（月次売上）— 右下に重ねる */}
+            {/* ⚠️ 角丸で切り抜かない。枠込み・背景透過のスクショなので角が削れる */}
             <Box
-              borderRadius="2xl"
-              overflow="hidden"
               position="absolute"
               bottom="-20px"
               right={{ base: "-8px", lg: "-16px" }}
-              w={{ base: "100px", lg: "140px" }}
+              w={{ base: "110px", lg: "150px" }}
               filter="drop-shadow(0 20px 40px rgba(14,116,144,0.35))"
             >
               <Image
                 src="/screenshots/revenue-report.png"
                 alt="Collecie 収益レポート（スマホ）"
-                width={1179}
-                height={2556}
+                width={1320}
+                height={2868}
                 style={{ width: "100%", height: "auto", display: "block" }}
               />
             </Box>

@@ -16,8 +16,8 @@ const features = [
     ],
     src: "/screenshots/collect-input.png",
     alt: "集金入力画面",
-    imgW: 1179,
-    imgH: 2556,
+    imgW: 1320,
+    imgH: 2868,
     blobColor: "radial-gradient(circle, rgba(8,145,178,0.18) 0%, rgba(6,182,212,0.08) 60%, transparent 100%)",
     reverse: false,
   },
@@ -33,8 +33,8 @@ const features = [
     ],
     src: "/screenshots/manage-stock.png",
     alt: "在庫管理画面",
-    imgW: 1179,
-    imgH: 2556,
+    imgW: 1320,
+    imgH: 2868,
     blobColor: "radial-gradient(circle, rgba(14,116,144,0.16) 0%, rgba(8,145,178,0.06) 60%, transparent 100%)",
     reverse: true,
   },
@@ -50,8 +50,8 @@ const features = [
     ],
     src: "/screenshots/manage-equipment.png",
     alt: "設備管理画面",
-    imgW: 1179,
-    imgH: 2556,
+    imgW: 1320,
+    imgH: 2868,
     blobColor: "radial-gradient(circle, rgba(8,145,178,0.18) 0%, rgba(6,182,212,0.08) 60%, transparent 100%)",
     reverse: false,
   },
@@ -68,8 +68,8 @@ const features = [
     ],
     src: "/screenshots/revenue-report.png",
     alt: "月別売上画面",
-    imgW: 1179,
-    imgH: 2556,
+    imgW: 1320,
+    imgH: 2868,
     blobColor: "radial-gradient(circle, rgba(14,116,144,0.16) 0%, rgba(8,145,178,0.06) 60%, transparent 100%)",
     reverse: true,
   },
@@ -151,12 +151,16 @@ const FeatureRow = ({ tag, title, description, points, src, alt, imgW, imgH, blo
         }}
       />
       {/* 画像本体 */}
+      {/*
+        ⚠️ **角丸で切り抜かないこと。** スクショは端末の枠込み・背景透過で
+           書き出してあるので、四角を丸く切ると**枠の角が削れる。**
+        ⚠️ 影は `drop-shadow`（アルファを辿る）のまま。`box-shadow` に
+           変えると透過部分ごと四角い影が落ちる。
+      */}
       <Box
-        borderRadius="8%"
-        overflow="hidden"
         position="relative"
         zIndex={1}
-        filter="drop-shadow(0 24px 56px rgba(0,0,0,0.26))"
+        filter="drop-shadow(0 24px 48px rgba(14,116,144,0.28))"
       >
         <Image
           src={src}
