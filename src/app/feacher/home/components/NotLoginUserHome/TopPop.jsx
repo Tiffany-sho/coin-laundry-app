@@ -134,7 +134,15 @@ const TopPop = () => {
             alignSelf={{ base: "center", lg: "auto" }}
             style={{ animation: "fadeSlideUp 0.8s ease both 0.25s" }}
           >
-            {/* PC 収益レポート画面（ノート PC のモック・背景透過） */}
+            {/*
+              PC 収益レポート画面（ノート PC のモック・背景透過）。
+
+              ⚠️ **中身を差し替えるときはファイル名も変えること。**
+                 next/image の応答は `immutable` で 1 年キャッシュされるため、
+                 **同じ名前のまま画像だけ入れ替えても、ブラウザも Vercel の CDN も
+                 古いほうを出し続ける。** 実際 `revenue-report-pc.png` のまま
+                 差し替えて反映されなかった（2026-08-18）。
+            */}
             {/*
               ⚠️ **角丸・`overflow:hidden`・`box-shadow` を付けないこと。**
                  画像が端末の形をしていて背景が透過しているので、四角い箱を
@@ -145,7 +153,7 @@ const TopPop = () => {
             */}
             <Box filter="drop-shadow(0 24px 48px rgba(14,116,144,0.30))">
               <Image
-                src="/screenshots/revenue-report-pc.png"
+                src="/screenshots/revenue-dashboard-pc.png"
                 alt="Collecie 収益レポート画面"
                 width={1215}
                 height={880}

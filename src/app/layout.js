@@ -58,7 +58,7 @@ export const metadata = {
       {
         /*
           ⚠️ **OG には透過 PNG を使わないこと。** Slack / X などはアルファを
-             黒で塗り潰すので、ヒーローで使っている `revenue-report-pc.png`
+             黒で塗り潰すので、ヒーローで使っている `revenue-dashboard-pc.png`
              （背景透過）をここに向けると**真っ黒のサムネ**になる。
              白地の JPG を別に置いてある。
         */
