@@ -2,6 +2,7 @@ import { Card, Button, HStack, Text, Box, Flex, Heading, VStack, Separator } fro
 import Link from "next/link";
 import * as Icon from "@/app/feacher/Icon";
 import AnnouncementsNavRow from "./AnnouncementsNavRow";
+import { APP_STORE_URL, hasAppStoreLink } from "@/functions/appStore";
 
 const NavRow = ({ href, icon, label, description }) => (
   <Link href={href}>
@@ -26,6 +27,34 @@ const NavRow = ({ href, icon, label, description }) => (
   </Link>
 );
 
+/*
+  外部サイトへ出る行。⚠️ **NavRow（next/link）を使い回さない。**
+  あちらは内部遷移用で、App Store のような外部 URL に使うとプリフェッチが走る。
+  ⚠️ `rel="noopener noreferrer"` を外さないこと。
+*/
+const ExtRow = ({ href, icon, label, description }) => (
+  <a href={href} target="_blank" rel="noopener noreferrer">
+    <HStack
+      justify="space-between" p={4}
+      borderRadius="lg" border="1px solid" borderColor="cyan.100"
+      cursor="pointer" transition="all 0.2s"
+      _hover={{ bg: "var(--teal-pale)", borderColor: "cyan.300" }}
+    >
+      <HStack gap={3}>
+        <Flex w="40px" h="40px" bg="var(--teal-pale)" borderRadius="lg"
+          align="center" justify="center" color="var(--teal)" flexShrink={0}>
+          {icon}
+        </Flex>
+        <Box>
+          <Text fontSize="sm" fontWeight="semibold" color="var(--text-main)">{label}</Text>
+          {description && <Text fontSize="xs" color="var(--text-muted)">{description}</Text>}
+        </Box>
+      </HStack>
+      <Icon.LuChevronRight color="var(--text-faint)" />
+    </HStack>
+  </a>
+);
+
 export default function OtherActionsCard({ announcements = [], accountCreatedAt = null }) {
   return (
     <Card.Root w="full" bg="var(--card-bg, #FFFFFF)" borderRadius="xl"
@@ -40,6 +69,19 @@ export default function OtherActionsCard({ announcements = [], accountCreatedAt 
           <AnnouncementsNavRow items={announcements} accountCreatedAt={accountCreatedAt} />
 
           <Separator borderColor="var(--divider)" />
+
+          {/*
+            ⚠️ **URL が未設定のあいだは何も描かない**（appStore.js の hasAppStoreLink）。
+               App ID が分かる前にデプロイしても壊れたリンクが出ないようにしてある。
+          */}
+          {hasAppStoreLink() && (
+            <ExtRow
+              href={APP_STORE_URL}
+              icon={<Icon.LuSmartphone size={20} />}
+              label="iPhone アプリ"
+              description="App Store で入手できます"
+            />
+          )}
 
           <NavRow
             href="/settings/log"
