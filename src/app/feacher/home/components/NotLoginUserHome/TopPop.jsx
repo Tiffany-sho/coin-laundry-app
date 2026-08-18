@@ -134,18 +134,21 @@ const TopPop = () => {
             alignSelf={{ base: "center", lg: "auto" }}
             style={{ animation: "fadeSlideUp 0.8s ease both 0.25s" }}
           >
-            {/* PC 収益レポート画面 */}
-            <Box
-              borderRadius="2xl"
-              overflow="hidden"
-              /* ⚠️ 影は黒からティールへ。淡い地に黒い影を落とすと汚れて見える */
-              boxShadow="0 24px 64px rgba(14,116,144,0.28)"
-            >
+            {/* PC 収益レポート画面（ノート PC のモック・背景透過） */}
+            {/*
+              ⚠️ **角丸・`overflow:hidden`・`box-shadow` を付けないこと。**
+                 画像が端末の形をしていて背景が透過しているので、四角い箱を
+                 かぶせると**淡い地の上に白い箱が出る**（差し替え前は
+                 ブラウザ画面の直取りだったので箱が要った）。
+              ⚠️ 影は `drop-shadow`（アルファを辿る）。`box-shadow` だと
+                 透過部分ごと四角い影が落ちる。
+            */}
+            <Box filter="drop-shadow(0 24px 48px rgba(14,116,144,0.30))">
               <Image
                 src="/screenshots/revenue-report-pc.png"
                 alt="Collecie 収益レポート画面"
-                width={1498}
-                height={704}
+                width={1215}
+                height={880}
                 style={{ width: "100%", height: "auto", display: "block" }}
                 priority
               />

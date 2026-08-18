@@ -56,9 +56,15 @@ export const metadata = {
     description: siteDescription,
     images: [
       {
-        url: "/screenshots/revenue-report-pc.png",
-        width: 1200,
-        height: 630,
+        /*
+          ⚠️ **OG には透過 PNG を使わないこと。** Slack / X などはアルファを
+             黒で塗り潰すので、ヒーローで使っている `revenue-report-pc.png`
+             （背景透過）をここに向けると**真っ黒のサムネ**になる。
+             白地の JPG を別に置いてある。
+        */
+        url: "/screenshots/revenue-report-og.jpg",
+        width: 1215,
+        height: 880,
         alt: "Collecie - コインランドリー集金アプリ - 無料で始める",
       },
     ],
@@ -67,7 +73,7 @@ export const metadata = {
     card: "summary_large_image",
     title: `${siteName} | コインランドリー集金アプリ - 無料で始める`,
     description: siteDescription,
-    images: ["/screenshots/revenue-report-pc.png"],
+    images: ["/screenshots/revenue-report-og.jpg"],
   },
   alternates: {
     canonical: siteUrl,
