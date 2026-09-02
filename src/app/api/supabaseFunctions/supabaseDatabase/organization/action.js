@@ -149,10 +149,26 @@ export async function updateOrganizationName(name) {
   if (!user) return { error: "ログインしてください" };
 
   const supabase = await createClient();
+
+  /*
+    ⚠️ **`owner_id` だけで絞らない。** 1 人が複数の組織のオーナーになることは
+       あり得る（別アカウントの組織を引き継いだ・作り直したなど）。id を足さないと
+       **その人が持つ組織すべての名前が同時に書き換わる。**
+       2026-09-02 に 2 組織を所有する状態が実際に生まれて見つかった。
+  */
+  const { data: member, error: memberError } = await supabase
+    .from("organization_members")
+    .select("org_id")
+    .eq("user_id", user.id)
+    .single();
+
+  if (memberError || !member) return { error: "組織に所属していません" };
+
   const { error } = await supabase
     .from("organizations")
     .update({ name })
-    .eq("owner_id", user.id);
+    .eq("id", member.org_id)
+    .eq("owner_id", user.id); // 改名はオーナー限定（下の updateExpensesEnabled のコメント参照）
 
   if (error) return { error: "組織名の更新に失敗しました" };
   return {};
