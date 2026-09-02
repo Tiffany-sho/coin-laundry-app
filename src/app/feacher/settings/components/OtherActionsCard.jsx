@@ -140,6 +140,26 @@ export default function OtherActionsCard({ announcements = [], accountCreatedAt 
               サインアウト
             </Button>
           </form>
+
+          {/*
+            App Store Guideline 5.1.1(v)：アプリ内から削除を開始できること。
+            iOS 版もサインアウトの直下に置いてある（coinlaundy_app_iOS/app/settings/index.tsx）。
+            ⚠️ **サインアウトより目立たせないこと。** 押し間違いを避けるため、
+               塗りつぶしの赤ボタンにはしない。実際の削除は次のページで
+               本人確認・チェック・確認ダイアログを通る。
+          */}
+          <Link href="/settings/delete-account" style={{ width: "100%" }}>
+            <Button
+              w="full" py={3} px={6}
+              fontSize="sm" fontWeight="medium"
+              bg="transparent" color="var(--text-muted, #64748B)"
+              border="none" borderRadius="lg"
+              cursor="pointer" transition="all 0.2s"
+              _hover={{ bg: "red.50", color: "red.500" }}
+            >
+              アカウントを削除
+            </Button>
+          </Link>
         </VStack>
       </Card.Body>
     </Card.Root>
