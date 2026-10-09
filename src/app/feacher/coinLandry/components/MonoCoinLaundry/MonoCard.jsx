@@ -73,25 +73,52 @@ const MonoCard = ({ coinLaundry, myRole }) => {
             </Grid>
 
             {canEdit && (
-              <Flex justifyContent="center" pt={2}>
-                {/* ⚠️ 直接 Link にしない。支払方法がある店舗では何を集金するか聞く */}
-                <CollectStartButton store={coinLaundry}>
-                  <Button
-                    size="lg"
-                    color="white"
-                  style={{ background: "linear-gradient(135deg, #0891B2 0%, #0E7490 100%)" }}
-                  boxShadow="0 4px 14px rgba(8,145,178,0.28)"
+              <VStack gap={3} pt={2}>
+                <Flex justifyContent="center">
+                  {/* ⚠️ 直接 Link にしない。支払方法がある店舗では何を集金するか聞く */}
+                  <CollectStartButton store={coinLaundry}>
+                    <Button
+                      size="lg"
+                      color="white"
+                    style={{ background: "linear-gradient(135deg, #0891B2 0%, #0E7490 100%)" }}
+                    boxShadow="0 4px 14px rgba(8,145,178,0.28)"
+                      fontWeight="semibold"
+                      px={8}
+                      _hover={{ transform: "translateY(-2px)" }}
+                      transition="all 0.2s"
+                      boxShadow="md"
+                    >
+                      <Icon.PiHandCoinsLight size={24} />
+                      集金を開始
+                    </Button>
+                  </CollectStartButton>
+                </Flex>
+
+                {/*
+                  過去の集金データの一括入力への導線。
+                  ⚠️ **`ActionMenu`（「…」）に入れないこと。** あちらは `isOwner`
+                     （admin）でしか出さないが、集金の登録は viewer 以外なら誰でも
+                     できる。「…」に置くと**権限が集金登録と食い違い**、担当店舗を
+                     持つ集金担当者が過去分を入れられなくなる（iOS 版は「…」から
+                     開くが、あちらのメニューに admin 限定という制約が無い）。
+                  ⚠️ **控えめな副導線のままにすること。** 店舗登録の直後に長い入力を
+                     必須に見せると離脱する、という理由で任意の導線にしてある。
+                */}
+                <Link href={`/collectMoney/${coinLaundry.id}/backfill`}>
+                  <HStack
+                    gap={1}
+                    color="var(--text-muted)"
+                    fontSize="sm"
                     fontWeight="semibold"
-                    px={8}
-                    _hover={{ transform: "translateY(-2px)" }}
-                    transition="all 0.2s"
-                    boxShadow="md"
+                    cursor="pointer"
+                    _hover={{ color: "var(--teal-deeper, #155E75)" }}
+                    transition="color 0.2s"
                   >
-                    <Icon.PiHandCoinsLight size={24} />
-                    集金を開始
-                  </Button>
-                </CollectStartButton>
-              </Flex>
+                    <Icon.LuHistory size={16} />
+                    <Text>過去の集金データを入力</Text>
+                  </HStack>
+                </Link>
+              </VStack>
             )}
           </VStack>
         </Box>
