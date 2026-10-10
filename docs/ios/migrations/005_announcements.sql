@@ -50,10 +50,15 @@ COMMENT ON TABLE public.announcements IS
   '⚠️ ここに書いたものは iOS アプリにもそのまま出る。'
   '⚠️ 価格・プラン名と金額・外部サイトでの契約への言及を書かないこと（App Store Guideline 3.1.3(a)。リジェクト事由）。';
 
+-- ⚠️ **2026-10-10 に例を差し替えた。** 「ご意見・ご要望」は 2026-07-31 に
+--    アプリへ追加済み（1.0 から配布）なので、もう誘導してよい。
+--    規則は生きているが例が失効していた。⚠️ **本番にも
+--    docs/ios/announcements/2026-10-10_feedback.sql で同じ COMMENT を当ててある。**
 COMMENT ON COLUMN public.announcements.body IS
   'プレーンテキスト。改行はそのまま表示される（Markdown は解釈しない）。'
   '⚠️ 「Proプランは◯◯円」「Webサイトから契約できます」は書かない（3.1.3(a)）。'
-  '⚠️ アプリに無い画面へ誘導しない（フィードバック画面は Web にしか無い）。';
+  '⚠️ アプリに無い画面へ誘導しない。⚠️ ただし「ご意見・ご要望」は'
+  '2026-07-31 にアプリへ追加済みで、もう誘導してよい（以前の禁止例）。';
 
 COMMENT ON COLUMN public.announcements.published IS
   '⚠️ false のあいだは誰にも見えない（下書き）。書き終えてから true にする。';
