@@ -8,6 +8,7 @@ import NavVisibilityWrapper from "@/app/feacher/partials/NavVisibilityWrapper";
 import SettingsGearWrapper from "@/app/feacher/partials/SettingsGear/SettingsGearWrapper";
 import SplashScreen from "@/app/feacher/splash/SplashScreen";
 import SWRegistration from "@/app/feacher/pwa/SWRegistration";
+import CloudflareAnalytics from "@/app/feacher/analytics/CloudflareAnalytics";
 import styles from "./layout.module.css";
 
 const siteUrl = "https://www.collecie.com";
@@ -103,6 +104,8 @@ export default function RootLayout({ children }) {
       <body suppressHydrationWarning>
         <SplashScreen />
         <SWRegistration />
+        {/* 本番だけ計測する（プレビューやローカルの閲覧を数えない） */}
+        <CloudflareAnalytics enabled={process.env.VERCEL_ENV === "production"} />
         <Provider>
           <div className={styles.layoutContainer}>
             <NavVisibilityWrapper>
