@@ -124,6 +124,10 @@ export default function PrivacyPage() {
                     name: "Vercel（Vercel Inc.）",
                     desc: "ホスティングサービス。アクセスログが収集される場合があります。",
                   },
+                  {
+                    name: "Cloudflare（Cloudflare, Inc.）",
+                    desc: "Webサイトのアクセス解析（Cloudflare Web Analytics）。閲覧したページ・参照元・ブラウザの種類などを、Cookieを使わずに統計として集計します。",
+                  },
                 ].map(({ name, desc }) => (
                   <Box key={name}>
                     <Text fontSize="sm" fontWeight="semibold" color="var(--text-main)">
@@ -153,6 +157,9 @@ export default function PrivacyPage() {
               <Text fontSize="sm" color="var(--text-muted)">
                 本サービスでは、ログイン状態の維持のためCookieを使用します。ブラウザの設定によりCookieを無効にすることができますが、一部機能が利用できなくなる場合があります。
               </Text>
+              <Text fontSize="sm" color="var(--text-muted)" mt={2}>
+                また、Webサイトの閲覧状況を把握してサービスを改善するため、Cloudflare Web Analytics を使用しています。Cookieは使用せず、閲覧したページ・参照元・ブラウザの種類などを個人を特定しない統計として集計します。iOSアプリでは使用していません。
+              </Text>
             </Section>
 
             <Section title="8. プライバシーポリシーの変更">
@@ -175,7 +182,7 @@ export default function PrivacyPage() {
         </Box>
 
         <Text fontSize="xs" color="var(--text-faint)" textAlign="right">
-          制定日：2026年5月29日／改定日：2026年7月31日
+          制定日：2026年5月29日／改定日：2026年10月9日
         </Text>
       </VStack>
     </Box>
