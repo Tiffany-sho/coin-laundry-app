@@ -145,16 +145,16 @@ const BackfillForm = ({ coinLaundry }) => {
           store: coinLaundry.store,
           storeId: coinLaundry.id,
           /*
-            ⚠️ **既存の登録と同じジッターを足す。** `collect_funds.date` は JST 深夜 0 時
-               ちょうどだが、`getStoreFundsPaginated` は `date` で並べて `.range()` で
-               切るだけで **`id` のタイブレークを持たない**。同じ日付の行が複数あると
-               ページの境目で行が重複したり飛んだりする（`actionMessage` のページングが
-               `.order("id")` を足しているのと同じ話）。
-               同日 2 回の集金を許す画面なので、ここでも足しておく。
-            ⚠️ **1000 ミリ秒未満なので表示日はずれない**（`createNowData` は +9 時間して
-               年月日を読む）。自前で 9 時間ぶんを足す計算はしないこと。
+            ⚠️ **JST 深夜 0 時ちょうどを入れる。ずらさないこと。**
+               規約が `collect_funds.date` を「JST 深夜 0 時の epoch」と定義しており、
+               既存の登録（`SelectDate.jsx`）も `getEpochTimeInSeconds` の値をそのまま
+               使っている。ここだけずらすと規約が嘘になり、それを信じて `.eq("date")`
+               を書いた人が静かに壊れる。
+               ⚠️ 同じ日付が並ぶとページングで行が重複・欠落する件は、**読み取り側**で
+                  直してある（`getStoreFundsPaginated` の `.order("id")`）。
+                  書き込み側でデータを歪めて回避しないこと。
           */
-          date: row.date + Math.floor(Math.random() * 1000),
+          date: row.date,
           // 過去分は機種別の内訳を取らないので空。合計入力モードの集金と同じ形
           fundsArray: [],
           /*

@@ -405,6 +405,13 @@ export async function getStoreFundsPaginated(id, orderAmount, upOrder, from, to)
     .select("id, laundryId, laundryName, date, totalFunds, cashless, collecter, profiles!collect_funds_collecter_fkey(username)")
     .eq("laundryId", id)
     .order(orderAmount, { ascending: upOrder })
+    /*
+      ⚠️ **同点の決着用。外すとページの境目で行が重複・欠落する。**
+         `date` も `totalFunds` も同点があり（同じ日に 2 回集金する・同額になる、は普通に起こる）、
+         それだけで並べると `.range()` の 2 ページ目以降で順序が安定しない。
+         `fetchAllRows.js` が最後に `id` を足しているのと同じ考え方。
+    */
+    .order("id", { ascending: true })
     .range(from, to);
 
   if (error) return { error: "集金データの取得に失敗しました" };
@@ -895,6 +902,9 @@ export async function getOrgCollectFundsPaginated(orderAmount, upOrder, from, to
     null
   )
     .order(orderAmount, { ascending: upOrder })
+    // ⚠️ 同点の決着用。外すとページの境目で行が重複・欠落する
+    //    （getStoreFundsPaginated と同じ理由）
+    .order("id", { ascending: true })
     .range(from, to);
 
   if (error) return { error: "集金データの取得に失敗しました" };
