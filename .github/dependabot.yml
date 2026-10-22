@@ -1,0 +1,64 @@
+# 脆弱性と古い依存を毎週知るための設定。
+# 詳しい運用は docs/security.md の「早く知る」を見ること。
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    open-pull-requests-limit: 10
+    versioning-strategy: "increase"
+    commit-message:
+      prefix: "chore(deps)"
+      prefix-development: "chore(deps-dev)"
+      include: "scope"
+    groups:
+      # ⚠️ 一緒に上げないと壊れる組み合わせは、必ず1つの PR にまとめる。
+      # next と react を別々にマージすると、peerDependencies が合わず
+      # build が落ちる。
+      next-react:
+        patterns:
+          - "next"
+          - "next-themes"
+          - "react"
+          - "react-dom"
+      chakra:
+        patterns:
+          - "@chakra-ui/*"
+          - "@emotion/*"
+      supabase:
+        patterns:
+          - "@supabase/*"
+      # 開発時だけの依存は、マイナー・パッチをまとめて1つの PR にする。
+      dev-tools:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+    ignore:
+      # Node LTS の乗り換えに合わせて手で上げる。
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+      # Next.js / Vitest が対応するまで待つ。
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "eslint"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    commit-message:
+      prefix: "chore(ci)"
+      include: "scope"
+    groups:
+      actions:
+        patterns:
+          - "*"

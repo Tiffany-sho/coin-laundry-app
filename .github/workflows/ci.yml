@@ -1,0 +1,58 @@
+# main への push と、すべての Pull Request で走らせる。
+# ここが落ちたままマージすると、本番に壊れたものが出る。
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# ⚠️ 広げないこと。このワークフローは読むだけでよい。
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          # .nvmrc を正規のソースにする。ここにベタ書きしない。
+          node-version-file: ".nvmrc"
+          cache: "npm"
+
+      # npm install ではなく ci。package-lock.json のとおりに入れて、
+      # ロックファイルとのズレをここで落とす。
+      - name: 依存をインストール
+        run: npm ci
+
+      - name: テスト
+        run: npm test
+
+      # ⚠️ ここのダミー値は消さないこと。
+      # Stripe と Resend のクライアントをモジュールスコープで生成している
+      # （src/utils/stripe/client.js など）ため、route handler の
+      # 設定収集の段階でキーが無いと build が落ちる。
+      # どれも形だけのダミーで、本物の秘密は1つも無い。
+      # 本物を Secrets に入れる必要も無い（ビルドは外部に接続しない）。
+      - name: ビルド
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: "https://example.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "dummy-anon-key-for-build"
+          NEXT_PUBLIC_APP_URL: "https://www.collecie.com"
+          STRIPE_SECRET_KEY: "sk_test_dummy_for_build_only"
+          RESEND_API_KEY: "re_dummy_for_build_only"
+
+      # 本番に乗る依存だけを見る。high 以上が1件でもあれば落とす。
+      # dev 依存は本番に乗らないので --omit=dev で外す。
+      - name: 脆弱性チェック（本番依存・high 以上）
+        run: npm audit --omit=dev --audit-level=high
