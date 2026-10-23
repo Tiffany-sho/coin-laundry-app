@@ -140,6 +140,19 @@ try {
     if ($LASTEXITCODE -ne 0) { throw "pg_dump (auth.users) が失敗しました" }
 } finally {
     Remove-Item Env:\PGPASSWORD -ErrorAction SilentlyContinue
+
+    <#
+      ⚠️ **空のファイルを残さないこと。**
+         pg_dump は接続に失敗しても --file のファイルを 0 バイトで作る。
+         放っておくと backups\ に「バックアップらしきもの」が溜まり、
+         いざ復元するときに中身が空のものを掴む。失敗したら消す。
+    #>
+    foreach ($f in @($dataFile, $authFile)) {
+        if ((Test-Path $f) -and ((Get-Item $f).Length -eq 0)) {
+            Remove-Item $f -Force -ErrorAction SilentlyContinue
+            Write-Output ("空だったので削除: " + (Split-Path $f -Leaf))
+        }
+    }
 }
 
 Write-Output ""
