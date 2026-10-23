@@ -5,6 +5,7 @@ import {
   CartesianGrid,
   Line,
   LineChart,
+  ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
@@ -181,7 +182,15 @@ const MonoCoinDataChart = ({ id, myRole }) => {
 
   return (
     <Box key={chartKey} style={{ animation: "fadeSlideUp 0.45s ease both" }}>
+    {/*
+      ⚠️ **ResponsiveContainer を外さないこと。**
+         @chakra-ui/charts 3.28 までは Chart.Root が内部で
+         ResponsiveContainer で children を包んでいたが、3.37 で外された。
+         裸の LineChart は幅も高さも決まらず、何も描画されない
+         （カードの枠・金額・凡例だけが残って中身が空になる）。
+    */}
     <Chart.Root h="100%" chart={chart}>
+      <ResponsiveContainer width="100%" height="100%">
       <LineChart data={chart.data} margin={{ left: -16, right: 24, top: 24, bottom: 8 }}>
         <CartesianGrid
           stroke={chart.color("border")}
@@ -219,6 +228,7 @@ const MonoCoinDataChart = ({ id, myRole }) => {
           strokeWidth={2}
         />
       </LineChart>
+      </ResponsiveContainer>
     </Chart.Root>
     </Box>
   );

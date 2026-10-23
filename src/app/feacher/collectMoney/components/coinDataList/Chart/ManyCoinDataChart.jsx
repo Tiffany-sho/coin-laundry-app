@@ -7,6 +7,7 @@ import {
   BarChart,
   Bar,
   CartesianGrid,
+  ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
@@ -171,7 +172,15 @@ const ManyCoinDataChart = () => {
 
   return (
     <Box key={chartKey} style={{ animation: "fadeSlideUp 0.45s ease both" }}>
+      {/*
+        ⚠️ **ResponsiveContainer を外さないこと。**
+           @chakra-ui/charts 3.28 までは Chart.Root が内部で
+           ResponsiveContainer で children を包んでいたが、3.37 で外された。
+           裸の BarChart は幅も高さも決まらず、何も描画されない
+           （カードの枠・金額・凡例だけが残って中身が空になる）。
+      */}
       <Chart.Root h="260px" chart={chart}>
+        <ResponsiveContainer width="100%" height="100%">
         <BarChart data={chartData} margin={{ left: -16, right: 24, top: 16, bottom: 8 }}>
           <CartesianGrid stroke={chart.color("border")} strokeDasharray="3 3" vertical={false} />
           <XAxis
@@ -208,6 +217,7 @@ const ManyCoinDataChart = () => {
             />
           ))}
         </BarChart>
+        </ResponsiveContainer>
       </Chart.Root>
 
       {displayedStoreNames.length > 0 && (
