@@ -26,7 +26,7 @@
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-icons": "^5.7.0",
-    "recharts": "^3.3.0",
+    "recharts": "^3.10.1",
     "resend": "^6.34.1",
     "stripe": "^22.1.1",
     "write-excel-file": "^4.1.1"
