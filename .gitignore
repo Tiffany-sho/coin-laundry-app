@@ -48,3 +48,10 @@ next-env.d.ts
 
 # Claude Code 用のローカル指示書（DBスキーマ等を含むため非公開）
 CLAUDE.md
+
+# DB のダンプ（利用者の売上データ）
+# ⚠️ このリポジトリは public。中に置いて誤ってコミットすると、そのまま公開される。
+#    保存先はリポジトリの外（既定: %USERPROFILE%\backups\collecie）。これは保険。
+#    ※ *.sql は ignore しない。docs/ 配下のマイグレーション 25 本が追跡対象のため。
+*.dump
+/backups/
