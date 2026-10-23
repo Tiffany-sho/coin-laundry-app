@@ -422,12 +422,43 @@ async redirects() {
 - **Pro に上げる**（日次バックアップ・7日保持が付く）
 - **下のダンプを定期的に取る**（月1回など、頻度を決めて実行する）
 
-手元にダンプを取る。
+手元にダンプを取る。手順は `scripts/backup-db.ps1` にまとめてある。
 
 ```bash
-# Supabase の接続文字列は Dashboard → Settings → Database → Connection string
-pg_dump "<接続文字列>" -Fc -f collecie-$(date +%Y%m%d).dump
+powershell -ExecutionPolicy Bypass -File scripts\backup-db.ps1
 ```
+
+パスワードは実行時に聞かれる（画面に出ず、履歴にも残らない）。Supabase Dashboard → Settings → Database → `Database password` から取る。控えが無ければリセットしてよい。**このアプリは DB へ直接つないでいない**（`DATABASE_URL` 等を使っていない）ので、パスワードを変えてもアプリは止まらない。
+
+初回だけ `pg_dump` が要る。Supabase は PostgreSQL 17 なので 17 以上を入れる。
+
+```bash
+winget install -e --id PostgreSQL.PostgreSQL.17
+```
+
+⚠️ **インストールするとローカルの PostgreSQL サーバーも動き出す**（`0.0.0.0:5432` で待ち受ける）。使うのは `pg_dump` だけなので、止めておく。
+
+```bash
+Stop-Service postgresql-x64-17; Set-Service postgresql-x64-17 -StartupType Manual
+```
+
+#### 接続先の注意（2026-10-23 に実際にはまった）
+
+⚠️ **直接接続（`db.<ref>.supabase.co`）は使えない。** IPv6 しか持たず（A レコードが無い）、この環境からは `pg_dump` が Connection timed out で失敗した。`Test-NetConnection` が一度 True を返したが当てにならず、生ソケットでも 10 秒でつながらなかった。
+
+IPv4 で届く **Session pooler** を使う。スクリプトの既定もそちら。
+
+| 項目 | 値 |
+|---|---|
+| ホスト | `aws-1-ap-northeast-1.pooler.supabase.com` |
+| ポート | **5432**（Session）。6543（Transaction）では `pg_dump` は動かない |
+| ユーザ | `postgres.<ref>`（`postgres` ではない） |
+
+`aws-0` と `aws-1` のどちらに居るかはプロジェクトごとに違う。間違えると `tenant/user ... not found` になる（このプロジェクトは `aws-1`）。移設されたら Dashboard → Settings → Database → Connection string → `Session pooler` で確認する。
+
+#### Storage は別
+
+`pg_dump` に Storage のファイルは含まれない。2026-10-23 時点で `Laundry-Images` に 53 件 69 MB、`avatars` に 3 件 7.7 MB ある。**DB を戻しても店舗写真は戻らない。**
 
 **取ったダンプは「戻せること」を一度試す。** 試していないバックアップはバックアップではない。
 

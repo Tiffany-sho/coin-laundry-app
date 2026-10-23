@@ -25,7 +25,9 @@
 
 param(
     [string]$OutDir = (Join-Path $env:USERPROFILE "backups\collecie"),
-    [string]$ProjectRef = "hhdipgftsrsmmuqyifgt"
+    [string]$ProjectRef = "hhdipgftsrsmmuqyifgt",
+    # 直接接続（db.<ref>.supabase.co）を使う。既定は Session pooler。下の注意を読むこと。
+    [switch]$Direct
 )
 
 $ErrorActionPreference = "Stop"
@@ -69,9 +71,35 @@ $stamp = Get-Date -Format "yyyyMMdd-HHmm"
 $dataFile = Join-Path $OutDir ("collecie-public-$stamp.dump")
 $authFile = Join-Path $OutDir ("collecie-auth-users-$stamp.sql")
 
-$dbHost = "db.$ProjectRef.supabase.co"
+# --- 接続先 ---------------------------------------------------------------
+<#
+  ⚠️ **既定は Session pooler。直接接続は使えないことがある。**
+
+  db.<ref>.supabase.co は IPv6 しか持たない（A レコードが無い）。
+  2026-10-23 にこの環境から pg_dump が Connection timed out で失敗した。
+  Test-NetConnection は一度 True を返したが当てにならず、生ソケットでも
+  10 秒でつながらなかった。IPv4 で届く Session pooler を既定にする。
+
+  ⚠️ **ポートは 5432（Session pooler）。6543（Transaction pooler）は使わない。**
+     pg_dump はセッションを張り続けるため、transaction モードでは動かない。
+
+  pooler のユーザ名は postgres ではなく postgres.<ref> の形式。
+  aws-0 と aws-1 のどちらに居るかはプロジェクトごとに違う。
+  間違えると「tenant/user ... not found」になる（このプロジェクトは aws-1）。
+  移設された場合は Dashboard -> Settings -> Database -> Connection string ->
+  Session pooler で確認して、下の既定値を直すこと。
+#>
+if ($Direct) {
+    $dbHost = "db.$ProjectRef.supabase.co"
+    $dbUser = "postgres"
+} else {
+    $dbHost = "aws-1-ap-northeast-1.pooler.supabase.com"
+    $dbUser = "postgres.$ProjectRef"
+}
+
 Write-Output ""
-Write-Output ("接続先: " + $dbHost + ":5432  (user=postgres / db=postgres)")
+Write-Output ("接続先: " + $dbHost + ":5432")
+Write-Output ("ユーザ: " + $dbUser + " / db=postgres")
 Write-Output ("保存先: " + $OutDir)
 Write-Output ""
 
@@ -94,7 +122,7 @@ try {
     # --format=custom: pg_restore で部分復元できる圧縮形式
     Write-Output "public スキーマをダンプしています..."
     & $pgDump `
-        --host=$dbHost --port=5432 --username=postgres --dbname=postgres `
+        --host=$dbHost --port=5432 --username=$dbUser --dbname=postgres `
         --schema=public `
         --format=custom --no-owner --no-privileges `
         --file=$dataFile
@@ -105,7 +133,7 @@ try {
     # 誰が登録していたかを失わないために取っておく。
     Write-Output "auth.users をダンプしています..."
     & $pgDump `
-        --host=$dbHost --port=5432 --username=postgres --dbname=postgres `
+        --host=$dbHost --port=5432 --username=$dbUser --dbname=postgres `
         --table=auth.users --data-only `
         --format=plain --no-owner --no-privileges `
         --file=$authFile
