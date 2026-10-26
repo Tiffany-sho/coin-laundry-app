@@ -21,6 +21,32 @@ Next.js がビルド時に JS へ直接埋め込む。**Workers の実行時バ�
 （[checkout/route.js:79](../src/app/api/stripe/checkout/route.js:79)・[portal/route.js:25](../src/app/api/stripe/portal/route.js:25)）。
 それでもビルド時に焼き込まれる点は同じなので、ビルド環境に必要。
 
+### 秘密鍵はビルド環境には要らない（ただし初回は落ちた）
+
+`STRIPE_SECRET_KEY` / `RESEND_API_KEY` / `SUPABASE_SERVICE_KEY` はビルドに焼き込まれず、
+実行時に読まれる（`.next` を `grep` して確認済み）。**Cloudflare のビルド環境に置く必要は無い。**
+実行時のシークレットにだけ入れればよい。
+
+⚠️ それでも 2026-10-26 の初回ビルドは、これらを**モジュール評価時に**使っていたせいで落ちた。
+
+```
+Error: Failed to collect configuration for /api/stripe/checkout
+  [cause]: Error: Neither apiKey nor config.authenticator provided
+      at module evaluation (src/utils/stripe/client.js:3:23)
+```
+
+Next.js の "Collecting page data" は各ルートを import するので、トップレベルで
+`new Stripe(...)` / `new Resend(...)` していると、**鍵の無いビルド環境ではビルドごと落ちる**。
+`new Stripe(undefined)` も `new Resend(undefined)` も**コンストラクタの時点で投げる**のが原因。
+
+該当の3箇所は生成を呼び出し時まで遅らせて解消済み。**同じ形を新しく書かないこと。**
+
+| 直した箇所 | 直し方 |
+|---|---|
+| [utils/stripe/client.js](../src/utils/stripe/client.js) | `export const stripe` をやめて `getStripe()` に |
+| [webhooks/supabase/route.js](../src/app/api/webhooks/supabase/route.js) | `new Resend()` を `POST` の中へ移動 |
+| [feedback/action.js](../src/app/api/supabaseFunctions/feedback/action.js) | 同上 |
+
 ### `VERCEL_ENV` は存在しなくなる
 
 [layout.js:109](../src/app/layout.js:109) が `process.env.VERCEL_ENV === "production"` で
@@ -60,7 +86,7 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST https://<HOST>/api/stripe/webho
 | 結果 | 意味 |
 |---|---|
 | `400` | ✅ `STRIPE_SECRET_KEY` も `STRIPE_WEBHOOK_SECRET` も読めている（署名検証まで到達した） |
-| `500` | ❌ `STRIPE_SECRET_KEY` が未設定。[client.js:3](../src/utils/stripe/client.js:3) の `new Stripe(undefined)` が **import 時点で** `Neither apiKey nor config.authenticator provided` を投げ、ルート自体が読み込めていない |
+| `500` | ❌ `STRIPE_SECRET_KEY` が未設定。[client.js](../src/utils/stripe/client.js) の `getStripe()` が最初の呼び出しで `Neither apiKey nor config.authenticator provided` を投げる |
 
 ### T3. アクセス解析のスクリプトが入っているか
 
