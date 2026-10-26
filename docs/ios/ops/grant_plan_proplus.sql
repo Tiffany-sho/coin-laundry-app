@@ -8,7 +8,9 @@
 --    `organizations.plan` を書き換えるだけ。010 まで適用済みであることが前提
 --    （'proplus' は 010 の CHECK 制約で追加された値）。
 --
--- ⚠️ **何度流しても同じ結果になる。** 冒頭の v_email の組織を名指しで更新する。
+-- ⚠️ **何度流しても同じ結果になる。** 冒頭の v_emails に並べた人の組織だけを
+--    名指しで更新する。**1 人 1 組織なので、メールを足せば組織が増える。**
+--    2026-10-26 に制作者の 2 アカウント（2 組織）へ付与するため配列化した。
 --
 -- ---------------------------------------------------------------------
 -- ⚠️ Stripe の購読を先に片付ける（2026-10-10 に実際に詰まった）
@@ -94,10 +96,14 @@
 
 DO $$
 DECLARE
-  -- ⚠️ ここだけ書き換える。制作者本人のログインメール
-  v_email text := 'mituya1884tansan@gmail.com';
+  -- ⚠️ ここだけ書き換える。Pro+ を付ける人のログインメール（何件でも並べられる）
+  v_emails text[] := ARRAY[
+    'mituya1884tansan@gmail.com',
+    'ramanu1729jan@gmail.com'
+  ];
   v_plan  text := 'proplus';
 
+  v_email    text;
   v_user     uuid;
   v_org      uuid;
   v_org_name text;
@@ -107,7 +113,14 @@ DECLARE
   v_apple    text;
   v_members  int;
   v_stores   int;
+  /*
+    すでに付与した組織。⚠️ **2 人が同じ組織にいるときに 2 度 UPDATE しない
+    ための控え。** 冪等なので 2 度流れても結果は同じだが、NOTICE が
+    「free → proplus」「proplus → proplus」と並んで読む人が混乱する。
+  */
+  v_done     uuid[] := ARRAY[]::uuid[];
 BEGIN
+FOREACH v_email IN ARRAY v_emails LOOP
   -- ① ユーザーを引く
   SELECT id INTO v_user
   FROM auth.users
@@ -150,6 +163,15 @@ BEGIN
     RAISE EXCEPTION 'この組織には Stripe の購読 (%) が生きている。先に解約してから流すこと', v_stripe;
   END IF;
 
+  /*
+    ⚠️ 同じ組織に 2 人並んでいるときは 1 度しか更新しない。
+       冪等なので害は無いが、NOTICE が二重に出て読めなくなる
+  */
+  IF v_org = ANY(v_done) THEN
+    RAISE NOTICE '% は既に付与した組織「%」に所属しているので飛ばす', v_email, v_org_name;
+    CONTINUE;
+  END IF;
+
   -- ④ 付与する
   UPDATE public.organizations
   SET plan = v_plan,
@@ -172,11 +194,14 @@ BEGIN
       */
   WHERE id = v_org;
 
+  v_done := v_done || v_org;
+
   SELECT count(*) INTO v_stores
   FROM public.laundry_store
   WHERE organization_id = v_org;
 
   RAISE NOTICE '─────────────────────────────────────────';
+  RAISE NOTICE ' メール     : %', v_email;
   RAISE NOTICE ' 組織       : % (%)', v_org_name, v_org;
   RAISE NOTICE ' 権限       : %', v_role;
   RAISE NOTICE ' プラン     : %  →  %', coalesce(v_before, 'free'), v_plan;
@@ -187,6 +212,7 @@ BEGIN
   IF v_role <> 'admin' THEN
     RAISE NOTICE '⚠️ 権限が admin ではないので、プラン画面と店舗の追加が出ません';
   END IF;
+END LOOP;
 END $$;
 
 -- ---------------------------------------------------------------------
@@ -197,6 +223,7 @@ END $$;
 --    返すので、アプリを一度開き直すか画面を引き下げて取り直すこと。
 -- ---------------------------------------------------------------------
 SELECT
+  u.email                           AS "メール",
   o.name                            AS "組織",
   o.plan                            AS "プラン",
   o.plan_source                     AS "契約の出どころ",     -- NULL が正
@@ -209,7 +236,8 @@ SELECT
 FROM public.organizations o
 JOIN public.organization_members m ON m.org_id = o.id
 JOIN auth.users u ON u.id = m.user_id
-WHERE lower(u.email) = lower('mituya1884tansan@gmail.com');
+WHERE lower(u.email) IN ('mituya1884tansan@gmail.com', 'ramanu1729jan@gmail.com')
+ORDER BY u.email;
 
 -- ---------------------------------------------------------------------
 -- 取り消したいとき（free に戻す）
@@ -221,8 +249,8 @@ WHERE lower(u.email) = lower('mituya1884tansan@gmail.com');
 -- ---------------------------------------------------------------------
 -- UPDATE public.organizations o
 -- SET plan = 'free', plan_source = NULL
--- WHERE o.id = (
+-- WHERE o.id IN (
 --   SELECT m.org_id FROM public.organization_members m
 --   JOIN auth.users u ON u.id = m.user_id
---   WHERE lower(u.email) = lower('mituya1884tansan@gmail.com')
+--   WHERE lower(u.email) IN ('mituya1884tansan@gmail.com', 'ramanu1729jan@gmail.com')
 -- );
