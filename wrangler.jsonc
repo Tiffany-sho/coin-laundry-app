@@ -24,6 +24,18 @@
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-10-26",
   "compatibility_flags": ["nodejs_compat"],
+  /*
+    ⚠️ **`false` のままにすること。** wrangler は既定で esbuild の keep-names を
+       有効にし、各モジュールの先頭に `__name` ヘルパーを入れて関数を包む。
+       next-themes（Chakra の ColorModeProvider が内部で使っている）は
+       テーマ適用スクリプトを `toString()` で文字列化して HTML に埋めるので、
+       包まれた `__name(...)` ごと持ち出されてしまう。ブラウザ側に `__name` は
+       無いので `Uncaught ReferenceError: __name is not defined` になり、
+       **初回描画時のテーマ適用が動かない**（2026-10-26 に本番で発生）。
+       wrangler 4.13.0 以降で指定できる。
+       https://opennext.js.org/cloudflare/howtos/keep_names
+  */
+  "keep_names": false,
   "assets": {
     "binding": "ASSETS",
     "directory": ".open-next/assets"
