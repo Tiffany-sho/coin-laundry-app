@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { stripe } from "@/utils/stripe/client";
+import { getStripe } from "@/utils/stripe/client";
 import { getUser } from "@/app/api/supabaseFunctions/supabaseDatabase/user/action";
 import { getOrgPlan } from "@/app/api/supabaseFunctions/supabaseDatabase/organization/action";
 
@@ -20,7 +20,7 @@ export async function POST() {
 
   let session;
   try {
-    session = await stripe.billingPortal.sessions.create({
+    session = await getStripe().billingPortal.sessions.create({
       customer: planInfo.stripeCustomerId,
       return_url: `${process.env.NEXT_PUBLIC_APP_URL}/settings`,
     });

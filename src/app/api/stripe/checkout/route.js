@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { stripe } from "@/utils/stripe/client";
+import { getStripe } from "@/utils/stripe/client";
 import { getUser } from "@/app/api/supabaseFunctions/supabaseDatabase/user/action";
 import { getOrgPlan } from "@/app/api/supabaseFunctions/supabaseDatabase/organization/action";
 import { createServiceClient } from "@/utils/supabase/service";
@@ -58,7 +58,7 @@ export async function POST(request) {
   if (!customerId) {
     let customer;
     try {
-      customer = await stripe.customers.create({
+      customer = await getStripe().customers.create({
         email: user.email,
         metadata: { org_id: planInfo.orgId },
       });
@@ -89,7 +89,7 @@ export async function POST(request) {
 
   let session;
   try {
-    session = await stripe.checkout.sessions.create(sessionParams);
+    session = await getStripe().checkout.sessions.create(sessionParams);
   } catch (e) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }

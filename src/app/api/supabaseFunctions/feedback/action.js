@@ -4,7 +4,6 @@ import { Resend } from "resend";
 import { getUser } from "../supabaseDatabase/user/action";
 import { escapeHtml } from "@/functions/escapeHtml";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
 const OWNER_EMAIL = "mituya1884tansan@gmail.com";
 
 const TYPE_LABELS = {
@@ -43,6 +42,9 @@ export async function sendFeedback({ type, description }) {
   const safeBody = escapeHtml(body);
   const safeUserInfo = escapeHtml(userInfo);
 
+  // ⚠️ モジュール評価時に生成しない。鍵が無いとコンストラクタが投げ、
+  //    ビルドの "Collecting page data" で落ちる（utils/stripe/client.js 参照）。
+  const resend = new Resend(process.env.RESEND_API_KEY);
   const { error } = await resend.emails.send({
     from: "Collecie <noreply@collecie.com>",
     to: OWNER_EMAIL,

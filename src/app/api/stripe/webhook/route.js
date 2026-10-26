@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { stripe } from "@/utils/stripe/client";
+import { getStripe } from "@/utils/stripe/client";
 import { createServiceClient } from "@/utils/supabase/service";
 
 export async function POST(request) {
@@ -8,7 +8,7 @@ export async function POST(request) {
 
   let event;
   try {
-    event = stripe.webhooks.constructEvent(
+    event = getStripe().webhooks.constructEvent(
       body,
       signature,
       process.env.STRIPE_WEBHOOK_SECRET
@@ -27,7 +27,7 @@ export async function POST(request) {
     const orgId = session.metadata?.org_id;
     if (!orgId) return NextResponse.json({ received: true });
 
-    const subscription = await stripe.subscriptions.retrieve(
+    const subscription = await getStripe().subscriptions.retrieve(
       session.subscription
     );
     const planKey = getPlanFromPriceId(
