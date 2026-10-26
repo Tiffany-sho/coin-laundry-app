@@ -155,8 +155,28 @@ export async function deleteAccount() {
     }
   }
 
-  // ③ プロフィール
-  await serviceSupabase.from("profiles").delete().eq("id", user.id);
+  /*
+    ③ プロフィール
+
+    ⚠️ **エラーを捨てないこと。** `profiles` が残ったまま ⑤ へ進むと、auth
+       ユーザーの削除だけが落ちて「アカウントの削除に失敗しました」という
+       原因の分からない表示になる。**どの段で失敗したのか永久に分からない。**
+       2026-10-26 に組織未所属のユーザーで実際に詰まり、ここを見ていなかった
+       せいで外部キーを 1 つずつ数えるところから始める羽目になった。
+    ⚠️ 生のメッセージを画面に出している。利用者が自分のアカウントを消す
+       操作で、問い合わせのときにこれが無いと何も分からないため。
+  */
+  const { error: profileError } = await serviceSupabase
+    .from("profiles")
+    .delete()
+    .eq("id", user.id);
+
+  if (profileError) {
+    console.error("[deleteAccount] profiles の削除に失敗", profileError);
+    return {
+      error: `プロフィールの削除に失敗しました（${profileError.message}）`,
+    };
+  }
 
   // ④ Storage のアバター（失敗しても削除自体は続行する）
   try {
@@ -175,7 +195,15 @@ export async function deleteAccount() {
 
   // ⑤ 最後に auth ユーザー。ここまで来たら後戻りできない
   const { error: authError } = await serviceSupabase.auth.admin.deleteUser(user.id);
-  if (authError) return { error: "アカウントの削除に失敗しました" };
+  if (authError) {
+    /*
+      ⚠️ ここに来た時点で ③ は成功しており、**`profiles` の行はもう無い。**
+         利用者から見ると「消えていないのに名前が消えた」状態になるので、
+         問い合わせを受けたら `auth.users` を手で消すこと。
+    */
+    console.error("[deleteAccount] auth ユーザーの削除に失敗", authError);
+    return { error: `アカウントの削除に失敗しました（${authError.message}）` };
+  }
 
   return { data: { deleted: true } };
 }
