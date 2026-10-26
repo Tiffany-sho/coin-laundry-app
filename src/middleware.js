@@ -14,8 +14,27 @@ export async function middleware(request) {
   */
   const publicAuthPaths = [];
 
+  /*
+    ログインは要るが **組織への所属は要らない**ページ。
+
+    ⚠️ **`/settings/delete-account` を外さないこと。** `/settings` で始まるので
+       下の membership 判定に掛かり、**組織未所属の人がホームへ飛ばされて
+       アカウントを削除する手段が 1 つも無くなる。**
+       削除ボタンは未所属ユーザーのホーム（JoinOrganizationHome →
+       OtherActionsCard）に出ているので、押せるのに必ず戻るという形で詰まる。
+       App Store Guideline 5.1.1(v)（アプリ内から削除を開始できること）に
+       触れるため、2026-10-26 に demo アカウントで再現して直した。
+
+    ⚠️ **ここに足すのは「自分のことだけを触るページ」に限る。** 組織の
+       データを見るページを足すと、未所属の人に他組織が見えうる。
+       認可自体は各 Server Action が自前で確かめているが、
+       この配列を増やすほどその前提に寄りかかることになる。
+  */
+  const orgOptionalPaths = ["/settings/delete-account"];
+
   const isProtected = protectedPaths.some((path) => pathname.startsWith(path));
   const isPublicAuth = publicAuthPaths.some((path) => pathname.startsWith(path));
+  const isOrgOptional = orgOptionalPaths.some((path) => pathname.startsWith(path));
 
   // 未ログインは保護ページにアクセス不可
   if (!user && isProtected && !isPublicAuth) {
@@ -24,8 +43,13 @@ export async function middleware(request) {
     return NextResponse.redirect(url);
   }
 
-  // プロフィールなし・admin以外でorgなし → ホームのみ許可
-  if (user && isProtected) {
+  /*
+    プロフィールなし・admin以外でorgなし → ホームのみ許可
+
+    ⚠️ 未ログインの判定（上）には `isOrgOptional` を掛けない。
+       アカウント削除もログインは必須。
+  */
+  if (user && isProtected && !isOrgOptional) {
     const { data: profile } = await supabase
       .from("profiles")
       .select("id, role")
