@@ -10,6 +10,9 @@
     "dev": "next dev",
     "build": "next build --turbopack",
     "start": "next start",
+    "cf-build": "opennextjs-cloudflare build",
+    "cf-preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "cf-deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "test": "vitest run",
     "test:watch": "vitest"
   },
@@ -32,7 +35,9 @@
     "write-excel-file": "^4.1.1"
   },
   "devDependencies": {
-    "vitest": "^4.1.12"
+    "@opennextjs/cloudflare": "^1.20.13",
+    "vitest": "^4.1.12",
+    "wrangler": "^4.152.0"
   },
   "overrides": {
     "cosmiconfig": {

@@ -1,0 +1,48 @@
+/*
+  Cloudflare Workers の設定。OpenNext（@opennextjs/cloudflare）で動かす。
+
+  ⚠️ **このファイルを置かないと、ビルドマシンが毎回これを自動生成する。**
+     自動生成だと Worker 名が package.json の `name`（= laundryapp）になり、
+     実在する Worker（coin-laundry-app）と食い違って
+     `Service binding 'WORKER_SELF_REFERENCE' references Worker 'laundryapp'
+     which was not found` でデプロイが落ちる（2026-10-26 に発生）。
+     名前はここで固定すること。
+
+  ⚠️ **このリポジトリは public。秘密鍵をこのファイルに書かないこと。**
+     秘密は Cloudflare 側に「Secret」種別で入れる（`wrangler secret put` か
+     ダッシュボードの Variables and Secrets）。Secret は deploy で消えないが、
+     **平文の Variable は下の `vars` で丸ごと上書きされて消える。**
+
+  ⚠️ **`NEXT_PUBLIC_*` をここに書いても効かない。**
+     Next.js がビルド時にバンドルへ焼き込むため、実行時の変数では手遅れ
+     （サーバ側のコードでも焼き込まれることを確認済み）。
+     Cloudflare の「ビルド構成」側の環境変数に入れること。
+*/
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "coin-laundry-app",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-10-26",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "binding": "ASSETS",
+    "directory": ".open-next/assets"
+  },
+  /*
+    自分自身への参照。OpenNext が内部で使う。
+    `service` は上の `name` と必ず一致させること。
+  */
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "coin-laundry-app"
+    }
+  ],
+  "observability": {
+    "enabled": true
+  },
+  /* 秘密でない設定値だけ。ここに無い平文 Variable は deploy で消える。 */
+  "vars": {
+    "STRIPE_PRO_TRIAL_DAYS": "183"
+  }
+}

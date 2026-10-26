@@ -36,6 +36,14 @@ yarn-error.log*
 # vercel
 .vercel
 
+# cloudflare / opennext
+/.open-next/
+/.wrangler/
+# ⚠️ .dev.vars は上の `.env*` に一致しない。中身は本物の秘密鍵なので必ず ignore する。
+#    このリポジトリは public。
+.dev.vars
+.dev.vars.*
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
