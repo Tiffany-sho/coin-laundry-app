@@ -41,6 +41,14 @@
     "directory": ".open-next/assets"
   },
   /*
+    next/image の最適化に使う。⚠️ **消さないこと。**
+    無いと実行時ログに `env.IMAGES binding is not defined` が延々と出て、
+    画像が最適化されないまま配信される（エラーにはならないので気づけない）。
+  */
+  "images": {
+    "binding": "IMAGES"
+  },
+  /*
     自分自身への参照。OpenNext が内部で使う。
     `service` は上の `name` と必ず一致させること。
   */
