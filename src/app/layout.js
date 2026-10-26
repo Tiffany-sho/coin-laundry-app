@@ -61,11 +61,12 @@ export const metadata = {
           ⚠️ **OG には透過 PNG を使わないこと。** Slack / X などはアルファを
              黒で塗り潰すので、ヒーローで使っている `revenue-dashboard-pc.png`
              （背景透過）をここに向けると**真っ黒のサムネ**になる。
-             白地の JPG を別に置いてある。
+             `hero-og.jpg` は LP ヒーローを 1200x630（OGP 標準の 1.91:1）に
+             収めた不透明 JPG。差し替えるときもこのサイズ・形式を守ること。
         */
-        url: "/screenshots/revenue-report-og.jpg",
-        width: 1215,
-        height: 880,
+        url: "/screenshots/hero-og.jpg",
+        width: 1200,
+        height: 630,
         alt: "Collecie - コインランドリー集金アプリ - 無料で始める",
       },
     ],
@@ -74,7 +75,7 @@ export const metadata = {
     card: "summary_large_image",
     title: `${siteName} | コインランドリー集金アプリ - 無料で始める`,
     description: siteDescription,
-    images: ["/screenshots/revenue-report-og.jpg"],
+    images: ["/screenshots/hero-og.jpg"],
   },
   alternates: {
     canonical: siteUrl,
