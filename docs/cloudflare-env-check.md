@@ -21,6 +21,38 @@ Next.js がビルド時に JS へ直接埋め込む。**Workers の実行時バ�
 （[checkout/route.js:79](../src/app/api/stripe/checkout/route.js:79)・[portal/route.js:25](../src/app/api/stripe/portal/route.js:25)）。
 それでもビルド時に焼き込まれる点は同じなので、ビルド環境に必要。
 
+### ビルド／デプロイコマンドは既定のままでは動かない
+
+Workers & Pages → `coin-laundry-app` → 設定 → ビルド。
+
+| 項目 | 設定する値 |
+|---|---|
+| ビルドコマンド | `npm run cf-build` |
+| デプロイコマンド | `npx opennextjs-cloudflare deploy` |
+
+⚠️ **素の `next build` は `.next` しか作らない。** デプロイ段が探すのは
+`.open-next/.build/open-next.config.mjs` で、これを作るのは
+`opennextjs-cloudflare build`（= `npm run cf-build`）だけ。
+ビルドコマンドが `npm run build` のままだと、必ずこれが出る:
+
+```
+ERROR Could not find compiled Open Next config, did you run the build command?
+```
+
+デプロイコマンドを `npx wrangler deploy` のままにしても OpenNext は検出されるが、
+キャッシュ投入の段が飛ばされるので `opennextjs-cloudflare deploy` を使う。
+
+### 変数を置く場所は3つに分かれる
+
+| 変数 | 置き場所 |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` / `NEXT_PUBLIC_APP_URL` | **ビルド構成**の環境変数（実行時では手遅れ。下記参照） |
+| `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` / `STRIPE_*_PRICE_ID` / `SUPABASE_SERVICE_KEY` / `SUPABASE_WEBHOOK_SECRET` / `RESEND_API_KEY` / `APPLE_APP_APPLE_ID` | Worker の **Secret** 種別 |
+| `STRIPE_PRO_TRIAL_DAYS` | [wrangler.jsonc](../wrangler.jsonc) の `vars`（版管理下） |
+
+⚠️ **平文の Variable はデプロイのたびに `wrangler.jsonc` の `vars` で上書きされて消える。**
+Secret は消えない。秘密は必ず Secret 種別で入れること。
+
 ### 秘密鍵はビルド環境には要らない（ただし初回は落ちた）
 
 `STRIPE_SECRET_KEY` / `RESEND_API_KEY` / `SUPABASE_SERVICE_KEY` はビルドに焼き込まれず、
